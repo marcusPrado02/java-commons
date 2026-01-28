@@ -22,22 +22,41 @@
     </dependencies>
   </dependencyManagement>
 
+  <properties>
+    <java.version>21</java.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.release>${java.version}</maven.compiler.release>
+
+    <!-- Keep consistent output in CI -->
+    <maven.test.redirectTestOutputToFile>false</maven.test.redirectTestOutputToFile>
+    <trimStackTrace>false</trimStackTrace>
+  </properties>
+
   <build>
     <pluginManagement>
       <plugins>
 
-        <!-- Java -->
+        <!-- Compiler -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-compiler-plugin</artifactId>
           <version>3.11.0</version>
+          <configuration>
+            <release>${maven.compiler.release}</release>
+            <encoding>${project.build.sourceEncoding}</encoding>
+          </configuration>
         </plugin>
 
-        <!-- Tests -->
+        <!-- Unit tests -->
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>3.2.5</version>
+          <configuration>
+            <useModulePath>false</useModulePath>
+            <failIfNoTests>false</failIfNoTests>
+            <trimStackTrace>${trimStackTrace}</trimStackTrace>
+          </configuration>
         </plugin>
 
         <!-- Enforcer -->
@@ -45,6 +64,31 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-enforcer-plugin</artifactId>
           <version>3.5.0</version>
+          <executions>
+            <execution>
+              <id>enforce</id>
+              <goals>
+                <goal>enforce</goal>
+              </goals>
+              <configuration>
+                <rules>
+
+                  <requireJavaVersion>
+                    <version>[21,)</version>
+                  </requireJavaVersion>
+
+                  <requireMavenVersion>
+                    <version>[3.9.0,)</version>
+                  </requireMavenVersion>
+
+                  <!-- Helps avoid "dependency hell" as repo grows -->
+                  <requireUpperBoundDeps />
+
+                </rules>
+                <fail>true</fail>
+              </configuration>
+            </execution>
+          </executions>
         </plugin>
 
       </plugins>
