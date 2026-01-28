@@ -1,4 +1,3 @@
 package com.marcusprado02.commons.kernel.ddd;
 
-public interface DomainEventRecorder {
-}
+public interface DomainEventRecorder {}

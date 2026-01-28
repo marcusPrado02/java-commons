@@ -11,7 +11,7 @@ permissions:
 
 jobs:
   build:
-    name: Build & Test
+    name: Build, Format, Architecture
     runs-on: ubuntu-latest
 
     steps:
@@ -25,5 +25,5 @@ jobs:
           java-version: "21"
           cache: maven
 
-      - name: Build (verify)
-        run: ./mvnw -q -DskipTests=false clean verify
+      - name: Maven verify
+        run: ./mvnw -DskipTests=false -e clean verify

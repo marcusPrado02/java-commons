@@ -1,4 +1,3 @@
 package com.marcusprado02.commons.kernel.errors;
 
-public final class ProblemDetail {
-}
+public final class ProblemDetail {}

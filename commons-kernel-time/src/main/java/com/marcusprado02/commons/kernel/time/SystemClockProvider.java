@@ -1,4 +1,3 @@
 package com.marcusprado02.commons.kernel.time;
 
-public final class SystemClockProvider implements ClockProvider {
-}
+public final class SystemClockProvider implements ClockProvider {}

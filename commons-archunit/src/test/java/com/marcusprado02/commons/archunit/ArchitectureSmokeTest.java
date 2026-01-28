@@ -4,8 +4,8 @@ import org.junit.jupiter.api.Test;
 
 class ArchitectureSmokeTest {
 
-    @Test
-    void smoke() {
-        // no-op
-    }
+  @Test
+  void smoke() {
+    // no-op
+  }
 }
