@@ -40,3 +40,8 @@
 ## OpenTelemetry
 - commons-adapters-otel: OpenTelemetry implementation of TracerFacade
 - commons-spring-starter-otel: plugs OTel Spring Boot starter + exposes TracerFacade bean
+
+## Resilience
+- commons-app-resilience: framework-agnostic policies + ResilienceExecutor contract
+- commons-adapters-resilience4j: Resilience4j implementation of ResilienceExecutor
+- commons-spring-starter-resilience: auto-config exposing ResilienceExecutor bean (Resilience4j or noop)
