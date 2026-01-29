@@ -52,3 +52,8 @@
 
 ## Persistence (JPA)
 - commons-adapters-persistence-jpa: JPA entities + adapters for OutboxRepositoryPort and IdempotencyStorePort
+
+## Spring Starters (Outbox / Idempotency)
+- commons-spring-starter-idempotency: auto-config JPA IdempotencyStorePort + DefaultIdempotentExecutor
+- commons-spring-starter-outbox: auto-config JPA OutboxRepositoryPort + DefaultOutboxProcessor (requires OutboxPublisherPort)
+  - optional scheduler via commons.outbox.scheduling.enabled=true

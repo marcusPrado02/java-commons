@@ -1,0 +1,3 @@
+com.marcusprado02.commons.starter.outbox.OutboxAutoConfiguration
+com.marcusprado02.commons.starter.outbox.OutboxPropertiesBeanConfiguration
+com.marcusprado02.commons.starter.outbox.scheduling.OutboxSchedulerConfiguration
