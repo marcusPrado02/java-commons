@@ -29,3 +29,10 @@
 - commons-testkit-core: test fixtures, ids, clocks, shared assertions
 - commons-archunit: architectural rule sets (to be applied by services)
 - commons-quality: naming/public-api/dependency guardrails
+
+## Adapters
+- commons-adapters-web: framework-agnostic API response primitives
+- commons-adapters-web-spring: Spring Web filters, exception advice, versioning hooks
+
+## Spring Starters
+- commons-spring-starter-observability: auto-config for correlation/request context filters
