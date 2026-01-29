@@ -1,3 +1,5 @@
 package com.marcusprado02.commons.adapters.web;
 
-public final class PageResponse<T> {}
+import java.util.List;
+
+public record PageResponse<T>(List<T> items, int page, int size, long totalItems, int totalPages) {}
