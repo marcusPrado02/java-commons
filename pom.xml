@@ -25,6 +25,14 @@
     <module>commons-kernel-result</module>
     <module>commons-kernel-time</module>
 
+    <module>commons-ports-persistence</module>
+    <module>commons-ports-messaging</module>
+    <module>commons-ports-http</module>
+    <module>commons-ports-cache</module>
+    <module>commons-ports-secrets</module>
+    <module>commons-ports-files</module>
+
+
     <module>commons-app-observability</module>
 
     <module>commons-testkit-core</module>

@@ -13,6 +13,15 @@
 - commons-kernel-errors: error model + exception hierarchy
 - commons-kernel-ddd: DDD base types (Entity, AggregateRoot, ValueObject, DomainEvent)
 
+## Ports (Hexagonal)
+- commons-ports-persistence: paging/sorting/filtering and repository ports (framework-free)
+- commons-ports-messaging: message envelope/headers and publisher/consumer ports
+- commons-ports-http: http client port + request/response primitives
+- commons-ports-cache: cache port primitives
+- commons-ports-secrets: secret store port primitives
+- commons-ports-files: file storage port primitives
+
+
 ## Application
 - commons-app-observability: correlation/request context, logging facade, metrics/tracing facade
 
