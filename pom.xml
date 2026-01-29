@@ -43,6 +43,8 @@
     <module>commons-adapters-otel</module>
     <module>commons-spring-starter-otel</module>
 
+    <module>commons-adapters-persistence-jpa</module>
+
     <module>commons-app-observability</module>
     <module>commons-app-outbox</module>
     <module>commons-app-idempotency</module>

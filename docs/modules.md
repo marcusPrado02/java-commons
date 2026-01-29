@@ -49,3 +49,6 @@
 ## EDA / Reliability
 - commons-app-outbox: outbox model + ports + default processor (framework-agnostic)
 - commons-app-idempotency: idempotency model + store port + default executor (framework-agnostic)
+
+## Persistence (JPA)
+- commons-adapters-persistence-jpa: JPA entities + adapters for OutboxRepositoryPort and IdempotencyStorePort
