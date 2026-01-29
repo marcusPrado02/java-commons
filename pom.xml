@@ -43,6 +43,9 @@
     <module>commons-adapters-web-spring</module>
     <module>commons-spring-starter-observability</module>
 
+    <module>commons-adapters-otel</module>
+    <module>commons-spring-starter-otel</module>
+
   </modules>
 
   <properties>

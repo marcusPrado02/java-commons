@@ -14,6 +14,10 @@
         <!-- Stable and widely compatible -->
         <spring.boot.version>3.5.10</spring.boot.version>
         <archunit.version>1.4.1</archunit.version>
+
+        <!-- OpenTelemetry -->
+        <otel.version>1.58.0</otel.version>
+        <otel.instrumentation.version>2.24.0</otel.instrumentation.version>
     </properties>
 
 
@@ -67,6 +71,21 @@
                 <scope>import</scope>
             </dependency>
 
+            <!-- OpenTelemetry API/SDK BOM -->
+            <dependency>
+                <groupId>io.opentelemetry</groupId>
+                <artifactId>opentelemetry-bom</artifactId>
+                <version>${otel.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- OTel Spring Boot starter (instrumentation) -->
+            <dependency>
+                <groupId>io.opentelemetry.instrumentation</groupId>
+                <artifactId>opentelemetry-spring-boot-starter</artifactId>
+                <version>${otel.instrumentation.version}</version>
+            </dependency>
 
         </dependencies>
     </dependencyManagement>

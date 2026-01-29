@@ -36,3 +36,7 @@
 
 ## Spring Starters
 - commons-spring-starter-observability: auto-config for correlation/request context filters
+
+## OpenTelemetry
+- commons-adapters-otel: OpenTelemetry implementation of TracerFacade
+- commons-spring-starter-otel: plugs OTel Spring Boot starter + exposes TracerFacade bean

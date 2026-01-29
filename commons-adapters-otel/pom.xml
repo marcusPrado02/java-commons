@@ -1,0 +1,27 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.marcusprado02.commons</groupId>
+    <artifactId>commons-parent</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <relativePath>../commons-parent/pom.xml</relativePath>
+  </parent>
+
+  <artifactId>commons-adapters-otel</artifactId>
+
+  <dependencies>
+    <dependency>
+      <groupId>com.marcusprado02.commons</groupId>
+      <artifactId>commons-app-observability</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- OTel API (version from opentelemetry-bom) -->
+    <dependency>
+      <groupId>io.opentelemetry</groupId>
+      <artifactId>opentelemetry-api</artifactId>
+    </dependency>
+  </dependencies>
+
+</project>
