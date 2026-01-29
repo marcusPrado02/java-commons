@@ -45,3 +45,7 @@
 - commons-app-resilience: framework-agnostic policies + ResilienceExecutor contract
 - commons-adapters-resilience4j: Resilience4j implementation of ResilienceExecutor
 - commons-spring-starter-resilience: auto-config exposing ResilienceExecutor bean (Resilience4j or noop)
+
+## EDA / Reliability
+- commons-app-outbox: outbox model + ports + default processor (framework-agnostic)
+- commons-app-idempotency: idempotency model + store port + default executor (framework-agnostic)

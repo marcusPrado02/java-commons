@@ -32,9 +32,6 @@
     <module>commons-ports-secrets</module>
     <module>commons-ports-files</module>
 
-
-    <module>commons-app-observability</module>
-
     <module>commons-testkit-core</module>
     <module>commons-archunit</module>
     <module>commons-quality</module>
@@ -45,6 +42,10 @@
 
     <module>commons-adapters-otel</module>
     <module>commons-spring-starter-otel</module>
+
+    <module>commons-app-observability</module>
+    <module>commons-app-outbox</module>
+    <module>commons-app-idempotency</module>
 
   </modules>
 
