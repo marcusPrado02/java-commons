@@ -1,16 +1,11 @@
 package com.marcusprado02.commons.kernel.errors;
 
-public class TechnicalException extends RuntimeException {
-
-  public TechnicalException() {
-    super();
+public final class TechnicalException extends DomainException {
+  public TechnicalException(Problem problem) {
+    super(problem);
   }
 
-  public TechnicalException(String message) {
-    super(message);
-  }
-
-  public TechnicalException(String message, Throwable cause) {
-    super(message, cause);
+  public TechnicalException(Problem problem, Throwable cause) {
+    super(problem, cause);
   }
 }

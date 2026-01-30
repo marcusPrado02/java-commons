@@ -1,16 +1,11 @@
 package com.marcusprado02.commons.kernel.errors;
 
-public class BusinessException extends DomainException {
-
-  public BusinessException() {
-    super();
+public final class BusinessException extends DomainException {
+  public BusinessException(Problem problem) {
+    super(problem);
   }
 
-  public BusinessException(String message) {
-    super(message);
-  }
-
-  public BusinessException(String message, Throwable cause) {
-    super(message, cause);
+  public BusinessException(Problem problem, Throwable cause) {
+    super(problem, cause);
   }
 }

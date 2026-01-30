@@ -10,12 +10,28 @@
     <artifactId>commons-parent</artifactId>
     <packaging>pom</packaging>
 
+    <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>com.marcusprado02.commons</groupId>
                 <artifactId>commons-bom</artifactId>
                 <version>${project.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit</groupId>
+                <artifactId>junit-bom</artifactId>
+                <version>${junit.jupiter.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -30,6 +46,9 @@
         <!-- Keep consistent output in CI -->
         <maven.test.redirectTestOutputToFile>false</maven.test.redirectTestOutputToFile>
         <trimStackTrace>false</trimStackTrace>
+
+        <junit.jupiter.version>5.10.2</junit.jupiter.version>
+        <maven.surefire.version>3.2.5</maven.surefire.version>
     </properties>
 
     <build>

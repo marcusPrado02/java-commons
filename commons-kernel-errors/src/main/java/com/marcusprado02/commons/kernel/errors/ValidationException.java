@@ -1,16 +1,11 @@
 package com.marcusprado02.commons.kernel.errors;
 
-public class ValidationException extends DomainException {
-
-  public ValidationException() {
-    super();
+public final class ValidationException extends DomainException {
+  public ValidationException(Problem problem) {
+    super(problem);
   }
 
-  public ValidationException(String message) {
-    super(message);
-  }
-
-  public ValidationException(String message, Throwable cause) {
-    super(message, cause);
+  public ValidationException(Problem problem, Throwable cause) {
+    super(problem, cause);
   }
 }

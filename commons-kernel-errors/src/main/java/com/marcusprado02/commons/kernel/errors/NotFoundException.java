@@ -1,16 +1,11 @@
 package com.marcusprado02.commons.kernel.errors;
 
-public class NotFoundException extends DomainException {
-
-  public NotFoundException() {
-    super();
+public final class NotFoundException extends DomainException {
+  public NotFoundException(Problem problem) {
+    super(problem);
   }
 
-  public NotFoundException(String message) {
-    super(message);
-  }
-
-  public NotFoundException(String message, Throwable cause) {
-    super(message, cause);
+  public NotFoundException(Problem problem, Throwable cause) {
+    super(problem, cause);
   }
 }

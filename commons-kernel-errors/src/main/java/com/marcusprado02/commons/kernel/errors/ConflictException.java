@@ -1,16 +1,11 @@
 package com.marcusprado02.commons.kernel.errors;
 
-public class ConflictException extends DomainException {
-
-  public ConflictException() {
-    super();
+public final class ConflictException extends DomainException {
+  public ConflictException(Problem problem) {
+    super(problem);
   }
 
-  public ConflictException(String message) {
-    super(message);
-  }
-
-  public ConflictException(String message, Throwable cause) {
-    super(message, cause);
+  public ConflictException(Problem problem, Throwable cause) {
+    super(problem, cause);
   }
 }
