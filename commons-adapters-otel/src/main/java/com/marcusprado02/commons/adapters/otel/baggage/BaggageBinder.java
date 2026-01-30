@@ -29,11 +29,7 @@ public final class BaggageBinder {
     return builder.build();
   }
 
-  private static void putIfNotBlank(
-      Object builder,
-      String key,
-      String value
-  ) {
+  private static void putIfNotBlank(Object builder, String key, String value) {
     if (value == null || value.isBlank()) {
       return;
     }
