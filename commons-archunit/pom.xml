@@ -13,13 +13,19 @@
   <dependencies>
     <dependency>
       <groupId>com.tngtech.archunit</groupId>
-      <artifactId>archunit-junit5-engine</artifactId>
+      <artifactId>archunit-junit5-api</artifactId>
     </dependency>
 
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
     </dependency>
+
+     <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-kernel-ddd</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
   </dependencies>
 
 </project>
