@@ -24,6 +24,9 @@ public final class SpringHttpProblemMapper implements HttpProblemMapper {
         status,
         problem.code().value(),
         problem.message(),
-        Map.of("severity", problem.severity().name()));
+        Map.of(
+            "category", problem.category().name(),
+            "severity", problem.severity().name()),
+        null);
   }
 }

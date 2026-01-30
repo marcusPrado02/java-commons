@@ -12,8 +12,7 @@ public final class HttpResultsWithContext {
       HttpResultMapperWithContext mapper,
       String correlationId,
       String tenantId,
-      String actorId
-  ) {
+      String actorId) {
     Objects.requireNonNull(result, "result");
     Objects.requireNonNull(mapper, "mapper");
 

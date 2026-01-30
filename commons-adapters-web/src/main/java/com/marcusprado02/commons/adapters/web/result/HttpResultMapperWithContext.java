@@ -6,23 +6,11 @@ import com.marcusprado02.commons.kernel.result.Result;
 public interface HttpResultMapperWithContext {
 
   <T> HttpResultResponseWithContext mapOk(
-      Result.Ok<T> ok,
-      String correlationId,
-      String tenantId,
-      String actorId
-  );
+      Result.Ok<T> ok, String correlationId, String tenantId, String actorId);
 
   HttpResultResponseWithContext mapFail(
-      Result.Fail<?> fail,
-      String correlationId,
-      String tenantId,
-      String actorId
-  );
+      Result.Fail<?> fail, String correlationId, String tenantId, String actorId);
 
   HttpResultResponseWithContext mapProblem(
-      Problem problem,
-      String correlationId,
-      String tenantId,
-      String actorId
-  );
+      Problem problem, String correlationId, String tenantId, String actorId);
 }
