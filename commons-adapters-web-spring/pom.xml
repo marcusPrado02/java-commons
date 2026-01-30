@@ -19,6 +19,12 @@
 
         <dependency>
             <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-platform</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
             <artifactId>commons-app-observability</artifactId>
             <version>${project.version}</version>
         </dependency>

@@ -12,7 +12,6 @@ public final class HttpResults {
     Objects.requireNonNull(mapper, "mapper");
 
     if (result.isOk()) {
-      @SuppressWarnings("unchecked")
       Result.Ok<T> ok = (Result.Ok<T>) result;
       return mapper.mapOk(ok);
     }
