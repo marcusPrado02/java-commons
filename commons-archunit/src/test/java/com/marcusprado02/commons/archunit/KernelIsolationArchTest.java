@@ -1,33 +1,42 @@
 package com.marcusprado02.commons.archunit;
 
-import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
-
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
-import com.tngtech.archunit.lang.ArchRule;
+import com.tngtech.archunit.core.importer.ImportOption;
+
 import org.junit.jupiter.api.Test;
 
-class KernelIsolationArchTest {
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
-  private static final String KERNEL = "com.marcusprado02.commons.kernel..";
+public class KernelIsolationArchTest {
 
-  @Test
-  void kernel_must_not_depend_on_framework_packages() {
-    JavaClasses kernelClasses = new ClassFileImporter().importPackages(KERNEL);
+    private final JavaClasses kernelClasses =
+        new ClassFileImporter()
+            .withImportOption(new ImportOption.DoNotIncludeTests())
+            .withImportOption(new ImportOption.DoNotIncludeJars()
+            )
+            // importe APENAS os pacotes de kernel
+            .importPackages(
+                "com.marcusprado02.commons.kernel.core",
+                "com.marcusprado02.commons.kernel.ddd",
+                "com.marcusprado02.commons.kernel.errors",
+                "com.marcusprado02.commons.kernel.result",
+                "com.marcusprado02.commons.kernel.time"
+            );
 
-    ArchRule rule =
+    @Test
+    void kernel_must_not_depend_on_framework_packages() {
         noClasses()
-            .should()
-            .dependOnClassesThat()
+            .that().resideInAnyPackage("com.marcusprado02.commons.kernel..")
+            .should().dependOnClassesThat()
             .resideInAnyPackage(
                 "org.springframework..",
                 "jakarta.persistence..",
                 "javax.persistence..",
-                "org.hibernate..",
+                "com.fasterxml.jackson..",
                 "org.slf4j..",
-                "com.fasterxml.jackson..");
-
-    // enquanto o kernel não estiver no classpath do módulo de testes, não explode por vazio
-    rule.allowEmptyShould(true).check(kernelClasses);
-  }
+                "org.hibernate.."
+            )
+            .check(kernelClasses);
+    }
 }
