@@ -10,19 +10,17 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
 public class KernelIsolationArchTest {
 
-    private final JavaClasses kernelClasses =
-        new ClassFileImporter()
-            .withImportOption(new ImportOption.DoNotIncludeTests())
-            .withImportOption(new ImportOption.DoNotIncludeJars()
-            )
-            // importe APENAS os pacotes de kernel
-            .importPackages(
-                "com.marcusprado02.commons.kernel.core",
-                "com.marcusprado02.commons.kernel.ddd",
-                "com.marcusprado02.commons.kernel.errors",
-                "com.marcusprado02.commons.kernel.result",
-                "com.marcusprado02.commons.kernel.time"
-            );
+    private final JavaClasses kernelClasses = new ClassFileImporter()
+        .withImportOption(new ImportOption.DoNotIncludeTests())
+        .withImportOption(new ImportOption.DoNotIncludeArchives())
+        .withImportOption(new ImportOption.DoNotIncludeJars())
+        .importPackages(
+            "com.marcusprado02.commons.kernel.core",
+            "com.marcusprado02.commons.kernel.ddd",
+            "com.marcusprado02.commons.kernel.errors",
+            "com.marcusprado02.commons.kernel.result",
+            "com.marcusprado02.commons.kernel.time"
+        );
 
     @Test
     void kernel_must_not_depend_on_framework_packages() {
