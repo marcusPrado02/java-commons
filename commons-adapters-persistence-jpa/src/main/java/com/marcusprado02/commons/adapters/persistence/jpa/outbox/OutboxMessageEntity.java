@@ -7,12 +7,16 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Id;
+import jakarta.persistence.Index;
 import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import java.time.Instant;
 
 @Entity
-@Table(name = "commons_outbox")
+@Table(name = "commons_outbox",indexes = {
+    @Index(name = "idx_outbox_status", columnList = "status"),
+    @Index(name = "idx_outbox_occurred_at", columnList = "occurredAt")
+})
 public class OutboxMessageEntity {
 
   @Id
