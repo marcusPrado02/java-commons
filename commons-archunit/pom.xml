@@ -20,12 +20,38 @@
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
         </dependency>
-
+        <!-- Kernel modules -->
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-kernel-core</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>com.marcusprado02.commons</groupId>
             <artifactId>commons-kernel-ddd</artifactId>
-            <version>${project.parent.version}</version>
+            <version>${project.version}</version>
+            <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-kernel-errors</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-kernel-result</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-kernel-time</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
 </project>
