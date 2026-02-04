@@ -12,7 +12,7 @@
 
     <properties>
         <!-- Stable and widely compatible -->
-        <spring.boot.version>3.5.10</spring.boot.version>
+        <spring.boot.version>4.0.2</spring.boot.version>
         <archunit.version>1.4.1</archunit.version>
         <junit.jupiter.version>6.0.2</junit.jupiter.version>
 
