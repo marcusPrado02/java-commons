@@ -11,47 +11,52 @@
     <artifactId>commons-archunit</artifactId>
 
     <dependencies>
+        <!-- ArchUnit annotations API (for @AnalyzeClasses, @ArchTest, etc) -->
         <dependency>
             <groupId>com.tngtech.archunit</groupId>
             <artifactId>archunit-junit5-api</artifactId>
+            <scope>test</scope>
         </dependency>
 
+        <!-- ArchUnit core (rules/importer) -->
+        <dependency>
+            <groupId>com.tngtech.archunit</groupId>
+            <artifactId>archunit</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- JUnit -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
         </dependency>
         <!-- Kernel modules -->
         <dependency>
             <groupId>com.marcusprado02.commons</groupId>
             <artifactId>commons-kernel-core</artifactId>
-            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.marcusprado02.commons</groupId>
             <artifactId>commons-kernel-ddd</artifactId>
-            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.marcusprado02.commons</groupId>
             <artifactId>commons-kernel-errors</artifactId>
-            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.marcusprado02.commons</groupId>
             <artifactId>commons-kernel-result</artifactId>
-            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.marcusprado02.commons</groupId>
             <artifactId>commons-kernel-time</artifactId>
-            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
-
     </dependencies>
 
 </project>
