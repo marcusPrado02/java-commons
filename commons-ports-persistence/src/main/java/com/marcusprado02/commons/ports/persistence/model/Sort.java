@@ -1,12 +1,10 @@
 package com.marcusprado02.commons.ports.persistence.model;
 
-/**
- * Sort representation for ordering query results.
- * ex: field ASC
- */
+/** Sort representation for ordering query results. ex: field ASC */
 public record Sort(String field, Direction direction) {
 
-    public enum Direction {
-        ASC, DESC
-    }
+  public enum Direction {
+    ASC,
+    DESC
+  }
 }
