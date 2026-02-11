@@ -4,12 +4,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.marcusprado02.commons.adapters.persistence.jpa.factory.JpaRepositoryFactory;
 import com.marcusprado02.commons.ports.persistence.contract.PageableRepository;
+import com.marcusprado02.commons.ports.persistence.model.Order;
 import com.marcusprado02.commons.ports.persistence.model.PageRequest;
 import com.marcusprado02.commons.ports.persistence.model.PageResult;
+import com.marcusprado02.commons.ports.persistence.model.Sort;
 import com.marcusprado02.commons.ports.persistence.specification.FilterOperator;
 import com.marcusprado02.commons.ports.persistence.specification.SearchCriteria;
 import com.marcusprado02.commons.ports.persistence.specification.SearchFilter;
-
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import java.util.Map;
@@ -90,12 +91,13 @@ class PersistencePostgreTest {
     // Query page 0, size 2
     var pageReq = new PageRequest(0, 2);
 
-    SearchCriteria criteria = SearchCriteria.of(
-        SearchFilter.of("status", FilterOperator.EQ, "ACTIVE"),
-        SearchFilter.of("name", FilterOperator.LIKE, "Jo%")
-    );
+    SearchCriteria criteria =
+        SearchCriteria.of(
+            SearchFilter.of("status", FilterOperator.EQ, "ACTIVE"),
+            SearchFilter.of("name", FilterOperator.LIKE, "Jo%"));
 
-    PageResult<MyEntity> result = ((PageableRepository<MyEntity, Long>) repo).findAll(pageReq, criteria);
+    PageResult<MyEntity> result =
+        ((PageableRepository<MyEntity, Long>) repo).findAll(pageReq, criteria);
 
     assertEquals(2, result.content().size());
     assertTrue(result.totalElements() >= 3);

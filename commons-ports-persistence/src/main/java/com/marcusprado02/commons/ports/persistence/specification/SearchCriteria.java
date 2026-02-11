@@ -5,17 +5,17 @@ import java.util.List;
 
 public class SearchCriteria {
 
-    private final List<SearchFilter> filters;
+  private final List<SearchFilter> filters;
 
-    private SearchCriteria(List<SearchFilter> filters) {
-        this.filters = filters;
-    }
+  private SearchCriteria(List<SearchFilter> filters) {
+    this.filters = filters;
+  }
 
-    public List<SearchFilter> filters() {
-        return filters;
-    }
+  public List<SearchFilter> filters() {
+    return filters;
+  }
 
-    public static SearchCriteria of(SearchFilter... filters) {
-        return new SearchCriteria(Arrays.asList(filters));
-    }
+  public static SearchCriteria of(SearchFilter... filters) {
+    return new SearchCriteria(Arrays.asList(filters));
+  }
 }

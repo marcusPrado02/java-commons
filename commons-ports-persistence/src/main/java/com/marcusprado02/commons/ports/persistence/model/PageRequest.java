@@ -7,7 +7,7 @@ import java.util.Objects;
  * Pagination request: page: zero-based page index size: number of items per page sort: list of
  * sorting criteria filters: list of filtering criteria
  */
-public record PageRequest(int page, int size, List<Sort> sort, List<Filter> filters) {
+public record PageRequest(int page, int size, List<Order> sort, List<Filter> filters) {
 
   public PageRequest {
     if (page < 0) throw new IllegalArgumentException("page must be >= 0");
