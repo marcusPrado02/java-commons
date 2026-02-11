@@ -17,7 +17,7 @@
         <junit.jupiter.version>6.0.2</junit.jupiter.version>
 
         <!-- OpenTelemetry -->
-        <otel.version>1.58.0</otel.version>
+        <otel.version>1.59.0</otel.version>
         <otel.instrumentation.version>2.24.0</otel.instrumentation.version>
         <jakarta.persistence.version>3.1.0</jakarta.persistence.version>
     </properties>
