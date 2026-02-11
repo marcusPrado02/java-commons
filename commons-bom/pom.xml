@@ -19,11 +19,18 @@
         <!-- OpenTelemetry -->
         <otel.version>1.58.0</otel.version>
         <otel.instrumentation.version>2.24.0</otel.instrumentation.version>
+        <jakarta.persistence.version>3.1.0</jakarta.persistence.version>
     </properties>
 
 
     <dependencyManagement>
         <dependencies>
+
+            <dependency>
+                <groupId>jakarta.persistence</groupId>
+                <artifactId>jakarta.persistence-api</artifactId>
+                <version>${jakarta.persistence.version}</version>
+            </dependency>
 
             <!-- Logging -->
             <dependency>

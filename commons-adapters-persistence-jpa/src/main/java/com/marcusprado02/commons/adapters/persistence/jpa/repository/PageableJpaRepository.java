@@ -4,8 +4,13 @@ import com.marcusprado02.commons.adapters.persistence.jpa.base.BaseGenericReposi
 import com.marcusprado02.commons.ports.persistence.contract.PageableRepository;
 import com.marcusprado02.commons.ports.persistence.model.PageRequest;
 import com.marcusprado02.commons.ports.persistence.model.PageResult;
+import com.marcusprado02.commons.ports.persistence.specification.SearchCriteria;
+import com.marcusprado02.commons.ports.persistence.specification.Specification;
+import com.marcusprado02.commons.ports.persistence.specification.SpecificationBuilder;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import java.util.List;
@@ -23,27 +28,42 @@ public class PageableJpaRepository<E, ID> extends BaseGenericRepository<E, ID>
     return this;
   }
 
-  @Override
-  public PageResult<E> findAll(PageRequest pageRequest) {
-    var cb = entityManager.getCriteriaBuilder();
+    @Override
+    public PageResult<E> findAll(PageRequest pageRequest, Specification<E> specification) {
 
-    // Build count query
-    CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
-    Root<E> countRoot = countQuery.from(getEntityClass());
-    countQuery.select(cb.count(countRoot));
-    long total = entityManager.createQuery(countQuery).getSingleResult();
+        CriteriaBuilder cb = entityManager.getCriteriaBuilder();
 
-    // Build select query
-    CriteriaQuery<E> criteriaQuery = cb.createQuery(getEntityClass());
-    Root<E> root = criteriaQuery.from(getEntityClass());
-    criteriaQuery.select(root);
+        // count
+        CriteriaQuery<Long> countQuery = cb.createQuery(Long.class);
+        Root<E> countRoot = countQuery.from(getEntityClass());
+        countQuery
+            .select(cb.count(countRoot))
+            .where(specification.toPredicate(countRoot, countQuery, cb));
+        long total = entityManager.createQuery(countQuery).getSingleResult();
 
-    TypedQuery<E> typedQuery = entityManager.createQuery(criteriaQuery);
-    typedQuery.setFirstResult(pageRequest.page() * pageRequest.size());
-    typedQuery.setMaxResults(pageRequest.size());
+        // select
+        CriteriaQuery<E> selectQuery = cb.createQuery(getEntityClass());
+        Root<E> root = selectQuery.from(getEntityClass());
+        selectQuery.select(root).where(specification.toPredicate(root, selectQuery, cb));
 
-    List<E> content = typedQuery.getResultList();
+        TypedQuery<E> typedQuery = entityManager.createQuery(selectQuery);
+        typedQuery.setFirstResult(pageRequest.page() * pageRequest.size());
+        typedQuery.setMaxResults(pageRequest.size());
 
-    return new PageResult<>(content, total, pageRequest.page(), pageRequest.size());
-  }
+        List<E> content = typedQuery.getResultList();
+
+        return new PageResult<>(content, total, pageRequest.page(), pageRequest.size());
+    }
+
+    @Override
+    public PageResult<E> findAll(PageRequest pageRequest,
+                                SearchCriteria criteria) {
+
+        Specification<E> spec = new SpecificationBuilder<E>()
+                .build(criteria);
+
+        return findAll(pageRequest, spec);
+    }
+
+
 }
