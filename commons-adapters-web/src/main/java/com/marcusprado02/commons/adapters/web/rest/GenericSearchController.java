@@ -5,18 +5,18 @@ import com.marcusprado02.commons.ports.persistence.model.PageRequest;
 import com.marcusprado02.commons.ports.persistence.model.PageResult;
 import com.marcusprado02.commons.ports.persistence.model.Sort;
 import com.marcusprado02.commons.ports.persistence.specification.SearchCriteria;
-
 import java.util.Map;
 import java.util.Objects;
 
 /**
- * Framework-agnostic generic search controller.
- * Handles dynamic filtering, pagination, and sorting via query parameters.
+ * Framework-agnostic generic search controller. Handles dynamic filtering, pagination, and sorting
+ * via query parameters.
  *
- * <p>This class is NOT tied to any web framework (Spring, JAX-RS, etc.).
- * It provides the core logic for parsing query params and executing searches.
+ * <p>This class is NOT tied to any web framework (Spring, JAX-RS, etc.). It provides the core logic
+ * for parsing query params and executing searches.
  *
  * <p>Usage example in a framework-specific controller:
+ *
  * <pre>
  * var controller = new GenericSearchController("/users", userRepository);
  * var response = controller.search(queryParams);
@@ -79,11 +79,7 @@ public class GenericSearchController<E, ID> {
 
     // Map to response DTO
     return new PageableResponse<>(
-        pageResult.content(),
-        pageResult.totalElements(),
-        pageResult.page(),
-        pageResult.size()
-    );
+        pageResult.content(), pageResult.totalElements(), pageResult.page(), pageResult.size());
   }
 
   /**

@@ -3,16 +3,12 @@ package com.marcusprado02.commons.adapters.web.rest;
 import java.util.List;
 
 /**
- * Framework-agnostic pageable response for REST APIs.
- * Maps domain PageResult to a simple DTO structure.
+ * Framework-agnostic pageable response for REST APIs. Maps domain PageResult to a simple DTO
+ * structure.
  *
  * @param <T> the type of content elements
  */
-public record PageableResponse<T>(
-    List<T> content,
-    long totalElements,
-    int page,
-    int size) {
+public record PageableResponse<T>(List<T> content, long totalElements, int page, int size) {
 
   public PageableResponse {
     if (content == null) {

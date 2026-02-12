@@ -5,15 +5,15 @@ import com.marcusprado02.commons.ports.persistence.model.Sort;
 import com.marcusprado02.commons.ports.persistence.specification.FilterOperator;
 import com.marcusprado02.commons.ports.persistence.specification.SearchCriteria;
 import com.marcusprado02.commons.ports.persistence.specification.SearchFilter;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Utility class to parse query parameters into domain objects.
- * Handles filter and sort parsing in a null-safe, defensive manner.
+ * Utility class to parse query parameters into domain objects. Handles filter and sort parsing in a
+ * null-safe, defensive manner.
  *
  * <p>Filter format: {@code ?filter=name:eq:Felipe,age:gt:18}
+ *
  * <p>Sort format: {@code ?sort=name:asc,age:desc}
  */
 public final class QueryParamsParser {

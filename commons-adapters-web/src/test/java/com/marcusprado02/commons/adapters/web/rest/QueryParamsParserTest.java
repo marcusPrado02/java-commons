@@ -1,13 +1,13 @@
 package com.marcusprado02.commons.adapters.web.rest;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.marcusprado02.commons.ports.persistence.model.Order;
 import com.marcusprado02.commons.ports.persistence.model.Sort;
 import com.marcusprado02.commons.ports.persistence.specification.FilterOperator;
 import com.marcusprado02.commons.ports.persistence.specification.SearchCriteria;
 import com.marcusprado02.commons.ports.persistence.specification.SearchFilter;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class QueryParamsParserTest {
 
@@ -60,7 +60,8 @@ class QueryParamsParserTest {
   @Test
   void parseFilters_allOperators_shouldParseCorrectly() {
     // Given
-    String filterParam = "f1:eq:v1,f2:neq:v2,f3:like:v3,f4:gt:v4,f5:lt:v5,f6:gte:v6,f7:lte:v7,f8:in:v8";
+    String filterParam =
+        "f1:eq:v1,f2:neq:v2,f3:like:v3,f4:gt:v4,f5:lt:v5,f6:gte:v6,f7:lte:v7,f8:in:v8";
 
     // When
     SearchCriteria result = QueryParamsParser.parseFilters(filterParam);

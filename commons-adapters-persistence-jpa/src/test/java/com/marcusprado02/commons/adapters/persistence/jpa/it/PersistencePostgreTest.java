@@ -4,10 +4,8 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.marcusprado02.commons.adapters.persistence.jpa.factory.JpaRepositoryFactory;
 import com.marcusprado02.commons.ports.persistence.contract.PageableRepository;
-import com.marcusprado02.commons.ports.persistence.model.Order;
 import com.marcusprado02.commons.ports.persistence.model.PageRequest;
 import com.marcusprado02.commons.ports.persistence.model.PageResult;
-import com.marcusprado02.commons.ports.persistence.model.Sort;
 import com.marcusprado02.commons.ports.persistence.specification.FilterOperator;
 import com.marcusprado02.commons.ports.persistence.specification.SearchCriteria;
 import com.marcusprado02.commons.ports.persistence.specification.SearchFilter;
