@@ -96,3 +96,5 @@ docker-compose.override.yml
 # Git
 ############################
 .git-rewrite/
+
+BACKLOG.md
