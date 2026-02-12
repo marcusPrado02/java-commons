@@ -36,18 +36,27 @@
     <module>commons-archunit</module>
     <module>commons-quality</module>
 
-    <module>commons-adapters-web</module>
-    <module>commons-adapters-web-spring</module>
-    <module>commons-spring-starter-observability</module>
-
-    <module>commons-adapters-otel</module>
-    <module>commons-spring-starter-otel</module>
-
-    <module>commons-adapters-persistence-jpa</module>
-
     <module>commons-app-observability</module>
+    <module>commons-app-resilience</module>
     <module>commons-app-outbox</module>
     <module>commons-app-idempotency</module>
+
+    <module>commons-adapters-web</module>
+    <module>commons-adapters-web-spring</module>
+    <module>commons-adapters-web-spring-webflux</module>
+
+    <module>commons-adapters-otel</module>
+
+    <module>commons-adapters-resilience4j</module>
+
+    <module>commons-adapters-persistence-jpa</module>
+    <module>commons-adapters-persistence-inmemory</module>
+
+    <module>commons-spring-starter-observability</module>
+    <module>commons-spring-starter-otel</module>
+    <module>commons-spring-starter-resilience</module>
+    <module>commons-spring-starter-outbox</module>
+    <module>commons-spring-starter-idempotency</module>
 
   </modules>
 

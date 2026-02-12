@@ -11,16 +11,16 @@ import org.springframework.context.annotation.Bean;
 @AutoConfiguration
 public class ResilienceAutoConfiguration {
 
-    @Bean
-    @ConditionalOnMissingBean(ResilienceExecutor.class)
-    @ConditionalOnClass(name = "io.github.resilience4j.retry.Retry")
-    public ResilienceExecutor resilienceExecutor() {
-        return new Resilience4jExecutor();
-    }
+  @Bean
+  @ConditionalOnMissingBean(ResilienceExecutor.class)
+  @ConditionalOnClass(name = "io.github.resilience4j.retry.Retry")
+  public ResilienceExecutor resilienceExecutor() {
+    return new Resilience4jExecutor();
+  }
 
-    @Bean
-    @ConditionalOnMissingBean(ResilienceExecutor.class)
-    public ResilienceExecutor noopResilienceExecutor() {
-        return new NoopResilienceExecutor();
-    }
+  @Bean
+  @ConditionalOnMissingBean(ResilienceExecutor.class)
+  public ResilienceExecutor noopResilienceExecutor() {
+    return new NoopResilienceExecutor();
+  }
 }

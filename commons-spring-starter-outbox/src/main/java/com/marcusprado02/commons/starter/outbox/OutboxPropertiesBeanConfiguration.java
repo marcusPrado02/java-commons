@@ -6,8 +6,8 @@ import org.springframework.context.annotation.Bean;
 @AutoConfiguration
 public class OutboxPropertiesBeanConfiguration {
 
-    @Bean(name = "outboxProperties")
-    public OutboxProperties outboxProperties(OutboxProperties props) {
-        return props;
-    }
+  @Bean(name = "outboxProperties")
+  public OutboxProperties outboxProperties(OutboxProperties props) {
+    return props;
+  }
 }

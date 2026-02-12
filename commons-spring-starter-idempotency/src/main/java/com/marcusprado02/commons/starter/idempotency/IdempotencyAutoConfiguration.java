@@ -16,15 +16,15 @@ import org.springframework.context.annotation.Bean;
 @EnableConfigurationProperties(IdempotencyProperties.class)
 public class IdempotencyAutoConfiguration {
 
-    @Bean
-    @ConditionalOnMissingBean(IdempotencyStorePort.class)
-    public IdempotencyStorePort idempotencyStorePort(EntityManager entityManager) {
-        return new JpaIdempotencyStoreAdapter(entityManager);
-    }
+  @Bean
+  @ConditionalOnMissingBean(IdempotencyStorePort.class)
+  public IdempotencyStorePort idempotencyStorePort(EntityManager entityManager) {
+    return new JpaIdempotencyStoreAdapter(entityManager);
+  }
 
-    @Bean
-    @ConditionalOnMissingBean(IdempotentExecutor.class)
-    public IdempotentExecutor idempotentExecutor(IdempotencyStorePort storePort) {
-        return new DefaultIdempotentExecutor(storePort);
-    }
+  @Bean
+  @ConditionalOnMissingBean(IdempotentExecutor.class)
+  public IdempotentExecutor idempotentExecutor(IdempotencyStorePort storePort) {
+    return new DefaultIdempotentExecutor(storePort);
+  }
 }

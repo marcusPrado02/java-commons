@@ -1,4 +1,4 @@
-package com.marcusprado02.commons.spring.starter.outbox;
+package com.marcusprado02.commons.starter.outbox;
 
 import com.marcusprado02.commons.app.outbox.*;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -10,10 +10,7 @@ public class CommonsOutboxProcessorAutoConfiguration {
 
   @Bean
   @ConditionalOnBean({OutboundPublisher.class, OutboxStore.class})
-  OutboxProcessor outboxProcessor(
-      OutboxStore store,
-      OutboundPublisher outboundPublisher
-  ) {
+  OutboxProcessor outboxProcessor(OutboxStore store, OutboundPublisher outboundPublisher) {
     return new DefaultOutboxProcessor(store, outboundPublisher, 5);
   }
 }

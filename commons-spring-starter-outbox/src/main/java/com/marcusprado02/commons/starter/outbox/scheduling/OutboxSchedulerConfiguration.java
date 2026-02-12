@@ -1,6 +1,6 @@
 package com.marcusprado02.commons.starter.outbox.scheduling;
 
-import com.marcusprado02.commons.app.outbox.service.OutboxProcessor;
+import com.marcusprado02.commons.app.outbox.OutboxProcessor;
 import com.marcusprado02.commons.starter.outbox.OutboxProperties;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
@@ -13,9 +13,9 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 @EnableScheduling
 public class OutboxSchedulerConfiguration {
 
-    @Bean
-    @ConditionalOnBean(OutboxProcessor.class)
-    public OutboxScheduledJob outboxScheduledJob(OutboxProcessor processor, OutboxProperties props) {
-        return new OutboxScheduledJob(processor, props);
-    }
+  @Bean
+  @ConditionalOnBean(OutboxProcessor.class)
+  public OutboxScheduledJob outboxScheduledJob(OutboxProcessor processor, OutboxProperties props) {
+    return new OutboxScheduledJob(processor, props);
+  }
 }

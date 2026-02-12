@@ -9,7 +9,6 @@ public class CommonsWebFluxOutboundAutoConfiguration {
 
   @Bean
   WebClient.Builder commonsWebClientBuilder() {
-    return WebClient.builder()
-        .filter(WebClientContextExchangeFilter.propagateContextHeaders());
+    return WebClient.builder().filter(WebClientContextExchangeFilter.propagateContextHeaders());
   }
 }

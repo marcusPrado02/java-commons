@@ -4,13 +4,41 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.marcusprado02.commons</groupId>
-    <artifactId>commons-adapters-web-spring-webflux</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <parent>
+        <groupId>com.marcusprado02.commons</groupId>
+        <artifactId>commons-parent</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+        <relativePath>../commons-parent/pom.xml</relativePath>
+    </parent>
 
-    <properties>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-    </properties>
+    <artifactId>commons-adapters-web-spring-webflux</artifactId>
+    <packaging>jar</packaging>
+
+    <name>Commons - Adapters Web Spring WebFlux</name>
+    <description>Spring WebFlux adapters for context propagation</description>
+
+    <dependencies>
+
+        <!-- Internal dependency for outbound context headers -->
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-adapters-web-spring</artifactId>
+        </dependency>
+
+        <!-- Spring WebFlux -->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-webflux</artifactId>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- Testing -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
 
 </project>

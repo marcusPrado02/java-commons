@@ -12,10 +12,13 @@ public final class WebClientContextExchangeFilter {
     return (request, next) -> {
       ClientRequest mutated =
           ClientRequest.from(request)
-              .headers(h -> OutboundContextHeaders.currentHeaders()
-                  .forEach((k, v) -> {
-                    if (!h.containsKey(k)) h.add(k, v);
-                  }))
+              .headers(
+                  h ->
+                      OutboundContextHeaders.currentHeaders()
+                          .forEach(
+                              (k, v) -> {
+                                if (!h.containsKey(k)) h.add(k, v);
+                              }))
               .build();
 
       return next.exchange(mutated);
