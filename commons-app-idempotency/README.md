@@ -38,6 +38,11 @@ if (result.executed()) {
 - **DB/JPA**: `commons-adapters-persistence-jpa` implementa `IdempotencyStorePort` com `JpaIdempotencyStoreAdapter`.
 - **Redis**: implemente `IdempotencyStorePort` usando operações atômicas (ex.: `SET key value NX PX ttl`) para `tryAcquire`.
 
+## Integração HTTP (framework-agnostic)
+
+- Header padrão: `Idempotency-Key` (ver `IdempotencyHttp.IDEMPOTENCY_KEY_HEADER`).
+- Extração de chave: `IdempotencyHttp.resolveFromHeaders(...)`.
+
 ## Semântica de TTL
 
 - O TTL define até quando um registro é considerado válido. Após expirar, a chave pode ser adquirida novamente.

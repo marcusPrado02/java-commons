@@ -1,7 +1,10 @@
 package com.marcusprado02.commons.app.idempotency.service;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.marcusprado02.commons.app.idempotency.model.IdempotencyKey;
 import com.marcusprado02.commons.app.idempotency.store.InMemoryIdempotencyStore;
@@ -41,11 +44,11 @@ class DefaultIdempotencyServiceTest {
           return "SHOULD_NOT_RUN";
         }, value -> "ref:" + value);
 
-    assertThat(first.executed()).isTrue();
-    assertThat(first.value()).isEqualTo("OK");
-    assertThat(second.executed()).isFalse();
-    assertThat(second.existingResultRef()).isEqualTo("ref:OK");
-    assertThat(calls.get()).isEqualTo(1);
+    assertTrue(first.executed());
+    assertEquals("OK", first.value());
+    assertFalse(second.executed());
+    assertEquals("ref:OK", second.existingResultRef());
+    assertEquals(1, calls.get());
   }
 
   @Test
@@ -83,8 +86,8 @@ class DefaultIdempotencyServiceTest {
       IdempotencyResult<String> r1 = f1.get(3, TimeUnit.SECONDS);
       IdempotencyResult<String> r2 = f2.get(3, TimeUnit.SECONDS);
 
-      assertThat(calls.get()).isEqualTo(1);
-      assertThat(r1.executed() ^ r2.executed()).isTrue();
+      assertEquals(1, calls.get());
+      assertTrue(r1.executed() ^ r2.executed());
     } finally {
       pool.shutdownNow();
     }
@@ -113,9 +116,9 @@ class DefaultIdempotencyServiceTest {
           return "B";
         }, v -> "ref:" + v);
 
-    assertThat(first.executed()).isTrue();
-    assertThat(second.executed()).isTrue();
-    assertThat(calls.get()).isEqualTo(2);
+    assertTrue(first.executed());
+    assertTrue(second.executed());
+    assertEquals(2, calls.get());
   }
 
   @Test
@@ -125,19 +128,20 @@ class DefaultIdempotencyServiceTest {
 
     IdempotencyKey key = new IdempotencyKey("fail:1");
 
-    assertThatThrownBy(
-            () ->
-                service.execute(
-                    key,
-                    Duration.ofMinutes(1),
-                    () -> {
-                      throw new IllegalStateException("boom");
-                    },
-                    ignored -> null))
-        .isInstanceOf(IllegalStateException.class);
+    assertThrows(
+        IllegalStateException.class,
+        () ->
+            service.execute(
+                key,
+                Duration.ofMinutes(1),
+                () -> {
+                  throw new IllegalStateException("boom");
+                },
+                ignored -> null));
 
-    assertThat(store.find(key)).isPresent();
-    assertThat(store.find(key).get().lastError()).isEqualTo("IllegalStateException");
+    assertTrue(store.find(key).isPresent());
+    assertNotNull(store.find(key).get().lastError());
+    assertEquals("IllegalStateException", store.find(key).get().lastError());
   }
 
   private static final class MutableClock extends Clock {
