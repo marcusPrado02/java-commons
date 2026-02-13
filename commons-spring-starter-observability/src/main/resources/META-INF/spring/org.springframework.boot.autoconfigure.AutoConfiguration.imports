@@ -1,1 +1,2 @@
 com.marcusprado02.commons.starter.observability.ObservabilityAutoConfiguration
+com.marcusprado02.commons.starter.observability.MicrometerTracingAutoConfiguration
