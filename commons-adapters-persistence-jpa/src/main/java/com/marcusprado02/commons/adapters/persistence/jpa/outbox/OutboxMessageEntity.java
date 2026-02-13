@@ -59,6 +59,9 @@ public class OutboxMessageEntity {
   @Column(name = "attempts", nullable = false)
   private int attempts;
 
+  @Column(name = "processing_at")
+  private Instant processingAt;
+
   @Column(name = "published_at")
   private Instant publishedAt;
 
@@ -152,6 +155,14 @@ public class OutboxMessageEntity {
 
   public void setAttempts(int attempts) {
     this.attempts = attempts;
+  }
+
+  public Instant getProcessingAt() {
+    return processingAt;
+  }
+
+  public void setProcessingAt(Instant processingAt) {
+    this.processingAt = processingAt;
   }
 
   public Instant getPublishedAt() {

@@ -6,10 +6,13 @@ import com.marcusprado02.commons.app.outbox.model.OutboxMessageId;
 import com.marcusprado02.commons.app.outbox.model.OutboxStatus;
 import com.marcusprado02.commons.app.outbox.port.OutboxRepositoryPort;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 public final class JpaOutboxRepositoryAdapter implements OutboxRepositoryPort {
 
@@ -38,6 +41,29 @@ public final class JpaOutboxRepositoryAdapter implements OutboxRepositoryPort {
     q.setMaxResults(safeLimit);
 
     return q.getResultList().stream().map(OutboxJpaMapper::toModel).toList();
+  }
+
+  @Override
+  public boolean markProcessing(OutboxMessageId id, Instant processingAt) {
+    try {
+      OutboxMessageEntity e =
+          em.createQuery(
+                  "select o from OutboxMessageEntity o where o.id = :id and o.status = :status",
+                  OutboxMessageEntity.class)
+              .setParameter("id", id.value())
+              .setParameter("status", OutboxStatus.PENDING)
+              .setLockMode(LockModeType.PESSIMISTIC_WRITE)
+              .getSingleResult();
+
+      e.setStatus(OutboxStatus.PROCESSING);
+      e.setProcessingAt(processingAt);
+      e.setAttempts(e.getAttempts() + 1);
+      em.merge(e);
+      return true;
+    } catch (NoResultException e) {
+      // Already processing by another worker or status changed
+      return false;
+    }
   }
 
   @Override
@@ -74,5 +100,42 @@ public final class JpaOutboxRepositoryAdapter implements OutboxRepositoryPort {
     e.setAttempts(attempts);
     e.setLastError(reason);
     em.merge(e);
+  }
+
+  @Override
+  public void markRetryable(OutboxMessageId id, String reason, int attempts) {
+    OutboxMessageEntity e = em.find(OutboxMessageEntity.class, id.value());
+    if (e == null) {
+      return;
+    }
+    e.setStatus(OutboxStatus.PENDING);
+    e.setProcessingAt(null);
+    e.setAttempts(attempts);
+    e.setLastError(reason);
+    em.merge(e);
+  }
+
+  @Override
+  public Optional<OutboxMessage> findById(OutboxMessageId id) {
+    OutboxMessageEntity e = em.find(OutboxMessageEntity.class, id.value());
+    return Optional.ofNullable(e).map(OutboxJpaMapper::toModel);
+  }
+
+  @Override
+  public long countByStatus(OutboxStatus status) {
+    return em.createQuery("select count(o) from OutboxMessageEntity o where o.status = :status",
+            Long.class)
+        .setParameter("status", status)
+        .getSingleResult();
+  }
+
+  @Override
+  public int deletePublishedOlderThan(Instant olderThan) {
+    return em.createQuery(
+            "delete from OutboxMessageEntity o "
+                + "where o.status = :status and o.publishedAt < :olderThan")
+        .setParameter("status", OutboxStatus.PUBLISHED)
+        .setParameter("olderThan", olderThan)
+        .executeUpdate();
   }
 }
