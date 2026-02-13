@@ -11,67 +11,51 @@
     <packaging>pom</packaging>
 
     <properties>
-        <!-- Stable and widely compatible -->
+        <!-- Spring Framework -->
         <spring.boot.version>3.5.10</spring.boot.version>
-        <archunit.version>1.4.1</archunit.version>
-        <junit.jupiter.version>5.10.2</junit.jupiter.version>
+        <spring.cloud.version>2024.0.0</spring.cloud.version>
 
-        <!-- OpenTelemetry -->
+        <!-- Testing -->
+        <junit.jupiter.version>5.10.2</junit.jupiter.version>
+        <mockito.version>5.15.2</mockito.version>
+        <testcontainers.version>1.20.5</testcontainers.version>
+        <archunit.version>1.4.1</archunit.version>
+        <assertj.version>3.25.3</assertj.version>
+
+        <!-- Observability -->
         <otel.version>1.58.0</otel.version>
         <otel.instrumentation.version>2.24.0</otel.instrumentation.version>
+        <micrometer.version>1.15.3</micrometer.version>
+
+        <!-- Resilience & Caching -->
+        <resilience4j.version>2.2.0</resilience4j.version>
+        <caffeine.version>3.1.8</caffeine.version>
+
+        <!-- Persistence -->
         <jakarta.persistence.version>3.1.0</jakarta.persistence.version>
+        <hibernate.version>6.7.2.Final</hibernate.version>
+
+        <!-- Logging -->
+        <slf4j.version>2.0.13</slf4j.version>
+        <logback.version>1.5.12</logback.version>
+
+        <!-- Serialization -->
+        <jackson.version>2.18.2</jackson.version>
+
+        <!-- Utilities -->
+        <lombok.version>1.18.36</lombok.version>
+        <mapstruct.version>1.6.3</mapstruct.version>
     </properties>
 
 
     <dependencyManagement>
         <dependencies>
 
-            <dependency>
-                <groupId>jakarta.persistence</groupId>
-                <artifactId>jakarta.persistence-api</artifactId>
-                <version>${jakarta.persistence.version}</version>
-            </dependency>
+            <!-- ========================================== -->
+            <!-- BOMs (Bill of Materials) - Import First   -->
+            <!-- ========================================== -->
 
-            <!-- Logging -->
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>2.0.13</version>
-            </dependency>
-
-            <!-- Testing -->
-            <dependency>
-                <groupId>org.assertj</groupId>
-                <artifactId>assertj-core</artifactId>
-                <version>3.25.3</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.tngtech.archunit</groupId>
-                <artifactId>archunit-junit5</artifactId>
-                <version>${archunit.version}</version>
-            </dependency>
-
-            <dependency>
-                <groupId>com.tngtech.archunit</groupId>
-                <artifactId>archunit-junit5-api</artifactId>
-                <version>${archunit.version}</version>
-            </dependency>
-
-            <!-- JUnit Jupiter (se não vier do parent) -->
-            <dependency>
-                <groupId>org.junit.jupiter</groupId>
-                <artifactId>junit-jupiter</artifactId>
-                <version>${junit.jupiter.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.tngtech.archunit</groupId>
-                <artifactId>archunit</artifactId>
-                <version>${archunit.version}</version>
-            </dependency>
-
-
-            <!-- Import Spring Boot dependency versions (Spring Framework, Jackson, etc) -->
+            <!-- Spring Boot (includes Spring Framework, Jackson, Tomcat, etc) -->
             <dependency>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-dependencies</artifactId>
@@ -80,7 +64,25 @@
                 <scope>import</scope>
             </dependency>
 
-            <!-- OpenTelemetry API/SDK BOM -->
+            <!-- Spring Cloud (includes Cloud Config, Circuit Breaker, etc) -->
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring.cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Testcontainers (includes PostgreSQL, MongoDB, Kafka modules) -->
+            <dependency>
+                <groupId>org.testcontainers</groupId>
+                <artifactId>testcontainers-bom</artifactId>
+                <version>${testcontainers.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- OpenTelemetry API/SDK -->
             <dependency>
                 <groupId>io.opentelemetry</groupId>
                 <artifactId>opentelemetry-bom</artifactId>
@@ -89,14 +91,158 @@
                 <scope>import</scope>
             </dependency>
 
-            <!-- OTel Spring Boot starter (instrumentation) -->
+            <!-- Micrometer (Metrics and Observability) -->
+            <dependency>
+                <groupId>io.micrometer</groupId>
+                <artifactId>micrometer-bom</artifactId>
+                <version>${micrometer.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Resilience4j (Circuit Breaker, Retry, Rate Limiter) -->
+            <dependency>
+                <groupId>io.github.resilience4j</groupId>
+                <artifactId>resilience4j-bom</artifactId>
+                <version>${resilience4j.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- Jackson (JSON processing) -->
+            <dependency>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${jackson.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+
+            <!-- ========================================== -->
+            <!-- Testing Libraries                          -->
+            <!-- ========================================== -->
+
+            <!-- JUnit Jupiter -->
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>${junit.jupiter.version}</version>
+            </dependency>
+
+            <!-- Mockito -->
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-junit-jupiter</artifactId>
+                <version>${mockito.version}</version>
+            </dependency>
+
+            <!-- AssertJ -->
+            <dependency>
+                <groupId>org.assertj</groupId>
+                <artifactId>assertj-core</artifactId>
+                <version>${assertj.version}</version>
+            </dependency>
+
+            <!-- ArchUnit -->
+            <dependency>
+                <groupId>com.tngtech.archunit</groupId>
+                <artifactId>archunit</artifactId>
+                <version>${archunit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.tngtech.archunit</groupId>
+                <artifactId>archunit-junit5</artifactId>
+                <version>${archunit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.tngtech.archunit</groupId>
+                <artifactId>archunit-junit5-api</artifactId>
+                <version>${archunit.version}</version>
+            </dependency>
+
+            <!-- ========================================== -->
+            <!-- Persistence & Database                     -->
+            <!-- ========================================== -->
+
+            <dependency>
+                <groupId>jakarta.persistence</groupId>
+                <artifactId>jakarta.persistence-api</artifactId>
+                <version>${jakarta.persistence.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.hibernate.orm</groupId>
+                <artifactId>hibernate-core</artifactId>
+                <version>${hibernate.version}</version>
+            </dependency>
+
+            <!-- ========================================== -->
+            <!-- Observability                              -->
+            <!-- ========================================== -->
+
+            <!-- OpenTelemetry Spring Boot Starter -->
             <dependency>
                 <groupId>io.opentelemetry.instrumentation</groupId>
                 <artifactId>opentelemetry-spring-boot-starter</artifactId>
                 <version>${otel.instrumentation.version}</version>
             </dependency>
 
-            <!-- Internal modules (reactor) -->
+            <!-- ========================================== -->
+            <!-- Logging                                    -->
+            <!-- ========================================== -->
+
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-classic</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+
+            <!-- ========================================== -->
+            <!-- Caching                                    -->
+            <!-- ========================================== -->
+
+            <dependency>
+                <groupId>com.github.ben-manes.caffeine</groupId>
+                <artifactId>caffeine</artifactId>
+                <version>${caffeine.version}</version>
+            </dependency>
+
+            <!-- ========================================== -->
+            <!-- Utilities                                  -->
+            <!-- ========================================== -->
+
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>org.mapstruct</groupId>
+                <artifactId>mapstruct</artifactId>
+                <version>${mapstruct.version}</version>
+            </dependency>
+
+            <!-- ========================================== -->
+            <!-- Internal Modules (Commons Library)         -->
+            <!-- ========================================== -->
+
+<!-- ========================================== -->
+            <!-- Internal Modules (Commons Library)         -->
+            <!-- ========================================== -->
+
+            <!-- Kernel - Core Modules -->
             <dependency>
                 <groupId>com.marcusprado02.commons</groupId>
                 <artifactId>commons-kernel-core</artifactId>
@@ -123,7 +269,7 @@
                 <version>${project.version}</version>
             </dependency>
 
-            <!-- Ports -->
+            <!-- Ports - Framework-Agnostic Interfaces -->
             <dependency>
                 <groupId>com.marcusprado02.commons</groupId>
                 <artifactId>commons-ports-persistence</artifactId>
@@ -155,7 +301,7 @@
                 <version>${project.version}</version>
             </dependency>
 
-            <!-- Application -->
+            <!-- Application Services -->
             <dependency>
                 <groupId>com.marcusprado02.commons</groupId>
                 <artifactId>commons-app-observability</artifactId>
@@ -177,7 +323,7 @@
                 <version>${project.version}</version>
             </dependency>
 
-            <!-- Adapters -->
+            <!-- Adapters - Framework Implementations -->
             <dependency>
                 <groupId>com.marcusprado02.commons</groupId>
                 <artifactId>commons-adapters-web</artifactId>
@@ -214,6 +360,33 @@
                 <version>${project.version}</version>
             </dependency>
 
+            <!-- Spring Boot Starters -->
+            <dependency>
+                <groupId>com.marcusprado02.commons</groupId>
+                <artifactId>commons-spring-starter-observability</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.marcusprado02.commons</groupId>
+                <artifactId>commons-spring-starter-otel</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.marcusprado02.commons</groupId>
+                <artifactId>commons-spring-starter-resilience</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.marcusprado02.commons</groupId>
+                <artifactId>commons-spring-starter-outbox</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.marcusprado02.commons</groupId>
+                <artifactId>commons-spring-starter-idempotency</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <!-- Testing & Quality -->
             <dependency>
                 <groupId>com.marcusprado02.commons</groupId>
@@ -230,7 +403,6 @@
                 <artifactId>commons-quality</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
 
         </dependencies>
     </dependencyManagement>
