@@ -71,7 +71,7 @@
         <maven.surefire.version>3.2.5</maven.surefire.version>
         <testcontainers.version>1.19.0</testcontainers.version>
         <postgresql.version>42.6.0</postgresql.version>
-        <hibernate.version>6.4.0.Final</hibernate.version>
+        <hibernate.version>7.2.4.Final</hibernate.version>
         <jacoco.version>0.8.11</jacoco.version>
 
         <!-- JaCoCo coverage thresholds -->
