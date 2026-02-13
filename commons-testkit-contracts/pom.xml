@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.marcusprado02.commons</groupId>
+    <artifactId>commons-parent</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <relativePath>../commons-parent</relativePath>
+  </parent>
+
+  <artifactId>commons-testkit-contracts</artifactId>
+  <packaging>jar</packaging>
+
+  <name>commons-testkit-contracts</name>
+  <description>Contract testing base classes for port implementations</description>
+
+  <dependencies>
+    <!-- Core Testing -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.assertj</groupId>
+      <artifactId>assertj-core</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
+      <version>4.2.0</version>
+    </dependency>
+
+    <!-- Commons Modules -->
+    <dependency>
+      <groupId>com.marcusprado02.commons</groupId>
+      <artifactId>commons-ports-persistence</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.marcusprado02.commons</groupId>
+      <artifactId>commons-ports-http</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.marcusprado02.commons</groupId>
+      <artifactId>commons-ports-messaging</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.marcusprado02.commons</groupId>
+      <artifactId>commons-ports-cache</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.marcusprado02.commons</groupId>
+      <artifactId>commons-testkit-core</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+  </dependencies>
+
+</project>
