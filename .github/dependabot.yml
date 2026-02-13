@@ -1,7 +1,226 @@
+# Dependabot configuration for automated dependency updates
+# Documentation: https://docs.github.com/en/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
 version: 2
+
 updates:
+  # ==============================================
+  # Maven Dependencies
+  # ==============================================
   - package-ecosystem: "maven"
     directory: "/"
     schedule:
       interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "America/Sao_Paulo"
+
+    # Open pull requests for security updates immediately
     open-pull-requests-limit: 10
+
+    # Group dependency updates
+    groups:
+      # Spring ecosystem updates
+      spring-framework:
+        patterns:
+          - "org.springframework*"
+          - "org.springframework.boot*"
+          - "org.springframework.cloud*"
+          - "org.springframework.data*"
+          - "org.springframework.security*"
+        update-types:
+          - "minor"
+          - "patch"
+
+      # Testing libraries
+      testing-libraries:
+        patterns:
+          - "org.junit.jupiter*"
+          - "org.mockito*"
+          - "org.assertj*"
+          - "org.testcontainers*"
+          - "com.tngtech.archunit*"
+        update-types:
+          - "minor"
+          - "patch"
+
+      # Observability stack
+      observability:
+        patterns:
+          - "io.opentelemetry*"
+          - "io.micrometer*"
+        update-types:
+          - "minor"
+          - "patch"
+
+      # Jackson serialization
+      jackson:
+        patterns:
+          - "com.fasterxml.jackson*"
+        update-types:
+          - "minor"
+          - "patch"
+
+      # Resilience libraries
+      resilience:
+        patterns:
+          - "io.github.resilience4j*"
+        update-types:
+          - "minor"
+          - "patch"
+
+      # Persistence libraries
+      persistence:
+        patterns:
+          - "jakarta.persistence*"
+          - "org.hibernate*"
+        update-types:
+          - "patch"
+
+      # Logging libraries
+      logging:
+        patterns:
+          - "org.slf4j*"
+          - "ch.qos.logback*"
+        update-types:
+          - "patch"
+
+      # Build plugins
+      maven-plugins:
+        patterns:
+          - "org.apache.maven.plugins*"
+          - "org.codehaus.mojo*"
+        update-types:
+          - "minor"
+          - "patch"
+
+    # Labels for Maven PRs
+    labels:
+      - "dependencies"
+      - "java"
+      - "maven"
+
+    # Commit message configuration
+    commit-message:
+      prefix: "build(deps)"
+      prefix-development: "build(deps-dev)"
+      include: "scope"
+
+    # Pull request configuration
+    pull-request-branch-name:
+      separator: "/"
+
+    # Ignore specific dependencies (if needed)
+    ignore:
+      # Example: Pin to specific version
+      # - dependency-name: "org.springframework.boot:spring-boot-dependencies"
+      #   versions: ["3.6.x"]
+
+    # Reviewers (uncomment and configure as needed)
+    # reviewers:
+    #   - "marcusPrado02"
+
+    # Assignees (uncomment and configure as needed)
+    # assignees:
+    #   - "marcusPrado02"
+
+    # Milestone (uncomment and configure as needed)
+    # milestone: 1
+
+  # ==============================================
+  # GitHub Actions
+  # ==============================================
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+      timezone: "America/Sao_Paulo"
+
+    # Limit for GitHub Actions updates
+    open-pull-requests-limit: 5
+
+    # Group GitHub Actions updates
+    groups:
+      github-actions:
+        patterns:
+          - "*"
+        update-types:
+          - "minor"
+          - "patch"
+
+    # Labels for GitHub Actions PRs
+    labels:
+      - "dependencies"
+      - "github-actions"
+      - "ci-cd"
+
+    # Commit message configuration
+    commit-message:
+      prefix: "ci(deps)"
+      include: "scope"
+
+    # Pull request configuration
+    pull-request-branch-name:
+      separator: "/"
+
+    # Reviewers (uncomment and configure as needed)
+    # reviewers:
+    #   - "marcusPrado02"
+
+# ==============================================
+# Auto-merge Strategy
+# ==============================================
+#
+# Dependabot PRs can be auto-merged using GitHub Actions workflow.
+# Create .github/workflows/dependabot-auto-merge.yml:
+#
+# name: Dependabot Auto-Merge
+# on: pull_request
+#
+# permissions:
+#   contents: write
+#   pull-requests: write
+#
+# jobs:
+#   auto-merge:
+#     runs-on: ubuntu-latest
+#     if: github.actor == 'dependabot[bot]'
+#     steps:
+#       - name: Dependabot metadata
+#         id: metadata
+#         uses: dependabot/fetch-metadata@v1
+#         with:
+#           github-token: "${{ secrets.GITHUB_TOKEN }}"
+#
+#       - name: Enable auto-merge for patch updates
+#         if: steps.metadata.outputs.update-type == 'version-update:semver-patch'
+#         run: gh pr merge --auto --squash "$PR_URL"
+#         env:
+#           PR_URL: ${{github.event.pull_request.html_url}}
+#           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+#
+# ==============================================
+# Security Updates
+# ==============================================
+#
+# Dependabot will automatically create PRs for security vulnerabilities
+# regardless of the schedule. These should be reviewed and merged ASAP.
+#
+# Priority levels:
+# - CVSS 9.0-10.0 (Critical): Merge within 24 hours
+# - CVSS 7.0-8.9 (High): Merge within 48 hours
+# - CVSS 4.0-6.9 (Medium): Merge within 1 week
+#
+# ==============================================
+# Best Practices
+# ==============================================
+#
+# 1. Review grouped updates together to ensure compatibility
+# 2. Let CI pipeline run fully before merging
+# 3. Check for breaking changes in release notes
+# 4. Keep commons-bom versions in sync with Dependabot updates
+# 5. Test thoroughly for major version updates
+# 6. Document version overrides in dependency-management.md
+#
