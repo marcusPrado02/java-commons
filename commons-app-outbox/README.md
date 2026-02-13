@@ -316,6 +316,127 @@ public class OutboxMetrics {
 
 ## ⚙️ Configuração Avançada
 
+### DefaultOutboxProcessor
+
+O `DefaultOutboxProcessor` oferece implementação completa com suporte a batch processing, retry com exponential backoff, métricas e circuit breaker:
+
+```java
+// Configuração básica (valores padrão)
+OutboxProcessorConfig config = OutboxProcessorConfig.defaults();
+// batchSize = 100
+// maxAttempts = 5
+// initialBackoff = 1s
+// maxBackoff = 5min
+// backoffMultiplier = 2.0
+// useCircuitBreaker = false
+
+// Configuração customizada
+OutboxProcessorConfig config = new OutboxProcessorConfig(
+    50,                         // batchSize
+    3,                          // maxAttempts
+    Duration.ofSeconds(2),      // initialBackoff
+    Duration.ofMinutes(10),     // maxBackoff
+    3.0,                        // backoffMultiplier
+    true                        // useCircuitBreaker
+);
+
+// Criar processor com métricas
+OutboxMetrics metrics = new MicrometerOutboxMetrics(meterRegistry);
+DefaultOutboxProcessor processor = new DefaultOutboxProcessor(
+    repository,
+    outboundPublisher,
+    config,
+    metrics
+);
+
+// Agendar processamento
+@Scheduled(fixedDelay = 1000)
+public void process() {
+    processor.processAll();
+}
+```
+
+### Priorização de Mensagens
+
+Mensagens podem ter prioridade para controle da ordem de processamento:
+
+```java
+OutboxMessage highPriority = new OutboxMessage(
+    id,
+    aggregateType,
+    aggregateId,
+    eventType,
+    topic,
+    payload,
+    headers,
+    occurredAt,
+    OutboxStatus.PENDING,
+    0,          // attempts
+    10          // priority (maior = mais prioritário)
+);
+
+// O repositório deve ordenar por priority DESC ao fazer fetchBatch
+```
+
+### Métricas
+
+A interface `OutboxMetrics` permite integração com sistemas de monitoramento:
+
+```java
+public interface OutboxMetrics {
+    void recordPublished(String topic);
+    void recordFailed(String topic, String reason);
+    void recordDead(String topic);
+    void recordLatency(String topic, long durationMillis);
+    void recordBatchProcessing(int batchSize, long durationMillis);
+}
+
+// Implementação com Micrometer
+public class MicrometerOutboxMetrics implements OutboxMetrics {
+    private final MeterRegistry registry;
+    
+    @Override
+    public void recordPublished(String topic) {
+        Counter.builder("outbox.published")
+            .tag("topic", topic)
+            .register(registry)
+            .increment();
+    }
+    
+    @Override
+    public void recordLatency(String topic, long durationMillis) {
+        Timer.builder("outbox.publish.latency")
+            .tag("topic", topic)
+            .register(registry)
+            .record(Duration.ofMillis(durationMillis));
+    }
+    
+    // ... outras implementações
+}
+```
+
+### Exponential Backoff
+
+A estratégia de exponential backoff calcula delays para retry:
+
+```java
+ExponentialBackoffStrategy backoff = new ExponentialBackoffStrategy(
+    Duration.ofSeconds(1),   // initialBackoff
+    Duration.ofMinutes(5),   // maxBackoff
+    2.0                      // multiplier
+);
+
+// Calcular delays
+long delay0 = backoff.calculateDelayMillis(0);  // 1000ms
+long delay1 = backoff.calculateDelayMillis(1);  // 2000ms
+long delay2 = backoff.calculateDelayMillis(2);  // 4000ms
+long delay3 = backoff.calculateDelayMillis(3);  // 8000ms
+// ...até atingir maxBackoff (300000ms = 5min)
+
+// Calcular próximo retry time
+Instant nextRetry = backoff.calculateNextRetry(attempts, Instant.now());
+```
+
 ### Reprocessamento de Mensagens Travadas
 
 Detectar mensagens em PROCESSING há muito tempo:

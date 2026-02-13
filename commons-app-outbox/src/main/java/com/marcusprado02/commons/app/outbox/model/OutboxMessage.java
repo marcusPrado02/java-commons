@@ -13,4 +13,20 @@ public record OutboxMessage(
     Map<String, String> headers,
     Instant occurredAt,
     OutboxStatus status,
-    int attempts) {}
+    int attempts,
+    int priority) {
+
+  public OutboxMessage(
+      OutboxMessageId id,
+      String aggregateType,
+      String aggregateId,
+      String eventType,
+      String topic,
+      OutboxPayload payload,
+      Map<String, String> headers,
+      Instant occurredAt,
+      OutboxStatus status,
+      int attempts) {
+    this(id, aggregateType, aggregateId, eventType, topic, payload, headers, occurredAt, status, attempts, 0);
+  }
+}
