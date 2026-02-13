@@ -34,6 +34,7 @@
 
     <module>commons-testkit-core</module>
     <module>commons-testkit-contracts</module>
+    <module>commons-testkit-archunit</module>
     <module>commons-archunit</module>
     <module>commons-quality</module>
 
