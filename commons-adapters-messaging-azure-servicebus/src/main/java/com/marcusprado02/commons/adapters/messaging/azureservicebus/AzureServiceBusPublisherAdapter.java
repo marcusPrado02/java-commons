@@ -15,8 +15,7 @@ import org.slf4j.LoggerFactory;
 
 public final class AzureServiceBusPublisherAdapter implements MessagePublisherPort, AutoCloseable {
 
-  private static final Logger log =
-      LoggerFactory.getLogger(AzureServiceBusPublisherAdapter.class);
+  private static final Logger log = LoggerFactory.getLogger(AzureServiceBusPublisherAdapter.class);
 
   private final Map<String, ServiceBusSenderClient> senders = new HashMap<>();
   private final ServiceBusClientBuilder clientBuilder;
@@ -74,13 +73,16 @@ public final class AzureServiceBusPublisherAdapter implements MessagePublisherPo
 
   @Override
   public void close() {
-    senders.values().forEach(sender -> {
-      try {
-        sender.close();
-      } catch (Exception ex) {
-        log.warn("Error closing sender", ex);
-      }
-    });
+    senders
+        .values()
+        .forEach(
+            sender -> {
+              try {
+                sender.close();
+              } catch (Exception ex) {
+                log.warn("Error closing sender", ex);
+              }
+            });
     senders.clear();
   }
 

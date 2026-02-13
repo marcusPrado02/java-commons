@@ -28,12 +28,12 @@ MongoDB implementation of the `PageableRepository` interface using Spring Data M
 ```java
 @Configuration
 public class MongoConfig {
-    
+
     @Bean
     public MongoClient mongoClient() {
         return MongoClients.create("mongodb://localhost:27017");
     }
-    
+
     @Bean
     public MongoTemplate mongoTemplate(MongoClient mongoClient) {
         return new MongoTemplate(mongoClient, "mydatabase");
@@ -59,17 +59,17 @@ public record User(
 ```java
 @Service
 public class UserService {
-    
+
     private final MongoPageableRepository<User, String> repository;
-    
+
     public UserService(MongoTemplate mongoTemplate) {
         this.repository = new MongoPageableRepository<>(mongoTemplate, User.class);
     }
-    
+
     public User saveUser(User user) {
         return repository.save(user);
     }
-    
+
     public Optional<User> findUser(String id) {
         return repository.findById(id);
     }
@@ -208,12 +208,12 @@ The module includes comprehensive tests using Testcontainers with MongoDB 7.0:
 ```java
 @Testcontainers
 class MyTest {
-    
+
     @Container
     static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0");
-    
+
     private static MongoTemplate mongoTemplate;
-    
+
     @BeforeAll
     static void setup() {
         mongoDBContainer.start();
@@ -267,7 +267,7 @@ MongoDB transactions require:
 public void performTransactionalOperations() {
     User user1 = new User("1", "Alice", 25, "alice@example.com", true);
     User user2 = new User("2", "Bob", 30, "bob@example.com", false);
-    
+
     repository.save(user1);
     repository.save(user2);
     // Both operations committed or rolled back together

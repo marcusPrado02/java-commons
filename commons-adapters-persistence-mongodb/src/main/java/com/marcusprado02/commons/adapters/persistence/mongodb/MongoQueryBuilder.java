@@ -24,9 +24,8 @@ public class MongoQueryBuilder<E> {
     }
 
     Criteria criteria = new Criteria();
-    Criteria[] criteriaArray = searchCriteria.filters().stream()
-        .map(this::buildCriteria)
-        .toArray(Criteria[]::new);
+    Criteria[] criteriaArray =
+        searchCriteria.filters().stream().map(this::buildCriteria).toArray(Criteria[]::new);
 
     if (criteriaArray.length == 1) {
       query.addCriteria(criteriaArray[0]);
@@ -40,11 +39,9 @@ public class MongoQueryBuilder<E> {
       return;
     }
 
-    org.springframework.data.domain.Sort mongoSort = org.springframework.data.domain.Sort.by(
-        sort.orders().stream()
-            .map(this::convertOrder)
-            .toList()
-    );
+    org.springframework.data.domain.Sort mongoSort =
+        org.springframework.data.domain.Sort.by(
+            sort.orders().stream().map(this::convertOrder).toList());
 
     query.with(mongoSort);
   }
@@ -68,19 +65,15 @@ public class MongoQueryBuilder<E> {
       case LTE -> Criteria.where(field).lte(parseNumericValue(value));
       case IN -> {
         String[] values = value.split(",");
-        Object[] parsedValues = Arrays.stream(values)
-            .map(String::trim)
-            .map(this::parseValue)
-            .toArray();
+        Object[] parsedValues =
+            Arrays.stream(values).map(String::trim).map(this::parseValue).toArray();
         yield Criteria.where(field).in(parsedValues);
       }
     };
   }
 
   private org.springframework.data.domain.Sort.Order convertOrder(Order order) {
-    Direction direction = order.direction() == Order.Direction.ASC
-        ? Direction.ASC
-        : Direction.DESC;
+    Direction direction = order.direction() == Order.Direction.ASC ? Direction.ASC : Direction.DESC;
     return new org.springframework.data.domain.Sort.Order(direction, order.field());
   }
 

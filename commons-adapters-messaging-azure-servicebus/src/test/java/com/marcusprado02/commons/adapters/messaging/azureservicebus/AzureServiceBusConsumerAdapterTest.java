@@ -11,7 +11,8 @@ class AzureServiceBusConsumerAdapterTest {
   void shouldFailWithoutConnectionStringOrNamespace() {
     assertThatThrownBy(() -> AzureServiceBusConsumerAdapter.builder().build())
         .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("Either connectionString or fullyQualifiedNamespace must be provided");
+        .hasMessageContaining(
+            "Either connectionString or fullyQualifiedNamespace must be provided");
   }
 
   @Test

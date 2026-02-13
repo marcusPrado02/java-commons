@@ -55,8 +55,9 @@ public class MongoPageableRepository<E, ID> implements PageableRepository<E, ID>
   @Override
   public void deleteById(ID id) {
     Objects.requireNonNull(id, "id must not be null");
-    E entity = findById(id).orElseThrow(
-        () -> new IllegalArgumentException("Entity with id " + id + " not found"));
+    E entity =
+        findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Entity with id " + id + " not found"));
     mongoTemplate.remove(entity);
   }
 

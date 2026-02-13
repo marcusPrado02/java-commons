@@ -22,8 +22,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @Testcontainers
 class MongoPageableRepositoryTest {
 
-  @Container
-  static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0");
+  @Container static MongoDBContainer mongoDBContainer = new MongoDBContainer("mongo:7.0");
 
   private static MongoTemplate mongoTemplate;
   private MongoPageableRepository<TestEntity, String> repository;
@@ -31,10 +30,8 @@ class MongoPageableRepositoryTest {
   @BeforeAll
   static void setupMongoTemplate() {
     mongoDBContainer.start();
-    mongoTemplate = new MongoTemplate(
-        MongoClients.create(mongoDBContainer.getReplicaSetUrl()),
-        "test"
-    );
+    mongoTemplate =
+        new MongoTemplate(MongoClients.create(mongoDBContainer.getReplicaSetUrl()), "test");
   }
 
   @AfterAll
@@ -167,7 +164,8 @@ class MongoPageableRepositoryTest {
     PageResult<TestEntity> result = repository.findAll(pageRequest, criteria);
 
     assertThat(result.content()).hasSize(3);
-    assertThat(result.content()).extracting(TestEntity::name)
+    assertThat(result.content())
+        .extracting(TestEntity::name)
         .containsExactlyInAnyOrder("Alice", "Bob", "Charlie");
   }
 
@@ -204,9 +202,7 @@ class MongoPageableRepositoryTest {
     PageResult<TestEntity> result = repository.search(pageRequest, null, sort);
 
     assertThat(result.content()).hasSize(5);
-    assertThat(result.content())
-        .extracting(TestEntity::age)
-        .containsExactly(22, 25, 28, 30, 35);
+    assertThat(result.content()).extracting(TestEntity::age).containsExactly(22, 25, 28, 30, 35);
   }
 
   @Test
@@ -217,9 +213,7 @@ class MongoPageableRepositoryTest {
     PageResult<TestEntity> result = repository.search(pageRequest, null, sort);
 
     assertThat(result.content()).hasSize(5);
-    assertThat(result.content())
-        .extracting(TestEntity::age)
-        .containsExactly(35, 30, 28, 25, 22);
+    assertThat(result.content()).extracting(TestEntity::age).containsExactly(35, 30, 28, 25, 22);
   }
 
   @Test
@@ -228,10 +222,8 @@ class MongoPageableRepositoryTest {
     repository.save(new TestEntity("6", "Frank", 25, "frank@example.com", true));
     repository.save(new TestEntity("7", "Grace", 25, "grace@example.com", false));
 
-    Sort sort = Sort.of(
-        new Order("age", Order.Direction.ASC),
-        new Order("name", Order.Direction.ASC)
-    );
+    Sort sort =
+        Sort.of(new Order("age", Order.Direction.ASC), new Order("name", Order.Direction.ASC));
     PageRequest pageRequest = new PageRequest(0, 10);
 
     PageResult<TestEntity> result = repository.search(pageRequest, null, sort);

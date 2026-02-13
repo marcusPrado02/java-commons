@@ -3,23 +3,15 @@ package com.marcusprado02.commons.adapters.messaging.azureservicebus;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.azure.messaging.servicebus.ServiceBusClientBuilder;
-import com.azure.messaging.servicebus.ServiceBusMessage;
 import com.azure.messaging.servicebus.ServiceBusSenderClient;
-import com.marcusprado02.commons.ports.messaging.MessageEnvelope;
-import com.marcusprado02.commons.ports.messaging.MessageHeaders;
-import com.marcusprado02.commons.ports.messaging.MessageId;
 import com.marcusprado02.commons.ports.messaging.MessageSerializer;
-import com.marcusprado02.commons.ports.messaging.TopicName;
 import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
 
 class AzureServiceBusPublisherAdapterTest {
 
@@ -60,7 +52,8 @@ class AzureServiceBusPublisherAdapterTest {
   void shouldFailWithoutConnectionStringOrNamespace() {
     assertThatThrownBy(() -> AzureServiceBusPublisherAdapter.builder().build())
         .isInstanceOf(IllegalArgumentException.class)
-        .hasMessageContaining("Either connectionString or fullyQualifiedNamespace must be provided");
+        .hasMessageContaining(
+            "Either connectionString or fullyQualifiedNamespace must be provided");
   }
 
   @Test

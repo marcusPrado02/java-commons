@@ -23,8 +23,7 @@ import org.slf4j.LoggerFactory;
 
 public final class AzureServiceBusConsumerAdapter implements MessageConsumerPort, AutoCloseable {
 
-  private static final Logger log =
-      LoggerFactory.getLogger(AzureServiceBusConsumerAdapter.class);
+  private static final Logger log = LoggerFactory.getLogger(AzureServiceBusConsumerAdapter.class);
 
   private final Map<SubscriptionKey, ServiceBusProcessorClient> processors = new HashMap<>();
   private final ServiceBusClientBuilder clientBuilder;
@@ -117,27 +116,33 @@ public final class AzureServiceBusConsumerAdapter implements MessageConsumerPort
 
   @Override
   public void start() {
-    processors.values().forEach(processor -> {
-      try {
-        processor.start();
-        log.info("Started processor");
-      } catch (Exception ex) {
-        log.error("Failed to start processor", ex);
-        throw new RuntimeException("Failed to start processor", ex);
-      }
-    });
+    processors
+        .values()
+        .forEach(
+            processor -> {
+              try {
+                processor.start();
+                log.info("Started processor");
+              } catch (Exception ex) {
+                log.error("Failed to start processor", ex);
+                throw new RuntimeException("Failed to start processor", ex);
+              }
+            });
   }
 
   @Override
   public void stop() {
-    processors.values().forEach(processor -> {
-      try {
-        processor.stop();
-        log.info("Stopped processor");
-      } catch (Exception ex) {
-        log.warn("Error stopping processor", ex);
-      }
-    });
+    processors
+        .values()
+        .forEach(
+            processor -> {
+              try {
+                processor.stop();
+                log.info("Stopped processor");
+              } catch (Exception ex) {
+                log.warn("Error stopping processor", ex);
+              }
+            });
   }
 
   @Override
@@ -158,13 +163,16 @@ public final class AzureServiceBusConsumerAdapter implements MessageConsumerPort
   @Override
   public void close() {
     stop();
-    processors.values().forEach(processor -> {
-      try {
-        processor.close();
-      } catch (Exception ex) {
-        log.warn("Error closing processor", ex);
-      }
-    });
+    processors
+        .values()
+        .forEach(
+            processor -> {
+              try {
+                processor.close();
+              } catch (Exception ex) {
+                log.warn("Error closing processor", ex);
+              }
+            });
     processors.clear();
   }
 

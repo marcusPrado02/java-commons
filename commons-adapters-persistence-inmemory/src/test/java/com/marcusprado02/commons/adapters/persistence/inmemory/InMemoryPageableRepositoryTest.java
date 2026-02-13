@@ -163,7 +163,8 @@ class InMemoryPageableRepositoryTest {
     PageResult<TestEntity> result = repository.findAll(pageRequest, criteria);
 
     assertThat(result.content()).hasSize(3);
-    assertThat(result.content()).extracting(TestEntity::name)
+    assertThat(result.content())
+        .extracting(TestEntity::name)
         .containsExactlyInAnyOrder("Alice", "Bob", "Charlie");
   }
 
@@ -200,9 +201,7 @@ class InMemoryPageableRepositoryTest {
     PageResult<TestEntity> result = repository.search(pageRequest, null, sort);
 
     assertThat(result.content()).hasSize(5);
-    assertThat(result.content())
-        .extracting(TestEntity::age)
-        .containsExactly(22, 25, 28, 30, 35);
+    assertThat(result.content()).extracting(TestEntity::age).containsExactly(22, 25, 28, 30, 35);
   }
 
   @Test
@@ -213,9 +212,7 @@ class InMemoryPageableRepositoryTest {
     PageResult<TestEntity> result = repository.search(pageRequest, null, sort);
 
     assertThat(result.content()).hasSize(5);
-    assertThat(result.content())
-        .extracting(TestEntity::age)
-        .containsExactly(35, 30, 28, 25, 22);
+    assertThat(result.content()).extracting(TestEntity::age).containsExactly(35, 30, 28, 25, 22);
   }
 
   @Test
@@ -224,10 +221,8 @@ class InMemoryPageableRepositoryTest {
     repository.save(new TestEntity(6L, "Frank", 25, "frank@example.com", true));
     repository.save(new TestEntity(7L, "Grace", 25, "grace@example.com", false));
 
-    Sort sort = Sort.of(
-        new Order("age", Order.Direction.ASC),
-        new Order("name", Order.Direction.ASC)
-    );
+    Sort sort =
+        Sort.of(new Order("age", Order.Direction.ASC), new Order("name", Order.Direction.ASC));
     PageRequest pageRequest = new PageRequest(0, 10);
 
     PageResult<TestEntity> result = repository.search(pageRequest, null, sort);
@@ -235,7 +230,7 @@ class InMemoryPageableRepositoryTest {
     assertThat(result.content()).hasSize(7);
     assertThat(result.content())
         .extracting(TestEntity::name)
-        .startsWith("Eve", "Alice", "Frank", "Grace");  // Eve age 22, then age 25 sorted by name
+        .startsWith("Eve", "Alice", "Frank", "Grace"); // Eve age 22, then age 25 sorted by name
   }
 
   @Test
@@ -246,14 +241,13 @@ class InMemoryPageableRepositoryTest {
     PageRequest pageRequest = new PageRequest(0, 10);
 
     PageResult<TestEntity> result = repository.findAll(pageRequest, criteria);
-    List<TestEntity> sortedFiltered = repository.search(pageRequest, null, sort).content().stream()
-        .filter(e -> e.age() > 25)
-        .toList();
+    List<TestEntity> sortedFiltered =
+        repository.search(pageRequest, null, sort).content().stream()
+            .filter(e -> e.age() > 25)
+            .toList();
 
     assertThat(result.content()).hasSize(3);
-    assertThat(sortedFiltered)
-        .extracting(TestEntity::age)
-        .containsExactly(35, 30, 28);
+    assertThat(sortedFiltered).extracting(TestEntity::age).containsExactly(35, 30, 28);
   }
 
   @Test

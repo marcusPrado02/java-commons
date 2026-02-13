@@ -35,9 +35,10 @@ public class InMemoryPageableRepository<E, ID> extends BaseInMemoryRepository<E,
     List<E> all = new ArrayList<>(storage.values());
 
     // Aplicar filtros
-    List<E> filtered = all.stream()
-        .filter(entity -> matchesCriteria(entity, criteria))
-        .collect(Collectors.toList());
+    List<E> filtered =
+        all.stream()
+            .filter(entity -> matchesCriteria(entity, criteria))
+            .collect(Collectors.toList());
 
     return paginate(filtered, pageRequest);
   }
@@ -61,8 +62,7 @@ public class InMemoryPageableRepository<E, ID> extends BaseInMemoryRepository<E,
       return true;
     }
 
-    return criteria.filters().stream()
-        .allMatch(filter -> matchesFilter(entity, filter));
+    return criteria.filters().stream().allMatch(filter -> matchesFilter(entity, filter));
   }
 
   private boolean matchesFilter(E entity, SearchFilter filter) {
@@ -152,9 +152,7 @@ public class InMemoryPageableRepository<E, ID> extends BaseInMemoryRepository<E,
 
   private boolean compareIn(Object fieldValue, String filterValue) {
     String[] values = filterValue.split(",");
-    return Arrays.stream(values)
-        .map(String::trim)
-        .anyMatch(v -> fieldValue.toString().equals(v));
+    return Arrays.stream(values).map(String::trim).anyMatch(v -> fieldValue.toString().equals(v));
   }
 
   private Object convertToType(String value, Class<?> targetType) {
@@ -190,9 +188,7 @@ public class InMemoryPageableRepository<E, ID> extends BaseInMemoryRepository<E,
       }
     }
 
-    return entities.stream()
-        .sorted(comparator)
-        .collect(Collectors.toList());
+    return entities.stream().sorted(comparator).collect(Collectors.toList());
   }
 
   @SuppressWarnings("unchecked")

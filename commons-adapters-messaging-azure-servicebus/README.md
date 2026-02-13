@@ -213,12 +213,12 @@ For integration tests in real Azure environment:
 @Test
 void shouldPublishAndConsumeMessage() {
     String connectionString = System.getenv("AZURE_SERVICE_BUS_CONNECTION_STRING");
-    
-    AzureServiceBusPublisherAdapter publisher = 
+
+    AzureServiceBusPublisherAdapter publisher =
         AzureServiceBusPublisherAdapter.builder()
             .connectionString(connectionString)
             .build();
-    
+
     // Test with real Azure Service Bus namespace
 }
 ```
