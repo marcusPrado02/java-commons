@@ -11,8 +11,8 @@ import com.marcusprado02.commons.ports.http.HttpMethod;
 import com.marcusprado02.commons.ports.http.HttpRequest;
 import com.marcusprado02.commons.ports.http.HttpResponse;
 import com.marcusprado02.commons.ports.http.HttpStreamingResponse;
-import java.io.InputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
-import okhttp3.Headers;
 import okhttp3.FormBody;
+import okhttp3.Headers;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
@@ -131,7 +131,8 @@ public final class OkHttpClientAdapter implements HttpClientPort {
       Response okResponse = effectiveClient.newCall(okRequest).execute();
       Map<String, List<String>> headers = toHeaderMap(okResponse.headers());
       InputStream stream = readBodyStream(okResponse.body());
-      return new HttpStreamingResponse(okResponse.code(), headers, new OkHttpBodyInputStream(okResponse, stream));
+      return new HttpStreamingResponse(
+          okResponse.code(), headers, new OkHttpBodyInputStream(okResponse, stream));
     } catch (IOException ex) {
       throw new RuntimeException("HTTP request failed", ex);
     }
@@ -276,12 +277,15 @@ public final class OkHttpClientAdapter implements HttpClientPort {
   private HttpRequest applyRequestInterceptors(HttpRequest request) {
     HttpRequest current = request;
     for (HttpInterceptor interceptor : interceptors) {
-      current = Objects.requireNonNull(interceptor.onRequest(current), "interceptor returned null request");
+      current =
+          Objects.requireNonNull(
+              interceptor.onRequest(current), "interceptor returned null request");
     }
     return current;
   }
 
-  private HttpResponse<byte[]> applyResponseInterceptors(HttpRequest request, HttpResponse<byte[]> response) {
+  private HttpResponse<byte[]> applyResponseInterceptors(
+      HttpRequest request, HttpResponse<byte[]> response) {
     HttpResponse<byte[]> current = response;
     for (HttpInterceptor interceptor : interceptors) {
       current =

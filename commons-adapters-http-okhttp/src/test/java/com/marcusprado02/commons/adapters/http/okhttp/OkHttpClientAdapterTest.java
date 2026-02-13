@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.github.tomakehurst.wiremock.WireMockServer;
+import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import com.marcusprado02.commons.app.observability.TracerFacade;
 import com.marcusprado02.commons.app.resilience.ResilienceExecutor;
 import com.marcusprado02.commons.app.resilience.ResiliencePolicySet;
@@ -13,8 +15,6 @@ import com.marcusprado02.commons.ports.http.HttpRequest;
 import java.net.URI;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
-import com.github.tomakehurst.wiremock.WireMockServer;
-import com.github.tomakehurst.wiremock.core.WireMockConfiguration;
 import org.junit.jupiter.api.Test;
 
 class OkHttpClientAdapterTest {
@@ -26,10 +26,10 @@ class OkHttpClientAdapterTest {
     try {
       server.stubFor(
           com.github.tomakehurst.wiremock.client.WireMock.get("/hello")
-            .willReturn(
-              com.github.tomakehurst.wiremock.client.WireMock.aResponse()
-                .withStatus(200)
-                .withBody("ok")));
+              .willReturn(
+                  com.github.tomakehurst.wiremock.client.WireMock.aResponse()
+                      .withStatus(200)
+                      .withBody("ok")));
 
       OkHttpClientAdapter adapter = OkHttpClientAdapter.builder().build();
 
@@ -43,7 +43,8 @@ class OkHttpClientAdapterTest {
 
       assertTrue(response.isSuccessful());
       assertEquals(200, response.statusCode());
-      assertArrayEquals("ok".getBytes(java.nio.charset.StandardCharsets.UTF_8), response.body().orElseThrow());
+      assertArrayEquals(
+          "ok".getBytes(java.nio.charset.StandardCharsets.UTF_8), response.body().orElseThrow());
     } finally {
       server.stop();
     }
@@ -56,13 +57,13 @@ class OkHttpClientAdapterTest {
     try {
       server.stubFor(
           com.github.tomakehurst.wiremock.client.WireMock.get("/secure")
-            .withHeader(
-              "Authorization",
-              com.github.tomakehurst.wiremock.client.WireMock.equalTo("Bearer abc"))
-            .willReturn(
-              com.github.tomakehurst.wiremock.client.WireMock.aResponse()
-                .withStatus(200)
-                .withBody("ok")));
+              .withHeader(
+                  "Authorization",
+                  com.github.tomakehurst.wiremock.client.WireMock.equalTo("Bearer abc"))
+              .willReturn(
+                  com.github.tomakehurst.wiremock.client.WireMock.aResponse()
+                      .withStatus(200)
+                      .withBody("ok")));
 
       OkHttpClientAdapter adapter = OkHttpClientAdapter.builder().build();
 
@@ -87,10 +88,10 @@ class OkHttpClientAdapterTest {
     try {
       server.stubFor(
           com.github.tomakehurst.wiremock.client.WireMock.get("/hello")
-            .willReturn(
-              com.github.tomakehurst.wiremock.client.WireMock.aResponse()
-                .withStatus(200)
-                .withBody("ok")));
+              .willReturn(
+                  com.github.tomakehurst.wiremock.client.WireMock.aResponse()
+                      .withStatus(200)
+                      .withBody("ok")));
 
       AtomicInteger spans = new AtomicInteger();
       AtomicInteger resilience = new AtomicInteger();

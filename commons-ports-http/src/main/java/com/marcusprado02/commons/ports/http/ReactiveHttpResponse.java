@@ -13,7 +13,8 @@ public final class ReactiveHttpResponse {
   private final Map<String, List<String>> headers;
   private final Flux<byte[]> body;
 
-  public ReactiveHttpResponse(int statusCode, Map<String, List<String>> headers, Flux<byte[]> body) {
+  public ReactiveHttpResponse(
+      int statusCode, Map<String, List<String>> headers, Flux<byte[]> body) {
     this.statusCode = statusCode;
     this.headers = Objects.requireNonNull(headers, "headers must not be null");
     this.body = Objects.requireNonNull(body, "body must not be null");

@@ -48,6 +48,8 @@
     <module>commons-adapters-http-okhttp</module>
     <module>commons-adapters-http-webclient</module>
 
+    <module>commons-adapters-messaging-kafka</module>
+
     <module>commons-adapters-otel</module>
 
     <module>commons-adapters-resilience4j</module>

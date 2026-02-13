@@ -16,15 +16,15 @@ import java.util.Optional;
 import java.util.function.Function;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.client.MultipartBodyBuilder;
 import org.springframework.http.client.reactive.ClientHttpRequest;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.http.MediaType;
-import org.springframework.http.client.MultipartBodyBuilder;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 import reactor.util.context.ContextView;
 
@@ -91,21 +91,21 @@ public final class WebClientHttpClientAdapter implements ReactiveHttpClientPort 
     return webClient
         .method(toSpringMethod(request))
         .uri(request.uri())
-      .headers(headers -> applyHeaders(headers, request))
-      .headers(headers -> applyInferredContentType(headers, request))
+        .headers(headers -> applyHeaders(headers, request))
+        .headers(headers -> applyInferredContentType(headers, request))
         .body(buildBodyInserter(request))
         .exchangeToMono(this::toResponse);
   }
 
-    private Mono<ReactiveHttpResponse> doExchange(HttpRequest request) {
-      return webClient
-      .method(toSpringMethod(request))
-      .uri(request.uri())
-      .headers(headers -> applyHeaders(headers, request))
-      .headers(headers -> applyInferredContentType(headers, request))
-      .body(buildBodyInserter(request))
-      .exchangeToMono(this::toReactiveResponse);
-    }
+  private Mono<ReactiveHttpResponse> doExchange(HttpRequest request) {
+    return webClient
+        .method(toSpringMethod(request))
+        .uri(request.uri())
+        .headers(headers -> applyHeaders(headers, request))
+        .headers(headers -> applyInferredContentType(headers, request))
+        .body(buildBodyInserter(request))
+        .exchangeToMono(this::toReactiveResponse);
+  }
 
   private Mono<HttpResponse<byte[]>> toResponse(ClientResponse response) {
     int statusCode = response.statusCode().value();
@@ -121,9 +121,11 @@ public final class WebClientHttpClientAdapter implements ReactiveHttpClientPort 
     response
         .headers()
         .asHttpHeaders()
-        .forEach((key, values) -> headers.put(key, values == null ? List.of() : List.copyOf(values)));
+        .forEach(
+            (key, values) -> headers.put(key, values == null ? List.of() : List.copyOf(values)));
 
-    return Mono.just(new ReactiveHttpResponse(statusCode, headers, response.bodyToFlux(byte[].class)));
+    return Mono.just(
+        new ReactiveHttpResponse(statusCode, headers, response.bodyToFlux(byte[].class)));
   }
 
   private HttpMethod toSpringMethod(HttpRequest request) {

@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public sealed interface HttpBody permits HttpBody.Bytes, HttpBody.FormUrlEncoded, HttpBody.Multipart {
+public sealed interface HttpBody
+    permits HttpBody.Bytes, HttpBody.FormUrlEncoded, HttpBody.Multipart {
 
   String contentType();
 
@@ -53,7 +54,10 @@ public sealed interface HttpBody permits HttpBody.Bytes, HttpBody.FormUrlEncoded
       public Part {
         Objects.requireNonNull(name, "name must not be null");
         Objects.requireNonNull(value, "value must not be null");
-        contentType = (contentType == null || contentType.isBlank()) ? "application/octet-stream" : contentType;
+        contentType =
+            (contentType == null || contentType.isBlank())
+                ? "application/octet-stream"
+                : contentType;
       }
 
       public Part(String name, byte[] value) {
@@ -68,7 +72,8 @@ public sealed interface HttpBody permits HttpBody.Bytes, HttpBody.FormUrlEncoded
         (key, values) ->
             safe.put(
                 key,
-                Collections.unmodifiableList(new ArrayList<>(values == null ? List.of() : values))));
+                Collections.unmodifiableList(
+                    new ArrayList<>(values == null ? List.of() : values))));
     return Collections.unmodifiableMap(safe);
   }
 }

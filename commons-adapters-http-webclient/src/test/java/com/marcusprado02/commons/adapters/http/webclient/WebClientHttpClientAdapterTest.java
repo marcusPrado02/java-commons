@@ -21,7 +21,6 @@ import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
-import reactor.core.publisher.Mono;
 import reactor.netty.DisposableServer;
 import reactor.netty.http.server.HttpServer;
 
@@ -41,12 +40,16 @@ class WebClientHttpClientAdapterTest {
     startServer(
         RouterFunctions.route(
             org.springframework.web.reactive.function.server.RequestPredicates.GET("/hello"),
-            req ->
-                ServerResponse.ok()
-                    .contentType(MediaType.TEXT_PLAIN)
-                    .bodyValue("ok")));
+            req -> ServerResponse.ok().contentType(MediaType.TEXT_PLAIN).bodyValue("ok")));
 
-    WebTestClient.bindToServer().baseUrl(baseUrl()).build().get().uri("/hello").exchange().expectStatus().isOk();
+    WebTestClient.bindToServer()
+        .baseUrl(baseUrl())
+        .build()
+        .get()
+        .uri("/hello")
+        .exchange()
+        .expectStatus()
+        .isOk();
 
     WebClientHttpClientAdapter adapter = WebClientHttpClientAdapter.builder().build();
 
@@ -88,7 +91,8 @@ class WebClientHttpClientAdapterTest {
           }
         };
 
-    WebClientHttpClientAdapter adapter = WebClientHttpClientAdapter.builder().interceptor(interceptor).build();
+    WebClientHttpClientAdapter adapter =
+        WebClientHttpClientAdapter.builder().interceptor(interceptor).build();
 
     HttpRequest request =
         HttpRequest.builder().method(HttpMethod.GET).uri(URI.create(baseUrl() + "/secure")).build();
@@ -116,13 +120,12 @@ class WebClientHttpClientAdapterTest {
             .contextHeadersProvider(
                 ctx ->
                     ctx.hasKey("correlationId")
-              ? Map.of(
-                "X-Correlation-Id",
-                Objects.toString(ctx.get("correlationId"), ""))
+                        ? Map.of("X-Correlation-Id", Objects.toString(ctx.get("correlationId"), ""))
                         : Map.of())
             .build();
 
-    HttpRequest request = HttpRequest.builder().method(HttpMethod.GET).uri(URI.create(baseUrl() + "/ctx")).build();
+    HttpRequest request =
+        HttpRequest.builder().method(HttpMethod.GET).uri(URI.create(baseUrl() + "/ctx")).build();
 
     var response =
         adapter
@@ -136,7 +139,8 @@ class WebClientHttpClientAdapterTest {
 
   private void startServer(RouterFunction<ServerResponse> routes) {
     HttpHandler httpHandler = RouterFunctions.toHttpHandler(routes);
-    server = HttpServer.create().port(0).handle(new ReactorHttpHandlerAdapter(httpHandler)).bindNow();
+    server =
+        HttpServer.create().port(0).handle(new ReactorHttpHandlerAdapter(httpHandler)).bindNow();
   }
 
   private String baseUrl() {

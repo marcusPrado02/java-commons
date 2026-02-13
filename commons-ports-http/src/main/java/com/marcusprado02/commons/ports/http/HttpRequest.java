@@ -12,145 +12,141 @@ import java.util.Optional;
 
 public final class HttpRequest {
 
-	private final String name;
-	private final HttpMethod method;
-	private final URI uri;
-	private final Map<String, List<String>> headers;
-	private final HttpBody body;
-	private final Duration timeout;
+  private final String name;
+  private final HttpMethod method;
+  private final URI uri;
+  private final Map<String, List<String>> headers;
+  private final HttpBody body;
+  private final Duration timeout;
 
-	private HttpRequest(
-			String name,
-			HttpMethod method,
-			URI uri,
-			Map<String, List<String>> headers,
-			HttpBody body,
-			Duration timeout) {
-		this.name = name;
-		this.method = Objects.requireNonNull(method, "method must not be null");
-		this.uri = Objects.requireNonNull(uri, "uri must not be null");
-		this.headers = headers;
-		this.body = body;
-		this.timeout = timeout;
-	}
+  private HttpRequest(
+      String name,
+      HttpMethod method,
+      URI uri,
+      Map<String, List<String>> headers,
+      HttpBody body,
+      Duration timeout) {
+    this.name = name;
+    this.method = Objects.requireNonNull(method, "method must not be null");
+    this.uri = Objects.requireNonNull(uri, "uri must not be null");
+    this.headers = headers;
+    this.body = body;
+    this.timeout = timeout;
+  }
 
-	public static Builder builder() {
-		return new Builder();
-	}
+  public static Builder builder() {
+    return new Builder();
+  }
 
-	public Optional<String> name() {
-		return Optional.ofNullable(name);
-	}
+  public Optional<String> name() {
+    return Optional.ofNullable(name);
+  }
 
-	public HttpMethod method() {
-		return method;
-	}
+  public HttpMethod method() {
+    return method;
+  }
 
-	public URI uri() {
-		return uri;
-	}
+  public URI uri() {
+    return uri;
+  }
 
-	public Map<String, List<String>> headers() {
-		return headers;
-	}
+  public Map<String, List<String>> headers() {
+    return headers;
+  }
 
-	public Optional<HttpBody> body() {
-		return Optional.ofNullable(body);
-	}
+  public Optional<HttpBody> body() {
+    return Optional.ofNullable(body);
+  }
 
-	public Optional<Duration> timeout() {
-		return Optional.ofNullable(timeout);
-	}
+  public Optional<Duration> timeout() {
+    return Optional.ofNullable(timeout);
+  }
 
-	public static final class Builder {
-		private String name;
-		private HttpMethod method;
-		private URI uri;
-		private final Map<String, List<String>> headers = new LinkedHashMap<>();
-		private HttpBody body;
-		private Duration timeout;
+  public static final class Builder {
+    private String name;
+    private HttpMethod method;
+    private URI uri;
+    private final Map<String, List<String>> headers = new LinkedHashMap<>();
+    private HttpBody body;
+    private Duration timeout;
 
-		private Builder() {}
+    private Builder() {}
 
-		public Builder name(String name) {
-			this.name = name;
-			return this;
-		}
+    public Builder name(String name) {
+      this.name = name;
+      return this;
+    }
 
-		public Builder method(HttpMethod method) {
-			this.method = method;
-			return this;
-		}
+    public Builder method(HttpMethod method) {
+      this.method = method;
+      return this;
+    }
 
-		public Builder uri(URI uri) {
-			this.uri = uri;
-			return this;
-		}
+    public Builder uri(URI uri) {
+      this.uri = uri;
+      return this;
+    }
 
-		public Builder header(String name, String value) {
-			Objects.requireNonNull(name, "header name must not be null");
-			Objects.requireNonNull(value, "header value must not be null");
-			headers.computeIfAbsent(name, ignored -> new ArrayList<>()).add(value);
-			return this;
-		}
+    public Builder header(String name, String value) {
+      Objects.requireNonNull(name, "header name must not be null");
+      Objects.requireNonNull(value, "header value must not be null");
+      headers.computeIfAbsent(name, ignored -> new ArrayList<>()).add(value);
+      return this;
+    }
 
-		public Builder headers(Map<String, List<String>> headers) {
-			Objects.requireNonNull(headers, "headers must not be null");
-			this.headers.clear();
-			headers.forEach(
-					(key, values) -> this.headers.put(key, new ArrayList<>(values == null ? List.of() : values)));
-			return this;
-		}
+    public Builder headers(Map<String, List<String>> headers) {
+      Objects.requireNonNull(headers, "headers must not be null");
+      this.headers.clear();
+      headers.forEach(
+          (key, values) ->
+              this.headers.put(key, new ArrayList<>(values == null ? List.of() : values)));
+      return this;
+    }
 
-		public Builder auth(HttpAuth auth) {
-			Objects.requireNonNull(auth, "auth must not be null");
-			return header("Authorization", auth.asAuthorizationHeaderValue());
-		}
+    public Builder auth(HttpAuth auth) {
+      Objects.requireNonNull(auth, "auth must not be null");
+      return header("Authorization", auth.asAuthorizationHeaderValue());
+    }
 
-		public Builder body(byte[] body) {
-			this.body = (body == null) ? null : new HttpBody.Bytes(body);
-			return this;
-		}
+    public Builder body(byte[] body) {
+      this.body = (body == null) ? null : new HttpBody.Bytes(body);
+      return this;
+    }
 
-		public Builder body(HttpBody body) {
-			this.body = body;
-			return this;
-		}
+    public Builder body(HttpBody body) {
+      this.body = body;
+      return this;
+    }
 
-		public Builder formUrlEncoded(Map<String, List<String>> fields) {
-			this.body = new HttpBody.FormUrlEncoded(fields);
-			return this;
-		}
+    public Builder formUrlEncoded(Map<String, List<String>> fields) {
+      this.body = new HttpBody.FormUrlEncoded(fields);
+      return this;
+    }
 
-		public Builder multipart(List<HttpBody.Multipart.Part> parts) {
-			this.body = new HttpBody.Multipart(parts);
-			return this;
-		}
+    public Builder multipart(List<HttpBody.Multipart.Part> parts) {
+      this.body = new HttpBody.Multipart(parts);
+      return this;
+    }
 
-		public Builder timeout(Duration timeout) {
-			this.timeout = timeout;
-			return this;
-		}
+    public Builder timeout(Duration timeout) {
+      this.timeout = timeout;
+      return this;
+    }
 
-		public HttpRequest build() {
-			HttpMethod safeMethod = Objects.requireNonNull(method, "method must not be null");
-			URI safeUri = Objects.requireNonNull(uri, "uri must not be null");
+    public HttpRequest build() {
+      HttpMethod safeMethod = Objects.requireNonNull(method, "method must not be null");
+      URI safeUri = Objects.requireNonNull(uri, "uri must not be null");
 
-			Map<String, List<String>> safeHeaders = new LinkedHashMap<>();
-			headers.forEach(
-					(key, values) ->
-							safeHeaders.put(
-									key,
-									Collections.unmodifiableList(
-											new ArrayList<>(values == null ? List.of() : values))));
+      Map<String, List<String>> safeHeaders = new LinkedHashMap<>();
+      headers.forEach(
+          (key, values) ->
+              safeHeaders.put(
+                  key,
+                  Collections.unmodifiableList(
+                      new ArrayList<>(values == null ? List.of() : values))));
 
-			return new HttpRequest(
-					name,
-					safeMethod,
-					safeUri,
-					Collections.unmodifiableMap(safeHeaders),
-					body,
-					timeout);
-		}
-	}
+      return new HttpRequest(
+          name, safeMethod, safeUri, Collections.unmodifiableMap(safeHeaders), body, timeout);
+    }
+  }
 }

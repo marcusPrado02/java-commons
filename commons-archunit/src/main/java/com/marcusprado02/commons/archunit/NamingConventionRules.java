@@ -106,32 +106,30 @@ public final class NamingConventionRules {
       classes()
           .that()
           .resideInAPackage("com.marcusprado02.commons..")
-                    .should(haveLowercasePackageSegments())
+          .should(haveLowercasePackageSegments())
           .because("Package names should be lowercase by Java conventions");
 
-    private static ArchCondition<JavaClass> haveLowercasePackageSegments() {
-        return new ArchCondition<>("have lowercase package segments") {
-            @Override
-            public void check(JavaClass item, ConditionEvents events) {
-                String pkg = item.getPackageName();
-                if (pkg == null || pkg.isBlank()) {
-                    return;
-                }
+  private static ArchCondition<JavaClass> haveLowercasePackageSegments() {
+    return new ArchCondition<>("have lowercase package segments") {
+      @Override
+      public void check(JavaClass item, ConditionEvents events) {
+        String pkg = item.getPackageName();
+        if (pkg == null || pkg.isBlank()) {
+          return;
+        }
 
-                boolean ok =
-                        java.util.Arrays.stream(pkg.split("\\."))
-                                .allMatch(seg -> seg.equals(seg.toLowerCase(java.util.Locale.ROOT)));
+        boolean ok =
+            java.util.Arrays.stream(pkg.split("\\."))
+                .allMatch(seg -> seg.equals(seg.toLowerCase(java.util.Locale.ROOT)));
 
-                if (!ok) {
-                    events.add(
-                            SimpleConditionEvent.violated(
-                                    item,
-                                    String.format(
-                                            "Class '%s' is in a non-lowercase package '%s'",
-                                            item.getName(),
-                                            pkg)));
-                }
-            }
-        };
-    }
+        if (!ok) {
+          events.add(
+              SimpleConditionEvent.violated(
+                  item,
+                  String.format(
+                      "Class '%s' is in a non-lowercase package '%s'", item.getName(), pkg)));
+        }
+      }
+    };
+  }
 }

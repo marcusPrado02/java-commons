@@ -1,12 +1,9 @@
 package com.marcusprado02.commons.ports.http;
 
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
 import java.util.Objects;
-import reactor.core.publisher.Mono;
 import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 public interface ReactiveHttpClientPort {
 
@@ -17,7 +14,9 @@ public interface ReactiveHttpClientPort {
         .map(
             response ->
                 new ReactiveHttpResponse(
-                    response.statusCode(), response.headers(), Flux.just(response.body().orElse(new byte[0]))));
+                    response.statusCode(),
+                    response.headers(),
+                    Flux.just(response.body().orElse(new byte[0]))));
   }
 
   default Flux<String> executeServerSentEvents(HttpRequest request) {

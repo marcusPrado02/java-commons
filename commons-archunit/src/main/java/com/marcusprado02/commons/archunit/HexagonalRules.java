@@ -35,8 +35,8 @@ public final class HexagonalRules {
           .resideInAPackage("..adapters..")
           .should()
           .dependOnClassesThat()
-        .resideInAnyPackage("..starter..")
-        .because("Adapters should not depend on Starters (Starters sit at the top of the stack)");
+          .resideInAnyPackage("..starter..")
+          .because("Adapters should not depend on Starters (Starters sit at the top of the stack)");
 
   /** Spring Starters should only depend on Adapters and Application layers. */
   public static final ArchRule STARTERS_SHOULD_ONLY_DEPEND_ON_ADAPTERS_AND_APP =
@@ -45,8 +45,8 @@ public final class HexagonalRules {
           .resideInAPackage("..starter..")
           .should()
           .dependOnClassesThat()
-        .resideInAnyPackage("..ports..")
-        .because("Starters should avoid depending directly on Ports (prefer App abstractions)");
+          .resideInAnyPackage("..ports..")
+          .because("Starters should avoid depending directly on Ports (prefer App abstractions)");
 
   /** Types ending with 'Port' must be interfaces. */
   public static final ArchRule PORTS_SHOULD_ONLY_CONTAIN_INTERFACES =
@@ -74,10 +74,8 @@ public final class HexagonalRules {
       @Override
       public void check(JavaClass item, ConditionEvents events) {
         boolean implementsPort =
-          item.getAllRawInterfaces().stream()
-                .anyMatch(
-                    itf ->
-                itf.getSimpleName().endsWith("Port"));
+            item.getAllRawInterfaces().stream()
+                .anyMatch(itf -> itf.getSimpleName().endsWith("Port"));
 
         if (!implementsPort) {
           events.add(

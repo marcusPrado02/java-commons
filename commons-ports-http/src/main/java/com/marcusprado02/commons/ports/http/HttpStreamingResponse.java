@@ -11,7 +11,8 @@ public final class HttpStreamingResponse implements AutoCloseable {
   private final Map<String, List<String>> headers;
   private final InputStream body;
 
-  public HttpStreamingResponse(int statusCode, Map<String, List<String>> headers, InputStream body) {
+  public HttpStreamingResponse(
+      int statusCode, Map<String, List<String>> headers, InputStream body) {
     this.statusCode = statusCode;
     this.headers = Objects.requireNonNull(headers, "headers must not be null");
     this.body = Objects.requireNonNull(body, "body must not be null");

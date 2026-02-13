@@ -69,9 +69,11 @@ class PlatformModuleValidationTest {
     for (String pkg : PORTS_MODULE_PACKAGES) {
       var classes = IMPORTER.importPackages(pkg);
       HexagonalRules.PORTS_SHOULD_ONLY_CONTAIN_INTERFACES.allowEmptyShould(true).check(classes);
-      NamingConventionRules.TYPES_ENDING_WITH_PORT_SHOULD_BE_INTERFACES.allowEmptyShould(true)
+      NamingConventionRules.TYPES_ENDING_WITH_PORT_SHOULD_BE_INTERFACES
+          .allowEmptyShould(true)
           .check(classes);
-      NamingConventionRules.TYPES_ENDING_WITH_PORT_SHOULD_RESIDE_IN_PORTS_PACKAGE.allowEmptyShould(true)
+      NamingConventionRules.TYPES_ENDING_WITH_PORT_SHOULD_RESIDE_IN_PORTS_PACKAGE
+          .allowEmptyShould(true)
           .check(classes);
     }
   }
