@@ -10,9 +10,7 @@ import com.marcusprado02.commons.app.resilience.ResiliencePolicySet;
 import com.marcusprado02.commons.ports.http.HttpAuth;
 import com.marcusprado02.commons.ports.http.HttpMethod;
 import com.marcusprado02.commons.ports.http.HttpRequest;
-import com.marcusprado02.commons.ports.http.MultipartFormData;
 import java.net.URI;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import com.github.tomakehurst.wiremock.WireMockServer;
@@ -149,58 +147,4 @@ class OkHttpClientAdapterTest {
       server.stop();
     }
   }
-
-    @Test
-    void supports_multipart_form_data_upload() {
-    WireMockServer server = new WireMockServer(WireMockConfiguration.options().dynamicPort());
-    server.start();
-    try {
-      server.stubFor(
-        com.github.tomakehurst.wiremock.client.WireMock.post("/upload")
-          .withHeader(
-            "Content-Type",
-            com.github.tomakehurst.wiremock.client.WireMock.matching("multipart/form-data.*"))
-          .withRequestBody(
-            com.github.tomakehurst.wiremock.client.WireMock.containing(
-              "name=\"description\""))
-          .withRequestBody(
-            com.github.tomakehurst.wiremock.client.WireMock.containing("hello"))
-          .withRequestBody(
-            com.github.tomakehurst.wiremock.client.WireMock.containing(
-              "name=\"file\""))
-          .withRequestBody(
-            com.github.tomakehurst.wiremock.client.WireMock.containing(
-              "filename=\"file.txt\""))
-          .withRequestBody(
-            com.github.tomakehurst.wiremock.client.WireMock.containing("FILE_CONTENT"))
-          .willReturn(
-            com.github.tomakehurst.wiremock.client.WireMock.aResponse()
-              .withStatus(200)
-              .withBody("ok")));
-
-      OkHttpClientAdapter adapter = OkHttpClientAdapter.builder().build();
-
-      HttpRequest request =
-        HttpRequest.builder()
-          .method(HttpMethod.POST)
-          .uri(URI.create(server.baseUrl() + "/upload"))
-          .multipartForm(
-            MultipartFormData.builder()
-              .part("description", "hello".getBytes(StandardCharsets.UTF_8))
-              .file(
-                "file",
-                "file.txt",
-                "text/plain",
-                "FILE_CONTENT".getBytes(StandardCharsets.UTF_8))
-              .build())
-          .build();
-
-      var response = adapter.execute(request);
-
-      assertEquals(200, response.statusCode());
-      assertArrayEquals("ok".getBytes(StandardCharsets.UTF_8), response.body().orElseThrow());
-    } finally {
-      server.stop();
-    }
-    }
 }

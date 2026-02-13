@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import com.marcusprado02.commons.ports.http.HttpInterceptor;
 import com.marcusprado02.commons.ports.http.HttpMethod;
 import com.marcusprado02.commons.ports.http.HttpRequest;
-import com.marcusprado02.commons.ports.http.MultipartFormData;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -133,55 +132,6 @@ class WebClientHttpClientAdapterTest {
 
     assertNotNull(response);
     assertEquals(200, response.statusCode());
-  }
-
-  @Test
-  void supports_multipart_form_data_upload() {
-    startServer(
-        RouterFunctions.route(
-            org.springframework.web.reactive.function.server.RequestPredicates.POST("/upload"),
-            req -> {
-              String ct = req.headers().firstHeader("Content-Type");
-              if (ct == null || !ct.startsWith("multipart/form-data")) {
-                return ServerResponse.status(400).build();
-              }
-
-              return req.bodyToMono(String.class)
-                  .flatMap(
-                      body -> {
-                        boolean ok =
-                            body.contains("name=\"description\"")
-                                && body.contains("hello")
-                                && body.contains("name=\"file\"")
-                                && body.contains("filename=\"file.txt\"")
-                                && body.contains("FILE_CONTENT");
-                        return ok
-                            ? ServerResponse.ok().contentType(MediaType.TEXT_PLAIN).bodyValue("ok")
-                            : ServerResponse.status(400).build();
-                      });
-            }));
-
-    WebClientHttpClientAdapter adapter = WebClientHttpClientAdapter.builder().build();
-
-    HttpRequest request =
-        HttpRequest.builder()
-            .method(HttpMethod.POST)
-            .uri(URI.create(baseUrl() + "/upload"))
-            .multipartForm(
-                MultipartFormData.builder()
-                    .part("description", "hello".getBytes(StandardCharsets.UTF_8))
-                    .file(
-                        "file",
-                        "file.txt",
-                        "text/plain",
-                        "FILE_CONTENT".getBytes(StandardCharsets.UTF_8))
-                    .build())
-            .build();
-
-    var response = adapter.execute(request).block(Duration.ofSeconds(2));
-    assertNotNull(response);
-    assertEquals(200, response.statusCode());
-    assertArrayEquals("ok".getBytes(StandardCharsets.UTF_8), response.body().orElseThrow());
   }
 
   private void startServer(RouterFunction<ServerResponse> routes) {

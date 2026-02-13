@@ -4,15 +4,14 @@ import com.marcusprado02.commons.app.observability.TracerFacade;
 import com.marcusprado02.commons.app.resilience.NoopResilienceExecutor;
 import com.marcusprado02.commons.app.resilience.ResilienceExecutor;
 import com.marcusprado02.commons.app.resilience.ResiliencePolicySet;
+import com.marcusprado02.commons.ports.http.HttpBody;
 import com.marcusprado02.commons.ports.http.HttpClientPort;
 import com.marcusprado02.commons.ports.http.HttpInterceptor;
 import com.marcusprado02.commons.ports.http.HttpMethod;
 import com.marcusprado02.commons.ports.http.HttpRequest;
 import com.marcusprado02.commons.ports.http.HttpResponse;
 import com.marcusprado02.commons.ports.http.HttpStreamingResponse;
-import com.marcusprado02.commons.ports.http.MultipartFormData;
-import com.marcusprado02.commons.ports.http.MultipartPart;
-import com.marcusprado02.commons.ports.http.StreamingHttpClientPort;
+import java.io.InputStream;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -22,15 +21,16 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import okhttp3.Headers;
+import okhttp3.FormBody;
 import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
-import okhttp3.MultipartBody;
 
-public final class OkHttpClientAdapter implements HttpClientPort, StreamingHttpClientPort {
+public final class OkHttpClientAdapter implements HttpClientPort {
 
   private static final MediaType DEFAULT_MEDIA_TYPE = MediaType.get("application/octet-stream");
 
@@ -85,24 +85,12 @@ public final class OkHttpClientAdapter implements HttpClientPort, StreamingHttpC
                 }));
   }
 
-  private HttpResponse<byte[]> doExecute(HttpRequest request) {
-    OkHttpClient effectiveClient = applyPerRequestTimeout(client, request.timeout());
-    Request okRequest = toOkHttpRequest(request);
-
-    try (Response okResponse = effectiveClient.newCall(okRequest).execute()) {
-      Map<String, List<String>> headers = toHeaderMap(okResponse.headers());
-      byte[] body = readBody(okResponse.body());
-      return new HttpResponse<>(okResponse.code(), headers, body);
-    } catch (IOException ex) {
-      throw new RuntimeException("HTTP request failed", ex);
-    }
-  }
-
   @Override
-  public HttpStreamingResponse executeStream(HttpRequest request) {
+  public HttpStreamingResponse exchange(HttpRequest request) {
     Objects.requireNonNull(request, "request must not be null");
 
     HttpRequest interceptedRequest = applyRequestInterceptors(request);
+
     String operationName =
         interceptedRequest
             .name()
@@ -116,22 +104,37 @@ public final class OkHttpClientAdapter implements HttpClientPort, StreamingHttpC
                 operationName,
                 resiliencePolicies,
                 () -> {
-                  OkHttpClient effectiveClient = applyPerRequestTimeout(client, interceptedRequest.timeout());
-                  Request okRequest = toOkHttpRequest(interceptedRequest);
-                  try {
-                    Response okResponse = effectiveClient.newCall(okRequest).execute();
-                    Map<String, List<String>> headers = toHeaderMap(okResponse.headers());
-                    ResponseBody body = okResponse.body();
-                    if (body == null) {
-                      okResponse.close();
-                      throw new RuntimeException("HTTP response body is null");
-                    }
-                    return new HttpStreamingResponse(
-                        okResponse.code(), headers, body.byteStream(), okResponse::close);
-                  } catch (IOException ex) {
-                    throw new RuntimeException("HTTP request failed", ex);
-                  }
+                  HttpStreamingResponse response = doExchange(interceptedRequest);
+                  // streaming response interceptors are not supported here (they need buffering)
+                  return response;
                 }));
+  }
+
+  private HttpResponse<byte[]> doExecute(HttpRequest request) {
+    OkHttpClient effectiveClient = applyPerRequestTimeout(client, request.timeout());
+    Request okRequest = toOkHttpRequest(request);
+
+    try (Response okResponse = effectiveClient.newCall(okRequest).execute()) {
+      Map<String, List<String>> headers = toHeaderMap(okResponse.headers());
+      byte[] body = readBody(okResponse.body());
+      return new HttpResponse<>(okResponse.code(), headers, body);
+    } catch (IOException ex) {
+      throw new RuntimeException("HTTP request failed", ex);
+    }
+  }
+
+  private HttpStreamingResponse doExchange(HttpRequest request) {
+    OkHttpClient effectiveClient = applyPerRequestTimeout(client, request.timeout());
+    Request okRequest = toOkHttpRequest(request);
+
+    try {
+      Response okResponse = effectiveClient.newCall(okRequest).execute();
+      Map<String, List<String>> headers = toHeaderMap(okResponse.headers());
+      InputStream stream = readBodyStream(okResponse.body());
+      return new HttpStreamingResponse(okResponse.code(), headers, new OkHttpBodyInputStream(okResponse, stream));
+    } catch (IOException ex) {
+      throw new RuntimeException("HTTP request failed", ex);
+    }
   }
 
   private OkHttpClient applyPerRequestTimeout(OkHttpClient base, Optional<Duration> timeout) {
@@ -158,8 +161,8 @@ public final class OkHttpClientAdapter implements HttpClientPort, StreamingHttpC
               }
             });
 
-    String method = request.method().name();
     RequestBody body = buildRequestBody(request);
+    String method = request.method().name();
     builder.method(method, body);
     return builder.build();
   }
@@ -175,37 +178,91 @@ public final class OkHttpClientAdapter implements HttpClientPort, StreamingHttpC
       return null;
     }
 
-    if (request.multipartForm().isPresent()) {
-      MultipartFormData form = request.multipartForm().orElseThrow();
+    Optional<HttpBody> body = request.body();
+    if (body.isEmpty()) {
+      return RequestBody.create(new byte[0], DEFAULT_MEDIA_TYPE);
+    }
+
+    HttpBody typedBody = body.get();
+    if (typedBody instanceof HttpBody.Bytes bytes) {
+      MediaType mt = MediaType.get(bytes.contentType());
+      return RequestBody.create(bytes.value(), mt);
+    }
+
+    if (typedBody instanceof HttpBody.FormUrlEncoded form) {
+      FormBody.Builder builder = new FormBody.Builder();
+      form.fields()
+          .forEach(
+              (key, values) -> {
+                if (values == null) {
+                  return;
+                }
+                for (String value : values) {
+                  builder.add(key, value == null ? "" : value);
+                }
+              });
+      return builder.build();
+    }
+
+    if (typedBody instanceof HttpBody.Multipart multipart) {
       MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
-      for (MultipartPart part : form.parts()) {
-        if (part.filename().isPresent()) {
-          MediaType contentType =
-              part.contentType().map(MediaType::get).orElse(DEFAULT_MEDIA_TYPE);
-          builder.addFormDataPart(
-              part.name(),
-              part.filename().orElseThrow(),
-              RequestBody.create(part.content(), contentType));
+      for (HttpBody.Multipart.Part part : multipart.parts()) {
+        String ct = part.contentType();
+        MediaType mt = MediaType.get(ct);
+        RequestBody partBody = RequestBody.create(part.value(), mt);
+        if (part.filename() == null || part.filename().isBlank()) {
+          builder.addFormDataPart(part.name(), null, partBody);
         } else {
-          builder.addFormDataPart(
-              part.name(),
-              new String(part.content(), java.nio.charset.StandardCharsets.UTF_8));
+          builder.addFormDataPart(part.name(), part.filename(), partBody);
         }
       }
       return builder.build();
     }
 
-    byte[] safe = request.body().orElse(new byte[0]);
-    return RequestBody.create(safe, DEFAULT_MEDIA_TYPE);
+    return RequestBody.create(new byte[0], DEFAULT_MEDIA_TYPE);
   }
-
-
 
   private byte[] readBody(ResponseBody body) throws IOException {
     if (body == null) {
       return new byte[0];
     }
     return body.bytes();
+  }
+
+  private InputStream readBodyStream(ResponseBody body) {
+    if (body == null) {
+      return InputStream.nullInputStream();
+    }
+    return body.byteStream();
+  }
+
+  private static final class OkHttpBodyInputStream extends InputStream {
+    private final Response response;
+    private final InputStream delegate;
+
+    private OkHttpBodyInputStream(Response response, InputStream delegate) {
+      this.response = response;
+      this.delegate = delegate;
+    }
+
+    @Override
+    public int read() throws IOException {
+      return delegate.read();
+    }
+
+    @Override
+    public int read(byte[] b, int off, int len) throws IOException {
+      return delegate.read(b, off, len);
+    }
+
+    @Override
+    public void close() throws IOException {
+      try {
+        delegate.close();
+      } finally {
+        response.close();
+      }
+    }
   }
 
   private Map<String, List<String>> toHeaderMap(Headers headers) {

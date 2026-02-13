@@ -16,8 +16,7 @@ public final class HttpRequest {
 	private final HttpMethod method;
 	private final URI uri;
 	private final Map<String, List<String>> headers;
-	private final byte[] body;
-	private final MultipartFormData multipartForm;
+	private final HttpBody body;
 	private final Duration timeout;
 
 	private HttpRequest(
@@ -25,15 +24,13 @@ public final class HttpRequest {
 			HttpMethod method,
 			URI uri,
 			Map<String, List<String>> headers,
-			byte[] body,
-			MultipartFormData multipartForm,
+			HttpBody body,
 			Duration timeout) {
 		this.name = name;
 		this.method = Objects.requireNonNull(method, "method must not be null");
 		this.uri = Objects.requireNonNull(uri, "uri must not be null");
 		this.headers = headers;
 		this.body = body;
-		this.multipartForm = multipartForm;
 		this.timeout = timeout;
 	}
 
@@ -57,12 +54,8 @@ public final class HttpRequest {
 		return headers;
 	}
 
-	public Optional<byte[]> body() {
+	public Optional<HttpBody> body() {
 		return Optional.ofNullable(body);
-	}
-
-	public Optional<MultipartFormData> multipartForm() {
-		return Optional.ofNullable(multipartForm);
 	}
 
 	public Optional<Duration> timeout() {
@@ -74,8 +67,7 @@ public final class HttpRequest {
 		private HttpMethod method;
 		private URI uri;
 		private final Map<String, List<String>> headers = new LinkedHashMap<>();
-		private byte[] body;
-		private MultipartFormData multipartForm;
+		private HttpBody body;
 		private Duration timeout;
 
 		private Builder() {}
@@ -116,25 +108,23 @@ public final class HttpRequest {
 		}
 
 		public Builder body(byte[] body) {
+			this.body = (body == null) ? null : new HttpBody.Bytes(body);
+			return this;
+		}
+
+		public Builder body(HttpBody body) {
 			this.body = body;
-			this.multipartForm = null;
 			return this;
 		}
 
-		public Builder multipartForm(MultipartFormData multipartForm) {
-			this.multipartForm = multipartForm;
-			this.body = null;
+		public Builder formUrlEncoded(Map<String, List<String>> fields) {
+			this.body = new HttpBody.FormUrlEncoded(fields);
 			return this;
 		}
 
-		public Builder multipartPart(MultipartPart part) {
-			MultipartFormData.Builder formBuilder =
-					(multipartForm == null) ? MultipartFormData.builder() : MultipartFormData.builder();
-			if (multipartForm != null) {
-				multipartForm.parts().forEach(formBuilder::part);
-			}
-			formBuilder.part(part);
-			return multipartForm(formBuilder.build());
+		public Builder multipart(List<HttpBody.Multipart.Part> parts) {
+			this.body = new HttpBody.Multipart(parts);
+			return this;
 		}
 
 		public Builder timeout(Duration timeout) {
@@ -160,7 +150,6 @@ public final class HttpRequest {
 					safeUri,
 					Collections.unmodifiableMap(safeHeaders),
 					body,
-					multipartForm,
 					timeout);
 		}
 	}

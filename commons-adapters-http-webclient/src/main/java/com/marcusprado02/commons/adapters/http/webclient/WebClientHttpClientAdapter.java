@@ -1,42 +1,34 @@
 package com.marcusprado02.commons.adapters.http.webclient;
 
+import com.marcusprado02.commons.ports.http.HttpBody;
 import com.marcusprado02.commons.ports.http.HttpInterceptor;
 import com.marcusprado02.commons.ports.http.HttpRequest;
 import com.marcusprado02.commons.ports.http.HttpResponse;
-import com.marcusprado02.commons.ports.http.MultipartFormData;
-import com.marcusprado02.commons.ports.http.MultipartPart;
-import com.marcusprado02.commons.ports.http.ReactiveSseClientPort;
 import com.marcusprado02.commons.ports.http.ReactiveHttpClientPort;
-import com.marcusprado02.commons.ports.http.ReactiveStreamingHttpClientPort;
-import com.marcusprado02.commons.ports.http.SseEvent;
+import com.marcusprado02.commons.ports.http.ReactiveHttpResponse;
 import java.time.Duration;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.http.ContentDisposition;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
 import org.springframework.http.client.reactive.ClientHttpRequest;
-import org.springframework.http.codec.ServerSentEvent;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserter;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
-import reactor.core.publisher.Flux;
+import org.springframework.http.MediaType;
+import org.springframework.http.client.MultipartBodyBuilder;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Mono;
 import reactor.util.context.ContextView;
 
-public final class WebClientHttpClientAdapter
-  implements ReactiveHttpClientPort, ReactiveStreamingHttpClientPort, ReactiveSseClientPort {
+public final class WebClientHttpClientAdapter implements ReactiveHttpClientPort {
 
   private final WebClient webClient;
   private final List<HttpInterceptor> interceptors;
@@ -75,17 +67,8 @@ public final class WebClientHttpClientAdapter
         });
   }
 
-  private Mono<HttpResponse<byte[]>> doExecute(HttpRequest request) {
-    return webClient
-        .method(toSpringMethod(request))
-        .uri(request.uri())
-        .headers(headers -> applyHeaders(headers, request))
-        .body(buildBodyInserter(request))
-        .exchangeToMono(this::toResponse);
-  }
-
   @Override
-  public Mono<HttpResponse<Flux<byte[]>>> executeStream(HttpRequest request) {
+  public Mono<ReactiveHttpResponse> exchange(HttpRequest request) {
     Objects.requireNonNull(request, "request must not be null");
 
     return Mono.deferContextual(
@@ -93,7 +76,7 @@ public final class WebClientHttpClientAdapter
           HttpRequest requestWithContext = applyContextHeaders(request, contextView);
           HttpRequest interceptedRequest = applyRequestInterceptors(requestWithContext);
 
-          Mono<HttpResponse<Flux<byte[]>>> mono = doExecuteStream(interceptedRequest);
+          Mono<ReactiveHttpResponse> mono = doExchange(interceptedRequest);
 
           Optional<Duration> timeout = interceptedRequest.timeout();
           if (timeout.isPresent() && !timeout.get().isNegative() && !timeout.get().isZero()) {
@@ -104,49 +87,25 @@ public final class WebClientHttpClientAdapter
         });
   }
 
-  private Mono<HttpResponse<Flux<byte[]>>> doExecuteStream(HttpRequest request) {
+  private Mono<HttpResponse<byte[]>> doExecute(HttpRequest request) {
     return webClient
         .method(toSpringMethod(request))
         .uri(request.uri())
-        .headers(headers -> applyHeaders(headers, request))
+      .headers(headers -> applyHeaders(headers, request))
+      .headers(headers -> applyInferredContentType(headers, request))
         .body(buildBodyInserter(request))
-        .exchangeToMono(
-            response -> {
-              int statusCode = response.statusCode().value();
-              Flux<byte[]> body = response.bodyToFlux(byte[].class);
-              return Mono.just(new HttpResponse<>(statusCode, response.headers().asHttpHeaders(), body));
-            });
+        .exchangeToMono(this::toResponse);
   }
 
-  @Override
-  public Flux<SseEvent> subscribe(HttpRequest request) {
-    Objects.requireNonNull(request, "request must not be null");
-
-    return Flux.deferContextual(
-        contextView -> {
-          HttpRequest requestWithContext = applyContextHeaders(request, contextView);
-          HttpRequest interceptedRequest = applyRequestInterceptors(requestWithContext);
-          return doSubscribe(interceptedRequest);
-        });
-  }
-
-  private Flux<SseEvent> doSubscribe(HttpRequest request) {
-    return webClient
-        .method(toSpringMethod(request))
-        .uri(request.uri())
-        .headers(headers -> applyHeaders(headers, request))
-        .accept(MediaType.TEXT_EVENT_STREAM)
-        .exchangeToFlux(
-            response ->
-                response
-                    .bodyToFlux(ServerSentEvent.class)
-                    .map(
-                        sse ->
-                            new SseEvent(
-                                Optional.ofNullable(sse.id()),
-                                Optional.ofNullable(sse.event()),
-                                Objects.toString(sse.data(), ""))));
-  }
+    private Mono<ReactiveHttpResponse> doExchange(HttpRequest request) {
+      return webClient
+      .method(toSpringMethod(request))
+      .uri(request.uri())
+      .headers(headers -> applyHeaders(headers, request))
+      .headers(headers -> applyInferredContentType(headers, request))
+      .body(buildBodyInserter(request))
+      .exchangeToMono(this::toReactiveResponse);
+    }
 
   private Mono<HttpResponse<byte[]>> toResponse(ClientResponse response) {
     int statusCode = response.statusCode().value();
@@ -154,6 +113,17 @@ public final class WebClientHttpClientAdapter
         .bodyToMono(byte[].class)
         .defaultIfEmpty(new byte[0])
         .map(body -> new HttpResponse<>(statusCode, response.headers().asHttpHeaders(), body));
+  }
+
+  private Mono<ReactiveHttpResponse> toReactiveResponse(ClientResponse response) {
+    int statusCode = response.statusCode().value();
+    Map<String, List<String>> headers = new LinkedHashMap<>();
+    response
+        .headers()
+        .asHttpHeaders()
+        .forEach((key, values) -> headers.put(key, values == null ? List.of() : List.copyOf(values)));
+
+    return Mono.just(new ReactiveHttpResponse(statusCode, headers, response.bodyToFlux(byte[].class)));
   }
 
   private HttpMethod toSpringMethod(HttpRequest request) {
@@ -176,40 +146,66 @@ public final class WebClientHttpClientAdapter
             });
   }
 
-  private BodyInserter<?, ? super ClientHttpRequest> buildBodyInserter(HttpRequest request) {
-    Optional<MultipartFormData> multipartForm = request.multipartForm();
-    if (multipartForm.isPresent()) {
-      return BodyInserters.fromMultipartData(toMultipartData(multipartForm.get()));
+  private void applyInferredContentType(HttpHeaders target, HttpRequest request) {
+    if (target.containsKey(HttpHeaders.CONTENT_TYPE)) {
+      return;
     }
-    return BodyInserters.fromValue(request.body().orElse(new byte[0]));
+
+    Optional<HttpBody> body = request.body();
+    if (body.isEmpty()) {
+      return;
+    }
+
+    HttpBody typedBody = body.get();
+    // Do not set Content-Type for multipart: boundary is generated by the framework.
+    if (typedBody instanceof HttpBody.Multipart) {
+      return;
+    }
+
+    target.set(HttpHeaders.CONTENT_TYPE, typedBody.contentType());
   }
 
-  private MultiValueMap<String, Object> toMultipartData(MultipartFormData form) {
-    MultiValueMap<String, Object> data = new LinkedMultiValueMap<>();
-    for (MultipartPart part : form.parts()) {
-      HttpHeaders partHeaders = new HttpHeaders();
-
-      part.contentType().ifPresent(ct -> partHeaders.setContentType(MediaType.parseMediaType(ct)));
-
-      if (part.filename().isPresent()) {
-        String filename = part.filename().orElseThrow();
-        partHeaders.setContentDisposition(
-            ContentDisposition.formData().name(part.name()).filename(filename).build());
-
-        ByteArrayResource resource =
-            new ByteArrayResource(part.content()) {
-              @Override
-              public String getFilename() {
-                return filename;
-              }
-            };
-        data.add(part.name(), new HttpEntity<>(resource, partHeaders));
-      } else {
-        String text = new String(part.content(), StandardCharsets.UTF_8);
-        data.add(part.name(), new HttpEntity<>(text, partHeaders));
-      }
+  private BodyInserter<?, ? super ClientHttpRequest> buildBodyInserter(HttpRequest request) {
+    Optional<HttpBody> maybeBody = request.body();
+    if (maybeBody.isEmpty()) {
+      return BodyInserters.empty();
     }
-    return data;
+
+    HttpBody body = maybeBody.get();
+    if (body instanceof HttpBody.Bytes bytes) {
+      return BodyInserters.fromValue(bytes.value());
+    }
+
+    if (body instanceof HttpBody.FormUrlEncoded form) {
+      MultiValueMap<String, String> map = new LinkedMultiValueMap<>();
+      form.fields()
+          .forEach(
+              (key, values) -> {
+                if (values == null) {
+                  return;
+                }
+                for (String value : values) {
+                  map.add(key, value == null ? "" : value);
+                }
+              });
+      return BodyInserters.fromFormData(map);
+    }
+
+    if (body instanceof HttpBody.Multipart multipart) {
+      MultipartBodyBuilder builder = new MultipartBodyBuilder();
+      for (HttpBody.Multipart.Part part : multipart.parts()) {
+        var partBuilder = builder.part(part.name(), part.value());
+        if (part.contentType() != null && !part.contentType().isBlank()) {
+          partBuilder.contentType(MediaType.parseMediaType(part.contentType()));
+        }
+        if (part.filename() != null && !part.filename().isBlank()) {
+          partBuilder.filename(part.filename());
+        }
+      }
+      return BodyInserters.fromMultipartData(builder.build());
+    }
+
+    return BodyInserters.empty();
   }
 
   private HttpRequest applyContextHeaders(HttpRequest request, ContextView contextView) {
@@ -227,7 +223,6 @@ public final class WebClientHttpClientAdapter
     builder.uri(request.uri());
     builder.headers(request.headers());
     request.body().ifPresent(builder::body);
-    request.multipartForm().ifPresent(builder::multipartForm);
     request.timeout().ifPresent(builder::timeout);
 
     contextHeaders.forEach(
