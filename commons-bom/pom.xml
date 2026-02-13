@@ -20,7 +20,7 @@
         <mockito.version>5.15.2</mockito.version>
         <testcontainers.version>1.20.5</testcontainers.version>
         <archunit.version>1.4.1</archunit.version>
-        <assertj.version>3.25.3</assertj.version>
+        <assertj.version>3.27.7</assertj.version>
 
         <!-- Observability -->
         <otel.version>1.58.0</otel.version>
