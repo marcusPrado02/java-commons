@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
   build:
@@ -27,3 +28,24 @@ jobs:
 
       - name: Maven verify
         run: ./mvnw -DskipTests=false -e clean verify
+
+      - name: Generate JaCoCo aggregate report
+        run: ./mvnw jacoco:report-aggregate -pl commons-platform
+
+      - name: Add coverage report to PR
+        id: jacoco
+        uses: madrapps/jacoco-report@v1.6.1
+        if: github.event_name == 'pull_request'
+        with:
+          paths: |
+            ${{ github.workspace }}/**/target/site/jacoco/jacoco.xml
+          token: ${{ secrets.GITHUB_TOKEN }}
+          min-coverage-overall: 80
+          min-coverage-changed-files: 75
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-reports
+          path: '**/target/site/jacoco/'
+          retention-days: 30
