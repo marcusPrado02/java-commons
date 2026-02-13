@@ -64,6 +64,7 @@
 
     <module>commons-adapters-secrets-vault</module>
     <module>commons-adapters-secrets-azure-keyvault</module>
+    <module>commons-adapters-secrets-aws-secretsmanager</module>
 
     <module>commons-spring-starter-observability</module>
     <module>commons-spring-starter-otel</module>
