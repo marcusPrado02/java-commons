@@ -130,7 +130,7 @@ class OkHttpClientAdapterTest {
           OkHttpClientAdapter.builder()
               .tracerFacade(tracer)
               .resilienceExecutor(executor)
-              .resiliencePolicies(new ResiliencePolicySet(null, null, null, null))
+               .resiliencePolicies(new ResiliencePolicySet(null, null, null, null, null, null))
               .build();
 
       HttpRequest request =

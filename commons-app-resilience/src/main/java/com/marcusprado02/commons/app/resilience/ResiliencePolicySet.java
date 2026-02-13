@@ -4,4 +4,6 @@ public record ResiliencePolicySet(
     RetryPolicy retry,
     TimeoutPolicy timeout,
     CircuitBreakerPolicy circuitBreaker,
-    BulkheadPolicy bulkhead) {}
+    BulkheadPolicy bulkhead,
+    RateLimiterPolicy rateLimiter,
+    CachePolicy cache) {}

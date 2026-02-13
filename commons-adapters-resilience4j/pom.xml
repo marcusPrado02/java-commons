@@ -18,6 +18,17 @@
       <version>${project.version}</version>
     </dependency>
 
+    <dependency>
+      <groupId>com.marcusprado02.commons</groupId>
+      <artifactId>commons-app-observability</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.ben-manes.caffeine</groupId>
+      <artifactId>caffeine</artifactId>
+    </dependency>
+
     <!-- Resilience4j -->
     <dependency>
       <groupId>io.github.resilience4j</groupId>
