@@ -13,6 +13,8 @@ public final class IdempotencyJpaMapper {
         e.getStatus(),
         e.getCreatedAt(),
         e.getUpdatedAt(),
-        e.getResultRef());
+        e.getExpiresAt(),
+        e.getResultRef(),
+        e.getLastError());
   }
 }

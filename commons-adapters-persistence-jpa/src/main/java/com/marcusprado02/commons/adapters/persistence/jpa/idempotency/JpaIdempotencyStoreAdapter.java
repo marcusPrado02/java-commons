@@ -23,25 +23,48 @@ public final class JpaIdempotencyStoreAdapter implements IdempotencyStorePort {
   @Override
   public Optional<IdempotencyRecord> find(IdempotencyKey key) {
     IdempotencyRecordEntity e = em.find(IdempotencyRecordEntity.class, key.value());
-    return e == null ? Optional.empty() : Optional.of(IdempotencyJpaMapper.toModel(e));
+    if (e == null) {
+      return Optional.empty();
+    }
+    Instant now = Instant.now();
+    if (e.getExpiresAt() != null && !e.getExpiresAt().isAfter(now)) {
+      return Optional.empty();
+    }
+    return Optional.of(IdempotencyJpaMapper.toModel(e));
   }
 
   @Override
   public boolean tryAcquire(IdempotencyKey key, Duration ttl) {
-    // TTL será usado depois para cleanup/expiração. Aqui é “acquire” via insert.
+    Objects.requireNonNull(ttl, "ttl must not be null");
     Instant now = Instant.now();
+    Instant expiresAt = now.plus(ttl);
 
     IdempotencyRecordEntity e = new IdempotencyRecordEntity();
     e.setKey(key.value());
     e.setStatus(IdempotencyStatus.IN_PROGRESS);
     e.setCreatedAt(now);
     e.setUpdatedAt(now);
+    e.setExpiresAt(expiresAt);
 
     try {
       em.persist(e);
       return true;
     } catch (PersistenceException ex) {
-      // já existe (unique/PK)
+      IdempotencyRecordEntity existing =
+          em.find(IdempotencyRecordEntity.class, key.value(), LockModeType.PESSIMISTIC_WRITE);
+      if (existing == null) {
+        return false;
+      }
+      if (existing.getExpiresAt() != null && !existing.getExpiresAt().isAfter(now)) {
+        existing.setStatus(IdempotencyStatus.IN_PROGRESS);
+        existing.setCreatedAt(now);
+        existing.setUpdatedAt(now);
+        existing.setExpiresAt(expiresAt);
+        existing.setResultRef(null);
+        existing.setLastError(null);
+        em.merge(existing);
+        return true;
+      }
       return false;
     }
   }

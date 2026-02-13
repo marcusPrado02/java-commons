@@ -7,4 +7,6 @@ public record IdempotencyRecord(
     IdempotencyStatus status,
     Instant createdAt,
     Instant updatedAt,
-    String resultRef) {}
+    Instant expiresAt,
+    String resultRef,
+    String lastError) {}

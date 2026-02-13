@@ -27,6 +27,9 @@ public class IdempotencyRecordEntity {
   @Column(name = "updated_at", nullable = false)
   private Instant updatedAt;
 
+  @Column(name = "expires_at", nullable = false)
+  private Instant expiresAt;
+
   @Column(name = "result_ref", length = 200)
   private String resultRef;
 
@@ -63,6 +66,14 @@ public class IdempotencyRecordEntity {
 
   public void setUpdatedAt(Instant updatedAt) {
     this.updatedAt = updatedAt;
+  }
+
+  public Instant getExpiresAt() {
+    return expiresAt;
+  }
+
+  public void setExpiresAt(Instant expiresAt) {
+    this.expiresAt = expiresAt;
   }
 
   public String getResultRef() {
