@@ -17,6 +17,7 @@ public final class HttpRequest {
 	private final URI uri;
 	private final Map<String, List<String>> headers;
 	private final byte[] body;
+	private final MultipartFormData multipartForm;
 	private final Duration timeout;
 
 	private HttpRequest(
@@ -25,12 +26,14 @@ public final class HttpRequest {
 			URI uri,
 			Map<String, List<String>> headers,
 			byte[] body,
+			MultipartFormData multipartForm,
 			Duration timeout) {
 		this.name = name;
 		this.method = Objects.requireNonNull(method, "method must not be null");
 		this.uri = Objects.requireNonNull(uri, "uri must not be null");
 		this.headers = headers;
 		this.body = body;
+		this.multipartForm = multipartForm;
 		this.timeout = timeout;
 	}
 
@@ -58,6 +61,10 @@ public final class HttpRequest {
 		return Optional.ofNullable(body);
 	}
 
+	public Optional<MultipartFormData> multipartForm() {
+		return Optional.ofNullable(multipartForm);
+	}
+
 	public Optional<Duration> timeout() {
 		return Optional.ofNullable(timeout);
 	}
@@ -68,6 +75,7 @@ public final class HttpRequest {
 		private URI uri;
 		private final Map<String, List<String>> headers = new LinkedHashMap<>();
 		private byte[] body;
+		private MultipartFormData multipartForm;
 		private Duration timeout;
 
 		private Builder() {}
@@ -109,7 +117,24 @@ public final class HttpRequest {
 
 		public Builder body(byte[] body) {
 			this.body = body;
+			this.multipartForm = null;
 			return this;
+		}
+
+		public Builder multipartForm(MultipartFormData multipartForm) {
+			this.multipartForm = multipartForm;
+			this.body = null;
+			return this;
+		}
+
+		public Builder multipartPart(MultipartPart part) {
+			MultipartFormData.Builder formBuilder =
+					(multipartForm == null) ? MultipartFormData.builder() : MultipartFormData.builder();
+			if (multipartForm != null) {
+				multipartForm.parts().forEach(formBuilder::part);
+			}
+			formBuilder.part(part);
+			return multipartForm(formBuilder.build());
 		}
 
 		public Builder timeout(Duration timeout) {
@@ -135,6 +160,7 @@ public final class HttpRequest {
 					safeUri,
 					Collections.unmodifiableMap(safeHeaders),
 					body,
+					multipartForm,
 					timeout);
 		}
 	}
