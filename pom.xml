@@ -62,6 +62,8 @@
 
     <module>commons-adapters-cache-redis</module>
 
+    <module>commons-adapters-secrets-vault</module>
+
     <module>commons-spring-starter-observability</module>
     <module>commons-spring-starter-otel</module>
     <module>commons-spring-starter-resilience</module>
