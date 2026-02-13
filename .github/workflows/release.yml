@@ -1,0 +1,144 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release-type:
+        description: 'Release type (major, minor, patch)'
+        required: true
+        default: 'patch'
+        type: choice
+        options:
+          - major
+          - minor
+          - patch
+
+permissions:
+  contents: write
+  packages: write
+
+jobs:
+  release:
+    name: Create Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Get current version
+        id: current-version
+        run: |
+          CURRENT_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout | grep -v '\[')
+          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
+          echo "Current version: $CURRENT_VERSION"
+
+      - name: Calculate new version
+        id: new-version
+        run: |
+          CURRENT="${{ steps.current-version.outputs.version }}"
+          CURRENT_CLEAN=$(echo "$CURRENT" | sed 's/-SNAPSHOT//')
+
+          IFS='.' read -r -a VERSION_PARTS <<< "$CURRENT_CLEAN"
+          MAJOR="${VERSION_PARTS[0]}"
+          MINOR="${VERSION_PARTS[1]}"
+          PATCH="${VERSION_PARTS[2]}"
+
+          case "${{ github.event.inputs.release-type }}" in
+            major)
+              MAJOR=$((MAJOR + 1))
+              MINOR=0
+              PATCH=0
+              ;;
+            minor)
+              MINOR=$((MINOR + 1))
+              PATCH=0
+              ;;
+            patch)
+              PATCH=$((PATCH + 1))
+              ;;
+          esac
+
+          NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+          NEXT_SNAPSHOT="${MAJOR}.${MINOR}.$((PATCH + 1))-SNAPSHOT"
+
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "next-snapshot=$NEXT_SNAPSHOT" >> $GITHUB_OUTPUT
+          echo "New release version: $NEW_VERSION"
+          echo "Next development version: $NEXT_SNAPSHOT"
+
+      - name: Update version to release
+        run: |
+          ./mvnw -B versions:set -DnewVersion=${{ steps.new-version.outputs.version }} -DgenerateBackupPoms=false
+
+      - name: Build and test release
+        run: ./mvnw -B clean verify
+
+      - name: Commit release version
+        run: |
+          git add pom.xml */pom.xml
+          git commit -m "chore: release version ${{ steps.new-version.outputs.version }}"
+          git tag -a "v${{ steps.new-version.outputs.version }}" -m "Release v${{ steps.new-version.outputs.version }}"
+
+      - name: Update to next development version
+        run: |
+          ./mvnw -B versions:set -DnewVersion=${{ steps.new-version.outputs.next-snapshot }} -DgenerateBackupPoms=false
+
+      - name: Commit development version
+        run: |
+          git add pom.xml */pom.xml
+          git commit -m "chore: prepare for next development iteration ${{ steps.new-version.outputs.next-snapshot }}"
+
+      - name: Push changes
+        run: |
+          git push origin main
+          git push origin "v${{ steps.new-version.outputs.version }}"
+
+      - name: Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.new-version.outputs.version }}
+          release_name: Release v${{ steps.new-version.outputs.version }}
+          body: |
+            ## Release v${{ steps.new-version.outputs.version }}
+
+            ### Changes
+            See the [CHANGELOG](CHANGELOG.md) for details.
+
+            ### Artifacts
+            Maven artifacts are available in GitHub Packages.
+
+            ### Installation
+            ```xml
+            <dependency>
+              <groupId>com.marcusprado02.commons</groupId>
+              <artifactId>commons-bom</artifactId>
+              <version>${{ steps.new-version.outputs.version }}</version>
+              <type>pom</type>
+              <scope>import</scope>
+            </dependency>
+            ```
+          draft: false
+          prerelease: false
+
+      - name: Deploy to GitHub Packages
+        run: ./mvnw -B deploy -DskipTests -P release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
