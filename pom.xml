@@ -49,6 +49,7 @@
     <module>commons-adapters-http-webclient</module>
 
     <module>commons-adapters-messaging-kafka</module>
+    <module>commons-adapters-messaging-rabbitmq</module>
 
     <module>commons-adapters-otel</module>
 
