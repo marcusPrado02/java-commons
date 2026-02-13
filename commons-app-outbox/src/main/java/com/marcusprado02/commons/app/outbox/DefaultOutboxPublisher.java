@@ -1,6 +1,7 @@
 package com.marcusprado02.commons.app.outbox;
 
 import com.marcusprado02.commons.app.outbox.model.*;
+import com.marcusprado02.commons.app.outbox.port.OutboxRepositoryPort;
 import com.marcusprado02.commons.kernel.ddd.entity.AggregateRoot;
 import com.marcusprado02.commons.kernel.ddd.event.DomainEvent;
 import com.marcusprado02.commons.kernel.ddd.time.ClockProvider;
@@ -13,17 +14,17 @@ import java.util.UUID;
 
 public final class DefaultOutboxPublisher implements OutboxPublisher {
 
-  private final OutboxStore store;
+  private final OutboxRepositoryPort repository;
   private final OutboxSerializer serializer;
   private final OutboxMetadataEnricher enricher;
   private final ClockProvider clock;
 
   public DefaultOutboxPublisher(
-      OutboxStore store,
+      OutboxRepositoryPort repository,
       OutboxSerializer serializer,
       OutboxMetadataEnricher enricher,
       ClockProvider clock) {
-    this.store = Objects.requireNonNull(store, "store");
+    this.repository = Objects.requireNonNull(repository, "repository");
     this.serializer = Objects.requireNonNull(serializer, "serializer");
     this.enricher = Objects.requireNonNull(enricher, "enricher");
     this.clock = Objects.requireNonNull(clock, "clock");
@@ -70,7 +71,7 @@ public final class DefaultOutboxPublisher implements OutboxPublisher {
               OutboxStatus.PENDING,
               0);
 
-      store.append(msg);
+      repository.append(msg);
     }
   }
 }
