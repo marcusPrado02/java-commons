@@ -22,6 +22,8 @@ import io.github.resilience4j.retry.RetryConfig;
 import io.github.resilience4j.timelimiter.TimeLimiter;
 import io.github.resilience4j.timelimiter.TimeLimiterConfig;
 import java.time.Duration;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -51,6 +53,34 @@ public final class Resilience4jExecutor implements ResilienceExecutor {
   public Resilience4jExecutor(MetricsFacade metrics) {
     this.metrics = (metrics == null) ? MetricsFacade.noop() : metrics;
   }
+
+  public List<CircuitBreakerStatus> circuitBreakerStatuses() {
+    return circuitBreakers.entrySet().stream()
+        .map(
+            entry -> {
+              CircuitBreaker circuitBreaker = entry.getValue();
+              CircuitBreaker.Metrics metrics = circuitBreaker.getMetrics();
+              return new CircuitBreakerStatus(
+                  entry.getKey(),
+                  circuitBreaker.getName(),
+                  circuitBreaker.getState().name(),
+                  metrics.getFailureRate(),
+                  metrics.getNumberOfBufferedCalls(),
+                  metrics.getNumberOfFailedCalls(),
+                  metrics.getNumberOfSuccessfulCalls());
+            })
+        .sorted(Comparator.comparing(CircuitBreakerStatus::key))
+        .toList();
+  }
+
+  public record CircuitBreakerStatus(
+      String key,
+      String name,
+      String state,
+      float failureRate,
+      int bufferedCalls,
+      int failedCalls,
+      int successfulCalls) {}
 
   @Override
   public void run(String name, ResiliencePolicySet policies, Runnable action) {
@@ -232,8 +262,8 @@ public final class Resilience4jExecutor implements ResilienceExecutor {
           RetryConfig cfg =
               RetryConfig.custom()
                   .maxAttempts(policies.retry().maxAttempts())
-                  .waitDuration(
-                      safeDuration(policies.retry().initialBackoff(), Duration.ofMillis(100)))
+                .waitDuration(
+                  safeWaitDuration(policies.retry().initialBackoff(), Duration.ofMillis(100)))
                   .build();
           return Retry.of(name, cfg);
         });
@@ -253,8 +283,8 @@ public final class Resilience4jExecutor implements ResilienceExecutor {
         });
   }
 
-  private Duration safeDuration(Duration value, Duration fallback) {
-    return (value == null || value.isNegative() || value.isZero()) ? fallback : value;
+  private Duration safeWaitDuration(Duration value, Duration fallback) {
+    return (value == null || value.isNegative()) ? fallback : value;
   }
 
   private String componentKey(String name, Object policy) {

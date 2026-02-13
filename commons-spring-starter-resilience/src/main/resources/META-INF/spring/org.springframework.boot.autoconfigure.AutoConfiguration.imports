@@ -1,1 +1,2 @@
 com.marcusprado02.commons.starter.resilience.ResilienceAutoConfiguration
+com.marcusprado02.commons.starter.resilience.actuator.ResilienceActuatorAutoConfiguration
