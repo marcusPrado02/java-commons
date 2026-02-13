@@ -45,6 +45,8 @@
     <module>commons-adapters-web-spring</module>
     <module>commons-adapters-web-spring-webflux</module>
 
+    <module>commons-adapters-http-okhttp</module>
+
     <module>commons-adapters-otel</module>
 
     <module>commons-adapters-resilience4j</module>
