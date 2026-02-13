@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!DOCTYPE suppressions PUBLIC
+        "-//Checkstyle//DTD SuppressionFilter Configuration 1.2//EN"
+        "https://checkstyle.org/dtds/suppressions_1_2.dtd">
+
+<suppressions>
+    <!--
+        Checkstyle suppressions for java-commons platform
+        Suppress less critical checks in specific contexts
+    -->
+
+    <!-- Test classes: relax javadoc requirements -->
+    <suppress checks="MissingJavadocType|MissingJavadocMethod" files=".*Test\.java"/>
+    <suppress checks="MissingJavadocType|MissingJavadocMethod" files=".*/src/test/.*"/>
+
+    <!-- Generated code -->
+    <suppress checks="." files=".*/target/generated-sources/.*"/>
+
+    <!-- Configuration and starter classes -->
+    <suppress checks="MissingJavadocType" files=".*Configuration\.java"/>
+    <suppress checks="MissingJavadocType" files=".*Properties\.java"/>
+
+    <!-- Records and simple DTOs -->
+    <suppress checks="MissingJavadocMethod" files=".*Record\.java"/>
+
+    <!--  Main classes (examples/demos) -->
+    <suppress checks="MissingJavadocType|HideUtilityClassConstructor" files=".*Main\.java"/>
+
+    <!-- Package-info files -->
+    <suppress checks="JavadocPackage" files="package-info\.java"/>
+
+</suppressions>

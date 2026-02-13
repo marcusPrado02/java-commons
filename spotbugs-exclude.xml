@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter
+    xmlns="https://github.com/spotbugs/filter/3.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="https://github.com/spotbugs/filter/3.0.0 https://raw.githubusercontent.com/spotbugs/spotbugs/3.1.0/spotbugs/etc/findbugsfilter.xsd">
+
+    <!--
+        SpotBugs exclusions for java-commons platform
+        Focus on real bugs, not style issues
+    -->
+
+    <!-- Records and immutable classes: Allow exposure of internal representation -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+        <Or>
+            <!-- Records are immutable by design -->
+            <Class name="~.*Record$"/>
+            <!-- DTOs and value objects -->
+            <Package name="~.*\.kernel\..*"/>
+            <Package name="~.*\.ports\..*"/>
+            <Package name="~.*\.app\..*"/>
+        </Or>
+    </Match>
+
+    <!-- Serialization issues in exceptions with Problem field -->
+    <Match>
+        <Bug pattern="SE_BAD_FIELD"/>
+        <Class name="~.*Exception$"/>
+        <Field name="problem"/>
+    </Match>
+
+    <!-- Allow package-private classes without documentation -->
+    <Match>
+        <Bug pattern="UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD"/>
+    </Match>
+
+    <!-- Test classes exclusions -->
+    <Match>
+        <Class name="~.*Test$"/>
+        <Bug pattern="DM_NUMBER_CTOR,DM_STRING_CTOR,DMI_HARDCODED_ABSOLUTE_FILENAME"/>
+    </Match>
+
+    <!--  Spring Bootstrap autoconfiguration classes -->
+    <Match>
+        <Class name="~.*AutoConfiguration$"/>
+        <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
+    </Match>
+
+    <!-- Processors and handlers: Allow generic exception catching -->
+    <Match>
+        <Bug pattern="REC_CATCH_EXCEPTION"/>
+        <Or>
+            <Class name="~.*Processor$"/>
+            <Class name="~.*Handler$"/>
+            <Class name="~.*Worker$"/>
+        </Or>
+    </Match>
+
+</FindBugsFilter>
