@@ -50,6 +50,7 @@
 
     <module>commons-adapters-messaging-kafka</module>
     <module>commons-adapters-messaging-rabbitmq</module>
+    <module>commons-adapters-messaging-azure-servicebus</module>
 
     <module>commons-adapters-otel</module>
 
