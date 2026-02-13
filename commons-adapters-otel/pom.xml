@@ -23,11 +23,42 @@
             <version>${project.version}</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-ports-http</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-ports-messaging</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
 
         <!-- OTel API (version from opentelemetry-bom) -->
         <dependency>
             <groupId>io.opentelemetry</groupId>
             <artifactId>opentelemetry-api</artifactId>
+        </dependency>
+
+        <!-- Tests -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-sdk</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>io.opentelemetry</groupId>
+            <artifactId>opentelemetry-sdk-testing</artifactId>
+            <scope>test</scope>
         </dependency>
     </dependencies>
 
