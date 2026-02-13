@@ -63,8 +63,9 @@ public final class CommonsArchitectureRules {
   /** Returns all naming convention rules. */
   public static ArchRule[] namingConventions() {
     return new ArchRule[] {
-      NamingConventionRules.PORTS_SHOULD_END_WITH_PORT,
-      NamingConventionRules.ADAPTERS_SHOULD_END_WITH_ADAPTER,
+      NamingConventionRules.TYPES_ENDING_WITH_PORT_SHOULD_BE_INTERFACES,
+      NamingConventionRules.TYPES_ENDING_WITH_PORT_SHOULD_RESIDE_IN_PORTS_PACKAGE,
+      NamingConventionRules.TYPES_ENDING_WITH_ADAPTER_SHOULD_RESIDE_IN_ADAPTERS_PACKAGE,
       NamingConventionRules.USE_CASES_SHOULD_END_WITH_USE_CASE,
       NamingConventionRules.CONFIG_CLASSES_SHOULD_FOLLOW_NAMING,
       NamingConventionRules.EXCEPTIONS_SHOULD_END_WITH_EXCEPTION,

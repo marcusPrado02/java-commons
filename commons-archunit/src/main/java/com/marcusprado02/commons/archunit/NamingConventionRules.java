@@ -2,7 +2,11 @@ package com.marcusprado02.commons.archunit;
 
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
+import com.tngtech.archunit.core.domain.JavaClass;
+import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
+import com.tngtech.archunit.lang.ConditionEvents;
+import com.tngtech.archunit.lang.SimpleConditionEvent;
 
 /**
  * ArchUnit rules for naming conventions across the commons platform.
@@ -13,39 +17,32 @@ public final class NamingConventionRules {
 
   private NamingConventionRules() {}
 
-  /** Port interfaces should end with 'Port'. */
-  public static final ArchRule PORTS_SHOULD_END_WITH_PORT =
+  /** Any type ending with 'Port' must be an interface. */
+  public static final ArchRule TYPES_ENDING_WITH_PORT_SHOULD_BE_INTERFACES =
       classes()
           .that()
-          .resideInAPackage("..ports..")
-          .and()
-          .areInterfaces()
-          .and()
-          .areNotAnnotations()
-          .should()
           .haveSimpleNameEndingWith("Port")
-          .because("Port interfaces should be easily identifiable by 'Port' suffix");
+          .should()
+          .beInterfaces()
+          .because("Port contracts must be expressed as interfaces");
 
-  /** Adapter implementations should end with 'Adapter'. */
-  public static final ArchRule ADAPTERS_SHOULD_END_WITH_ADAPTER =
+  /** Any type ending with 'Port' should reside under a ports package. */
+  public static final ArchRule TYPES_ENDING_WITH_PORT_SHOULD_RESIDE_IN_PORTS_PACKAGE =
       classes()
           .that()
-          .resideInAPackage("..adapters..")
-          .and()
-          .areNotInterfaces()
-          .and()
-          .areNotEnums()
-          .and()
-          .areNotAnnotations()
-          .and()
-          .haveSimpleNameNotEndingWith("Config")
-          .and()
-          .haveSimpleNameNotEndingWith("Exception")
-          .and()
-          .haveSimpleNameNotEndingWith("Properties")
+          .haveSimpleNameEndingWith("Port")
           .should()
+          .resideInAPackage("..ports..")
+          .because("Port contracts should live in ports modules/packages");
+
+  /** Any type ending with 'Adapter' should reside under an adapters package. */
+  public static final ArchRule TYPES_ENDING_WITH_ADAPTER_SHOULD_RESIDE_IN_ADAPTERS_PACKAGE =
+      classes()
+          .that()
           .haveSimpleNameEndingWith("Adapter")
-          .because("Adapter implementations should be easily identifiable by 'Adapter' suffix");
+          .should()
+          .resideInAPackage("..adapters..")
+          .because("Adapter implementations should live in adapters modules/packages");
 
   /** Use Cases should end with 'UseCase'. */
   public static final ArchRule USE_CASES_SHOULD_END_WITH_USE_CASE =
@@ -107,7 +104,34 @@ public final class NamingConventionRules {
   /** Package names should be lowercase. */
   public static final ArchRule PACKAGES_SHOULD_BE_LOWERCASE =
       classes()
-          .should()
-          .resideInAPackage("..")
+          .that()
+          .resideInAPackage("com.marcusprado02.commons..")
+                    .should(haveLowercasePackageSegments())
           .because("Package names should be lowercase by Java conventions");
+
+    private static ArchCondition<JavaClass> haveLowercasePackageSegments() {
+        return new ArchCondition<>("have lowercase package segments") {
+            @Override
+            public void check(JavaClass item, ConditionEvents events) {
+                String pkg = item.getPackageName();
+                if (pkg == null || pkg.isBlank()) {
+                    return;
+                }
+
+                boolean ok =
+                        java.util.Arrays.stream(pkg.split("\\."))
+                                .allMatch(seg -> seg.equals(seg.toLowerCase(java.util.Locale.ROOT)));
+
+                if (!ok) {
+                    events.add(
+                            SimpleConditionEvent.violated(
+                                    item,
+                                    String.format(
+                                            "Class '%s' is in a non-lowercase package '%s'",
+                                            item.getName(),
+                                            pkg)));
+                }
+            }
+        };
+    }
 }

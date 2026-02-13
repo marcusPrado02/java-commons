@@ -2,22 +2,108 @@
 
 ## Overview
 
-The `commons-archunit` module provides comprehensive architecture validation rules using [ArchUnit](https://www.archunit.org/). These rules enforce hexagonal architecture, DDD patterns, naming conventions, and test organization across the entire java-commons platform.
+The `commons-archunit` module provides architecture validation rules for the `java-commons` platform using [ArchUnit](https://www.archunit.org/).
 
-## Why ArchUnit?
-
-ArchUnit allows you to **test your architecture** in the same way you test your code. Benefits include:
-
-- ✅ **Automated validation** of architecture rules in CI/CD
-- ✅ **Prevent architecture erosion** over time
-- ✅ **Self-documenting** architecture through executable rules
-- ✅ **Fast feedback** when architecture violations occur
-- ✅ **Consistent enforcement** across all modules
+It contains reusable `ArchRule` definitions (hexagonal dependency direction, kernel isolation, no-cycles, DDD purity, naming conventions, and test organization) and a small aggregator (`CommonsArchitectureRules`) to make them easy to consume.
 
 ## Rule Categories
 
-### 1. Kernel Isolation Rules
+### 1) Kernel isolation
 
-**Purpose**: Ensure the domain kernel remains framework-agnostic and portable.
+Implemented in `com.marcusprado02.commons.archunit.rules.KernelIsolationRules`.
 
-| Rule | Description |\n|------|-------------|\n| `KERNEL_SHOULD_ONLY_DEPEND_ON_JDK` | Kernel can only depend on JDK and JPA annotations |\n| `KERNEL_SHOULD_NOT_DEPEND_ON_OUTER_LAYERS` | Kernel must not depend on ports, adapters, or application layers |\n| `KERNEL_SHOULD_NOT_USE_SPRING` | Kernel must not use Spring Framework |\n| `KERNEL_SHOULD_NOT_USE_JACKSON` | Kernel must not use Jackson for serialization |\n| `KERNEL_CLASSES_SHOULD_BE_FINAL_OR_ABSTRACT` | Kernel classes should be final or abstract |\n\n### 2. Hexagonal Architecture Rules\n\n**Purpose**: Enforce dependency direction: Kernel ← Ports ← Application ← Adapters\n\n| Rule | Description |\n|------|-------------|\n| `APPLICATION_SHOULD_ONLY_DEPEND_ON_KERNEL_AND_PORTS` | App layer cannot depend on adapters |\n| `ADAPTERS_SHOULD_ONLY_DEPEND_ON_PORTS_AND_KERNEL` | Adapters cannot depend on app layer |\n| `STARTERS_SHOULD_ONLY_DEPEND_ON_ADAPTERS_AND_APP` | Starters wire up adapters and app |\n| `PORTS_SHOULD_ONLY_CONTAIN_INTERFACES` | Ports are contracts (interfaces only) |\n| `ADAPTERS_SHOULD_IMPLEMENT_PORTS` | Adapters implement port interfaces |\n\n### 3. No Cycles Rules\n\n**Purpose**: Prevent circular dependencies between modules.\n\n| Rule | Description |\n|------|-------------|\n| `NO_CYCLES_BETWEEN_LAYERS` | No cycles between kernel, ports, app, adapters |\n| `NO_CYCLES_WITHIN_KERNEL` | No cycles within kernel modules |\n| `NO_CYCLES_WITHIN_APPLICATION` | No cycles within application modules |\n| `NO_CYCLES_WITHIN_ADAPTERS` | No cycles within adapter modules |\n| `NO_CYCLES_WITHIN_PORTS` | No cycles within ports modules |\n\n### 4. Domain Purity (DDD) Rules\n\n**Purpose**: Enforce Domain-Driven Design tactical patterns.\n\n| Rule | Description |\n|------|-------------|\n| `ENTITIES_SHOULD_RESIDE_IN_DOMAIN_PACKAGE` | Entities belong in `..domain..` package |\n| `VALUE_OBJECTS_SHOULD_BE_IMMUTABLE` | Value Objects must have final fields |\n| `AGGREGATES_SHOULD_BE_AGGREGATE_ROOTS` | Only AggregateRoot should be `@Entity` |\n| `DOMAIN_SERVICES_SHOULD_FOLLOW_NAMING` | Domain Services end with 'Service' |\n| `REPOSITORIES_SHOULD_BE_INTERFACES` | Domain repositories are interfaces |\n| `DOMAIN_EVENTS_SHOULD_BE_IMMUTABLE` | Domain Events must be immutable |\n\n### 5. Naming Convention Rules\n\n**Purpose**: Consistent naming improves code readability.\n\n| Rule | Description |\n|------|-------------|\n| `PORTS_SHOULD_END_WITH_PORT` | Port interfaces end with 'Port' |\n| `ADAPTERS_SHOULD_END_WITH_ADAPTER` | Adapter classes end with 'Adapter' |\n| `USE_CASES_SHOULD_END_WITH_USE_CASE` | Use case classes end with 'UseCase' |\n| `CONFIG_CLASSES_SHOULD_FOLLOW_NAMING` | Config classes end with 'Config'/'Configuration' |\n| `EXCEPTIONS_SHOULD_END_WITH_EXCEPTION` | Exception classes end with 'Exception' |\n| `DTOS_SHOULD_FOLLOW_NAMING` | DTOs end with 'DTO'/'Dto' |\n| `REST_CONTROLLERS_SHOULD_FOLLOW_NAMING` | Controllers end with 'Controller'/'Resource' |\n| `PACKAGES_SHOULD_BE_LOWERCASE` | All packages are lowercase |\n\n### 6. Test Organization Rules\n\n**Purpose**: Ensure tests are properly structured and discoverable.\n\n| Rule | Description |\n|------|-------------|\n| `TESTS_SHOULD_BE_IN_SAME_PACKAGE_AS_CODE` | Tests in same package as production code |\n| `TEST_CLASSES_SHOULD_END_WITH_TEST` | Test classes end with 'Test' |\n| `INTEGRATION_TESTS_SHOULD_USE_SPRING_BOOT_TEST` | Integration tests use `@SpringBootTest` |\n| `ARCH_TESTS_SHOULD_END_WITH_ARCH_TEST` | ArchUnit tests end with 'ArchTest' |\n| `TEST_CLASSES_SHOULD_NOT_BE_PUBLIC` | Test classes are package-private (JUnit 5) |\n| `TEST_METHODS_SHOULD_NOT_BE_PUBLIC` | Test methods are package-private (JUnit 5) |\n| `TEST_UTILITIES_SHOULD_BE_IN_SUPPORT_PACKAGE` | Test utilities in `support`/`util`/`fixture` |\n\n## Usage\n\n### In Your Project\n\n**1. Add Dependency** (`pom.xml`):\n\n```xml\n<dependency>\n    <groupId>com.marcusprado02.commons</groupId>\n    <artifactId>commons-archunit</artifactId>\n    <scope>test</scope>\n</dependency>\n```\n\n**2. Create ArchUnit Test**:\n\n```java\npackage com.yourcompany.yourproject;\n\nimport com.marcusprado02.commons.archunit.CommonsArchitectureRules;\nimport com.tngtech.archunit.junit5.AnalyzeClasses;\nimport com.tngtech.archunit.junit5.ArchTest;\nimport com.tngtech.archunit.junit5.ArchTests;\n\n@AnalyzeClasses(packages = \"com.yourcompany.yourproject\")\nclass ArchitectureTest {\n\n    // Test all rules\n    @ArchTest\n    static final ArchTests ALL_RULES = CommonsArchitectureRules.all();\n}\n```\n\n**3. Run Tests**:\n\n```bash\nmvn test\n```\n\nArchUnit will fail the build if any architecture violations are detected.\n\n### Selective Rule Testing\n\nTest only specific rule categories:\n\n```java\n@AnalyzeClasses(packages = \"com.yourcompany.yourproject\")\nclass ArchitectureTest {\n\n    @ArchTest\n    static final ArchTests HEXAGONAL = CommonsArchitectureRules.hexagonal();\n\n    @ArchTest\n    static final ArchTests KERNEL_ISOLATION = CommonsArchitectureRules.kernelIsolation();\n\n    @ArchTest\n    static final ArchTests NO_CYCLES = CommonsArchitectureRules.noCycles();\n\n    @ArchTest\n    static final ArchTests DDD = CommonsArchitectureRules.domainPurity();\n\n    @ArchTest\n    static final ArchTests NAMING = CommonsArchitectureRules.namingConventions();\n\n    @ArchTest\n    static final ArchTests TESTS = CommonsArchitectureRules.testOrganization();\n}\n```\n\n### Individual Rules\n\nTest specific rules directly:\n\n```java\nimport com.marcusprado02.commons.archunit.HexagonalRules;\nimport com.marcusprado02.commons.archunit.rules.KernelIsolationRules;\n\n@AnalyzeClasses(packages = \"com.yourcompany.yourproject\")\nclass SpecificArchitectureTest {\n\n    @ArchTest\n    static final ArchRule kernelPurity = \n        KernelIsolationRules.KERNEL_SHOULD_ONLY_DEPEND_ON_JDK;\n        \n    @ArchTest\n    static final ArchRule portsAreInterfaces = \n        HexagonalRules.PORTS_SHOULD_ONLY_CONTAIN_INTERFACES;\n}\n```\n\n## Example Violations\n\n### ❌ Kernel Depending on Spring\n\n```java\n// VIOLATION: Kernel using Spring annotation\npackage com.marcusprado02.commons.kernel.domain;\n\nimport org.springframework.stereotype.Component; // ❌ NOT ALLOWED\n\n@Component // ❌ Kernel must not use Spring\npublic class UserService {\n    // ...\n}\n```\n\n**Solution**: Remove Spring annotations from Kernel. Use pure Java or JPA annotations only.\n\n### ❌ Adapter Not Ending with 'Adapter'\n\n```java\n// VIOLATION: Adapter not following naming convention\npackage com.marcusprado02.commons.adapters.persistence;\n\npublic class UserRepository { // ❌ Should be UserRepositoryAdapter\n    // ...\n}\n```\n\n**Solution**: Rename to `UserRepositoryAdapter`.\n\n### ❌ Application Depending on Adapter\n\n```java\n// VIOLATION: App layer using Adapter directly\npackage com.marcusprado02.commons.app.usecase;\n\nimport com.marcusprado02.commons.adapters.persistence.JpaUserAdapter; // ❌\n\npublic class CreateUserUseCase {\n    private final JpaUserAdapter adapter; // ❌ Use Port interface instead\n}\n```\n\n**Solution**: Depend on Port interface, not Adapter implementation.\n\n### ❌ Value Object Not Immutable\n\n```java\n// VIOLATION: Mutable Value Object\npackage com.marcusprado02.commons.kernel.domain;\n\npublic class EmailVO {\n    private String value; // ❌ Should be final\n    \n    public void setValue(String value) { // ❌ Setters violate immutability\n        this.value = value;\n    }\n}\n```\n\n**Solution**: Make fields final, remove setters, use constructor for initialization.\n\n## CI/CD Integration\n\nArchUnit tests run automatically in CI/CD:\n\n```yaml\n# .github/workflows/ci.yml\njobs:\n  build-and-test:\n    runs-on: ubuntu-latest\n    steps:\n      - name: Run tests (includes ArchUnit)\n        run: mvn verify\n      # ArchUnit failures will fail the build\n```\n\n## Ignoring Rules\n\n### Temporary Exemptions\n\nIf you need to temporarily exempt a class from a rule:\n\n```java\nimport com.tngtech.archunit.core.domain.JavaClass;\nimport com.tngtech.archunit.lang.ArchCondition;\nimport com.tngtech.archunit.lang.ConditionEvent;\n\n// Example: Ignore specific class\nnoClasses()\n    .that().resideInAPackage(\"..kernel..\")\n    .and().doNotHaveSimpleName(\"LegacyClass\") // Exemption\n    .should().dependOnClassesThat()\n    .resideInAnyPackage(\"org.springframework..\");\n```\n\n**Warning**: Exemptions should be temporary and documented with TODO comments.\n\n## Best Practices\n\n1. ✅ **Run on every build** - Include ArchUnit tests in regular test suite\n2. ✅ **Fail fast** - Don't merge PRs with architecture violations\n3. ✅ **Document exemptions** - If you must bypass a rule, document why\n4. ✅ **Gradual adoption** - Start with critical rules, add more over time\n5. ✅ **Team alignment** - Ensure everyone understands the architecture rules\n6. ❌ **Don't disable rules** - If a rule doesn't fit, discuss with team first\n7. ❌ **Don't add exemptions lightly** - Exemptions undermine architecture consistency\n\n## Troubleshooting\n\n### Tests Take Too Long\n\n**Problem**: ArchUnit scans all classes, which can be slow for large codebases.\n\n**Solution**: Use `@AnalyzeClasses` with focused packages:\n\n```java\n@AnalyzeClasses(\n    packages = \"com.yourcompany.yourproject\",\n    importOptions = ImportOption.DoNotIncludeTests.class // Skip test classes\n)\n```\n\n### False Positives\n\n**Problem**: Rule reports violations incorrectly.\n\n**Solution**: Refine the rule to exclude legitimate cases:\n\n```java\nclasses()\n    .that().resideInAPackage(\"..adapters..\")\n    .and().areNotEnums() // Exclude enums\n    .and().haveSimpleNameNotEndingWith(\"Config\") // Exclude configs\n    .should().haveSimpleNameEndingWith(\"Adapter\");\n```\n\n### Understanding Violations\n\nArchUnit provides detailed error messages:\n\n```\nArchitecture Violation [Priority: MEDIUM] - Rule 'classes that reside in a package '..kernel..' \nshould not depend on classes that reside in any package ['..ports..', '..adapters..']\n was violated (1 times):\n- Class <com.marcusprado02.commons.kernel.domain.User> depends on class \n  <com.marcusprado02.commons.ports.UserPort> \n  in (User.java:15)\n```\n\nThis tells you:\n- Which rule was violated\n- Which class violated it\n- Where in the code (file and line number)\n\n## Further Reading\n\n- [ArchUnit User Guide](https://www.archunit.org/userguide/html/000_Index.html)\n- [Hexagonal Architecture](https://alistair.cockburn.us/hexagonal-architecture/)\n- [Domain-Driven Design](https://martinfowler.com/bliki/DomainDrivenDesign.html)\n- [Clean Architecture](https://blog.cleancoder.com/uncle-bob/2012/08/13/the-clean-architecture.html)\n\n## Contributing\n\nTo add new architecture rules:\n\n1. Create rule in appropriate `*Rules.java` class\n2. Add rule to `CommonsArchitectureRules.getAllRules()`\n3. Document rule in this README\n4. Create test to verify rule works\n5. Update CONTRIBUTING.md with new conventions\n\n---\n\n**Maintained by**: java-commons team  \n**Version**: 0.1.0-SNAPSHOT\n
+- `KERNEL_SHOULD_ONLY_DEPEND_ON_JDK`
+- `KERNEL_SHOULD_NOT_DEPEND_ON_OUTER_LAYERS`
+- `KERNEL_SHOULD_NOT_USE_SPRING`
+- `KERNEL_SHOULD_NOT_USE_JACKSON`
+- `KERNEL_CLASSES_SHOULD_BE_FINAL_OR_ABSTRACT`
+
+### 2) Hexagonal architecture
+
+Implemented in `com.marcusprado02.commons.archunit.HexagonalRules`.
+
+- `APPLICATION_SHOULD_ONLY_DEPEND_ON_KERNEL_AND_PORTS`
+- `ADAPTERS_SHOULD_ONLY_DEPEND_ON_PORTS_AND_KERNEL` (currently enforces that adapters do not depend on starters)
+- `STARTERS_SHOULD_ONLY_DEPEND_ON_ADAPTERS_AND_APP` (currently enforces that starters avoid direct dependencies on `..ports..`)
+- `PORTS_SHOULD_ONLY_CONTAIN_INTERFACES` (types ending with `Port` must be interfaces)
+- `ADAPTERS_SHOULD_IMPLEMENT_PORTS` (types ending with `Adapter` must implement at least one `*Port` interface)
+
+### 3) No cycles
+
+Implemented in `com.marcusprado02.commons.archunit.NoCyclesRules`.
+
+- `NO_CYCLES_BETWEEN_LAYERS`
+- `NO_CYCLES_WITHIN_KERNEL`
+- `NO_CYCLES_WITHIN_APPLICATION`
+- `NO_CYCLES_WITHIN_ADAPTERS`
+- `NO_CYCLES_WITHIN_PORTS`
+
+### 4) Domain purity (DDD)
+
+Implemented in `com.marcusprado02.commons.archunit.DomainPurityRules`.
+
+### 5) Naming conventions
+
+Implemented in `com.marcusprado02.commons.archunit.NamingConventionRules`.
+
+- `TYPES_ENDING_WITH_PORT_SHOULD_BE_INTERFACES`
+- `TYPES_ENDING_WITH_PORT_SHOULD_RESIDE_IN_PORTS_PACKAGE`
+- `TYPES_ENDING_WITH_ADAPTER_SHOULD_RESIDE_IN_ADAPTERS_PACKAGE`
+- `USE_CASES_SHOULD_END_WITH_USE_CASE`
+- `CONFIG_CLASSES_SHOULD_FOLLOW_NAMING`
+- `EXCEPTIONS_SHOULD_END_WITH_EXCEPTION`
+- `DTOS_SHOULD_FOLLOW_NAMING`
+- `REST_CONTROLLERS_SHOULD_FOLLOW_NAMING`
+- `PACKAGES_SHOULD_BE_LOWERCASE`
+
+### 6) Test organization
+
+Implemented in `com.marcusprado02.commons.archunit.TestOrganizationRules`.
+
+## Usage
+
+### 1) Add dependency
+
+```xml
+<dependency>
+  <groupId>com.marcusprado02.commons</groupId>
+  <artifactId>commons-archunit</artifactId>
+  <scope>test</scope>
+</dependency>
+```
+
+### 2) Use rules in JUnit 5 tests
+
+This module exposes `ArchRule[]` aggregations via `CommonsArchitectureRules`.
+
+```java
+package com.yourcompany.yourproject;
+
+import static com.marcusprado02.commons.archunit.CommonsArchitectureRules.*;
+
+import com.tngtech.archunit.core.importer.ClassFileImporter;
+import com.tngtech.archunit.core.importer.ImportOption;
+import org.junit.jupiter.api.Test;
+
+class ArchitectureTest {
+
+  @Test
+  void kernel_rules() {
+    var classes = new ClassFileImporter()
+        .withImportOption(ImportOption.Predefined.DO_NOT_INCLUDE_TESTS)
+        .importPackages("com.yourcompany.yourproject");
+
+    for (var rule : kernelIsolation()) {
+      rule.check(classes);
+    }
+  }
+}
+```
+
+## Platform module validation (this repository)
+
+For the `java-commons` repo itself, module-by-module validation lives in:
+
+- `commons-archunit/src/test/java/com/marcusprado02/commons/archunit/PlatformModuleValidationTest.java`
+
+It imports each module base package and checks the key invariants (kernel isolation, port contract rules, adapter implements port, and no-cycles).

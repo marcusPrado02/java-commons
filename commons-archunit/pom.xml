@@ -55,10 +55,122 @@
             <artifactId>commons-kernel-time</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- Ports modules (for testing against contract interfaces) -->
+
+        <!-- Ports modules (for module validation tests) -->
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-ports-cache</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-ports-files</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-ports-http</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-ports-messaging</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>com.marcusprado02.commons</groupId>
             <artifactId>commons-ports-persistence</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-ports-secrets</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- App modules (for module validation tests) -->
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-app-idempotency</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-app-observability</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-app-outbox</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-app-resilience</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Adapters modules (for module validation tests) -->
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-adapters-otel</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-adapters-persistence-inmemory</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-adapters-persistence-jpa</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-adapters-resilience4j</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-adapters-web</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-adapters-web-spring</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-adapters-web-spring-webflux</artifactId>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Spring starter modules (for module validation tests) -->
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-spring-starter-idempotency</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-spring-starter-observability</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-spring-starter-otel</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-spring-starter-outbox</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-spring-starter-resilience</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

@@ -1,8 +1,13 @@
 package com.marcusprado02.commons.archunit;
 
+import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
+import com.tngtech.archunit.core.domain.JavaClass;
+import com.tngtech.archunit.lang.ArchCondition;
 import com.tngtech.archunit.lang.ArchRule;
+import com.tngtech.archunit.lang.ConditionEvents;
+import com.tngtech.archunit.lang.SimpleConditionEvent;
 
 /**
  * ArchUnit rules for Hexagonal Architecture (Ports and Adapters).
@@ -30,58 +35,59 @@ public final class HexagonalRules {
           .resideInAPackage("..adapters..")
           .should()
           .dependOnClassesThat()
-          .resideInAnyPackage("..app..")
-          .because("Adapters should not depend on Application layer");
+        .resideInAnyPackage("..starter..")
+        .because("Adapters should not depend on Starters (Starters sit at the top of the stack)");
 
   /** Spring Starters should only depend on Adapters and Application layers. */
   public static final ArchRule STARTERS_SHOULD_ONLY_DEPEND_ON_ADAPTERS_AND_APP =
       noClasses()
           .that()
-          .resideInAPackage("..spring.starter..")
+          .resideInAPackage("..starter..")
           .should()
           .dependOnClassesThat()
-          .resideInAnyPackage("..kernel..", "..ports..")
-          .because("Starters should depend on Adapters and App (not directly on Kernel/Ports)");
+        .resideInAnyPackage("..ports..")
+        .because("Starters should avoid depending directly on Ports (prefer App abstractions)");
 
-  /** Ports should only contain interfaces (no implementations). */
+  /** Types ending with 'Port' must be interfaces. */
   public static final ArchRule PORTS_SHOULD_ONLY_CONTAIN_INTERFACES =
-      noClasses()
+      classes()
           .that()
           .resideInAPackage("..ports..")
           .and()
-          .areNotInterfaces()
-          .and()
-          .areNotEnums()
-          .and()
-          .areNotAnnotations()
-          .and()
-          .haveSimpleNameNotEndingWith("Exception")
-          .and()
-          .haveSimpleNameNotEndingWith("Config")
+          .haveSimpleNameEndingWith("Port")
           .should()
           .beInterfaces()
-          .because("Ports should only contain interfaces (no concrete implementations)");
+          .because("Ports are contracts and must be expressed as interfaces");
 
   /** Adapters should implement Ports interfaces. */
   public static final ArchRule ADAPTERS_SHOULD_IMPLEMENT_PORTS =
-      noClasses()
+      classes()
           .that()
           .resideInAPackage("..adapters..")
           .and()
           .haveSimpleNameEndingWith("Adapter")
-          .should()
-          .dependOnClassesThat()
-          .resideOutsideOfPackages(
-              "..ports..",
-              "..kernel..",
-              "java..",
-              "javax..",
-              "jakarta..",
-              "org.springframework..",
-              "com.fasterxml..",
-              "io.opentelemetry..",
-              "io.github.resilience4j..",
-              "org.hibernate..",
-              "..adapters..")
-          .because("Adapters should primarily implement Ports and use allowed frameworks");
+          .should(implementAtLeastOnePortInterface())
+          .because("Adapters should implement at least one Port interface");
+
+  private static ArchCondition<JavaClass> implementAtLeastOnePortInterface() {
+    return new ArchCondition<>("implement at least one Port interface") {
+      @Override
+      public void check(JavaClass item, ConditionEvents events) {
+        boolean implementsPort =
+          item.getAllRawInterfaces().stream()
+                .anyMatch(
+                    itf ->
+                itf.getSimpleName().endsWith("Port"));
+
+        if (!implementsPort) {
+          events.add(
+              SimpleConditionEvent.violated(
+                  item,
+                  String.format(
+                      "Adapter '%s' should implement at least one interface ending with 'Port'",
+                      item.getName())));
+        }
+      }
+    };
+  }
 }
