@@ -24,11 +24,10 @@ public final class TestOrganizationRules {
           .haveSimpleNameEndingWith("Test")
           .should()
           .resideInAPackage("com.marcusprado02.commons..")
-          .because("Tests should be in the same package as the tested code for better organization");
+          .because(
+              "Tests should be in the same package as the tested code for better organization");
 
-  /**
-   * Test classes should end with 'Test'.
-   */
+  /** Test classes should end with 'Test'. */
   public static final ArchRule TEST_CLASSES_SHOULD_END_WITH_TEST =
       classes()
           .that()
@@ -39,9 +38,7 @@ public final class TestOrganizationRules {
           .haveSimpleNameEndingWith("Test")
           .because("Test classes should be easily identifiable by 'Test' suffix");
 
-  /**
-   * Integration tests should be annotated with @SpringBootTest.
-   */
+  /** Integration tests should be annotated with @SpringBootTest. */
   public static final ArchRule INTEGRATION_TESTS_SHOULD_USE_SPRING_BOOT_TEST =
       classes()
           .that()
@@ -52,9 +49,7 @@ public final class TestOrganizationRules {
           .beAnnotatedWith("org.springframework.boot.test.context.SpringBootTest")
           .because("Integration tests should use @SpringBootTest for full context loading");
 
-  /**
-   * ArchUnit tests should end with 'ArchTest'.
-   */
+  /** ArchUnit tests should end with 'ArchTest'. */
   public static final ArchRule ARCH_TESTS_SHOULD_END_WITH_ARCH_TEST =
       classes()
           .that()
@@ -63,9 +58,7 @@ public final class TestOrganizationRules {
           .haveSimpleNameEndingWith("ArchTest")
           .because("ArchUnit tests should be easily identifiable by 'ArchTest' suffix");
 
-  /**
-   * Test classes should not be public (JUnit 5 doesn't require it).
-   */
+  /** Test classes should not be public (JUnit 5 doesn't require it). */
   public static final ArchRule TEST_CLASSES_SHOULD_NOT_BE_PUBLIC =
       classes()
           .that()
@@ -76,9 +69,7 @@ public final class TestOrganizationRules {
           .notBePublic()
           .because("JUnit 5 test classes don't need to be public (package-private is preferred)");
 
-  /**
-   * Test methods should not be public (JUnit 5 doesn't require it).
-   */
+  /** Test methods should not be public (JUnit 5 doesn't require it). */
   public static final ArchRule TEST_METHODS_SHOULD_NOT_BE_PUBLIC =
       classes()
           .that()
@@ -87,9 +78,7 @@ public final class TestOrganizationRules {
           .notHaveModifier(com.tngtech.archunit.core.domain.JavaModifier.PUBLIC)
           .because("JUnit 5 test methods don't need to be public (package-private is preferred)");
 
-  /**
-   * Test utility classes should be in a 'support' or 'util' package.
-   */
+  /** Test utility classes should be in a 'support' or 'util' package. */
   public static final ArchRule TEST_UTILITIES_SHOULD_BE_IN_SUPPORT_PACKAGE =
       classes()
           .that()

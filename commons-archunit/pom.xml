@@ -55,6 +55,12 @@
             <artifactId>commons-kernel-time</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- Ports modules (for testing against contract interfaces) -->
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-ports-persistence</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
 </project>

@@ -5,7 +5,6 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
 import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.lang.ArchRule;
-import com.tngtech.archunit.library.dependencies.SlicesRuleDefinition;
 
 /**
  * ArchUnit rules for Kernel isolation in Hexagonal Architecture.
@@ -32,59 +31,41 @@ public final class KernelIsolationRules {
               "java..",
               "javax..",
               "jakarta.persistence..", // JPA annotations for entities
-              "..kernel.."
-          )
+              "..kernel..")
           .because(
               "Kernel modules must be framework-agnostic and only depend on JDK (and JPA annotations)");
 
-  /**
-   * Kernel should not depend on Ports, Adapters, or Application layers.
-   */
+  /** Kernel should not depend on Ports, Adapters, or Application layers. */
   public static final ArchRule KERNEL_SHOULD_NOT_DEPEND_ON_OUTER_LAYERS =
       noClasses()
           .that()
           .resideInAPackage("..kernel..")
           .should()
           .dependOnClassesThat()
-          .resideInAnyPackage(
-              "..ports..",
-              "..adapters..",
-              "..app..",
-              "..application.."
-          )
+          .resideInAnyPackage("..ports..", "..adapters..", "..app..", "..application..")
           .because("Kernel must not depend on outer layers (Dependency Inversion Principle)");
 
-  /**
-   * Kernel modules should not use Spring Framework annotations.
-   */
+  /** Kernel modules should not use Spring Framework annotations. */
   public static final ArchRule KERNEL_SHOULD_NOT_USE_SPRING =
       noClasses()
           .that()
           .resideInAPackage("..kernel..")
           .should()
           .dependOnClassesThat()
-          .resideInAnyPackage(
-              "org.springframework.."
-          )
+          .resideInAnyPackage("org.springframework..")
           .because("Kernel must remain framework-agnostic");
 
-  /**
-   * Kernel modules should not use Jackson annotations.
-   */
+  /** Kernel modules should not use Jackson annotations. */
   public static final ArchRule KERNEL_SHOULD_NOT_USE_JACKSON =
       noClasses()
           .that()
           .resideInAPackage("..kernel..")
           .should()
           .dependOnClassesThat()
-          .resideInAnyPackage(
-              "com.fasterxml.jackson.."
-          )
+          .resideInAnyPackage("com.fasterxml.jackson..")
           .because("Kernel must not depend on serialization libraries");
 
-  /**
-   * Kernel classes should be final or abstract (prevent unintended inheritance).
-   */
+  /** Kernel classes should be final or abstract (prevent unintended inheritance). */
   public static final ArchRule KERNEL_CLASSES_SHOULD_BE_FINAL_OR_ABSTRACT =
       classes()
           .that()
@@ -100,10 +81,13 @@ public final class KernelIsolationRules {
               new com.tngtech.archunit.base.DescribedPredicate<JavaClass>("final or abstract") {
                 @Override
                 public boolean test(JavaClass javaClass) {
-                  return javaClass.getModifiers().contains(com.tngtech.archunit.core.domain.JavaModifier.FINAL)
-                      || javaClass.getModifiers().contains(com.tngtech.archunit.core.domain.JavaModifier.ABSTRACT);
+                  return javaClass
+                          .getModifiers()
+                          .contains(com.tngtech.archunit.core.domain.JavaModifier.FINAL)
+                      || javaClass
+                          .getModifiers()
+                          .contains(com.tngtech.archunit.core.domain.JavaModifier.ABSTRACT);
                 }
-              }
-          )
+              })
           .because("Kernel classes should be final or abstract to prevent unintended inheritance");
 }

@@ -5,29 +5,28 @@ import com.tngtech.archunit.lang.ArchRule;
 /**
  * Comprehensive ArchUnit rules for the java-commons platform.
  *
- * <p>This class serves as a convenient aggregator for all architecture validation rules,
- * allowing consumers to reference and apply rules in their tests.
+ * <p>This class serves as a convenient aggregator for all architecture validation rules, allowing
+ * consumers to reference and apply rules in their tests.
  */
 public final class CommonsArchitectureRules {
 
   private CommonsArchitectureRules() {}
 
-  /**
-   * Returns all kernel isolation rules.
-   */
+  /** Returns all kernel isolation rules. */
   public static ArchRule[] kernelIsolation() {
     return new ArchRule[] {
-      com.marcusprado02.commons.archunit.rules.KernelIsolationRules.KERNEL_SHOULD_ONLY_DEPEND_ON_JDK,
-      com.marcusprado02.commons.archunit.rules.KernelIsolationRules.KERNEL_SHOULD_NOT_DEPEND_ON_OUTER_LAYERS,
+      com.marcusprado02.commons.archunit.rules.KernelIsolationRules
+          .KERNEL_SHOULD_ONLY_DEPEND_ON_JDK,
+      com.marcusprado02.commons.archunit.rules.KernelIsolationRules
+          .KERNEL_SHOULD_NOT_DEPEND_ON_OUTER_LAYERS,
       com.marcusprado02.commons.archunit.rules.KernelIsolationRules.KERNEL_SHOULD_NOT_USE_SPRING,
       com.marcusprado02.commons.archunit.rules.KernelIsolationRules.KERNEL_SHOULD_NOT_USE_JACKSON,
-      com.marcusprado02.commons.archunit.rules.KernelIsolationRules.KERNEL_CLASSES_SHOULD_BE_FINAL_OR_ABSTRACT
+      com.marcusprado02.commons.archunit.rules.KernelIsolationRules
+          .KERNEL_CLASSES_SHOULD_BE_FINAL_OR_ABSTRACT
     };
   }
 
-  /**
-   * Returns all hexagonal architecture rules.
-   */
+  /** Returns all hexagonal architecture rules. */
   public static ArchRule[] hexagonal() {
     return new ArchRule[] {
       HexagonalRules.APPLICATION_SHOULD_ONLY_DEPEND_ON_KERNEL_AND_PORTS,
@@ -38,9 +37,7 @@ public final class CommonsArchitectureRules {
     };
   }
 
-  /**
-   * Returns all no-cycles rules.
-   */
+  /** Returns all no-cycles rules. */
   public static ArchRule[] noCycles() {
     return new ArchRule[] {
       NoCyclesRules.NO_CYCLES_BETWEEN_LAYERS,
@@ -51,9 +48,7 @@ public final class CommonsArchitectureRules {
     };
   }
 
-  /**
-   * Returns all domain purity (DDD) rules.
-   */
+  /** Returns all domain purity (DDD) rules. */
   public static ArchRule[] domainPurity() {
     return new ArchRule[] {
       DomainPurityRules.ENTITIES_SHOULD_RESIDE_IN_DOMAIN_PACKAGE,
@@ -65,9 +60,7 @@ public final class CommonsArchitectureRules {
     };
   }
 
-  /**
-   * Returns all naming convention rules.
-   */
+  /** Returns all naming convention rules. */
   public static ArchRule[] namingConventions() {
     return new ArchRule[] {
       NamingConventionRules.PORTS_SHOULD_END_WITH_PORT,
@@ -81,9 +74,7 @@ public final class CommonsArchitectureRules {
     };
   }
 
-  /**
-   * Returns all test organization rules.
-   */
+  /** Returns all test organization rules. */
   public static ArchRule[] testOrganization() {
     return new ArchRule[] {
       TestOrganizationRules.TESTS_SHOULD_BE_IN_SAME_PACKAGE_AS_CODE,

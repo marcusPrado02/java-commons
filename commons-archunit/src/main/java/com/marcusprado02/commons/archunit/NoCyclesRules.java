@@ -14,9 +14,7 @@ public final class NoCyclesRules {
 
   private NoCyclesRules() {}
 
-  /**
-   * No cycles between top-level packages (kernel, ports, app, adapters).
-   */
+  /** No cycles between top-level packages (kernel, ports, app, adapters). */
   public static final ArchRule NO_CYCLES_BETWEEN_LAYERS =
       slices()
           .matching("com.marcusprado02.commons.(*)..")
@@ -24,9 +22,7 @@ public final class NoCyclesRules {
           .beFreeOfCycles()
           .because("Cyclic dependencies between layers violate clean architecture principles");
 
-  /**
-   * No cycles within kernel modules.
-   */
+  /** No cycles within kernel modules. */
   public static final ArchRule NO_CYCLES_WITHIN_KERNEL =
       slices()
           .matching("..kernel.(*)..")
@@ -34,9 +30,7 @@ public final class NoCyclesRules {
           .beFreeOfCycles()
           .because("Kernel modules should have clear, acyclic dependencies");
 
-  /**
-   * No cycles within application modules.
-   */
+  /** No cycles within application modules. */
   public static final ArchRule NO_CYCLES_WITHIN_APPLICATION =
       slices()
           .matching("..app.(*)..")
@@ -44,9 +38,7 @@ public final class NoCyclesRules {
           .beFreeOfCycles()
           .because("Application modules should have clear, acyclic dependencies");
 
-  /**
-   * No cycles within adapter modules.
-   */
+  /** No cycles within adapter modules. */
   public static final ArchRule NO_CYCLES_WITHIN_ADAPTERS =
       slices()
           .matching("..adapters.(*)..")
@@ -54,9 +46,7 @@ public final class NoCyclesRules {
           .beFreeOfCycles()
           .because("Adapter modules should have clear, acyclic dependencies");
 
-  /**
-   * No cycles within ports modules.
-   */
+  /** No cycles within ports modules. */
   public static final ArchRule NO_CYCLES_WITHIN_PORTS =
       slices()
           .matching("..ports.(*)..")

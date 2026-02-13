@@ -13,9 +13,7 @@ public final class NamingConventionRules {
 
   private NamingConventionRules() {}
 
-  /**
-   * Port interfaces should end with 'Port'.
-   */
+  /** Port interfaces should end with 'Port'. */
   public static final ArchRule PORTS_SHOULD_END_WITH_PORT =
       classes()
           .that()
@@ -28,9 +26,7 @@ public final class NamingConventionRules {
           .haveSimpleNameEndingWith("Port")
           .because("Port interfaces should be easily identifiable by 'Port' suffix");
 
-  /**
-   * Adapter implementations should end with 'Adapter'.
-   */
+  /** Adapter implementations should end with 'Adapter'. */
   public static final ArchRule ADAPTERS_SHOULD_END_WITH_ADAPTER =
       classes()
           .that()
@@ -51,9 +47,7 @@ public final class NamingConventionRules {
           .haveSimpleNameEndingWith("Adapter")
           .because("Adapter implementations should be easily identifiable by 'Adapter' suffix");
 
-  /**
-   * Use Cases should end with 'UseCase'.
-   */
+  /** Use Cases should end with 'UseCase'. */
   public static final ArchRule USE_CASES_SHOULD_END_WITH_USE_CASE =
       classes()
           .that()
@@ -66,9 +60,7 @@ public final class NamingConventionRules {
           .haveSimpleNameEndingWith("UseCase")
           .because("Use Cases should be easily identifiable by 'UseCase' suffix");
 
-  /**
-   * Configuration classes should end with 'Config' or 'Configuration'.
-   */
+  /** Configuration classes should end with 'Config' or 'Configuration'. */
   public static final ArchRule CONFIG_CLASSES_SHOULD_FOLLOW_NAMING =
       classes()
           .that()
@@ -79,9 +71,7 @@ public final class NamingConventionRules {
           .haveSimpleNameEndingWith("Configuration")
           .because("Configuration classes should follow naming conventions");
 
-  /**
-   * Exception classes should end with 'Exception'.
-   */
+  /** Exception classes should end with 'Exception'. */
   public static final ArchRule EXCEPTIONS_SHOULD_END_WITH_EXCEPTION =
       classes()
           .that()
@@ -90,9 +80,7 @@ public final class NamingConventionRules {
           .haveSimpleNameEndingWith("Exception")
           .because("Exception classes should be easily identifiable by 'Exception' suffix");
 
-  /**
-   * DTOs should end with 'DTO' or 'Dto'.
-   */
+  /** DTOs should end with 'DTO' or 'Dto'. */
   public static final ArchRule DTOS_SHOULD_FOLLOW_NAMING =
       classes()
           .that()
@@ -105,9 +93,7 @@ public final class NamingConventionRules {
           .haveSimpleNameEndingWith("Dto")
           .because("DTOs should be easily identifiable by 'DTO'/'Dto' suffix");
 
-  /**
-   * REST Controllers should end with 'Controller' or 'Resource'.
-   */
+  /** REST Controllers should end with 'Controller' or 'Resource'. */
   public static final ArchRule REST_CONTROLLERS_SHOULD_FOLLOW_NAMING =
       classes()
           .that()
@@ -118,9 +104,7 @@ public final class NamingConventionRules {
           .haveSimpleNameEndingWith("Resource")
           .because("REST Controllers should follow naming conventions");
 
-  /**
-   * Package names should be lowercase.
-   */
+  /** Package names should be lowercase. */
   public static final ArchRule PACKAGES_SHOULD_BE_LOWERCASE =
       classes()
           .should()

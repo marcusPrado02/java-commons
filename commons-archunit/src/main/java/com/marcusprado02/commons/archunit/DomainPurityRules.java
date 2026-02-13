@@ -14,9 +14,7 @@ public final class DomainPurityRules {
 
   private DomainPurityRules() {}
 
-  /**
-   * Entities should reside in domain package.
-   */
+  /** Entities should reside in domain package. */
   public static final ArchRule ENTITIES_SHOULD_RESIDE_IN_DOMAIN_PACKAGE =
       classes()
           .that()
@@ -27,9 +25,7 @@ public final class DomainPurityRules {
           .resideInAPackage("..domain..")
           .because("Entities are domain concepts and should reside in domain package");
 
-  /**
-   * Value Objects should be immutable (final class with final fields).
-   */
+  /** Value Objects should be immutable (final class with final fields). */
   public static final ArchRule VALUE_OBJECTS_SHOULD_BE_IMMUTABLE =
       classes()
           .that()
@@ -40,9 +36,7 @@ public final class DomainPurityRules {
           .haveOnlyFinalFields()
           .because("Value Objects must be immutable");
 
-  /**
-   * Aggregates should not be @Entity directly (only AggregateRoot should).
-   */
+  /** Aggregates should not be @Entity directly (only AggregateRoot should). */
   public static final ArchRule AGGREGATES_SHOULD_BE_AGGREGATE_ROOTS =
       noClasses()
           .that()
@@ -53,9 +47,7 @@ public final class DomainPurityRules {
           .beAnnotatedWith("jakarta.persistence.Entity")
           .because("Only AggregateRoot should be annotated with @Entity");
 
-  /**
-   * Domain Services should end with 'Service' or 'DomainService'.
-   */
+  /** Domain Services should end with 'Service' or 'DomainService'. */
   public static final ArchRule DOMAIN_SERVICES_SHOULD_FOLLOW_NAMING =
       classes()
           .that()
@@ -66,9 +58,7 @@ public final class DomainPurityRules {
           .haveSimpleNameEndingWith("DomainService")
           .because("Domain Services should follow naming conventions");
 
-  /**
-   * Repositories should be interfaces in domain layer.
-   */
+  /** Repositories should be interfaces in domain layer. */
   public static final ArchRule REPOSITORIES_SHOULD_BE_INTERFACES =
       classes()
           .that()
@@ -79,9 +69,7 @@ public final class DomainPurityRules {
           .beInterfaces()
           .because("Repositories in domain should be interfaces (ports)");
 
-  /**
-   * Domain Events should be immutable.
-   */
+  /** Domain Events should be immutable. */
   public static final ArchRule DOMAIN_EVENTS_SHOULD_BE_IMMUTABLE =
       classes()
           .that()
