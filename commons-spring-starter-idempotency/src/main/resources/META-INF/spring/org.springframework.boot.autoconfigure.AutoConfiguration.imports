@@ -1,1 +1,5 @@
 com.marcusprado02.commons.starter.idempotency.IdempotencyAutoConfiguration
+com.marcusprado02.commons.starter.idempotency.IdempotencyJpaStoreAutoConfiguration
+com.marcusprado02.commons.starter.idempotency.aop.IdempotencyAopAutoConfiguration
+com.marcusprado02.commons.starter.idempotency.web.IdempotencyWebMvcAutoConfiguration
+com.marcusprado02.commons.starter.idempotency.web.IdempotencyWebExceptionHandlingAutoConfiguration

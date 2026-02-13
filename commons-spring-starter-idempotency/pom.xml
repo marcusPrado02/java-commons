@@ -15,6 +15,7 @@
       <groupId>com.marcusprado02.commons</groupId>
       <artifactId>commons-adapters-persistence-jpa</artifactId>
       <version>${project.version}</version>
+      <optional>true</optional>
     </dependency>
 
     <dependency>
@@ -33,11 +34,38 @@
       <artifactId>spring-boot-starter</artifactId>
     </dependency>
 
+    <!-- Optional: @Idempotent via AOP -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-aop</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- Optional: Web MVC interceptor -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- Optional: required to compile HandlerInterceptor signatures -->
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <optional>true</optional>
+    </dependency>
+
     <!-- Only to compile @ConfigurationProperties -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-configuration-processor</artifactId>
       <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
     </dependency>
   </dependencies>
 
