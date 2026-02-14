@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.marcusprado02.commons</groupId>
+    <artifactId>commons-parent</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <relativePath>../commons-parent/pom.xml</relativePath>
+  </parent>
+
+  <artifactId>commons-spring-starter-secrets</artifactId>
+  <name>Commons - Spring Starter Secrets</name>
+  <description>Spring Boot auto-configuration for secrets management (Vault, AWS Secrets Manager, Azure Key Vault)</description>
+
+  <dependencies>
+    <!-- Commons Secrets Ports -->
+    <dependency>
+      <groupId>com.marcusprado02.commons</groupId>
+      <artifactId>commons-ports-secrets</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+
+    <!-- Secrets Adapters (optional) -->
+    <dependency>
+      <groupId>com.marcusprado02.commons</groupId>
+      <artifactId>commons-adapters-secrets-vault</artifactId>
+      <version>${project.version}</version>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>com.marcusprado02.commons</groupId>
+      <artifactId>commons-adapters-secrets-aws-secretsmanager</artifactId>
+      <version>${project.version}</version>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>com.marcusprado02.commons</groupId>
+      <artifactId>commons-adapters-secrets-azure-keyvault</artifactId>
+      <version>${project.version}</version>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- Spring Boot -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-autoconfigure</artifactId>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- Test -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers</artifactId>
+      <version>1.19.3</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>1.19.3</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>

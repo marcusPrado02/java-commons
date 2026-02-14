@@ -82,6 +82,7 @@
     <module>commons-spring-starter-outbox</module>
     <module>commons-spring-starter-idempotency</module>
     <module>commons-spring-starter-cache</module>
+    <module>commons-spring-starter-secrets</module>
 
     <module>commons-benchmarks</module>
 

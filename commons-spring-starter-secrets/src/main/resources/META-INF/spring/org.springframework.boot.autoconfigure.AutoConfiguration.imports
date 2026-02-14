@@ -1,0 +1,3 @@
+com.marcusprado02.commons.spring.secrets.VaultSecretsAutoConfiguration
+com.marcusprado02.commons.spring.secrets.AwsSecretsAutoConfiguration
+com.marcusprado02.commons.spring.secrets.AzureSecretsAutoConfiguration
