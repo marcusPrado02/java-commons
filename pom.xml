@@ -31,6 +31,7 @@
     <module>commons-ports-cache</module>
     <module>commons-ports-secrets</module>
     <module>commons-ports-email</module>
+    <module>commons-ports-sms</module>
     <module>commons-ports-files</module>
 
     <module>commons-testkit-core</module>
@@ -79,6 +80,8 @@
 
     <module>commons-adapters-email-smtp</module>
     <module>commons-adapters-email-sendgrid</module>
+
+    <module>commons-adapters-sms-twilio</module>
 
     <module>commons-spring-starter-observability</module>
     <module>commons-spring-starter-otel</module>
