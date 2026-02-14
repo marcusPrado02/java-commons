@@ -30,6 +30,7 @@
     <module>commons-ports-http</module>
     <module>commons-ports-cache</module>
     <module>commons-ports-secrets</module>
+    <module>commons-ports-email</module>
     <module>commons-ports-files</module>
 
     <module>commons-testkit-core</module>
@@ -75,6 +76,8 @@
     <module>commons-adapters-files-s3</module>
     <module>commons-adapters-files-azure-blob</module>
     <module>commons-adapters-files-gcs</module>
+
+    <module>commons-adapters-email-smtp</module>
 
     <module>commons-spring-starter-observability</module>
     <module>commons-spring-starter-otel</module>
