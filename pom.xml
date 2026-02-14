@@ -80,6 +80,8 @@
     <module>commons-spring-starter-outbox</module>
     <module>commons-spring-starter-idempotency</module>
 
+    <module>commons-benchmarks</module>
+
   </modules>
 
   <properties>
