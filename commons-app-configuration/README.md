@@ -349,6 +349,155 @@ aws appconfig create-configuration-profile \
     --location-uri hosted
 ```
 
+## ✅ Configuration Validation
+
+Sistema de validação de configuração com fail-fast em startup.
+
+### ConfigurationValidator
+
+Valida propriedades de configuração contra regras definidas.
+
+```java
+// Define validation rules
+ConfigurationValidator validator = ConfigurationValidator.builder()
+    .required("database.url")
+    .required("database.username")
+    .pattern("server.port", "\\d+")
+    .range("pool.size", 1, 100)
+    .rule(provider -> {
+        // Custom validation
+        Optional<String> url = provider.getString("database.url");
+        if (url.isPresent() && !url.get().startsWith("jdbc:")) {
+            return Optional.of("database.url must start with 'jdbc:'");
+        }
+        return Optional.empty();
+    })
+    .build();
+
+// Validate configuration
+ValidationResult result = validator.validate(configProvider);
+
+if (result.hasErrors()) {
+    // Fail-fast: throw exception on startup
+    throw new ConfigurationValidationException(result);
+}
+```
+
+### ValidationRules
+
+Regras de validação predefinidas:
+
+```java
+// Required property
+ValidationRule.required("database.url");
+ValidationRule.required("app.name", "Application name is required");
+
+// Pattern matching
+ValidationRule.pattern("email", "^[A-Za-z0-9+_.-]+@(.+)$");
+ValidationRule.pattern("port", "\\d+", "Port must be numeric");
+
+// Numeric range
+ValidationRule.range("pool.size", 1, 100);
+
+// Enum values
+ValidationRule.oneOf("environment", "dev", "staging", "production");
+```
+
+### ValidationResult
+
+Resultado da validação com métodos úteis:
+
+```java
+ValidationResult result = validator.validate(provider);
+
+// Check status
+if (result.hasErrors()) {
+    // Get all errors
+    List<String> errors = result.getErrors();
+
+    // Format errors
+    String formatted = result.formatErrors();
+    // Output:
+    // 3 configuration error(s):
+    //   1. Required property 'database.url' is missing
+    //   2. Property 'pool.size' must be between 1 and 100, but was: 150
+    //   3. Property 'environment' must be one of [dev, staging, production], but was: prod
+
+    // Log and throw
+    logger.error("Configuration validation failed:\n{}", formatted);
+    throw new ConfigurationValidationException(result);
+}
+```
+
+### ConfigurationMetadata
+
+Metadata para suporte de IDE e documentação:
+
+```java
+ConfigurationMetadata metadata = ConfigurationMetadata.builder()
+    .property("database.url")
+        .type("java.lang.String")
+        .description("JDBC URL for database connection")
+        .required(true)
+        .example("jdbc:postgresql://localhost:5432/mydb")
+    .property("database.pool.max-size")
+        .type("java.lang.Integer")
+        .description("Maximum connection pool size")
+        .defaultValue("10")
+        .range(1, 100)
+    .property("logging.level")
+        .type("java.lang.String")
+        .description("Logging level")
+        .defaultValue("INFO")
+        .allowedValues("TRACE", "DEBUG", "INFO", "WARN", "ERROR")
+    .build();
+
+// Generate Spring Boot metadata JSON for IDE support
+String json = metadata.toSpringBootMetadataJson();
+
+// Write to META-INF/spring-configuration-metadata.json
+Files.writeString(
+    Path.of("META-INF/spring-configuration-metadata.json"),
+    json
+);
+```
+
+### Spring Boot Integration
+
+Integração com Spring Boot para validação em startup:
+
+```java
+@Configuration
+public class ConfigurationValidationConfig {
+
+    @Bean
+    public ConfigurationValidator configurationValidator() {
+        return ConfigurationValidator.builder()
+            .required("spring.datasource.url")
+            .required("spring.datasource.username")
+            .required("spring.application.name")
+            .pattern("server.port", "\\d+")
+            .range("server.tomcat.max-threads", 1, 1000)
+            .build();
+    }
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void validateConfiguration(ApplicationReadyEvent event) {
+        ConfigurationProvider provider =
+            new SpringCloudConfigProvider(event.getApplicationContext().getEnvironment());
+
+        ValidationResult result = configurationValidator().validate(provider);
+
+        if (result.hasErrors()) {
+            // Fail-fast: stop application startup
+            throw new ConfigurationValidationException(result);
+        }
+
+        logger.info("✅ Configuration validation passed");
+    }
+}
+```
+
 ## 📋 Exemplos Práticos
 
 ### Exemplo 1: Configuração Multi-Source
