@@ -18,7 +18,10 @@ class EntityFactoryTest {
 
     TestEntity entity =
         EntityFactory.create(
-            tenantId, actorId, now, (tid, stamp) -> new TestEntity(TestEntityId.of("id-1"), tid, "Test", stamp));
+            tenantId,
+            actorId,
+            now,
+            (tid, stamp) -> new TestEntity(TestEntityId.of("id-1"), tid, "Test", stamp));
 
     assertEquals(TestEntityId.of("id-1"), entity.id());
     assertEquals(tenantId, entity.tenantId());

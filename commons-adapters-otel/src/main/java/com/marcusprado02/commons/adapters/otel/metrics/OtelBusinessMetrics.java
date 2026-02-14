@@ -52,7 +52,8 @@ public final class OtelBusinessMetrics {
         .build();
   }
 
-  public ObservableLongGauge gauge(String name, String description, String unit, LongSupplier value) {
+  public ObservableLongGauge gauge(
+      String name, String description, String unit, LongSupplier value) {
     Objects.requireNonNull(value, "value must not be null");
     return meter
         .gaugeBuilder(Objects.requireNonNull(name, "name must not be null"))

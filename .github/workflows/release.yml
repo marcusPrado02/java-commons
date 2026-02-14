@@ -89,6 +89,16 @@ jobs:
       - name: Build and test release
         run: ./mvnw -B clean verify
 
+      - name: Generate CHANGELOG
+        run: ./mvnw -B git-changelog:git-changelog
+
+      - name: Commit CHANGELOG
+        run: |
+          if [ -n "$(git status --porcelain CHANGELOG.md)" ]; then
+            git add CHANGELOG.md
+            git commit --amend --no-edit
+          fi
+
       - name: Commit release version
         run: |
           git add pom.xml */pom.xml

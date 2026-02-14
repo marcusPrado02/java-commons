@@ -10,7 +10,8 @@ class PoliciesTest {
   @Test
   void bulkheadPolicyShouldValidate() {
     assertThrows(IllegalArgumentException.class, () -> new BulkheadPolicy(0, Duration.ZERO));
-    assertThrows(IllegalArgumentException.class, () -> new BulkheadPolicy(1, Duration.ofSeconds(-1)));
+    assertThrows(
+        IllegalArgumentException.class, () -> new BulkheadPolicy(1, Duration.ofSeconds(-1)));
     assertNotNull(new BulkheadPolicy(1, Duration.ZERO));
   }
 

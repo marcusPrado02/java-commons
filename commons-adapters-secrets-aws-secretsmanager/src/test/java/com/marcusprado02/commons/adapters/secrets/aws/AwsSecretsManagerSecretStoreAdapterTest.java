@@ -89,7 +89,8 @@ class AwsSecretsManagerSecretStoreAdapterTest {
 
     adapter.get(key, "AWSCURRENT");
 
-    ArgumentCaptor<GetSecretValueRequest> captor = ArgumentCaptor.forClass(GetSecretValueRequest.class);
+    ArgumentCaptor<GetSecretValueRequest> captor =
+        ArgumentCaptor.forClass(GetSecretValueRequest.class);
     verify(client).getSecretValue(captor.capture());
 
     assertEquals("k", captor.getValue().secretId());

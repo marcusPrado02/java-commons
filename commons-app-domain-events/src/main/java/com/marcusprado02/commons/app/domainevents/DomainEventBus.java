@@ -122,9 +122,7 @@ public final class DomainEventBus {
     return registry.size();
   }
 
-  /**
-   * Clears all registered handlers and interceptors.
-   */
+  /** Clears all registered handlers and interceptors. */
   public void clear() {
     registry.clear();
     interceptors.clear();

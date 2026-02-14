@@ -123,8 +123,8 @@ public final class JpaOutboxRepositoryAdapter implements OutboxRepositoryPort {
 
   @Override
   public long countByStatus(OutboxStatus status) {
-    return em.createQuery("select count(o) from OutboxMessageEntity o where o.status = :status",
-            Long.class)
+    return em.createQuery(
+            "select count(o) from OutboxMessageEntity o where o.status = :status", Long.class)
         .setParameter("status", status)
         .getSingleResult();
   }

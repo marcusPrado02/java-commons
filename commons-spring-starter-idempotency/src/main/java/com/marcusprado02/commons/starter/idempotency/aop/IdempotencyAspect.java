@@ -30,10 +30,13 @@ public class IdempotencyAspect {
   private final IdempotencyProperties properties;
 
   private final ExpressionParser spel = new SpelExpressionParser();
-  private final ParameterNameDiscoverer parameterNameDiscoverer = new DefaultParameterNameDiscoverer();
+  private final ParameterNameDiscoverer parameterNameDiscoverer =
+      new DefaultParameterNameDiscoverer();
 
-  public IdempotencyAspect(IdempotencyService idempotencyService, IdempotencyProperties properties) {
-    this.idempotencyService = Objects.requireNonNull(idempotencyService, "idempotencyService must not be null");
+  public IdempotencyAspect(
+      IdempotencyService idempotencyService, IdempotencyProperties properties) {
+    this.idempotencyService =
+        Objects.requireNonNull(idempotencyService, "idempotencyService must not be null");
     this.properties = Objects.requireNonNull(properties, "properties must not be null");
   }
 
@@ -49,8 +52,8 @@ public class IdempotencyAspect {
 
     StandardEvaluationContext baseContext = new StandardEvaluationContext();
     baseContext.setTypeLocator(
-      new org.springframework.expression.spel.support.StandardTypeLocator(
-        method.getDeclaringClass().getClassLoader()));
+        new org.springframework.expression.spel.support.StandardTypeLocator(
+            method.getDeclaringClass().getClassLoader()));
 
     Object[] args = pjp.getArgs();
     String[] parameterNames = parameterNameDiscoverer.getParameterNames(method);
@@ -69,19 +72,20 @@ public class IdempotencyAspect {
 
     Duration ttl = parseTtl(idempotent.ttl());
 
-    Supplier<Object> action = () -> {
-      try {
-        return pjp.proceed();
-      } catch (Throwable t) {
-        if (t instanceof Error err) {
-          throw err;
-        }
-        if (t instanceof RuntimeException ex) {
-          throw ex;
-        }
-        throw new RuntimeException(t);
-      }
-    };
+    Supplier<Object> action =
+        () -> {
+          try {
+            return pjp.proceed();
+          } catch (Throwable t) {
+            if (t instanceof Error err) {
+              throw err;
+            }
+            if (t instanceof RuntimeException ex) {
+              throw ex;
+            }
+            throw new RuntimeException(t);
+          }
+        };
 
     IdempotencyResult<Object> result =
         idempotencyService.execute(
@@ -111,7 +115,8 @@ public class IdempotencyAspect {
     }
   }
 
-  private String resolveResultRef(String expr, StandardEvaluationContext baseContext, Object result) {
+  private String resolveResultRef(
+      String expr, StandardEvaluationContext baseContext, Object result) {
     if (!StringUtils.hasText(expr)) {
       return null;
     }

@@ -39,8 +39,8 @@ import org.slf4j.LoggerFactory;
  * }
  * }</pre>
  *
- * <p><strong>Note:</strong> This is a simple in-memory implementation. For distributed systems,
- * use Redis-based rate limiting (e.g., Bucket4j with Redis).
+ * <p><strong>Note:</strong> This is a simple in-memory implementation. For distributed systems, use
+ * Redis-based rate limiting (e.g., Bucket4j with Redis).
  */
 public final class RateLimitFilter implements Filter {
 

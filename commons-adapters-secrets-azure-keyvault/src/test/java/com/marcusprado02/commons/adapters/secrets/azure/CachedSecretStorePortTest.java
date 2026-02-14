@@ -20,7 +20,8 @@ class CachedSecretStorePortTest {
     SecretKey key = SecretKey.of("k");
     when(delegate.get(key)).thenReturn(Optional.of(SecretValue.of("v1")));
 
-    try (CachedSecretStorePort cached = new CachedSecretStorePort(delegate, Duration.ofSeconds(30), clock, null)) {
+    try (CachedSecretStorePort cached =
+        new CachedSecretStorePort(delegate, Duration.ofSeconds(30), clock, null)) {
       Optional<SecretValue> first = cached.get(key);
       Optional<SecretValue> second = cached.get(key);
 
@@ -44,7 +45,8 @@ class CachedSecretStorePortTest {
         .thenReturn(Optional.of(SecretValue.of("v2")));
     when(delegate.put(eq(key), any(SecretValue.class))).thenReturn("ver");
 
-    try (CachedSecretStorePort cached = new CachedSecretStorePort(delegate, Duration.ofMinutes(5), clock, null)) {
+    try (CachedSecretStorePort cached =
+        new CachedSecretStorePort(delegate, Duration.ofMinutes(5), clock, null)) {
       assertEquals("v1", cached.get(key).orElseThrow().asString());
       cached.put(key, SecretValue.of("new"));
       assertEquals("v2", cached.get(key).orElseThrow().asString());

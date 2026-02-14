@@ -140,8 +140,7 @@ public abstract class HttpClientPortContract {
             .uri(java.net.URI.create(getTestServerUrl() + "/get"))
             .build();
 
-    HttpResponseBodyMapper<String> mapper =
-        (bytes, resp) -> new String(bytes);
+    HttpResponseBodyMapper<String> mapper = (bytes, resp) -> new String(bytes);
 
     // When
     HttpResponse<String> response = httpClient.execute(request, mapper);

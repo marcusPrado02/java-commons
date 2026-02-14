@@ -27,22 +27,31 @@ class DefaultIdempotencyServiceTest {
   @Test
   void shouldExecuteOnlyOnceAndReuseResultRef() {
     InMemoryIdempotencyStore store = new InMemoryIdempotencyStore();
-    DefaultIdempotencyService service = new DefaultIdempotencyService(store, Duration.ofMinutes(10));
+    DefaultIdempotencyService service =
+        new DefaultIdempotencyService(store, Duration.ofMinutes(10));
 
     AtomicInteger calls = new AtomicInteger();
     IdempotencyKey key = new IdempotencyKey("order:123");
 
     IdempotencyResult<String> first =
-        service.execute(key, Duration.ofMinutes(1), () -> {
-          calls.incrementAndGet();
-          return "OK";
-        }, value -> "ref:" + value);
+        service.execute(
+            key,
+            Duration.ofMinutes(1),
+            () -> {
+              calls.incrementAndGet();
+              return "OK";
+            },
+            value -> "ref:" + value);
 
     IdempotencyResult<String> second =
-        service.execute(key, Duration.ofMinutes(1), () -> {
-          calls.incrementAndGet();
-          return "SHOULD_NOT_RUN";
-        }, value -> "ref:" + value);
+        service.execute(
+            key,
+            Duration.ofMinutes(1),
+            () -> {
+              calls.incrementAndGet();
+              return "SHOULD_NOT_RUN";
+            },
+            value -> "ref:" + value);
 
     assertTrue(first.executed());
     assertEquals("OK", first.value());
@@ -54,29 +63,31 @@ class DefaultIdempotencyServiceTest {
   @Test
   void shouldAllowOnlyOneConcurrentExecution() throws Exception {
     InMemoryIdempotencyStore store = new InMemoryIdempotencyStore();
-    DefaultIdempotencyService service = new DefaultIdempotencyService(store, Duration.ofMinutes(10));
+    DefaultIdempotencyService service =
+        new DefaultIdempotencyService(store, Duration.ofMinutes(10));
 
     AtomicInteger calls = new AtomicInteger();
     IdempotencyKey key = new IdempotencyKey("payment:abc");
 
     CyclicBarrier barrier = new CyclicBarrier(2);
 
-    Callable<IdempotencyResult<String>> task = () -> {
-      barrier.await(2, TimeUnit.SECONDS);
-      return service.execute(
-          key,
-          Duration.ofSeconds(5),
-          () -> {
-            calls.incrementAndGet();
-            try {
-              Thread.sleep(150);
-            } catch (InterruptedException e) {
-              Thread.currentThread().interrupt();
-            }
-            return "DONE";
-          },
-          value -> "ref:" + value);
-    };
+    Callable<IdempotencyResult<String>> task =
+        () -> {
+          barrier.await(2, TimeUnit.SECONDS);
+          return service.execute(
+              key,
+              Duration.ofSeconds(5),
+              () -> {
+                calls.incrementAndGet();
+                try {
+                  Thread.sleep(150);
+                } catch (InterruptedException e) {
+                  Thread.currentThread().interrupt();
+                }
+                return "DONE";
+              },
+              value -> "ref:" + value);
+        };
 
     ExecutorService pool = Executors.newFixedThreadPool(2);
     try {
@@ -97,24 +108,33 @@ class DefaultIdempotencyServiceTest {
   void shouldReacquireAfterTtlExpires() {
     MutableClock clock = new MutableClock(Instant.parse("2026-02-13T00:00:00Z"));
     InMemoryIdempotencyStore store = new InMemoryIdempotencyStore(clock);
-    DefaultIdempotencyService service = new DefaultIdempotencyService(store, Duration.ofMinutes(10));
+    DefaultIdempotencyService service =
+        new DefaultIdempotencyService(store, Duration.ofMinutes(10));
 
     AtomicInteger calls = new AtomicInteger();
     IdempotencyKey key = new IdempotencyKey("shipment:1");
 
     IdempotencyResult<String> first =
-        service.execute(key, Duration.ofSeconds(10), () -> {
-          calls.incrementAndGet();
-          return "A";
-        }, v -> "ref:" + v);
+        service.execute(
+            key,
+            Duration.ofSeconds(10),
+            () -> {
+              calls.incrementAndGet();
+              return "A";
+            },
+            v -> "ref:" + v);
 
     clock.advance(Duration.ofSeconds(11));
 
     IdempotencyResult<String> second =
-        service.execute(key, Duration.ofSeconds(10), () -> {
-          calls.incrementAndGet();
-          return "B";
-        }, v -> "ref:" + v);
+        service.execute(
+            key,
+            Duration.ofSeconds(10),
+            () -> {
+              calls.incrementAndGet();
+              return "B";
+            },
+            v -> "ref:" + v);
 
     assertTrue(first.executed());
     assertTrue(second.executed());
@@ -124,7 +144,8 @@ class DefaultIdempotencyServiceTest {
   @Test
   void shouldMarkFailedAndRethrow() {
     InMemoryIdempotencyStore store = new InMemoryIdempotencyStore();
-    DefaultIdempotencyService service = new DefaultIdempotencyService(store, Duration.ofMinutes(10));
+    DefaultIdempotencyService service =
+        new DefaultIdempotencyService(store, Duration.ofMinutes(10));
 
     IdempotencyKey key = new IdempotencyKey("fail:1");
 

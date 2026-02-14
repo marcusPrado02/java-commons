@@ -376,7 +376,8 @@ class JpaOutboxRepositoryAdapterTest {
         "order-123",
         "OrderCreated",
         "orders.created",
-        new OutboxPayload("application/json", "{\"orderId\":\"123\"}".getBytes(StandardCharsets.UTF_8)),
+        new OutboxPayload(
+            "application/json", "{\"orderId\":\"123\"}".getBytes(StandardCharsets.UTF_8)),
         Map.of("trace-id", "xyz"),
         Instant.now(),
         status,

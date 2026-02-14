@@ -5,7 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-public record HealthReport(HealthCheckType type, HealthStatus status, List<HealthCheckResult> checks, Instant checkedAt) {
+public record HealthReport(
+    HealthCheckType type, HealthStatus status, List<HealthCheckResult> checks, Instant checkedAt) {
 
   public HealthReport {
     Objects.requireNonNull(type, "type must not be null");

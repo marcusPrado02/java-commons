@@ -79,9 +79,7 @@ public abstract class PageableRepositoryContract<E, ID> {
    */
   protected abstract ID getEntityId(E entity);
 
-  /**
-   * Clean up repository after each test (optional).
-   */
+  /** Clean up repository after each test (optional). */
   protected void cleanupRepository() {
     // Override if cleanup is needed
   }

@@ -28,4 +28,3 @@ public class IdempotencyAutoConfiguration {
     return new DefaultIdempotentExecutor(storePort, properties.defaultTtl());
   }
 }
-

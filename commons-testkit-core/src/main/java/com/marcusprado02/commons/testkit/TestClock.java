@@ -37,8 +37,7 @@ public final class TestClock {
   public static ClockProvider fixedAt(int year, int month, int day, int hour, int minute) {
     Instant instant =
         Instant.parse(
-            String.format(
-                "%04d-%02d-%02dT%02d:%02d:00Z", year, month, day, hour, minute));
+            String.format("%04d-%02d-%02dT%02d:%02d:00Z", year, month, day, hour, minute));
     return fixed(instant);
   }
 

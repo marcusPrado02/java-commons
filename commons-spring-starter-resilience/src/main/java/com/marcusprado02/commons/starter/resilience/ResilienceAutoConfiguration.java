@@ -36,7 +36,11 @@ public class ResilienceAutoConfiguration {
   @Bean
   @ConditionalOnBean(ResilienceExecutor.class)
   @ConditionalOnClass(name = "org.aspectj.lang.ProceedingJoinPoint")
-  @ConditionalOnProperty(prefix = "commons.resilience", name = "aop.enabled", havingValue = "true", matchIfMissing = true)
+  @ConditionalOnProperty(
+      prefix = "commons.resilience",
+      name = "aop.enabled",
+      havingValue = "true",
+      matchIfMissing = true)
   public ResilienceAspect resilienceAspect(
       ResilienceExecutor resilienceExecutor, ResilienceProperties resilienceProperties) {
     return new ResilienceAspect(resilienceExecutor, resilienceProperties);

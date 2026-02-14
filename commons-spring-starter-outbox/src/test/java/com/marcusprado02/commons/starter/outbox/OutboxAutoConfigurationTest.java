@@ -3,7 +3,6 @@ package com.marcusprado02.commons.starter.outbox;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.marcusprado02.commons.app.outbox.OutboxProcessor;
 import com.marcusprado02.commons.app.outbox.OutboxSerializer;
 import com.marcusprado02.commons.app.outbox.config.OutboxProcessorConfig;
 import com.marcusprado02.commons.app.outbox.metrics.OutboxMetrics;

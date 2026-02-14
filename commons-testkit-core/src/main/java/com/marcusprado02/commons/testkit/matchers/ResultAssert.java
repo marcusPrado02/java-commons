@@ -24,8 +24,7 @@ public class ResultAssert<T> extends AbstractAssert<ResultAssert<T>, Result<T>> 
     isNotNull();
     if (!actual.isOk()) {
       failWithMessage(
-          "Expected result to be success but was failure with problem: %s",
-          actual.problemOrNull());
+          "Expected result to be success but was failure with problem: %s", actual.problemOrNull());
     }
     return this;
   }
@@ -33,7 +32,8 @@ public class ResultAssert<T> extends AbstractAssert<ResultAssert<T>, Result<T>> 
   public ResultAssert<T> isFailure() {
     isNotNull();
     if (actual.isOk()) {
-      failWithMessage("Expected result to be failure but was success with value: %s", actual.getOrNull());
+      failWithMessage(
+          "Expected result to be failure but was success with value: %s", actual.getOrNull());
     }
     return this;
   }

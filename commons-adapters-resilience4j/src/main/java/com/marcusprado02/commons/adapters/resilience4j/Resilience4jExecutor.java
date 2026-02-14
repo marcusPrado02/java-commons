@@ -4,9 +4,9 @@ import com.github.benmanes.caffeine.cache.Caffeine;
 import com.marcusprado02.commons.app.observability.MetricsFacade;
 import com.marcusprado02.commons.app.resilience.CachePolicy;
 import com.marcusprado02.commons.app.resilience.FallbackStrategy;
+import com.marcusprado02.commons.app.resilience.RateLimiterPolicy;
 import com.marcusprado02.commons.app.resilience.ResilienceExecutor;
 import com.marcusprado02.commons.app.resilience.ResiliencePolicySet;
-import com.marcusprado02.commons.app.resilience.RateLimiterPolicy;
 import io.github.resilience4j.bulkhead.Bulkhead;
 import io.github.resilience4j.bulkhead.BulkheadConfig;
 import io.github.resilience4j.bulkhead.BulkheadFullException;
@@ -26,9 +26,9 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 
@@ -43,8 +43,8 @@ public final class Resilience4jExecutor implements ResilienceExecutor {
   private final ConcurrentMap<String, RateLimiter> rateLimiters = new ConcurrentHashMap<>();
   private final ConcurrentMap<String, Retry> retries = new ConcurrentHashMap<>();
   private final ConcurrentMap<String, TimeLimiter> timeLimiters = new ConcurrentHashMap<>();
-  private final ConcurrentMap<String, com.github.benmanes.caffeine.cache.Cache<Object, Object>> caches =
-      new ConcurrentHashMap<>();
+  private final ConcurrentMap<String, com.github.benmanes.caffeine.cache.Cache<Object, Object>>
+      caches = new ConcurrentHashMap<>();
 
   public Resilience4jExecutor() {
     this(MetricsFacade.noop());
@@ -137,13 +137,7 @@ public final class Resilience4jExecutor implements ResilienceExecutor {
       metrics.incrementCounter(
           METRIC_CALLS,
           1,
-          Map.of(
-              "name",
-              safeName,
-              "outcome",
-              "failure",
-              "failure_type",
-              failureType(t)));
+          Map.of("name", safeName, "outcome", "failure", "failure_type", failureType(t)));
 
       try {
         T fallbackValue = safeFallback.recover(unwrapCompletionException(t));
@@ -183,8 +177,7 @@ public final class Resilience4jExecutor implements ResilienceExecutor {
 
     Object cachedValue = cache.getIfPresent(cacheKey);
     if (cachedValue != null) {
-      metrics.incrementCounter(
-          METRIC_CACHE, 1, Map.of("name", safeName, "result", "hit"));
+      metrics.incrementCounter(METRIC_CACHE, 1, Map.of("name", safeName, "result", "hit"));
       @SuppressWarnings("unchecked")
       T typed = (T) cachedValue;
       return typed;
@@ -262,8 +255,8 @@ public final class Resilience4jExecutor implements ResilienceExecutor {
           RetryConfig cfg =
               RetryConfig.custom()
                   .maxAttempts(policies.retry().maxAttempts())
-                .waitDuration(
-                  safeWaitDuration(policies.retry().initialBackoff(), Duration.ofMillis(100)))
+                  .waitDuration(
+                      safeWaitDuration(policies.retry().initialBackoff(), Duration.ofMillis(100)))
                   .build();
           return Retry.of(name, cfg);
         });

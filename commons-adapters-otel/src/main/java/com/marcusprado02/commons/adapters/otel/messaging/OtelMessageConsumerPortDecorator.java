@@ -48,7 +48,8 @@ public final class OtelMessageConsumerPortDecorator implements MessageConsumerPo
   private final Tracer tracer;
   private final TextMapPropagator propagator;
 
-  public OtelMessageConsumerPortDecorator(MessageConsumerPort delegate, String instrumentationName) {
+  public OtelMessageConsumerPortDecorator(
+      MessageConsumerPort delegate, String instrumentationName) {
     this.delegate = Objects.requireNonNull(delegate, "delegate must not be null");
 
     String name =

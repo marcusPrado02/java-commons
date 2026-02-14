@@ -41,12 +41,13 @@ public final class CachedSecretStorePort implements SecretStorePort, AutoCloseab
     this.clock = Objects.requireNonNull(clock, "clock cannot be null");
 
     if (refreshInterval != null && !refreshInterval.isZero() && !refreshInterval.isNegative()) {
-      this.scheduler = Executors.newSingleThreadScheduledExecutor(
-          r -> {
-            Thread t = new Thread(r, "secret-store-cache-refresh");
-            t.setDaemon(true);
-            return t;
-          });
+      this.scheduler =
+          Executors.newSingleThreadScheduledExecutor(
+              r -> {
+                Thread t = new Thread(r, "secret-store-cache-refresh");
+                t.setDaemon(true);
+                return t;
+              });
       this.refreshTask =
           this.scheduler.scheduleWithFixedDelay(
               this::refreshAllOnce,
@@ -171,11 +172,7 @@ public final class CachedSecretStorePort implements SecretStorePort, AutoCloseab
       byte[] copy = Arrays.copyOf(bytes, bytes.length);
       Instant createdAt = value.createdAt() != null ? value.createdAt() : now;
       return new CacheEntry(
-          copy,
-          value.version().orElse(null),
-          createdAt,
-          value.expiresAt().orElse(null),
-          now);
+          copy, value.version().orElse(null), createdAt, value.expiresAt().orElse(null), now);
     }
 
     boolean isValid(Instant now, Duration ttl) {

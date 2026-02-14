@@ -1,0 +1,36 @@
+# <type>(<scope>): <subject>
+# |<----   Using a Maximum Of 100 Characters   ---->|
+
+# Explain why this change is being made
+# |<----   Try To Limit Each Line to a Maximum Of 72 Characters   ---->|
+
+# Provide links or keys to any relevant tickets, articles or other resources
+# Example: BREAKING CHANGE: <description>
+# Example: Closes #123
+# Example: Ref #456
+
+# --- COMMIT END ---
+# Type can be
+#    feat     (new feature)
+#    fix      (bug fix)
+#    refactor (refactoring production code)
+#    style    (formatting, missing semi colons, etc; no code change)
+#    docs     (changes to documentation)
+#    test     (adding or refactoring tests; no production code change)
+#    chore    (updating build tasks, package manager configs, etc; no production code change)
+#    perf     (performance improvement)
+#    build    (build system or dependencies)
+#    ci       (CI/CD configuration)
+#    revert   (revert a previous commit)
+# --------------------
+# Scope is optional and should be the module or component affected
+# Examples: kernel, adapter, web, persistence, etc.
+# --------------------
+# Remember to:
+#   1. Capitalize the subject line
+#   2. Use the imperative mood in the subject line
+#   3. Do not end the subject line with a period
+#   4. Separate subject from body with a blank line
+#   5. Use the body to explain what and why vs. how
+#   6. Can use multiple lines with "-" for bullet points in body
+# --------------------

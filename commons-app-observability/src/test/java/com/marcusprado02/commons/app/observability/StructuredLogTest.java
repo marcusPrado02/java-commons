@@ -24,11 +24,7 @@ class StructuredLogTest {
     Clock clock = Clock.fixed(Instant.parse("2026-02-13T00:00:00Z"), ZoneOffset.UTC);
 
     Map<String, Object> log =
-        StructuredLog.builder(clock)
-            .level("INFO")
-            .message("hello")
-            .field("k", "v")
-            .build();
+        StructuredLog.builder(clock).level("INFO").message("hello").field("k", "v").build();
 
     assertEquals("INFO", log.get("level"));
     assertEquals("hello", log.get("message"));
@@ -40,11 +36,7 @@ class StructuredLogTest {
 
   @Test
   void shouldSanitizeFields() {
-    Map<String, Object> log =
-        StructuredLog.builder()
-            .message("x")
-            .field("password", "123")
-            .build();
+    Map<String, Object> log = StructuredLog.builder().message("x").field("password", "123").build();
 
     assertEquals("***", log.get("password"));
   }

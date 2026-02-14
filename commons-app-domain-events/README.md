@@ -46,9 +46,9 @@ eventBus.publishAll(order.pullDomainEvents());
 ```java
 @Component
 public class OrderCreatedHandler implements DomainEventHandler<OrderCreatedEvent> {
-    
+
     private final EmailService emailService;
-    
+
     @Override
     public void handle(OrderCreatedEvent event) {
         // Send confirmation email
@@ -57,7 +57,7 @@ public class OrderCreatedHandler implements DomainEventHandler<OrderCreatedEvent
             event.customerId()
         );
     }
-    
+
     @Override
     public Class<OrderCreatedEvent> eventType() {
         return OrderCreatedEvent.class;
@@ -136,18 +136,18 @@ eventBus.publish(orderCreatedEvent);
 ```java
 @Configuration
 public class DomainEventConfig {
-    
+
     @Bean
     public DomainEventBus domainEventBus(List<DomainEventHandler<?>> handlers) {
         DomainEventBus eventBus = new DomainEventBus();
-        
+
         // Register all handlers from Spring context
         handlers.forEach(eventBus::register);
-        
+
         // Register interceptors
         eventBus.registerInterceptor(new LoggingInterceptor());
         eventBus.registerInterceptor(new MetricsInterceptor());
-        
+
         return eventBus;
     }
 }
@@ -159,21 +159,21 @@ public class DomainEventConfig {
 @Service
 @Transactional
 public class OrderService {
-    
+
     private final OrderRepository orderRepository;
     private final DomainEventBus eventBus;
-    
+
     public void completeOrder(OrderId orderId) {
         // Load aggregate
         Order order = orderRepository.findById(orderId)
             .orElseThrow(() -> new OrderNotFoundException(orderId));
-        
+
         // Execute domain logic
         order.complete(AuditStamp.now(getCurrentActorId()));
-        
+
         // Save aggregate
         orderRepository.save(order);
-        
+
         // Pull and publish events
         List<DomainEvent> events = order.pullDomainEvents();
         eventBus.publishAll(events);
@@ -187,12 +187,12 @@ public class OrderService {
 // Email notification
 @Component
 public class OrderCreatedEmailHandler implements DomainEventHandler<OrderCreatedEvent> {
-    
+
     @Override
     public void handle(OrderCreatedEvent event) {
         emailService.sendOrderConfirmation(event.customerId());
     }
-    
+
     @Override
     public Class<OrderCreatedEvent> eventType() {
         return OrderCreatedEvent.class;
@@ -202,12 +202,12 @@ public class OrderCreatedEmailHandler implements DomainEventHandler<OrderCreated
 // Analytics tracking
 @Component
 public class OrderCreatedAnalyticsHandler implements DomainEventHandler<OrderCreatedEvent> {
-    
+
     @Override
     public void handle(OrderCreatedEvent event) {
         analyticsService.trackOrderCreated(event.aggregate().id());
     }
-    
+
     @Override
     public Class<OrderCreatedEvent> eventType() {
         return OrderCreatedEvent.class;
@@ -217,12 +217,12 @@ public class OrderCreatedAnalyticsHandler implements DomainEventHandler<OrderCre
 // Push notification
 @Component
 public class OrderCreatedNotificationHandler implements DomainEventHandler<OrderCreatedEvent> {
-    
+
     @Override
     public void handle(OrderCreatedEvent event) {
         notificationService.sendPushNotification(event.customerId());
     }
-    
+
     @Override
     public Class<OrderCreatedEvent> eventType() {
         return OrderCreatedEvent.class;
@@ -234,16 +234,16 @@ public class OrderCreatedNotificationHandler implements DomainEventHandler<Order
 
 ```java
 public class LoggingInterceptor implements DomainEventInterceptor {
-    
+
     private static final Logger log = LoggerFactory.getLogger(LoggingInterceptor.class);
-    
+
     @Override
     public void beforePublish(DomainEvent event) {
-        log.info("Publishing event: {} for aggregate: {}", 
-            event.eventType(), 
+        log.info("Publishing event: {} for aggregate: {}",
+            event.eventType(),
             event.aggregate().id());
     }
-    
+
     @Override
     public void afterPublish(DomainEvent event) {
         log.debug("Published event: {}", event.eventType());
@@ -258,12 +258,12 @@ eventBus.registerInterceptor(new LoggingInterceptor());
 
 ```java
 public class MetricsInterceptor implements DomainEventInterceptor {
-    
+
     private final MeterRegistry meterRegistry;
-    
+
     @Override
     public void beforePublish(DomainEvent event) {
-        meterRegistry.counter("domain.events.published", 
+        meterRegistry.counter("domain.events.published",
             "type", event.eventType())
             .increment();
     }
@@ -334,26 +334,26 @@ void shouldHandleOrderCreatedEvent() {
     // Given
     DomainEventBus eventBus = new DomainEventBus();
     AtomicInteger callCount = new AtomicInteger(0);
-    
+
     DomainEventHandler<OrderCreatedEvent> handler = new DomainEventHandler<>() {
         @Override
         public void handle(OrderCreatedEvent event) {
             callCount.incrementAndGet();
             assertEquals(customerId, event.customerId());
         }
-        
+
         @Override
         public Class<OrderCreatedEvent> eventType() {
             return OrderCreatedEvent.class;
         }
     };
-    
+
     eventBus.register(handler);
-    
+
     // When
     OrderCreatedEvent event = new OrderCreatedEvent(snapshot, customerId);
     eventBus.publish(event);
-    
+
     // Then
     assertEquals(1, callCount.get());
 }
@@ -367,21 +367,21 @@ void shouldCallInterceptors() {
     DomainEventBus eventBus = new DomainEventBus();
     AtomicInteger beforeCount = new AtomicInteger(0);
     AtomicInteger afterCount = new AtomicInteger(0);
-    
+
     eventBus.registerInterceptor(new DomainEventInterceptor() {
         @Override
         public void beforePublish(DomainEvent event) {
             beforeCount.incrementAndGet();
         }
-        
+
         @Override
         public void afterPublish(DomainEvent event) {
             afterCount.incrementAndGet();
         }
     });
-    
+
     eventBus.publish(testEvent);
-    
+
     assertEquals(1, beforeCount.get());
     assertEquals(1, afterCount.get());
 }

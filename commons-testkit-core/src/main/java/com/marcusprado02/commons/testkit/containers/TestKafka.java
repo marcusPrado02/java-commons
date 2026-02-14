@@ -29,8 +29,7 @@ public final class TestKafka {
 
   /** Creates a Kafka container with a specific Confluent Platform version. */
   public static KafkaContainer container(String confluentVersion) {
-    return new KafkaContainer(
-            DockerImageName.parse("confluentinc/cp-kafka:" + confluentVersion))
+    return new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:" + confluentVersion))
         .withReuse(true);
   }
 

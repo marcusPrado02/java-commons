@@ -93,18 +93,21 @@ public final class StructuredLog {
       result.put("message", (message == null) ? "" : message);
 
       if (includeContext) {
-        RequestContext.snapshot().forEach((k, v) -> {
-          if (k != null && !k.isBlank() && v != null && !v.isBlank()) {
-            result.put(k, v);
-          }
-        });
+        RequestContext.snapshot()
+            .forEach(
+                (k, v) -> {
+                  if (k != null && !k.isBlank() && v != null && !v.isBlank()) {
+                    result.put(k, v);
+                  }
+                });
       }
 
-      fields.forEach((k, v) -> {
-        if (k != null && !k.isBlank() && v != null) {
-          result.put(k, v);
-        }
-      });
+      fields.forEach(
+          (k, v) -> {
+            if (k != null && !k.isBlank() && v != null) {
+              result.put(k, v);
+            }
+          });
 
       if (error != null) {
         result.put("error.type", error.getClass().getName());

@@ -169,11 +169,14 @@
                             <format>
                                 <includes>
                                     <include>.gitignore</include>
-                                    <include>.gitattributes</include>
+                                    <include>..gitattributes</include>
                                     <include>**/*.md</include>
                                     <include>**/*.yml</include>
                                     <include>**/*.yaml</include>
                                 </includes>
+                                <excludes>
+                                    <exclude>**/CHANGELOG.md</exclude>
+                                </excludes>
                                 <trimTrailingWhitespace />
                                 <endWithNewline />
                             </format>

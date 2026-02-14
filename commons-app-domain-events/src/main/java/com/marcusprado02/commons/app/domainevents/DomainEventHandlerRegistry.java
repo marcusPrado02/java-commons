@@ -92,9 +92,7 @@ public final class DomainEventHandlerRegistry {
     return eventHandlers != null && !eventHandlers.isEmpty();
   }
 
-  /**
-   * Clears all registered handlers.
-   */
+  /** Clears all registered handlers. */
   public void clear() {
     handlers.clear();
     log.debug("Cleared all event handlers");

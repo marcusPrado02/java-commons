@@ -1,0 +1,117 @@
+name: Validate Commits
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  push:
+    branches:
+      - main
+      - develop
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  commitlint:
+    name: Lint Commit Messages
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install commitlint
+        run: |
+          npm install -g @commitlint/cli @commitlint/config-conventional
+
+      - name: Validate current commit (for push)
+        if: github.event_name == 'push'
+        run: echo "${{ github.event.head_commit.message }}" | npx commitlint
+
+      - name: Validate PR commits
+        if: github.event_name == 'pull_request'
+        run: |
+          npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose
+
+      - name: Comment on PR if validation fails
+        if: failure() && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: `## ❌ Commit Message Validation Failed
+
+              Your commit messages don't follow the [Conventional Commits](https://www.conventionalcommits.org/) specification.
+
+              ### Format
+              \`\`\`
+              <type>(<scope>): <subject>
+              \`\`\`
+
+              ### Valid types
+              - **feat**: A new feature
+              - **fix**: A bug fix
+              - **docs**: Documentation changes
+              - **style**: Code style changes (formatting, etc)
+              - **refactor**: Code refactoring
+              - **perf**: Performance improvements
+              - **test**: Adding or updating tests
+              - **build**: Build system or dependencies
+              - **ci**: CI/CD configuration
+              - **chore**: Other changes
+              - **revert**: Revert a previous commit
+
+              ### Examples
+              - \`feat(kernel): add Result monad for error handling\`
+              - \`fix(persistence): resolve connection pool leak\`
+              - \`docs(readme): update installation instructions\`
+
+              Please update your commit messages and force push to this PR.`
+            })
+
+  conventional-commits-check:
+    name: Check Conventional Commits
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check PR title
+        if: github.event_name == 'pull_request'
+        uses: amannn/action-semantic-pull-request@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            docs
+            style
+            refactor
+            perf
+            test
+            build
+            ci
+            chore
+            revert
+          requireScope: false
+          subjectPattern: ^(?![A-Z]).+$
+          subjectPatternError: |
+            The subject "{subject}" found in the pull request title "{title}"
+            didn't match the configured pattern. Please ensure that the subject
+            doesn't start with an uppercase character.

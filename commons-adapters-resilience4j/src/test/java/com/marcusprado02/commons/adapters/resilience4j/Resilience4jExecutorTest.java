@@ -36,7 +36,9 @@ class Resilience4jExecutorTest {
             FallbackStrategy.value("fallback"));
 
     assertEquals("fallback", value);
-    assertTrue(metrics.hasCounter("commons.resilience.calls", Map.of("name", "svc", "outcome", "fallback")));
+    assertTrue(
+        metrics.hasCounter(
+            "commons.resilience.calls", Map.of("name", "svc", "outcome", "fallback")));
   }
 
   @Test
@@ -95,8 +97,10 @@ class Resilience4jExecutorTest {
     assertEquals("v1", v1);
     assertEquals("v1", v2);
     assertEquals(1, calls.get());
-    assertTrue(metrics.hasCounter("commons.resilience.cache", Map.of("name", "cache", "result", "hit")));
-    assertTrue(metrics.hasCounter("commons.resilience.cache", Map.of("name", "cache", "result", "miss")));
+    assertTrue(
+        metrics.hasCounter("commons.resilience.cache", Map.of("name", "cache", "result", "hit")));
+    assertTrue(
+        metrics.hasCounter("commons.resilience.cache", Map.of("name", "cache", "result", "miss")));
   }
 
   @Test
@@ -105,13 +109,7 @@ class Resilience4jExecutorTest {
     Resilience4jExecutor executor = new Resilience4jExecutor(metrics);
 
     ResiliencePolicySet policies =
-        new ResiliencePolicySet(
-            null,
-            null,
-            null,
-            new BulkheadPolicy(1, Duration.ZERO),
-            null,
-            null);
+        new ResiliencePolicySet(null, null, null, new BulkheadPolicy(1, Duration.ZERO), null, null);
 
     CountDownLatch started = new CountDownLatch(1);
     CountDownLatch release = new CountDownLatch(1);
@@ -135,11 +133,7 @@ class Resilience4jExecutorTest {
     assertTrue(started.await(2, TimeUnit.SECONDS));
 
     String second =
-        executor.supply(
-            "bh",
-            policies,
-            () -> "should-not-run",
-            FallbackStrategy.value("fallback"));
+        executor.supply("bh", policies, () -> "should-not-run", FallbackStrategy.value("fallback"));
 
     release.countDown();
     t1.join(2000);

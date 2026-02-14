@@ -40,9 +40,7 @@ public class CorsProperties {
   /** Allowed origins. Use "*" to allow all origins. Default: empty (no origins allowed) */
   private List<String> allowedOrigins = List.of();
 
-  /**
-   * Allowed origin patterns. Supports wildcards (e.g., "https://*.example.com"). Default: empty
-   */
+  /** Allowed origin patterns. Supports wildcards (e.g., "https://*.example.com"). Default: empty */
   private List<String> allowedOriginPatterns = List.of();
 
   /** Allowed HTTP methods. Default: GET, POST, PUT, DELETE, PATCH */

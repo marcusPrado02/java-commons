@@ -51,10 +51,7 @@ public final class DomainEventDispatcher {
     Class<? extends DomainEvent> eventType = event.getClass();
     List<DomainEventHandler<?>> handlers = registry.getHandlers(eventType);
 
-    log.debug(
-        "Dispatching event {} to {} handler(s)",
-        eventType.getSimpleName(),
-        handlers.size());
+    log.debug("Dispatching event {} to {} handler(s)", eventType.getSimpleName(), handlers.size());
 
     for (DomainEventHandler<?> handler : handlers) {
       try {

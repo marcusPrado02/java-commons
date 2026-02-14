@@ -171,11 +171,7 @@ public final class CachedSecretStorePort implements SecretStorePort, AutoCloseab
       byte[] copy = Arrays.copyOf(bytes, bytes.length);
       Instant createdAt = value.createdAt() != null ? value.createdAt() : now;
       return new CacheEntry(
-          copy,
-          value.version().orElse(null),
-          createdAt,
-          value.expiresAt().orElse(null),
-          now);
+          copy, value.version().orElse(null), createdAt, value.expiresAt().orElse(null), now);
     }
 
     boolean isValid(Instant now, Duration ttl) {

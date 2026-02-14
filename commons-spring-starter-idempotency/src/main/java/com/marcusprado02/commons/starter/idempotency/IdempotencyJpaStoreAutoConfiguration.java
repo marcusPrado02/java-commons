@@ -9,10 +9,11 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 
 @AutoConfiguration
-@ConditionalOnClass(name = {
-    "jakarta.persistence.EntityManager",
-    "com.marcusprado02.commons.adapters.persistence.jpa.idempotency.JpaIdempotencyStoreAdapter"
-})
+@ConditionalOnClass(
+    name = {
+      "jakarta.persistence.EntityManager",
+      "com.marcusprado02.commons.adapters.persistence.jpa.idempotency.JpaIdempotencyStoreAdapter"
+    })
 public class IdempotencyJpaStoreAutoConfiguration {
 
   @Bean

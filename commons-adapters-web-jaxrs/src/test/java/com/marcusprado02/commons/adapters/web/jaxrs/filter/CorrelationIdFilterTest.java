@@ -45,7 +45,8 @@ class CorrelationIdFilterTest extends JerseyTest {
   void shouldPropagateIncomingCorrelationId() {
     String incomingId = "test-correlation-id-123";
 
-    Response response = target("/test/hello").request().header("X-Correlation-Id", incomingId).get();
+    Response response =
+        target("/test/hello").request().header("X-Correlation-Id", incomingId).get();
 
     assertEquals(200, response.getStatus());
     String correlationId = response.getHeaderString("X-Correlation-Id");

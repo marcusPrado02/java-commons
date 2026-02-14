@@ -21,7 +21,8 @@ public final class ExponentialBackoffStrategy {
     this(config.initialBackoff(), config.maxBackoff(), config.backoffMultiplier());
   }
 
-  public ExponentialBackoffStrategy(Duration initialBackoff, Duration maxBackoff, double multiplier) {
+  public ExponentialBackoffStrategy(
+      Duration initialBackoff, Duration maxBackoff, double multiplier) {
     this.initialBackoff = Objects.requireNonNull(initialBackoff, "initialBackoff must not be null");
     this.maxBackoff = Objects.requireNonNull(maxBackoff, "maxBackoff must not be null");
     this.multiplier = multiplier;

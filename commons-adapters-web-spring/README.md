@@ -35,7 +35,7 @@ O handler é registrado automaticamente via `@RestControllerAdvice`:
 ```java
 @Configuration
 public class WebConfig {
-    
+
     @Bean
     public HttpProblemMapper problemMapper() {
         return new DefaultHttpProblemMapper(); // Implementação do commons-adapters-web
@@ -74,7 +74,7 @@ Logging detalhado de requisições e respostas HTTP.
 ```java
 @Configuration
 public class LoggingConfig {
-    
+
     @Bean
     public FilterRegistrationBean<RequestResponseLoggingFilter> loggingFilter() {
         FilterRegistrationBean<RequestResponseLoggingFilter> bean = new FilterRegistrationBean<>();
@@ -129,7 +129,7 @@ Rate limiting configurável por IP, usuário ou API key usando **token bucket al
 ```java
 @Configuration
 public class RateLimitConfig {
-    
+
     @Bean
     public FilterRegistrationBean<RateLimitFilter> rateLimitFilter() {
         RateLimitFilter filter = RateLimitFilter.builder()
@@ -137,7 +137,7 @@ public class RateLimitConfig {
             .window(Duration.ofMinutes(1))       // por minuto
             .keyExtractor(request -> request.getRemoteAddr()) // por IP
             .build();
-        
+
         FilterRegistrationBean<RateLimitFilter> bean = new FilterRegistrationBean<>();
         bean.setFilter(filter);
         bean.setUrlPatterns(List.of("/api/*"));
@@ -166,18 +166,18 @@ commons:
 public FilterRegistrationBean<RateLimitFilter> rateLimitFilter(RateLimitProperties props) {
     Function<HttpServletRequest, String> keyExtractor = switch (props.getKeyType()) {
         case IP_ADDRESS -> HttpServletRequest::getRemoteAddr;
-        case USER -> req -> req.getUserPrincipal() != null 
-            ? req.getUserPrincipal().getName() 
+        case USER -> req -> req.getUserPrincipal() != null
+            ? req.getUserPrincipal().getName()
             : req.getRemoteAddr();
         case API_KEY -> req -> req.getHeader(props.getApiKeyHeader());
     };
-    
+
     RateLimitFilter filter = RateLimitFilter.builder()
         .limit(props.getLimit())
         .window(props.getWindow())
         .keyExtractor(keyExtractor)
         .build();
-    
+
     FilterRegistrationBean<RateLimitFilter> bean = new FilterRegistrationBean<>();
     bean.setFilter(filter);
     bean.setUrlPatterns(List.of("/api/*"));
@@ -245,7 +245,7 @@ commons:
 @Configuration
 @EnableConfigurationProperties(CorsProperties.class)
 public class WebConfig {
-    
+
     @Bean
     public WebMvcConfigurer corsConfigurer(CorsProperties corsProperties) {
         return CorsConfigurationHelper.fromProperties(corsProperties);
@@ -258,7 +258,7 @@ public class WebConfig {
 ```java
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
-    
+
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         CorsConfigurationHelper.builder()
@@ -325,14 +325,14 @@ commons:
         - X-Total-Count
       allow-credentials: true
       max-age: 3600
-    
+
     # Rate Limiting
     rate-limit:
       enabled: true
       limit: 100
       window: 1m
       key-type: IP_ADDRESS
-    
+
     # Context (tenant, actor)
     context:
       tenant-header: X-Tenant-Id
@@ -350,13 +350,13 @@ logging:
 @Configuration
 @EnableConfigurationProperties({CorsProperties.class, RateLimitProperties.class})
 public class WebSecurityConfig {
-    
+
     // CORS
     @Bean
     public WebMvcConfigurer corsConfigurer(CorsProperties props) {
         return CorsConfigurationHelper.fromProperties(props);
     }
-    
+
     // Rate Limiting
     @Bean
     @ConditionalOnProperty(prefix = "commons.web.rate-limit", name = "enabled")
@@ -366,14 +366,14 @@ public class WebSecurityConfig {
             .window(props.getWindow())
             .keyExtractor(HttpServletRequest::getRemoteAddr)
             .build();
-        
+
         FilterRegistrationBean<RateLimitFilter> bean = new FilterRegistrationBean<>();
         bean.setFilter(filter);
         bean.setUrlPatterns(List.of("/api/*"));
         bean.setOrder(5);
         return bean;
     }
-    
+
     // Request/Response Logging
     @Bean
     public FilterRegistrationBean<RequestResponseLoggingFilter> loggingFilter() {
@@ -382,7 +382,7 @@ public class WebSecurityConfig {
         bean.setOrder(10);
         return bean;
     }
-    
+
     // Exception Handler (já auto-registrado via @RestControllerAdvice)
     @Bean
     public HttpProblemMapper problemMapper() {
@@ -400,10 +400,10 @@ public class WebSecurityConfig {
 ```java
 @WebMvcTest
 class ProblemExceptionHandlerTest {
-    
+
     @Autowired
     private MockMvc mockMvc;
-    
+
     @Test
     void shouldReturn400ForValidationError() throws Exception {
         mockMvc.perform(post("/api/users")
@@ -426,12 +426,12 @@ void shouldReturn429AfterRateLimitExceeded() {
         .window(Duration.ofMinutes(1))
         .keyExtractor(HttpServletRequest::getRemoteAddr)
         .build();
-    
+
     // 5 requisições OK
     for (int i = 0; i < 5; i++) {
         // assert 200
     }
-    
+
     // 6ª requisição: 429
     // assert 429 Too Many Requests
 }

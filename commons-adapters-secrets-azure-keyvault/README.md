@@ -359,13 +359,13 @@ new ClientSecretCredentialBuilder()
 ```java
 public void rotateApiKey() {
     SecretKey key = SecretKey.of("api-key");
-    
+
     // Generate new secret
     String newSecret = generateNewApiKey();
-    
+
     // Store new version
     String newVersion = secretStore.put(key, SecretValue.of(newSecret));
-    
+
     // Old versions remain accessible for graceful migration
     log.info("Rotated secret to version {}", newVersion);
 }

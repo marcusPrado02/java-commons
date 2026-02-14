@@ -51,7 +51,7 @@ public final class OkHttpClientAdapter implements HttpClientPort {
         (resilienceExecutor == null) ? new NoopResilienceExecutor() : resilienceExecutor;
     this.resiliencePolicies =
         (resiliencePolicies == null)
-        ? new ResiliencePolicySet(null, null, null, null, null, null)
+            ? new ResiliencePolicySet(null, null, null, null, null, null)
             : resiliencePolicies;
     this.tracerFacade = tracerFacade;
     this.interceptors = List.copyOf(interceptors == null ? List.of() : interceptors);

@@ -321,7 +321,7 @@ RFC7807ProblemDetail detail = RFC7807ProblemDetail.builder()
 ```java
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-    
+
     @ExceptionHandler(DomainException.class)
     public ResponseEntity<RFC7807ProblemDetail> handleDomainException(DomainException ex) {
         RFC7807ProblemDetail detail = RFC7807ProblemDetail.from(ex.problem());
@@ -339,10 +339,10 @@ public class GlobalExceptionHandler {
 
 ```java
 public class CreateUserValidator {
-    
+
     public void validate(CreateUserCommand command) {
         ValidationResult<Void> result = ValidationResult.builder();
-        
+
         if (command.email() == null || command.email().isBlank()) {
             result.addError(Problems.validation(
                 StandardErrorCodes.VALIDATION_REQUIRED_FIELD,
@@ -350,7 +350,7 @@ public class CreateUserValidator {
                 ProblemDetail.of("email", "Campo não pode ser vazio")
             ));
         }
-        
+
         if (command.age() != null && command.age() < 18) {
             result.addError(Problems.validation(
                 StandardErrorCodes.VALIDATION_OUT_OF_RANGE,
@@ -358,8 +358,8 @@ public class CreateUserValidator {
                 ProblemDetail.of("age", "Deve ser maior ou igual a 18")
             ));
         }
-        
-        result.build().orElseThrow(problems -> 
+
+        result.build().orElseThrow(problems ->
             new ValidationException(Problems.combine(
                 StandardErrorCodes.VALIDATION_FAILED,
                 "Validação falhou",
@@ -374,17 +374,17 @@ public class CreateUserValidator {
 
 ```java
 public class TransferService {
-    
+
     public void transfer(String fromAccountId, String toAccountId, BigDecimal amount) {
         Account from = accountRepository.findById(fromAccountId)
-            .orElseThrow(() -> 
+            .orElseThrow(() ->
                 ProblemBuilder
                     .notFound(StandardErrorCodes.NOT_FOUND_ENTITY, "Conta origem não encontrada")
                     .detail("accountId", fromAccountId)
                     .correlationId(RequestContext.getCorrelationId())
                     .throwAs(NotFoundException::new)
             );
-        
+
         if (from.balance().compareTo(amount) < 0) {
             ProblemBuilder
                 .business(StandardErrorCodes.BUSINESS_INSUFFICIENT_BALANCE, "Saldo insuficiente")
@@ -395,7 +395,7 @@ public class TransferService {
                 .traceId(RequestContext.getTraceId())
                 .throwIt();
         }
-        
+
         // ... lógica de transferência
     }
 }
@@ -405,11 +405,11 @@ public class TransferService {
 
 ```java
 public class PaymentGatewayClient {
-    
+
     public PaymentResult processPayment(PaymentRequest request) {
         try {
             HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-            
+
             if (response.statusCode() >= 500) {
                 Problem problem = ProblemBuilder
                     .technical(StandardErrorCodes.INTEGRATION_SERVICE_UNAVAILABLE, "Gateway indisponível")
@@ -417,12 +417,12 @@ public class PaymentGatewayClient {
                     .detail("response", response.body())
                     .correlationId(request.correlationId())
                     .build();
-                
+
                 return PaymentResult.failure(problem);
             }
-            
+
             // ... parse response
-            
+
         } catch (IOException e) {
             ErrorEnvelope envelope = ErrorContext.builder()
                 .correlationId(request.correlationId())
@@ -435,7 +435,7 @@ public class PaymentGatewayClient {
                     StandardErrorCodes.TECHNICAL_NETWORK_ERROR,
                     "Erro de rede ao comunicar com gateway"
                 ));
-            
+
             log.error("Payment processing failed: {}", envelope, e);
             return PaymentResult.failure(envelope.error());
         }
@@ -449,16 +449,16 @@ public class PaymentGatewayClient {
 @RestController
 @RequestMapping("/api/users")
 public class UserController {
-    
+
     @PostMapping
     public ResponseEntity<?> createUser(@RequestBody CreateUserRequest request) {
         try {
             User user = userService.create(request);
             return ResponseEntity.ok(user);
-            
+
         } catch (DomainException e) {
             RFC7807ProblemDetail detail = Problems.toRFC7807(e.problem());
-            
+
             return ResponseEntity
                 .status(detail.status())
                 .contentType(MediaType.APPLICATION_PROBLEM_JSON)
@@ -473,7 +473,7 @@ public class UserController {
 ```java
 public class OrderService {
     private static final Logger log = LoggerFactory.getLogger(OrderService.class);
-    
+
     public void cancelOrder(String orderId) {
         Order order = orderRepository.findById(orderId)
             .orElseThrow(() -> {
@@ -488,11 +488,11 @@ public class OrderService {
                         StandardErrorCodes.NOT_FOUND_ENTITY,
                         "Pedido não encontrado"
                     ));
-                
+
                 log.warn("Order not found: {}", envelope.context());
                 return new NotFoundException(envelope.error());
             });
-        
+
         if (!order.canBeCancelled()) {
             ErrorEnvelope envelope = ErrorContext.builder()
                 .correlationId(MDC.get("correlationId"))
@@ -506,11 +506,11 @@ public class OrderService {
                     StandardErrorCodes.BUSINESS_OPERATION_NOT_ALLOWED,
                     "Pedido não pode ser cancelado no status atual"
                 ));
-            
+
             log.warn("Order cancellation not allowed: {}", envelope.context());
             throw new BusinessException(envelope.error());
         }
-        
+
         // ... lógica de cancelamento
     }
 }
@@ -588,7 +588,7 @@ public Result<User> findUser(String userId) {
 ```java
 @Entity
 public class Order extends AggregateRoot<OrderId> {
-    
+
     public void cancel() {
         if (status == OrderStatus.DELIVERED) {
             throw ProblemBuilder
@@ -596,7 +596,7 @@ public class Order extends AggregateRoot<OrderId> {
                 .detail("status", status.toString())
                 .throwAs(BusinessException::new);
         }
-        
+
         // ... lógica de cancelamento
         addDomainEvent(new OrderCancelledEvent(id()));
     }

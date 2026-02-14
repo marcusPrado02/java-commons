@@ -11,7 +11,8 @@ import java.util.UUID;
 public final class RandomData {
 
   private static final Random RANDOM = new Random();
-  private static final String ALPHANUMERIC = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  private static final String ALPHANUMERIC =
+      "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
   private RandomData() {}
 

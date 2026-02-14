@@ -18,14 +18,16 @@ public record HealthCheckResult(
     Objects.requireNonNull(type, "type must not be null");
     Objects.requireNonNull(status, "status must not be null");
     Objects.requireNonNull(checkedAt, "checkedAt must not be null");
-    details = (details == null) ? Map.of() : Collections.unmodifiableMap(new LinkedHashMap<>(details));
+    details =
+        (details == null) ? Map.of() : Collections.unmodifiableMap(new LinkedHashMap<>(details));
   }
 
   public static HealthCheckResult up(String name, HealthCheckType type) {
     return new HealthCheckResult(name, type, HealthStatus.UP, Map.of(), Instant.now());
   }
 
-  public static HealthCheckResult down(String name, HealthCheckType type, Map<String, Object> details) {
+  public static HealthCheckResult down(
+      String name, HealthCheckType type, Map<String, Object> details) {
     return new HealthCheckResult(name, type, HealthStatus.DOWN, details, Instant.now());
   }
 

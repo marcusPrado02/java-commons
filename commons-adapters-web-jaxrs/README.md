@@ -37,11 +37,11 @@ Mappers de exceções JAX-RS com suporte a **Problem Details (RFC 7807)**.
 ```java
 @ApplicationPath("/api")
 public class RestApplication extends ResourceConfig {
-    
+
     public RestApplication() {
         // Resources
         packages("com.example.resources");
-        
+
         // Exception Mappers
         HttpProblemMapper problemMapper = new DefaultHttpProblemMapper();
         register(new DomainExceptionMapper(problemMapper));
@@ -56,19 +56,19 @@ public class RestApplication extends ResourceConfig {
 ```java
 @ApplicationPath("/api")
 public class RestApplication extends Application {
-    
+
     @Override
     public Set<Class<?>> getClasses() {
         return Set.of(
             // Resources
             UserResource.class,
-            
+
             // Exception Mappers
             IllegalArgumentExceptionMapper.class,
             GenericExceptionMapper.class
         );
     }
-    
+
     @Override
     public Set<Object> getSingletons() {
         HttpProblemMapper mapper = new DefaultHttpProblemMapper();
@@ -118,10 +118,10 @@ Gera ou propaga `X-Correlation-Id` automaticamente.
 ```java
 @ApplicationPath("/api")
 public class RestApplication extends ResourceConfig {
-    
+
     public RestApplication() {
         packages("com.example.resources");
-        
+
         // Filters
         register(CorrelationIdFilter.class);
     }
@@ -143,10 +143,10 @@ Logging detalhado de requisições e respostas.
 ```java
 @ApplicationPath("/api")
 public class RestApplication extends ResourceConfig {
-    
+
     public RestApplication() {
         packages("com.example.resources");
-        
+
         // Filters (order matters)
         register(CorrelationIdFilter.class);
         register(RequestResponseLoggingFilter.class);
@@ -222,21 +222,21 @@ commons-adapters-web-jaxrs/
 ```java
 @ApplicationPath("/api")
 public class RestApplication extends ResourceConfig {
-    
+
     public RestApplication() {
         // Scan resources
         packages("com.example.resources");
-        
+
         // Exception Mappers
         HttpProblemMapper problemMapper = new DefaultHttpProblemMapper();
         register(new DomainExceptionMapper(problemMapper));
         register(IllegalArgumentExceptionMapper.class);
         register(GenericExceptionMapper.class);
-        
+
         // Filters
         register(CorrelationIdFilter.class);
         register(RequestResponseLoggingFilter.class);
-        
+
         // JSON support
         register(org.glassfish.jersey.media.json.JsonBindingFeature.class);
     }
@@ -258,12 +258,12 @@ public class RestApplication extends ResourceConfig {
             <param-value>com.example.RestApplication</param-value>
         </init-param>
     </servlet>
-    
+
     <servlet-mapping>
         <servlet-name>resteasy-servlet</servlet-name>
         <url-pattern>/api/*</url-pattern>
     </servlet-mapping>
-    
+
     <!-- Providers -->
     <context-param>
         <param-name>resteasy.providers</param-name>
@@ -290,21 +290,21 @@ import org.glassfish.jersey.test.JerseyTest;
 import org.junit.jupiter.api.Test;
 
 class MyResourceTest extends JerseyTest {
-    
+
     @Override
     protected Application configure() {
         return new ResourceConfig(MyResource.class)
             .register(CorrelationIdFilter.class)
             .register(new DomainExceptionMapper(new TestProblemMapper()));
     }
-    
+
     @Test
     void shouldPropagateCorrelationId() {
         Response response = target("/users")
             .request()
             .header("X-Correlation-Id", "test-123")
             .get();
-        
+
         assertEquals(200, response.getStatus());
         assertEquals("test-123", response.getHeaderString("X-Correlation-Id"));
     }
@@ -317,7 +317,7 @@ class MyResourceTest extends JerseyTest {
 @Test
 void shouldMapDomainExceptionToProblemResponse() {
     Response response = target("/users/invalid").request().get();
-    
+
     assertEquals(400, response.getStatus());
     HttpProblemResponse problem = response.readEntity(HttpProblemResponse.class);
     assertEquals("USER_NOT_FOUND", problem.code());

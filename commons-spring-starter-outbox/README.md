@@ -103,7 +103,7 @@ Provide an integration with your message broker:
 ```java
 @Component
 public class KafkaOutboundPublisher implements OutboundPublisher {
-  
+
   private final KafkaTemplate<String, String> kafka;
 
   @Override
@@ -120,12 +120,12 @@ Inject and use:
 ```java
 @Service
 public class OrderService {
-  
+
   private final OutboxSupport outbox;
 
   public void createOrder(Order order) {
     // ... save order to database ...
-    
+
     outbox.store("orders.created", order, Map.of(
       "order-id", order.id().toString()
     ));

@@ -31,9 +31,12 @@ public final class ResilienceAspect {
   private final ResilienceProperties resilienceProperties;
   private final ConcurrentMap<String, Method> fallbackMethodCache = new ConcurrentHashMap<>();
 
-  public ResilienceAspect(ResilienceExecutor resilienceExecutor, ResilienceProperties resilienceProperties) {
-    this.resilienceExecutor = Objects.requireNonNull(resilienceExecutor, "resilienceExecutor must not be null");
-    this.resilienceProperties = Objects.requireNonNull(resilienceProperties, "resilienceProperties must not be null");
+  public ResilienceAspect(
+      ResilienceExecutor resilienceExecutor, ResilienceProperties resilienceProperties) {
+    this.resilienceExecutor =
+        Objects.requireNonNull(resilienceExecutor, "resilienceExecutor must not be null");
+    this.resilienceProperties =
+        Objects.requireNonNull(resilienceProperties, "resilienceProperties must not be null");
   }
 
   @Around("@annotation(resilient)")
@@ -47,7 +50,9 @@ public final class ResilienceAspect {
             : resilient.name().trim();
 
     ResiliencePolicySet policies = buildPolicies(method);
-    FallbackStrategy<Object> fallback = buildFallback(joinPoint.getTarget(), method, resilient.fallbackMethod(), joinPoint.getArgs());
+    FallbackStrategy<Object> fallback =
+        buildFallback(
+            joinPoint.getTarget(), method, resilient.fallbackMethod(), joinPoint.getArgs());
 
     Supplier<Object> action =
         () -> {
@@ -88,11 +93,14 @@ public final class ResilienceAspect {
     com.marcusprado02.commons.starter.resilience.annotation.Timeout timeoutAnn =
         method.getAnnotation(com.marcusprado02.commons.starter.resilience.annotation.Timeout.class);
     com.marcusprado02.commons.starter.resilience.annotation.CircuitBreaker cbAnn =
-        method.getAnnotation(com.marcusprado02.commons.starter.resilience.annotation.CircuitBreaker.class);
+        method.getAnnotation(
+            com.marcusprado02.commons.starter.resilience.annotation.CircuitBreaker.class);
     com.marcusprado02.commons.starter.resilience.annotation.Bulkhead bulkheadAnn =
-        method.getAnnotation(com.marcusprado02.commons.starter.resilience.annotation.Bulkhead.class);
+        method.getAnnotation(
+            com.marcusprado02.commons.starter.resilience.annotation.Bulkhead.class);
     com.marcusprado02.commons.starter.resilience.annotation.RateLimiter rlAnn =
-        method.getAnnotation(com.marcusprado02.commons.starter.resilience.annotation.RateLimiter.class);
+        method.getAnnotation(
+            com.marcusprado02.commons.starter.resilience.annotation.RateLimiter.class);
 
     RetryPolicy retry = base.retry();
     if (retryAnn != null) {
@@ -112,12 +120,14 @@ public final class ResilienceAspect {
 
     CircuitBreakerPolicy circuitBreaker = base.circuitBreaker();
     if (cbAnn != null) {
-      CircuitBreakerPolicy seed = (circuitBreaker == null) ? defaultCircuitBreaker() : circuitBreaker;
+      CircuitBreakerPolicy seed =
+          (circuitBreaker == null) ? defaultCircuitBreaker() : circuitBreaker;
       float threshold =
           (cbAnn.failureRateThreshold() <= 0)
               ? seed.failureRateThreshold()
               : cbAnn.failureRateThreshold();
-      int window = (cbAnn.slidingWindowSize() <= 0) ? seed.slidingWindowSize() : cbAnn.slidingWindowSize();
+      int window =
+          (cbAnn.slidingWindowSize() <= 0) ? seed.slidingWindowSize() : cbAnn.slidingWindowSize();
       circuitBreaker = new CircuitBreakerPolicy(threshold, window);
     }
 
@@ -150,7 +160,8 @@ public final class ResilienceAspect {
       rateLimiter = new RateLimiterPolicy(limit, refresh, timeoutDuration);
     }
 
-    return new ResiliencePolicySet(retry, timeout, circuitBreaker, bulkhead, rateLimiter, base.cache());
+    return new ResiliencePolicySet(
+        retry, timeout, circuitBreaker, bulkhead, rateLimiter, base.cache());
   }
 
   private CachePolicy toCachePolicy(CacheableResilience cacheable) {
@@ -195,13 +206,15 @@ public final class ResilienceAspect {
         fallbackMethodCache.computeIfAbsent(
             key,
             ignored ->
-                resolveFallbackMethod(target.getClass(), fallbackMethodName.trim(), original.getParameterTypes()));
+                resolveFallbackMethod(
+                    target.getClass(), fallbackMethodName.trim(), original.getParameterTypes()));
 
     return cause -> {
       try {
         Object[] params;
         if (fallback.getParameterCount() == args.length + 1
-            && Throwable.class.isAssignableFrom(fallback.getParameterTypes()[fallback.getParameterCount() - 1])) {
+            && Throwable.class.isAssignableFrom(
+                fallback.getParameterTypes()[fallback.getParameterCount() - 1])) {
           params = Arrays.copyOf(args, args.length + 1);
           params[params.length - 1] = cause;
         } else {

@@ -26,7 +26,8 @@ import software.amazon.awssdk.services.secretsmanager.model.*;
  */
 public final class AwsSecretsManagerSecretStoreAdapter implements SecretStorePort {
 
-  private static final Logger log = LoggerFactory.getLogger(AwsSecretsManagerSecretStoreAdapter.class);
+  private static final Logger log =
+      LoggerFactory.getLogger(AwsSecretsManagerSecretStoreAdapter.class);
 
   private final SecretsManagerClient client;
 
@@ -192,7 +193,9 @@ public final class AwsSecretsManagerSecretStoreAdapter implements SecretStorePor
     }
 
     // Default AWS rotation labels.
-    return "AWSCURRENT".equals(version) || "AWSPREVIOUS".equals(version) || "AWSPENDING".equals(version);
+    return "AWSCURRENT".equals(version)
+        || "AWSPREVIOUS".equals(version)
+        || "AWSPENDING".equals(version);
   }
 
   private static SecretValue toSecretValue(GetSecretValueResponse response) {
@@ -200,7 +203,8 @@ public final class AwsSecretsManagerSecretStoreAdapter implements SecretStorePor
     Instant createdAt = response.createdDate() != null ? response.createdDate() : Instant.now();
 
     if (response.secretString() != null) {
-      return SecretValue.of(response.secretString().getBytes(StandardCharsets.UTF_8), version, createdAt, null);
+      return SecretValue.of(
+          response.secretString().getBytes(StandardCharsets.UTF_8), version, createdAt, null);
     }
 
     SdkBytes binary = response.secretBinary();
@@ -241,7 +245,8 @@ public final class AwsSecretsManagerSecretStoreAdapter implements SecretStorePor
     return s.replace("\\", "\\\\").replace("\"", "\\\"");
   }
 
-  private sealed interface SecretPayload permits SecretPayload.StringPayload, SecretPayload.BinaryPayload {
+  private sealed interface SecretPayload
+      permits SecretPayload.StringPayload, SecretPayload.BinaryPayload {
     void apply(CreateSecretRequest.Builder builder);
 
     void apply(PutSecretValueRequest.Builder builder);

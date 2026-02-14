@@ -27,6 +27,17 @@ public record OutboxMessage(
       Instant occurredAt,
       OutboxStatus status,
       int attempts) {
-    this(id, aggregateType, aggregateId, eventType, topic, payload, headers, occurredAt, status, attempts, 0);
+    this(
+        id,
+        aggregateType,
+        aggregateId,
+        eventType,
+        topic,
+        payload,
+        headers,
+        occurredAt,
+        status,
+        attempts,
+        0);
   }
 }

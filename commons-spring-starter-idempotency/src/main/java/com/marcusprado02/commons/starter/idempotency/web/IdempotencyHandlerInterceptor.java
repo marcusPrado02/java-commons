@@ -1,10 +1,10 @@
 package com.marcusprado02.commons.starter.idempotency.web;
 
+import com.marcusprado02.commons.app.idempotency.http.IdempotencyHttp;
 import com.marcusprado02.commons.app.idempotency.model.IdempotencyKey;
 import com.marcusprado02.commons.app.idempotency.model.IdempotencyRecord;
 import com.marcusprado02.commons.app.idempotency.model.IdempotencyStatus;
 import com.marcusprado02.commons.app.idempotency.port.IdempotencyStorePort;
-import com.marcusprado02.commons.app.idempotency.http.IdempotencyHttp;
 import com.marcusprado02.commons.starter.idempotency.DuplicateRequestStrategy;
 import com.marcusprado02.commons.starter.idempotency.IdempotencyProperties;
 import com.marcusprado02.commons.starter.idempotency.ResultRefStrategy;
@@ -21,8 +21,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 public class IdempotencyHandlerInterceptor implements HandlerInterceptor {
 
-  static final String ATTR_ACQUIRED =
-      IdempotencyHandlerInterceptor.class.getName() + ".acquired";
+  static final String ATTR_ACQUIRED = IdempotencyHandlerInterceptor.class.getName() + ".acquired";
   static final String ATTR_KEY = IdempotencyHandlerInterceptor.class.getName() + ".key";
 
   static final String HEADER_RESULT_REF = "Idempotency-Result-Ref";
@@ -30,7 +29,8 @@ public class IdempotencyHandlerInterceptor implements HandlerInterceptor {
   private final IdempotencyStorePort store;
   private final IdempotencyProperties properties;
 
-  public IdempotencyHandlerInterceptor(IdempotencyStorePort store, IdempotencyProperties properties) {
+  public IdempotencyHandlerInterceptor(
+      IdempotencyStorePort store, IdempotencyProperties properties) {
     this.store = Objects.requireNonNull(store, "store must not be null");
     this.properties = Objects.requireNonNull(properties, "properties must not be null");
   }
@@ -78,7 +78,9 @@ public class IdempotencyHandlerInterceptor implements HandlerInterceptor {
       HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
     Object acquired = request.getAttribute(ATTR_ACQUIRED);
     Object keyAttr = request.getAttribute(ATTR_KEY);
-    if (!(acquired instanceof Boolean) || !((Boolean) acquired) || !(keyAttr instanceof IdempotencyKey)) {
+    if (!(acquired instanceof Boolean)
+        || !((Boolean) acquired)
+        || !(keyAttr instanceof IdempotencyKey)) {
       return;
     }
     IdempotencyKey key = (IdempotencyKey) keyAttr;
@@ -96,11 +98,14 @@ public class IdempotencyHandlerInterceptor implements HandlerInterceptor {
     }
   }
 
-  private boolean rejectDuplicate(HttpServletResponse response, IdempotencyKey key, IdempotencyRecord record)
+  private boolean rejectDuplicate(
+      HttpServletResponse response, IdempotencyKey key, IdempotencyRecord record)
       throws IOException {
     response.setStatus(HttpStatus.CONFLICT.value());
     response.setHeader(properties.web().headerName(), key.value());
-    if (record != null && record.status() == IdempotencyStatus.COMPLETED && record.resultRef() != null) {
+    if (record != null
+        && record.status() == IdempotencyStatus.COMPLETED
+        && record.resultRef() != null) {
       response.setHeader(HEADER_RESULT_REF, record.resultRef());
     }
     return false;

@@ -5,9 +5,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.marcusprado02.commons.kernel.ddd.entity.AggregateSnapshot;
 import com.marcusprado02.commons.kernel.ddd.event.DomainEvent;
 import com.marcusprado02.commons.kernel.ddd.id.UuidIdentifier;
-import com.marcusprado02.commons.kernel.ddd.tenant.TenantId;
-import com.marcusprado02.commons.kernel.ddd.version.EntityVersion;
-import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 

@@ -13,8 +13,10 @@ class OutboxPropertiesTest {
     assertThat(processing.batchSize()).isEqualTo(10);
   }
 
-  @Test void shouldValidateRetryMaxAttemptsPositive() {
-    var retry = new OutboxProperties.Retry(3, Duration.ofMillis(100), Duration.ofMillis(30000), 2.0);
+  @Test
+  void shouldValidateRetryMaxAttemptsPositive() {
+    var retry =
+        new OutboxProperties.Retry(3, Duration.ofMillis(100), Duration.ofMillis(30000), 2.0);
     assertThat(retry.maxAttempts()).isEqualTo(3);
   }
 

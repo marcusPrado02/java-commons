@@ -23,7 +23,10 @@ class IdempotencyHandlerInterceptorTest {
         new IdempotencyProperties(
             Duration.ofMinutes(1),
             new IdempotencyProperties.Web(
-                true, "Idempotency-Key", DuplicateRequestStrategy.CONFLICT, ResultRefStrategy.LOCATION_HEADER),
+                true,
+                "Idempotency-Key",
+                DuplicateRequestStrategy.CONFLICT,
+                ResultRefStrategy.LOCATION_HEADER),
             new IdempotencyProperties.Aop(false));
 
     IdempotencyHandlerInterceptor interceptor = new IdempotencyHandlerInterceptor(store, props);

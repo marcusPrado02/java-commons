@@ -106,8 +106,7 @@ public class ProblemExceptionHandler {
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<HttpProblemResponse> handle(IllegalArgumentException ex) {
     var response =
-        HttpProblemResponse.of(
-            HttpStatus.BAD_REQUEST.value(), "INVALID_ARGUMENT", ex.getMessage());
+        HttpProblemResponse.of(HttpStatus.BAD_REQUEST.value(), "INVALID_ARGUMENT", ex.getMessage());
 
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
   }

@@ -87,7 +87,7 @@ public Order createOrder(CreateOrderCommand cmd) {
     // 1. Persistir agregado
     Order order = Order.create(cmd);
     orderRepository.save(order);
-    
+
     // 2. Criar outbox message na MESMA transação
     OutboxMessage message = new OutboxMessage(
         new OutboxMessageId(UUID.randomUUID().toString()),
@@ -101,9 +101,9 @@ public Order createOrder(CreateOrderCommand cmd) {
         OutboxStatus.PENDING,
         0
     );
-    
+
     outboxRepository.append(message);  // Mesmo TX!
-    
+
     return order;
 }
 ```
@@ -113,30 +113,30 @@ public Order createOrder(CreateOrderCommand cmd) {
 ```java
 @Component
 public class OutboxProcessor {
-    
+
     @Scheduled(fixedDelay = 1000)  // Polling a cada 1s
     @Transactional
     public void processOutbox() {
         List<OutboxMessage> messages = outboxRepository
             .fetchBatch(OutboxStatus.PENDING, 100);
-        
+
         for (OutboxMessage msg : messages) {
             // Marcar como PROCESSING (thread-safe!)
             boolean acquired = outboxRepository
                 .markProcessing(msg.id(), Instant.now());
-            
+
             if (!acquired) continue;  // Outra instância já pegou
-            
+
             try {
                 // Publicar no broker
                 messagingPort.publish(msg.topic(), msg.payload());
-                
+
                 // Marcar como publicada
                 outboxRepository.markPublished(msg.id(), Instant.now());
-                
+
             } catch (Exception e) {
                 int newAttempts = msg.attempts() + 1;
-                
+
                 if (newAttempts >= MAX_RETRIES) {
                     // Mover para DLQ
                     outboxRepository.markDead(msg.id(), e.getMessage(), newAttempts);
@@ -155,25 +155,25 @@ public class OutboxProcessor {
 ```java
 @Component
 public class OutboxRetryScheduler {
-    
+
     @Scheduled(fixedDelay = 60000)  // A cada 1 minuto
     @Transactional
     public void retryFailed() {
         List<OutboxMessage> failedMessages = outboxRepository
             .fetchBatch(OutboxStatus.FAILED, 50);
-        
+
         Instant now = Instant.now();
-        
+
         for (OutboxMessage msg : failedMessages) {
             // Exponential backoff: 1min, 2min, 4min, 8min...
             long backoffSeconds = (long) Math.pow(2, msg.attempts()) * 60;
             Instant nextRetry = msg.occurredAt().plusSeconds(backoffSeconds);
-            
+
             if (now.isAfter(nextRetry)) {
                 // Marcar como PENDING para retry
                 outboxRepository.markRetryable(
-                    msg.id(), 
-                    "Retry after backoff", 
+                    msg.id(),
+                    "Retry after backoff",
                     msg.attempts()
                 );
             }
@@ -187,14 +187,14 @@ public class OutboxRetryScheduler {
 ```java
 @Component
 public class OutboxCleanup {
-    
+
     @Scheduled(cron = "0 0 2 * * *")  // Todo dia às 2h
     @Transactional
     public void cleanupOldMessages() {
         Instant cutoff = Instant.now().minus(7, ChronoUnit.DAYS);
-        
+
         int deleted = outboxRepository.deletePublishedOlderThan(cutoff);
-        
+
         log.info("Deleted {} old outbox messages", deleted);
     }
 }
@@ -260,7 +260,7 @@ public boolean markProcessing(OutboxMessageId id, Instant processingAt) {
             .setParameter("status", OutboxStatus.PENDING)
             .setLockMode(LockModeType.PESSIMISTIC_WRITE)  // 🔒 Lock!
             .getSingleResult();
-        
+
         e.setStatus(OutboxStatus.PROCESSING);
         e.setProcessingAt(processingAt);
         e.setAttempts(e.getAttempts() + 1);
@@ -289,19 +289,19 @@ Instance 3: markProcessing(msg-2) ✓ acquired lock
 ```java
 @Component
 public class OutboxMetrics {
-    
+
     @Scheduled(fixedDelay = 30000)
     public void collectMetrics() {
-        meterRegistry.gauge("outbox.pending", 
+        meterRegistry.gauge("outbox.pending",
             outboxRepository.countByStatus(OutboxStatus.PENDING));
-        
-        meterRegistry.gauge("outbox.processing", 
+
+        meterRegistry.gauge("outbox.processing",
             outboxRepository.countByStatus(OutboxStatus.PROCESSING));
-        
-        meterRegistry.gauge("outbox.failed", 
+
+        meterRegistry.gauge("outbox.failed",
             outboxRepository.countByStatus(OutboxStatus.FAILED));
-        
-        meterRegistry.gauge("outbox.dead", 
+
+        meterRegistry.gauge("outbox.dead",
             outboxRepository.countByStatus(OutboxStatus.DEAD));
     }
 }
@@ -394,7 +394,7 @@ public interface OutboxMetrics {
 // Implementação com Micrometer
 public class MicrometerOutboxMetrics implements OutboxMetrics {
     private final MeterRegistry registry;
-    
+
     @Override
     public void recordPublished(String topic) {
         Counter.builder("outbox.published")
@@ -402,7 +402,7 @@ public class MicrometerOutboxMetrics implements OutboxMetrics {
             .register(registry)
             .increment();
     }
-    
+
     @Override
     public void recordLatency(String topic, long durationMillis) {
         Timer.builder("outbox.publish.latency")
@@ -410,7 +410,7 @@ public class MicrometerOutboxMetrics implements OutboxMetrics {
             .register(registry)
             .record(Duration.ofMillis(durationMillis));
     }
-    
+
     // ... outras implementações
 }
 ```
@@ -446,7 +446,7 @@ Detectar mensagens em PROCESSING há muito tempo:
 @Transactional
 public void detectStuckMessages() {
     Instant threshold = Instant.now().minus(10, ChronoUnit.MINUTES);
-    
+
     em.createQuery(
         "update OutboxMessageEntity o " +
         "set o.status = :pending " +

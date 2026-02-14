@@ -33,7 +33,8 @@ public final class OtelMessagePublisherPortDecorator implements MessagePublisher
   private final Tracer tracer;
   private final TextMapPropagator propagator;
 
-  public OtelMessagePublisherPortDecorator(MessagePublisherPort delegate, String instrumentationName) {
+  public OtelMessagePublisherPortDecorator(
+      MessagePublisherPort delegate, String instrumentationName) {
     this.delegate = Objects.requireNonNull(delegate, "delegate must not be null");
 
     String name =
@@ -87,9 +88,7 @@ public final class OtelMessagePublisherPortDecorator implements MessagePublisher
         .build();
   }
 
-  /**
-   * Utility to merge headers, useful if you want to enforce propagation without spans.
-   */
+  /** Utility to merge headers, useful if you want to enforce propagation without spans. */
   public static MessageHeaders withTraceContext(MessageHeaders headers) {
     MessageHeaders.Builder builder =
         MessageHeaders.builder().headers(headers == null ? Map.of() : headers.asMap());

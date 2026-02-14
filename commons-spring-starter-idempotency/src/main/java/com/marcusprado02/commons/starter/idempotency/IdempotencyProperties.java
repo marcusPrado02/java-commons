@@ -4,10 +4,7 @@ import java.time.Duration;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "commons.idempotency")
-public record IdempotencyProperties(
-    Duration defaultTtl,
-    Web web,
-    Aop aop) {
+public record IdempotencyProperties(Duration defaultTtl, Web web, Aop aop) {
 
   public record Web(
       boolean enabled,
@@ -40,7 +37,12 @@ public record IdempotencyProperties(
     }
 
     if (web == null) {
-      web = new Web(false, "Idempotency-Key", DuplicateRequestStrategy.CONFLICT, ResultRefStrategy.LOCATION_HEADER);
+      web =
+          new Web(
+              false,
+              "Idempotency-Key",
+              DuplicateRequestStrategy.CONFLICT,
+              ResultRefStrategy.LOCATION_HEADER);
     }
     if (aop == null) {
       aop = new Aop(false);

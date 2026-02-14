@@ -1,6 +1,5 @@
 package com.marcusprado02.commons.app.outbox.config;
 
-import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -73,10 +72,14 @@ class OutboxProcessorConfigTest {
   void shouldRejectInvalidBackoffMultiplier() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> new OutboxProcessorConfig(100, 5, Duration.ofSeconds(1), Duration.ofMinutes(5), 1.0, false));
+        () ->
+            new OutboxProcessorConfig(
+                100, 5, Duration.ofSeconds(1), Duration.ofMinutes(5), 1.0, false));
 
     assertThrows(
         IllegalArgumentException.class,
-        () -> new OutboxProcessorConfig(100, 5, Duration.ofSeconds(1), Duration.ofMinutes(5), 0.5, false));
+        () ->
+            new OutboxProcessorConfig(
+                100, 5, Duration.ofSeconds(1), Duration.ofMinutes(5), 0.5, false));
   }
 }

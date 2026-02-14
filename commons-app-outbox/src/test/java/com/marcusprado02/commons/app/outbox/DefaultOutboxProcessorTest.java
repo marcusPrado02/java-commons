@@ -76,17 +76,18 @@ class DefaultOutboxProcessorTest {
   void shouldMoveToDeadAfterMaxAttempts() {
     publisher.shouldFail = true;
 
-    OutboxMessage msg = new OutboxMessage(
-        new OutboxMessageId("msg-1"),
-        "Order",
-        "order-1",
-        "OrderCreated",
-        "orders.created",
-        new OutboxPayload("application/json", new byte[0]),
-        Map.of(),
-        Instant.now(),
-        OutboxStatus.PENDING,
-        4); // One attempt away from max
+    OutboxMessage msg =
+        new OutboxMessage(
+            new OutboxMessageId("msg-1"),
+            "Order",
+            "order-1",
+            "OrderCreated",
+            "orders.created",
+            new OutboxPayload("application/json", new byte[0]),
+            Map.of(),
+            Instant.now(),
+            OutboxStatus.PENDING,
+            4); // One attempt away from max
     repository.append(msg);
 
     processor.processAll();
@@ -99,8 +100,8 @@ class DefaultOutboxProcessorTest {
 
   @Test
   void shouldProcessBatchLimitedByConfig() {
-    OutboxProcessorConfig config = new OutboxProcessorConfig(
-        2, 5, Duration.ofSeconds(1), Duration.ofMinutes(5), 2.0, false);
+    OutboxProcessorConfig config =
+        new OutboxProcessorConfig(2, 5, Duration.ofSeconds(1), Duration.ofMinutes(5), 2.0, false);
     processor = new DefaultOutboxProcessor(repository, publisher, config, metrics);
 
     repository.append(createMessage("msg-1", OutboxStatus.PENDING));
@@ -148,10 +149,7 @@ class DefaultOutboxProcessorTest {
 
     @Override
     public List<OutboxMessage> fetchBatch(OutboxStatus status, int limit) {
-      return store.values().stream()
-          .filter(msg -> msg.status() == status)
-          .limit(limit)
-          .toList();
+      return store.values().stream().filter(msg -> msg.status() == status).limit(limit).toList();
     }
 
     @Override
@@ -160,10 +158,19 @@ class DefaultOutboxProcessorTest {
       if (msg == null || msg.status() != OutboxStatus.PENDING) {
         return false;
       }
-      OutboxMessage updated = new OutboxMessage(
-          msg.id(), msg.aggregateType(), msg.aggregateId(), msg.eventType(),
-          msg.topic(), msg.payload(), msg.headers(), msg.occurredAt(),
-          OutboxStatus.PROCESSING, msg.attempts(), msg.priority());
+      OutboxMessage updated =
+          new OutboxMessage(
+              msg.id(),
+              msg.aggregateType(),
+              msg.aggregateId(),
+              msg.eventType(),
+              msg.topic(),
+              msg.payload(),
+              msg.headers(),
+              msg.occurredAt(),
+              OutboxStatus.PROCESSING,
+              msg.attempts(),
+              msg.priority());
       store.put(id, updated);
       return true;
     }
@@ -171,40 +178,76 @@ class DefaultOutboxProcessorTest {
     @Override
     public void markPublished(OutboxMessageId id, Instant publishedAt) {
       OutboxMessage msg = store.get(id);
-      OutboxMessage updated = new OutboxMessage(
-          msg.id(), msg.aggregateType(), msg.aggregateId(), msg.eventType(),
-          msg.topic(), msg.payload(), msg.headers(), msg.occurredAt(),
-          OutboxStatus.PUBLISHED, msg.attempts(), msg.priority());
+      OutboxMessage updated =
+          new OutboxMessage(
+              msg.id(),
+              msg.aggregateType(),
+              msg.aggregateId(),
+              msg.eventType(),
+              msg.topic(),
+              msg.payload(),
+              msg.headers(),
+              msg.occurredAt(),
+              OutboxStatus.PUBLISHED,
+              msg.attempts(),
+              msg.priority());
       store.put(id, updated);
     }
 
     @Override
     public void markFailed(OutboxMessageId id, String reason, int attempts) {
       OutboxMessage msg = store.get(id);
-      OutboxMessage updated = new OutboxMessage(
-          msg.id(), msg.aggregateType(), msg.aggregateId(), msg.eventType(),
-          msg.topic(), msg.payload(), msg.headers(), msg.occurredAt(),
-          OutboxStatus.FAILED, attempts, msg.priority());
+      OutboxMessage updated =
+          new OutboxMessage(
+              msg.id(),
+              msg.aggregateType(),
+              msg.aggregateId(),
+              msg.eventType(),
+              msg.topic(),
+              msg.payload(),
+              msg.headers(),
+              msg.occurredAt(),
+              OutboxStatus.FAILED,
+              attempts,
+              msg.priority());
       store.put(id, updated);
     }
 
     @Override
     public void markDead(OutboxMessageId id, String reason, int attempts) {
       OutboxMessage msg = store.get(id);
-      OutboxMessage updated = new OutboxMessage(
-          msg.id(), msg.aggregateType(), msg.aggregateId(), msg.eventType(),
-          msg.topic(), msg.payload(), msg.headers(), msg.occurredAt(),
-          OutboxStatus.DEAD, attempts, msg.priority());
+      OutboxMessage updated =
+          new OutboxMessage(
+              msg.id(),
+              msg.aggregateType(),
+              msg.aggregateId(),
+              msg.eventType(),
+              msg.topic(),
+              msg.payload(),
+              msg.headers(),
+              msg.occurredAt(),
+              OutboxStatus.DEAD,
+              attempts,
+              msg.priority());
       store.put(id, updated);
     }
 
     @Override
     public void markRetryable(OutboxMessageId id, String reason, int attempts) {
       OutboxMessage msg = store.get(id);
-      OutboxMessage updated = new OutboxMessage(
-          msg.id(), msg.aggregateType(), msg.aggregateId(), msg.eventType(),
-          msg.topic(), msg.payload(), msg.headers(), msg.occurredAt(),
-          OutboxStatus.PENDING, attempts, msg.priority());
+      OutboxMessage updated =
+          new OutboxMessage(
+              msg.id(),
+              msg.aggregateType(),
+              msg.aggregateId(),
+              msg.eventType(),
+              msg.topic(),
+              msg.payload(),
+              msg.headers(),
+              msg.occurredAt(),
+              OutboxStatus.PENDING,
+              attempts,
+              msg.priority());
       store.put(id, updated);
     }
 

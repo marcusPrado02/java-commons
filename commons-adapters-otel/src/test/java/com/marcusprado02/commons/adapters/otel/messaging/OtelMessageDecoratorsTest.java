@@ -6,12 +6,12 @@ import com.marcusprado02.commons.ports.messaging.*;
 import io.opentelemetry.api.GlobalOpenTelemetry;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
 import io.opentelemetry.context.propagation.ContextPropagators;
 import io.opentelemetry.sdk.OpenTelemetrySdk;
+import io.opentelemetry.sdk.testing.exporter.InMemorySpanExporter;
 import io.opentelemetry.sdk.trace.SdkTracerProvider;
 import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor;
-import io.opentelemetry.sdk.testing.exporter.InMemorySpanExporter;
-import io.opentelemetry.api.trace.propagation.W3CTraceContextPropagator;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
@@ -135,12 +135,12 @@ class OtelMessageDecoratorsTest {
         TopicName.of("orders"),
         ConsumerGroup.of("g1"),
         String.class,
-      serializer,
+        serializer,
         msg -> assertTrue(Span.current().getSpanContext().isValid()));
 
     @SuppressWarnings("unchecked")
     Consumer<MessageEnvelope<String>> wrappedHandler =
-      (Consumer<MessageEnvelope<String>>) (Consumer<?>) handlerRef.get();
+        (Consumer<MessageEnvelope<String>>) (Consumer<?>) handlerRef.get();
     assertNotNull(wrappedHandler);
 
     // Create a parent span and inject into headers

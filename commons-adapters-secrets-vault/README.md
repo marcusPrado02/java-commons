@@ -33,17 +33,17 @@ This adapter provides integration with [HashiCorp Vault](https://www.vaultprojec
 ```java
 @Configuration
 public class VaultConfig {
-    
+
     @Bean
     public VaultTemplate vaultTemplate() {
         VaultEndpoint endpoint = VaultEndpoint.create("vault.example.com", 8200);
         endpoint.setScheme("https");
-        
+
         TokenAuthentication auth = new TokenAuthentication("your-vault-token");
-        
+
         return new VaultTemplate(endpoint, auth);
     }
-    
+
     @Bean
     public SecretStorePort secretStore(VaultTemplate vaultTemplate) {
         return new VaultSecretStoreAdapter(vaultTemplate);
@@ -83,14 +83,14 @@ private SecretStorePort secretStore;
 public void storeApiKey() {
     SecretKey key = SecretKey.of("api/stripe/key");
     SecretValue value = SecretValue.of("sk_test_123456");
-    
+
     String version = secretStore.put(key, value);
     System.out.println("Stored secret version: " + version);
 }
 
 public String getApiKey() {
     SecretKey key = SecretKey.of("api/stripe/key");
-    
+
     return secretStore.get(key)
         .map(SecretValue::asString)
         .orElseThrow(() -> new RuntimeException("API key not found"));
@@ -102,7 +102,7 @@ public String getApiKey() {
 ```java
 public void storeDbCredentials() {
     SecretKey key = SecretKey.of("db/production/postgres");
-    
+
     Map<String, String> credentials = Map.of(
         "username", "admin",
         "password", "super-secret-pass",
@@ -110,17 +110,17 @@ public void storeDbCredentials() {
         "port", "5432",
         "database", "myapp"
     );
-    
+
     secretStore.put(key, credentials);
 }
 
 public Map<String, String> getDbCredentials() {
     SecretKey key = SecretKey.of("db/production/postgres");
-    
+
     String serialized = secretStore.get(key)
         .map(SecretValue::asString)
         .orElseThrow();
-    
+
     // Parse the serialized format: {key1=value1,key2=value2}
     // In production, use proper JSON deserialization
     return parseCredentials(serialized);
@@ -132,7 +132,7 @@ public Map<String, String> getDbCredentials() {
 ```java
 public void processSecret() {
     SecretKey key = SecretKey.of("sensitive/token");
-    
+
     try (SecretValue secret = secretStore.get(key).orElseThrow()) {
         String token = secret.asString();
         // Use token...
@@ -165,7 +165,7 @@ public List<String> listDatabaseSecrets() {
 ```java
 public void revokeApiKey(String service) {
     SecretKey key = SecretKey.of("api/" + service + "/key");
-    
+
     boolean deleted = secretStore.delete(key);
     if (deleted) {
         log.info("API key revoked for service: {}", service);
@@ -179,14 +179,14 @@ public void revokeApiKey(String service) {
 @Scheduled(cron = "0 0 2 * * *") // Every day at 2 AM
 public void rotateApiKeys() {
     List<SecretKey> apiKeys = secretStore.list("api/");
-    
+
     for (SecretKey key : apiKeys) {
         // Generate new key
         String newKey = generateNewApiKey();
-        
+
         // Update in Vault
         secretStore.put(key, SecretValue.of(newKey));
-        
+
         log.info("Rotated secret: {}", key);
     }
 }
@@ -307,17 +307,17 @@ SecretStorePort secretStore = new VaultSecretStoreAdapter(template);
 @Bean
 public SecretStorePort secretStoreWithAppRole() {
     VaultEndpoint endpoint = VaultEndpoint.create("vault.example.com", 8200);
-    
+
     AppRoleAuthenticationOptions options = AppRoleAuthenticationOptions
         .builder()
         .roleId(AppRoleAuthenticationOptions.RoleId.provided("role-id"))
         .secretId(AppRoleAuthenticationOptions.SecretId.provided("secret-id"))
         .build();
-    
+
     AppRoleAuthentication auth = new AppRoleAuthentication(options, new RestTemplate());
-    
+
     VaultTemplate template = new VaultTemplate(endpoint, auth);
-    
+
     return new VaultSecretStoreAdapter(template);
 }
 ```

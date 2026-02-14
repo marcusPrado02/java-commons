@@ -22,13 +22,13 @@ class ResilienceAutoConfigurationTest {
           .withConfiguration(
               AutoConfigurations.of(AopAutoConfiguration.class, ResilienceAutoConfiguration.class));
 
-    private final ApplicationContextRunner contextRunnerWithActuator =
+  private final ApplicationContextRunner contextRunnerWithActuator =
       new ApplicationContextRunner()
-        .withConfiguration(
-          AutoConfigurations.of(
-            AopAutoConfiguration.class,
-            ResilienceAutoConfiguration.class,
-            ResilienceActuatorAutoConfiguration.class));
+          .withConfiguration(
+              AutoConfigurations.of(
+                  AopAutoConfiguration.class,
+                  ResilienceAutoConfiguration.class,
+                  ResilienceActuatorAutoConfiguration.class));
 
   @Test
   void shouldAutoConfigureResilienceExecutor() {

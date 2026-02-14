@@ -83,7 +83,21 @@
     <java.version>21</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <maven.compiler.release>${java.version}</maven.compiler.release>
+
+    <!-- Plugin versions for release management -->
+    <maven-release-plugin.version>3.0.1</maven-release-plugin.version>
+    <maven-scm-plugin.version>2.0.1</maven-scm-plugin.version>
+    <versions-maven-plugin.version>2.16.2</versions-maven-plugin.version>
+    <git-changelog-maven-plugin.version>1.98.0</git-changelog-maven-plugin.version>
+    <japicmp-maven-plugin.version>0.18.3</japicmp-maven-plugin.version>
   </properties>
+
+  <scm>
+    <connection>scm:git:https://github.com/marcusPrado02/java-commons.git</connection>
+    <developerConnection>scm:git:git@github.com:marcusPrado02/java-commons.git</developerConnection>
+    <url>https://github.com/marcusPrado02/java-commons</url>
+    <tag>HEAD</tag>
+  </scm>
 
   <distributionManagement>
     <repository>
@@ -98,6 +112,188 @@
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
+      </plugin>
+
+      <!-- Maven Release Plugin for semantic versioning -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>${maven-release-plugin.version}</version>
+        <configuration>
+          <tagNameFormat>v@{project.version}</tagNameFormat>
+          <autoVersionSubmodules>true</autoVersionSubmodules>
+          <releaseProfiles>release</releaseProfiles>
+          <arguments>-DskipTests</arguments>
+          <goals>deploy</goals>
+        </configuration>
+      </plugin>
+
+      <!-- Versions Maven Plugin for version management -->
+      <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>versions-maven-plugin</artifactId>
+        <version>${versions-maven-plugin.version}</version>
+        <configuration>
+          <generateBackupPoms>false</generateBackupPoms>
+        </configuration>
+      </plugin>
+
+      <!-- Git Changelog Maven Plugin for automated CHANGELOG -->
+      <plugin>
+        <groupId>se.bjurr.gitchangelog</groupId>
+        <artifactId>git-changelog-maven-plugin</artifactId>
+        <version>${git-changelog-maven-plugin.version}</version>
+        <executions>
+          <execution>
+            <id>generate-changelog</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>git-changelog</goal>
+            </goals>
+            <configuration>
+              <file>CHANGELOG.md</file>
+              <templateContent>
+                <![CDATA[
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+{{#tags}}
+## [{{name}}] - {{tagDate}}
+
+{{#commits}}
+{{#ifMatches message "^feat.*"}}
+### ✨ Features
+{{/ifMatches}}
+{{/commits}}
+{{#commits}}
+{{#ifMatches message "^feat.*"}}
+- {{message}} ([{{hash}}]({{commitUrl}}))
+{{/ifMatches}}
+{{/commits}}
+
+{{#commits}}
+{{#ifMatches message "^fix.*"}}
+### 🐛 Bug Fixes
+{{/ifMatches}}
+{{/commits}}
+{{#commits}}
+{{#ifMatches message "^fix.*"}}
+- {{message}} ([{{hash}}]({{commitUrl}}))
+{{/ifMatches}}
+{{/commits}}
+
+{{#commits}}
+{{#ifMatches message "^perf.*"}}
+### ⚡ Performance Improvements
+{{/ifMatches}}
+{{/commits}}
+{{#commits}}
+{{#ifMatches message "^perf.*"}}
+- {{message}} ([{{hash}}]({{commitUrl}}))
+{{/ifMatches}}
+{{/commits}}
+
+{{#commits}}
+{{#ifMatches message "^refactor.*"}}
+### ♻️ Code Refactoring
+{{/ifMatches}}
+{{/commits}}
+{{#commits}}
+{{#ifMatches message "^refactor.*"}}
+- {{message}} ([{{hash}}]({{commitUrl}}))
+{{/ifMatches}}
+{{/commits}}
+
+{{#commits}}
+{{#ifMatches message "^docs.*"}}
+### 📚 Documentation
+{{/ifMatches}}
+{{/commits}}
+{{#commits}}
+{{#ifMatches message "^docs.*"}}
+- {{message}} ([{{hash}}]({{commitUrl}}))
+{{/ifMatches}}
+{{/commits}}
+
+{{#commits}}
+{{#ifMatches message "^test.*"}}
+### ✅ Tests
+{{/ifMatches}}
+{{/commits}}
+{{#commits}}
+{{#ifMatches message "^test.*"}}
+- {{message}} ([{{hash}}]({{commitUrl}}))
+{{/ifMatches}}
+{{/commits}}
+
+{{#commits}}
+{{#ifMatches message "^build.*"}}
+### 🏗️ Build System
+{{/ifMatches}}
+{{/commits}}
+{{#commits}}
+{{#ifMatches message "^build.*"}}
+- {{message}} ([{{hash}}]({{commitUrl}}))
+{{/ifMatches}}
+{{/commits}}
+
+{{#commits}}
+{{#ifMatches message "^ci.*"}}
+### 👷 CI/CD
+{{/ifMatches}}
+{{/commits}}
+{{#commits}}
+{{#ifMatches message "^ci.*"}}
+- {{message}} ([{{hash}}]({{commitUrl}}))
+{{/ifMatches}}
+{{/commits}}
+
+{{/tags}}
+                ]]>
+              </templateContent>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- JApiCmp for backward compatibility checks -->
+      <plugin>
+        <groupId>com.github.siom79.japicmp</groupId>
+        <artifactId>japicmp-maven-plugin</artifactId>
+        <version>${japicmp-maven-plugin.version}</version>
+        <configuration>
+          <skip>true</skip> <!-- Skip by default, enable for releases -->
+          <oldVersion>
+            <dependency>
+              <groupId>${project.groupId}</groupId>
+              <artifactId>${project.artifactId}</artifactId>
+              <version>RELEASE</version>
+              <type>jar</type>
+            </dependency>
+          </oldVersion>
+          <newVersion>
+            <file>
+              <path>${project.build.directory}/${project.build.finalName}.jar</path>
+            </file>
+          </newVersion>
+          <parameter>
+            <breakBuildOnBinaryIncompatibleModifications>true</breakBuildOnBinaryIncompatibleModifications>
+            <onlyModified>true</onlyModified>
+            <accessModifier>protected</accessModifier>
+          </parameter>
+        </configuration>
+        <executions>
+          <execution>
+            <phase>verify</phase>
+            <goals>
+              <goal>cmp</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>

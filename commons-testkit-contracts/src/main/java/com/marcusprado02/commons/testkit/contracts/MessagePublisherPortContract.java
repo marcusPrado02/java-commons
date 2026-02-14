@@ -1,13 +1,9 @@
 package com.marcusprado02.commons.testkit.contracts;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.awaitility.Awaitility.await;
-
 import com.marcusprado02.commons.ports.messaging.*;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -101,10 +97,7 @@ public abstract class MessagePublisherPortContract<T> {
     // Given
     T payload = createTestPayload();
     MessageEnvelope<T> envelope =
-        MessageEnvelope.<T>builder()
-            .topic(getTestTopic())
-            .payload(payload)
-            .build();
+        MessageEnvelope.<T>builder().topic(getTestTopic()).payload(payload).build();
 
     MessageSerializer<T> serializer = createSerializer();
 
@@ -128,16 +121,13 @@ public abstract class MessagePublisherPortContract<T> {
   @DisplayName("Should publish batch of messages")
   void shouldPublishBatch() {
     // Given
-    List<MessageEnvelope<T>> messages = List.of(
-        MessageEnvelope.<T>builder()
-            .topic(getTestTopic())
-            .payload(createTestPayload())
-            .build(),
-        MessageEnvelope.<T>builder()
-            .topic(getTestTopic())
-            .payload(createTestPayload())
-            .build()
-    );
+    List<MessageEnvelope<T>> messages =
+        List.of(
+            MessageEnvelope.<T>builder().topic(getTestTopic()).payload(createTestPayload()).build(),
+            MessageEnvelope.<T>builder()
+                .topic(getTestTopic())
+                .payload(createTestPayload())
+                .build());
     MessageSerializer<T> serializer = createSerializer();
 
     // When/Then - should not throw exception
@@ -149,9 +139,7 @@ public abstract class MessagePublisherPortContract<T> {
   void shouldPublishWithHeaders() {
     // Given
     T payload = createTestPayload();
-    MessageHeaders headers = MessageHeaders.builder()
-        .header("X-Test-Header", "test-value")
-        .build();
+    MessageHeaders headers = MessageHeaders.builder().header("X-Test-Header", "test-value").build();
 
     MessageEnvelope<T> envelope =
         MessageEnvelope.<T>builder()
@@ -174,11 +162,7 @@ public abstract class MessagePublisherPortContract<T> {
     MessageId messageId = MessageId.random();
 
     MessageEnvelope<T> envelope =
-        MessageEnvelope.<T>builder()
-            .topic(getTestTopic())
-            .payload(payload)
-            .id(messageId)
-            .build();
+        MessageEnvelope.<T>builder().topic(getTestTopic()).payload(payload).id(messageId).build();
 
     MessageSerializer<T> serializer = createSerializer();
 

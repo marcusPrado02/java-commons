@@ -2,8 +2,8 @@ package com.marcusprado02.commons.testkit.matchers;
 
 import com.marcusprado02.commons.kernel.ddd.entity.AggregateRoot;
 import com.marcusprado02.commons.kernel.ddd.event.DomainEvent;
-import org.assertj.core.api.AbstractAssert;
 import java.util.List;
+import org.assertj.core.api.AbstractAssert;
 
 /**
  * AssertJ custom assertion for AggregateRoot domain events.
@@ -34,8 +34,7 @@ public class AggregateRootAssert<T extends AggregateRoot<?>>
     isNotNull();
     List<DomainEvent> events = actual.pullDomainEvents();
     if (events.size() != count) {
-      failWithMessage(
-          "Expected <%d> domain events but found <%d>", count, events.size());
+      failWithMessage("Expected <%d> domain events but found <%d>", count, events.size());
     }
     return this;
   }

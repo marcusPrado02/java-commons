@@ -1,0 +1,58 @@
+[tool.commitizen]
+name = "cz_conventional_commits"
+version = "0.1.0"
+tag_format = "v$version"
+update_changelog_on_bump = true
+version_files = [
+    "pom.xml:^\\s*<version>",
+]
+
+[tool.commitizen.customize]
+message_template = "{{change_type}}{% if scope %}({{scope}}){% endif %}: {{subject}}{% if body %}\n\n{{body}}{% endif %}{% if footer %}\n\n{{footer}}{% endif %}"
+example = "feat(parser): add support for Java 21 records"
+schema = """
+<type>(<scope>): <subject>
+<BLANK LINE>
+<body>
+<BLANK LINE>
+<footer>
+"""
+schema_pattern = "^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert)(\\(\\w+\\))?!?: .{1,100}"
+
+[[tool.commitizen.customize.questions]]
+type = "list"
+name = "change_type"
+message = "Select the type of change you are committing:"
+choices = [
+    {value = "feat", name = "feat: A new feature"},
+    {value = "fix", name = "fix: A bug fix"},
+    {value = "docs", name = "docs: Documentation changes"},
+    {value = "style", name = "style: Code style changes (formatting, etc)"},
+    {value = "refactor", name = "refactor: Code refactoring"},
+    {value = "perf", name = "perf: Performance improvements"},
+    {value = "test", name = "test: Adding or updating tests"},
+    {value = "build", name = "build: Build system or dependencies"},
+    {value = "ci", name = "ci: CI/CD configuration"},
+    {value = "chore", name = "chore: Other changes"},
+    {value = "revert", name = "revert: Revert a previous commit"},
+]
+
+[[tool.commitizen.customize.questions]]
+type = "input"
+name = "scope"
+message = "Scope (optional, e.g., parser, kernel, adapter):"
+
+[[tool.commitizen.customize.questions]]
+type = "input"
+name = "subject"
+message = "Short description:"
+
+[[tool.commitizen.customize.questions]]
+type = "input"
+name = "body"
+message = "Longer description (optional):"
+
+[[tool.commitizen.customize.questions]]
+type = "input"
+name = "footer"
+message = "Footer (optional, e.g., BREAKING CHANGE:, Closes #123):"
