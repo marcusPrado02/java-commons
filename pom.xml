@@ -66,6 +66,7 @@
     <module>commons-adapters-persistence-mongodb</module>
 
     <module>commons-adapters-cache-redis</module>
+    <module>commons-adapters-cache-memcached</module>
 
     <module>commons-adapters-secrets-vault</module>
     <module>commons-adapters-secrets-azure-keyvault</module>
