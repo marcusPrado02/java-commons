@@ -6,14 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-/**
- * Represents a file object with its metadata and content.
- */
-public record FileObject(
-    FileId id,
-    InputStream content,
-    FileMetadata metadata
-) {
+/** Represents a file object with its metadata and content. */
+public record FileObject(FileId id, InputStream content, FileMetadata metadata) {
 
   public FileObject {
     Objects.requireNonNull(id, "id must not be null");
@@ -21,16 +15,13 @@ public record FileObject(
     Objects.requireNonNull(metadata, "metadata must not be null");
   }
 
-  /**
-   * Metadata associated with a file.
-   */
+  /** Metadata associated with a file. */
   public record FileMetadata(
       String contentType,
       Long contentLength,
       Instant lastModified,
       String etag,
-      Map<String, String> customMetadata
-  ) {
+      Map<String, String> customMetadata) {
 
     public FileMetadata {
       Objects.requireNonNull(contentType, "contentType must not be null");

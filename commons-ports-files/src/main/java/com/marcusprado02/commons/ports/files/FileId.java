@@ -4,8 +4,8 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Value object representing a unique file identifier.
- * Combines bucket/container name with a key/path.
+ * Value object representing a unique file identifier. Combines bucket/container name with a
+ * key/path.
  */
 public record FileId(String bucket, String key) {
 
@@ -20,17 +20,14 @@ public record FileId(String bucket, String key) {
     }
   }
 
-  /**
-   * Create a FileId with a generated UUID key.
-   */
+  /** Create a FileId with a generated UUID key. */
   public static FileId generate(String bucket, String prefix) {
-    String key = prefix.endsWith("/") ? prefix + UUID.randomUUID() : prefix + "/" + UUID.randomUUID();
+    String key =
+        prefix.endsWith("/") ? prefix + UUID.randomUUID() : prefix + "/" + UUID.randomUUID();
     return new FileId(bucket, key);
   }
 
-  /**
-   * Create a FileId from a full path (bucket/key).
-   */
+  /** Create a FileId from a full path (bucket/key). */
   public static FileId fromPath(String path) {
     Objects.requireNonNull(path, "path must not be null");
     int index = path.indexOf('/');
@@ -40,24 +37,18 @@ public record FileId(String bucket, String key) {
     return new FileId(path.substring(0, index), path.substring(index + 1));
   }
 
-  /**
-   * Get the full path (bucket/key).
-   */
+  /** Get the full path (bucket/key). */
   public String toPath() {
     return bucket + "/" + key;
   }
 
-  /**
-   * Get the file extension.
-   */
+  /** Get the file extension. */
   public String getExtension() {
     int lastDot = key.lastIndexOf('.');
     return lastDot > 0 ? key.substring(lastDot + 1) : "";
   }
 
-  /**
-   * Get the file name (last segment of the key).
-   */
+  /** Get the file name (last segment of the key). */
   public String getFileName() {
     int lastSlash = key.lastIndexOf('/');
     return lastSlash >= 0 ? key.substring(lastSlash + 1) : key;

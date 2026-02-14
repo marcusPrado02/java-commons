@@ -8,8 +8,7 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Port for file storage operations.
- * Supports various storage backends (S3, Azure Blob, GCS, etc.).
+ * Port for file storage operations. Supports various storage backends (S3, Azure Blob, GCS, etc.).
  */
 public interface FileStorePort {
 
@@ -23,9 +22,7 @@ public interface FileStorePort {
    */
   Result<UploadResult> upload(FileId fileId, InputStream content, UploadOptions options);
 
-  /**
-   * Upload a file with default options.
-   */
+  /** Upload a file with default options. */
   default Result<UploadResult> upload(FileId fileId, InputStream content) {
     return upload(fileId, content, UploadOptions.defaults());
   }
@@ -80,9 +77,7 @@ public interface FileStorePort {
    */
   Result<ListResult> list(String bucket, String prefix, ListOptions options);
 
-  /**
-   * List files with default options.
-   */
+  /** List files with default options. */
   default Result<ListResult> list(String bucket, String prefix) {
     return list(bucket, prefix, ListOptions.defaults());
   }
@@ -106,9 +101,7 @@ public interface FileStorePort {
    */
   Result<Void> copy(FileId source, FileId destination);
 
-  /**
-   * Represents upload operation result.
-   */
+  /** Represents upload operation result. */
   record UploadResult(FileId fileId, String etag, Long contentLength) {
     public UploadResult {
       Objects.requireNonNull(fileId, "fileId must not be null");
@@ -117,41 +110,30 @@ public interface FileStorePort {
     }
   }
 
-  /**
-   * Represents delete operation result.
-   */
+  /** Represents delete operation result. */
   record DeleteResult(int deletedCount, List<FileId> failedDeletes) {
     public DeleteResult {
       Objects.requireNonNull(failedDeletes, "failedDeletes must not be null");
     }
   }
 
-  /**
-   * Represents list operation result.
-   */
+  /** Represents list operation result. */
   record ListResult(List<FileId> files, String continuationToken, boolean hasMore) {
     public ListResult {
       Objects.requireNonNull(files, "files must not be null");
     }
   }
 
-  /**
-   * Options for upload operations.
-   */
+  /** Options for upload operations. */
   record UploadOptions(
       String contentType,
       java.util.Map<String, String> metadata,
       StorageClass storageClass,
-      ServerSideEncryption encryption
-  ) {
+      ServerSideEncryption encryption) {
 
     public static UploadOptions defaults() {
       return new UploadOptions(
-          "application/octet-stream",
-          java.util.Map.of(),
-          StorageClass.STANDARD,
-          null
-      );
+          "application/octet-stream", java.util.Map.of(), StorageClass.STANDARD, null);
     }
 
     public static Builder builder() {
@@ -190,9 +172,7 @@ public interface FileStorePort {
     }
   }
 
-  /**
-   * Options for list operations.
-   */
+  /** Options for list operations. */
   record ListOptions(int maxKeys, String continuationToken) {
 
     public static ListOptions defaults() {
@@ -208,9 +188,7 @@ public interface FileStorePort {
     }
   }
 
-  /**
-   * Storage class options.
-   */
+  /** Storage class options. */
   enum StorageClass {
     STANDARD,
     REDUCED_REDUNDANCY,
@@ -222,17 +200,13 @@ public interface FileStorePort {
     DEEP_ARCHIVE
   }
 
-  /**
-   * Server-side encryption options.
-   */
+  /** Server-side encryption options. */
   enum ServerSideEncryption {
     AES256,
     AWS_KMS
   }
 
-  /**
-   * Presigned URL operation types.
-   */
+  /** Presigned URL operation types. */
   enum PresignedOperation {
     GET,
     PUT
