@@ -23,9 +23,9 @@
         <assertj.version>3.25.3</assertj.version>
 
         <!-- Observability -->
-        <otel.version>1.58.0</otel.version>
-        <otel.instrumentation.version>2.24.0</otel.instrumentation.version>
-        <micrometer.version>1.15.3</micrometer.version>
+        <otel.version>1.59.0</otel.version>
+        <otel.instrumentation.version>2.25.0</otel.instrumentation.version>
+        <micrometer.version>1.16.3</micrometer.version>
 
         <!-- Resilience & Caching -->
         <resilience4j.version>2.2.0</resilience4j.version>
