@@ -11,6 +11,9 @@ Redis implementation of `CachePort` using Spring Data Redis.
 - ✅ Graceful error handling with logging
 - ✅ Type-safe operations with generics
 - ✅ Testcontainers integration tests
+- ✅ **Atomic operations** (increment/decrement) for counters
+- ✅ **Pub/Sub messaging** for real-time events
+- ✅ **Clustering and Sentinel** support via Spring Data Redis
 
 ## Installation
 
@@ -326,6 +329,236 @@ Run tests:
 - Long-term persistent data
 - Complex queries (use a search engine)
 - Large binary files (use object storage)
+
+## Advanced Features
+
+### Atomic Operations
+
+Redis provides thread-safe atomic operations for counters and distributed locking:
+
+```java
+RedisTemplate<String, Long> longTemplate = new RedisTemplate<>();
+longTemplate.setConnectionFactory(connectionFactory);
+longTemplate.setKeySerializer(new StringRedisSerializer());
+longTemplate.setValueSerializer(new GenericToStringSerializer<>(Long.class));
+longTemplate.afterPropertiesSet();
+
+RedisAtomicOperations<String> atomicOps = new RedisAtomicOperations<>(longTemplate);
+
+// Increment counter
+long pageViews = atomicOps.increment("page:views");
+logger.info("Page views: {}", pageViews);
+
+// Increment by specific amount
+long userVisits = atomicOps.incrementBy("user:123:visits", 5);
+
+// Decrement (e.g., stock management)
+long stockRemaining = atomicOps.decrement("stock:product:456");
+
+// Decrement by amount
+long  creditsRemaining = atomicOps.decrementBy("user:789:credits", 10);
+
+// Get current value
+long currentViews = atomicOps.get("page:views");
+
+// Set specific value
+atomicOps.set("counter:initialization", 1000);
+
+// Reset to zero
+atomicOps.reset("counter:temp");
+
+// Distributed lock pattern (SETNX)
+boolean lockAcquired = atomicOps.setIfAbsent(
+    "lock:resource:abc",
+    System.currentTimeMillis(),
+    Duration.ofSeconds(30)
+);
+if (lockAcquired) {
+    try {
+        // Critical section - process resource
+        processResource("abc");
+    } finally {
+        // Release lock (delete key)
+        // Note: In production, use Redisson or similar for robust distributed locks
+    }
+}
+```
+
+**Use cases for atomic operations:**
+- Page view counters
+- API rate limiting
+- Stock inventory management
+- User credit systems
+- Distributed locks (simple scenarios)
+- Leaderboards and rankings
+
+### Pub/Sub Messaging
+
+Real-time event broadcasting using Redis channels:
+
+```java
+// Configure message listener container
+@Bean
+public RedisMessageListenerContainer messageListenerContainer(
+    RedisConnectionFactory connectionFactory) {
+  RedisMessageListenerContainer container = new RedisMessageListenerContainer();
+  container.setConnectionFactory(connectionFactory);
+  return container;
+}
+
+// Create Pub/Sub instance
+RedisPubSub<String, OrderEvent> orderPubSub = new RedisPubSub<>(
+    redisTemplate,
+    messageListenerContainer,
+    "orders.events"
+);
+
+// Subscribe to channel
+orderPubSub.subscribe(event -> {
+    logger.info("Received order event: {}", event);
+    switch (event.status()) {
+        case "CREATED" -> processNewOrder(event);
+        case "PAID" -> fulfillOrder(event);
+        case "SHIPPED" -> notifyCustomer(event);
+        case "DELIVERED" -> updateInventory(event);
+    }
+});
+
+// Publish events
+record OrderEvent(String orderId, String status, Instant timestamp) {}
+
+OrderEvent event = new OrderEvent("order-123", "CREATED", Instant.now());
+orderPubSub.publish(event);
+```
+
+**Pub/Sub use cases:**
+- Real-time notifications (order updates, chat messages)
+- Event broadcasting across microservices
+- Cache invalidation signals
+- System alerts and monitoring
+- Live dashboards and analytics
+- WebSocket message relay
+
+**Important notes:**
+- Pub/Sub is **fire-and-forget** (no delivery guarantees)
+- Messages are **not persisted** (if no subscriber, message is lost)
+- For reliable messaging, use **Kafka**, **RabbitMQ**, or **Redis Streams**
+- Good for real-time, non-critical events
+
+### Clustering and High Availability
+
+Redis supports **Clustering** (sharding) and **Sentinel** (high availability) for production deployments.
+
+#### Redis Cluster (Sharding)
+
+Distribute data across multiple Redis nodes for horizontal scaling:
+
+```yaml
+spring:
+  data:
+    redis:
+      cluster:
+        nodes:
+          - redis-node-1:6379
+          - redis-node-2:6379
+          - redis-node-3:6379
+          - redis-node-4:6379
+          - redis-node-5:6379
+          - redis-node-6:6379
+        max-redirects: 3
+      lettuce:
+        pool:
+          max-active: 20
+          max-idle: 10
+          min-idle: 5
+      timeout: 3000ms
+```
+
+```java
+@Configuration
+public class RedisClusterConfig {
+
+  @Bean
+  public RedisConnectionFactory redisConnectionFactory() {
+    RedisClusterConfiguration clusterConfig = new RedisClusterConfiguration()
+        .clusterNode("redis-node-1", 6379)
+        .clusterNode("redis-node-2", 6379)
+        .clusterNode("redis-node-3", 6379);
+
+    LettuceConnectionFactory factory = new LettuceConnectionFactory(clusterConfig);
+    factory.afterPropertiesSet();
+    return factory;
+  }
+}
+```
+
+**Cluster characteristics:**
+- Automatic sharding across nodes (16384 hash slots)
+- Multi-master replication
+- Automatic failover
+- Scales horizontally (add more nodes)
+- Minimum 3 master nodes recommended
+
+#### Redis Sentinel (High Availability)
+
+Automatic failover and monitoring for master-slave setups:
+
+```yaml
+spring:
+  data:
+    redis:
+      sentinel:
+        master: mymaster
+        nodes:
+          - sentinel-1:26379
+          - sentinel-2:26379
+          - sentinel-3:26379
+        password: ${REDIS_PASSWORD:}
+      lettuce:
+        pool:
+          max-active: 20
+      timeout: 3000ms
+```
+
+```java
+@Configuration
+public class RedisSentinelConfig {
+
+  @Bean
+  public RedisConnectionFactory redisConnectionFactory() {
+    RedisSentinelConfiguration sentinelConfig = new RedisSentinelConfiguration()
+        .master("mymaster")
+        .sentinel("sentinel-1", 26379)
+        .sentinel("sentinel-2", 26379)
+        .sentinel("sentinel-3", 26379);
+
+    if (redisPassword != null) {
+      sentinelConfig.setPassword(RedisPassword.of(redisPassword));
+    }
+
+    LettuceConnectionFactory factory = new LettuceConnectionFactory(sentinelConfig);
+    factory.afterPropertiesSet();
+    return factory;
+  }
+}
+```
+
+**Sentinel characteristics:**
+- Automatic master election on failure
+- Continuous health monitoring
+- Notification of topology changes
+- Minimum 3 sentinel instances recommended
+- Read replicas for scaling reads
+
+#### When to Use Each
+
+| Scenario | Solution | Why |
+|----------|----------|-----|
+| < 100 GB data, single master | **Standalone** | Simple, cost-effective |
+| High availability needed | **Sentinel** | Auto-failover, monitoring |
+| > 100 GB data, need sharding | **Cluster** | Horizontal scaling |
+| Read-heavy workload | **Sentinel + Replicas** | Scale reads |
+| Mission-critical, large-scale | **Cluster + Sentinel** | Both HA and scaling |
 
 ## Comparison with Other Cache Solutions
 
