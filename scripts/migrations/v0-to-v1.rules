@@ -1,0 +1,15 @@
+# Migration Rules: v0 to v1
+#
+# Format: old_pattern|new_replacement
+# Each line represents a find-and-replace operation
+#
+# Package renames
+com\.example\.old\.package|com.marcusprado02.commons.kernel.core
+# Class renames
+OldClassName|NewClassName
+OldService|NewService
+# Method renames (with context)
+\.getOrThrow\(\)|.getOrElse(null)
+\.fromException\(|.failure(
+# Import statement updates
+import com\.example\.legacy\.|import com.marcusprado02.commons.
