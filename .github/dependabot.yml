@@ -111,7 +111,7 @@ updates:
       separator: "/"
 
     # Ignore specific dependencies (if needed)
-    ignore:
+    # ignore:
       # Example: Pin to specific version
       # - dependency-name: "org.springframework.boot:spring-boot-dependencies"
       #   versions: ["3.6.x"]

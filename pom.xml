@@ -46,6 +46,7 @@
     <module>commons-adapters-web</module>
     <module>commons-adapters-web-spring</module>
     <module>commons-adapters-web-spring-webflux</module>
+    <module>commons-adapters-web-jaxrs</module>
 
     <module>commons-adapters-http-okhttp</module>
     <module>commons-adapters-http-webclient</module>
