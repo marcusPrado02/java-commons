@@ -1,0 +1,2 @@
+com.marcusprado02.commons.spring.cache.RedisCacheAutoConfiguration
+com.marcusprado02.commons.spring.cache.MemcachedCacheAutoConfiguration

@@ -11,52 +11,55 @@
     <relativePath>../commons-parent/pom.xml</relativePath>
   </parent>
 
-  <artifactId>commons-adapters-cache-memcached</artifactId>
-  <name>Commons - Adapters Cache Memcached</name>
-  <description>Memcached implementation of CachePort using Spymemcached client</description>
+  <artifactId>commons-spring-starter-cache</artifactId>
+  <name>Commons - Spring Starter Cache</name>
+  <description>Spring Boot auto-configuration for cache adapters (Redis, Memcached)</description>
 
   <dependencies>
-    <!-- Commons -->
+    <!-- Commons Cache Ports -->
     <dependency>
       <groupId>com.marcusprado02.commons</groupId>
       <artifactId>commons-ports-cache</artifactId>
       <version>${project.version}</version>
     </dependency>
 
-    <!-- Spymemcached Client -->
+    <!-- Cache Adapters (optional) -->
     <dependency>
-      <groupId>net.spy</groupId>
-      <artifactId>spymemcached</artifactId>
-      <version>2.12.3</version>
-    </dependency>
-
-    <!-- Jackson for JSON serialization -->
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
+      <groupId>com.marcusprado02.commons</groupId>
+      <artifactId>commons-adapters-cache-redis</artifactId>
+      <version>${project.version}</version>
+      <optional>true</optional>
     </dependency>
 
     <dependency>
-      <groupId>com.fasterxml.jackson.datatype</groupId>
-      <artifactId>jackson-datatype-jsr310</artifactId>
+      <groupId>com.marcusprado02.commons</groupId>
+      <artifactId>commons-adapters-cache-memcached</artifactId>
+      <version>${project.version}</version>
+      <optional>true</optional>
     </dependency>
 
-    <!-- SLF4J -->
+    <!-- Spring Boot -->
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-    </dependency>
-
-    <!-- Test Dependencies -->
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter</artifactId>
-      <scope>test</scope>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-autoconfigure</artifactId>
     </dependency>
 
     <dependency>
-      <groupId>org.assertj</groupId>
-      <artifactId>assertj-core</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-configuration-processor</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- Test -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
 
@@ -71,12 +74,6 @@
       <groupId>org.testcontainers</groupId>
       <artifactId>junit-jupiter</artifactId>
       <version>1.19.3</version>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>ch.qos.logback</groupId>
-      <artifactId>logback-classic</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>
