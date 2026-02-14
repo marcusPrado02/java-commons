@@ -72,6 +72,7 @@
     <module>commons-adapters-secrets-aws-secretsmanager</module>
 
     <module>commons-adapters-files-s3</module>
+    <module>commons-adapters-files-azure-blob</module>
 
     <module>commons-spring-starter-observability</module>
     <module>commons-spring-starter-otel</module>
