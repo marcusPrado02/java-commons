@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+                             http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.marcusprado02.commons</groupId>
+    <artifactId>commons-parent</artifactId>
+    <version>${revision}</version>
+    <relativePath>../commons-parent</relativePath>
+  </parent>
+
+  <artifactId>commons-adapters-search-elasticsearch</artifactId>
+  <name>Commons Adapters - Search - Elasticsearch</name>
+  <description>Elasticsearch adapter for SearchPort</description>
+
+  <properties>
+    <elasticsearch.version>8.11.0</elasticsearch.version>
+  </properties>
+
+  <dependencies>
+    <!-- Commons Dependencies -->
+    <dependency>
+      <groupId>com.marcusprado02.commons</groupId>
+      <artifactId>commons-ports-search</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.marcusprado02.commons</groupId>
+      <artifactId>commons-kernel-result</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.marcusprado02.commons</groupId>
+      <artifactId>commons-kernel-errors</artifactId>
+    </dependency>
+
+    <!-- Elasticsearch Java Client -->
+    <dependency>
+      <groupId>co.elastic.clients</groupId>
+      <artifactId>elasticsearch-java</artifactId>
+      <version>${elasticsearch.version}</version>
+    </dependency>
+
+    <!-- JSON Processing -->
+   <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+
+    <!-- Testing -->
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>
