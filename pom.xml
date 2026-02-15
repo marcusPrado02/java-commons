@@ -34,6 +34,7 @@
     <module>commons-ports-sms</module>
     <module>commons-ports-search</module>
     <module>commons-ports-files</module>
+    <module>commons-ports-queue</module>
 
     <module>commons-testkit-core</module>
     <module>commons-testkit-contracts</module>
@@ -86,6 +87,8 @@
 
     <module>commons-adapters-sms-twilio</module>
     <module>commons-adapters-sms-aws-sns</module>
+
+    <module>commons-adapters-queue-sqs</module>
 
     <module>commons-adapters-search-elasticsearch</module>
     <module>commons-adapters-search-opensearch</module>

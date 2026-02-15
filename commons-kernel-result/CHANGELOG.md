@@ -65,6 +65,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### ✨ Features
 ### ✨ Features
 ### ✨ Features
+### ✨ Features
+### ✨ Features
+- feat: Add OpenSearch adapter for SearchPort with configuration and usage examples ([6684d25a9da656c]())
+- feat: add search module with Elasticsearch support including SearchPort, SearchQuery, and related classes ([725f9ae619222fc]())
 - feat: add MemcachedCacheAdapter and related tests for caching implementation ([088a8ac20c037f7]())
 - feat: add Redis atomic operations and Pub/Sub support for real-time messaging ([7217c12af60f41e]())
 - feat: add test dependencies for JUnit and AssertJ ([fa66579a1026056]())

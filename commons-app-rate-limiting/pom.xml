@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>com.marcusprado02.commons</groupId>
+    <artifactId>commons-parent</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <relativePath>../commons-parent</relativePath>
+  </parent>
+
+  <artifactId>commons-app-rate-limiting</artifactId>
+  <name>Commons App :: Rate Limiting</name>
+  <description>Rate limiting with token bucket algorithm and distributed support</description>
+
+  <dependencies>
+    <!-- Commons Kernel -->
+    <dependency>
+      <groupId>com.marcusprado02.commons</groupId>
+      <artifactId>commons-kernel-errors</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.marcusprado02.commons</groupId>
+      <artifactId>commons-kernel-result</artifactId>
+    </dependency>
+
+    <!-- Bucket4j Core -->
+    <dependency>
+      <groupId>com.github.vladimir-bukhtoyarov</groupId>
+      <artifactId>bucket4j-core</artifactId>
+      <version>7.6.0</version>
+    </dependency>
+
+    <!-- Bucket4j Redis Integration -->
+    <dependency>
+      <groupId>com.github.vladimir-bukhtoyarov</groupId>
+      <artifactId>bucket4j-redis</artifactId>
+      <version>7.6.0</version>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- Redis Client (Jedis) -->
+    <dependency>
+      <groupId>redis.clients</groupId>
+      <artifactId>jedis</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- Spring Framework (optional for web integration) -->
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-context</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-web</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webmvc</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-webflux</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework</groupId>
+      <artifactId>spring-aop</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- Servlet API (optional for servlet integration) -->
+    <dependency>
+      <groupId>jakarta.servlet</groupId>
+      <artifactId>jakarta.servlet-api</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- AspectJ (optional for AOP) -->
+    <dependency>
+      <groupId>org.aspectj</groupId>
+      <artifactId>aspectjweaver</artifactId>
+      <optional>true</optional>
+    </dependency>
+
+    <!-- Jackson for JSON serialization -->
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+    </dependency>
+
+    <!-- Testing -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.testcontainers</groupId>
+      <artifactId>testcontainers</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.awaitility</groupId>
+      <artifactId>awaitility</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+</project>
