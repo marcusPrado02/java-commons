@@ -47,6 +47,7 @@
     <module>commons-app-idempotency</module>
     <module>commons-app-domain-events</module>
     <module>commons-app-configuration</module>
+    <module>commons-app-feature-flags</module>
 
     <module>commons-adapters-web</module>
     <module>commons-adapters-web-spring</module>
