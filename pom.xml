@@ -86,6 +86,7 @@
     <module>commons-adapters-sms-aws-sns</module>
 
     <module>commons-adapters-search-elasticsearch</module>
+    <module>commons-adapters-search-opensearch</module>
 
     <module>commons-adapters-grpc-server</module>
 
