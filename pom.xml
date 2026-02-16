@@ -48,6 +48,7 @@
     <module>commons-app-idempotency</module>
     <module>commons-app-domain-events</module>
     <module>commons-app-configuration</module>
+    <module>commons-app-data-migration</module>
     <module>commons-app-feature-flags</module>
     <module>commons-app-multi-tenancy</module>
     <module>commons-app-scheduler</module>
