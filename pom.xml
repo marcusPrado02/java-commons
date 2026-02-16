@@ -51,6 +51,7 @@
     <module>commons-app-feature-flags</module>
     <module>commons-app-multi-tenancy</module>
     <module>commons-app-scheduler</module>
+    <module>commons-app-batch</module>
 
     <module>commons-adapters-web</module>
     <module>commons-adapters-web-spring</module>
