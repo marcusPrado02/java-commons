@@ -1,20 +1,30 @@
 package com.marcusprado02.commons.app.batch;
 
+import com.marcusprado02.commons.kernel.errors.ErrorCategory;
 import com.marcusprado02.commons.kernel.errors.Problem;
+import com.marcusprado02.commons.kernel.errors.ProblemBuilder;
+import com.marcusprado02.commons.kernel.errors.Severity;
 
-/**
- * Factory methods for creating batch job errors.
- */
+/** Factory methods for creating batch job errors. */
 public final class BatchJobError {
 
   private BatchJobError() {}
 
   public static Problem of(String code, String message) {
-    return Problem.builder().code(code).title(message).build();
+    return ProblemBuilder.of(code)
+        .category(ErrorCategory.TECHNICAL)
+        .severity(Severity.ERROR)
+        .message(message)
+        .build();
   }
 
   public static Problem of(String code, String message, Throwable cause) {
-    return Problem.builder().code(code).title(message).detail(cause.getMessage()).build();
+    return ProblemBuilder.of(code)
+        .category(ErrorCategory.TECHNICAL)
+        .severity(Severity.ERROR)
+        .message(message)
+        .detail("cause", cause.getMessage())
+        .build();
   }
 
   // Common batch job error codes
