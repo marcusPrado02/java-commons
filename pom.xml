@@ -110,6 +110,9 @@
     <module>commons-adapters-pdf-itext</module>
     <module>commons-adapters-excel-poi</module>
 
+    <module>commons-ports-serialization</module>
+    <module>commons-adapters-serialization-protobuf</module>
+
     <module>commons-adapters-queue-sqs</module>
     <module>commons-adapters-queue-azure-storage-queue</module>
 

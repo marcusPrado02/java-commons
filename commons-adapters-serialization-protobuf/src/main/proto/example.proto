@@ -1,0 +1,42 @@
+syntax = "proto3";
+
+package com.marcusprado02.commons.adapters.serialization.protobuf.example;
+
+option java_package = "com.marcusprado02.commons.adapters.serialization.protobuf.example";
+option java_outer_classname = "ExampleProtos";
+
+// Example message for testing Protocol Buffers serialization
+message Person {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+  int32 age = 4;
+  repeated string phone_numbers = 5;
+  Address address = 6;
+
+  enum Status {
+    UNKNOWN = 0;
+    ACTIVE = 1;
+    INACTIVE = 2;
+    SUSPENDED = 3;
+  }
+
+  Status status = 7;
+}
+
+message Address {
+  string street = 1;
+  string city = 2;
+  string state = 3;
+  string zip_code = 4;
+  string country = 5;
+}
+
+// Example event message
+message UserEvent {
+  string event_id = 1;
+  string user_id = 2;
+  string event_type = 3;
+  int64 timestamp = 4;
+  map<string, string> properties = 5;
+}
