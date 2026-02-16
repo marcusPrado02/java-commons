@@ -117,6 +117,9 @@
     <module>commons-ports-compression</module>
     <module>commons-adapters-compression</module>
 
+    <module>commons-ports-service-discovery</module>
+    <module>commons-adapters-service-discovery-consul</module>
+
     <module>commons-adapters-queue-sqs</module>
     <module>commons-adapters-queue-azure-storage-queue</module>
 

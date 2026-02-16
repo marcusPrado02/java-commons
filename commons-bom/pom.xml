@@ -375,6 +375,20 @@
                 <version>${project.version}</version>
             </dependency>
 
+            <!-- Ports - Service Discovery -->
+            <dependency>
+                <groupId>com.marcusprado02.commons</groupId>
+                <artifactId>commons-ports-service-discovery</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- Adapters - Service Discovery -->
+            <dependency>
+                <groupId>com.marcusprado02.commons</groupId>
+                <artifactId>commons-adapters-service-discovery-consul</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
             <!-- Spring Boot Starters -->
             <dependency>
                 <groupId>com.marcusprado02.commons</groupId>
