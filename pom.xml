@@ -56,6 +56,7 @@
     <module>commons-app-webhooks</module>
     <module>commons-app-data-validation</module>
     <module>commons-app-audit-log</module>
+    <module>commons-app-health-checks</module>
 
     <module>commons-adapters-web</module>
     <module>commons-adapters-web-spring</module>
@@ -70,6 +71,7 @@
     <module>commons-adapters-messaging-azure-servicebus</module>
 
     <module>commons-adapters-otel</module>
+    <module>commons-adapters-tracing-jaeger</module>
 
     <module>commons-adapters-resilience4j</module>
 
