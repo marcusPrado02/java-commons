@@ -72,6 +72,7 @@
 
     <module>commons-adapters-otel</module>
     <module>commons-adapters-tracing-jaeger</module>
+    <module>commons-adapters-metrics-prometheus</module>
 
     <module>commons-adapters-resilience4j</module>
 
