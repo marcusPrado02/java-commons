@@ -53,6 +53,7 @@
     <module>commons-app-scheduler</module>
     <module>commons-app-batch</module>
     <module>commons-app-api-versioning</module>
+    <module>commons-app-webhooks</module>
 
     <module>commons-adapters-web</module>
     <module>commons-adapters-web-spring</module>
