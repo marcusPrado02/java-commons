@@ -35,6 +35,7 @@
     <module>commons-ports-search</module>
     <module>commons-ports-files</module>
     <module>commons-ports-queue</module>
+    <module>commons-ports-notification</module>
 
     <module>commons-testkit-core</module>
     <module>commons-testkit-contracts</module>
@@ -97,6 +98,9 @@
 
     <module>commons-adapters-sms-twilio</module>
     <module>commons-adapters-sms-aws-sns</module>
+
+    <module>commons-adapters-notification-fcm</module>
+    <module>commons-adapters-notification-apns</module>
 
     <module>commons-adapters-queue-sqs</module>
     <module>commons-adapters-queue-azure-storage-queue</module>
