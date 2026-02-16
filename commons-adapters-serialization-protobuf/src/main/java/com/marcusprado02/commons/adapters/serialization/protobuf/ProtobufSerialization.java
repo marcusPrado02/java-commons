@@ -35,7 +35,7 @@ public final class ProtobufSerialization {
    * @param schemaRegistry the schema registry for validation
    * @return a new serialization adapter
    */
-  public static <T extends Message> SerializationPort<T> forMessage(Class<T> messageClass, 
+  public static <T extends Message> SerializationPort<T> forMessage(Class<T> messageClass,
                                                                    SchemaRegistry schemaRegistry) {
     return new ProtobufSerializationAdapter<>(messageClass, schemaRegistry);
   }
@@ -49,7 +49,7 @@ public final class ProtobufSerialization {
    * @param options        the default serialization options
    * @return a new serialization adapter
    */
-  public static <T extends Message> SerializationPort<T> forMessage(Class<T> messageClass, 
+  public static <T extends Message> SerializationPort<T> forMessage(Class<T> messageClass,
                                                                    SchemaRegistry schemaRegistry,
                                                                    SerializationOptions options) {
     return new ProtobufSerializationAdapter<>(messageClass, schemaRegistry, options);
@@ -68,7 +68,7 @@ public final class ProtobufSerialization {
    * Builder for creating configured Protocol Buffers serialization components.
    */
   public static class Builder<T extends Message> {
-    
+
     private final Class<T> messageClass;
     private SchemaRegistry schemaRegistry;
     private SerializationOptions options;
@@ -128,7 +128,7 @@ public final class ProtobufSerialization {
           .includeMetadata(options.isIncludeMetadata())
           .schemaVersion(options.getSchemaVersion())
           .format(options.getFormat())
-          ;
+          .build();
       return this;
     }
 
@@ -145,7 +145,7 @@ public final class ProtobufSerialization {
           .includeMetadata(options.isIncludeMetadata())
           .schemaVersion(options.getSchemaVersion())
           .format(options.getFormat())
-          ;
+          .build();
       return this;
     }
 
