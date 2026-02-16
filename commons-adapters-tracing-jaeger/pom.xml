@@ -46,10 +46,10 @@
             <artifactId>opentelemetry-sdk-trace</artifactId>
         </dependency>
 
-        <!-- Jaeger exporter for OpenTelemetry -->
         <dependency>
-            <groupId>io.opentelemetry</groupId>
-            <artifactId>opentelemetry-exporter-jaeger</artifactId>
+            <groupId>io.opentelemetry.semconv</groupId>
+            <artifactId>opentelemetry-semconv</artifactId>
+            <version>1.28.0-alpha</version>
         </dependency>
 
         <!-- OTLP exporter (Jaeger native OTLP support) -->
