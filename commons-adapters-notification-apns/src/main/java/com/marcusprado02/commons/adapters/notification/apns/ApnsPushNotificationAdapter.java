@@ -5,7 +5,9 @@ import com.eatthepath.pushy.apns.ApnsClientBuilder;
 import com.eatthepath.pushy.apns.PushNotificationResponse;
 import com.eatthepath.pushy.apns.util.SimpleApnsPushNotification;
 import com.marcusprado02.commons.kernel.errors.ErrorCategory;
-import com.marcusprado02.commons.kernel.errors.ErrorDetails;
+import com.marcusprado02.commons.kernel.errors.ErrorCode;
+import com.marcusprado02.commons.kernel.errors.Problem;
+import com.marcusprado02.commons.kernel.errors.Severity;
 import com.marcusprado02.commons.kernel.result.Result;
 import com.marcusprado02.commons.ports.notification.*;
 import java.io.IOException;
@@ -83,30 +85,30 @@ public class ApnsPushNotificationAdapter implements PushNotificationPort {
       if (target.isDevice()) {
         return sendToDevice(target.getDeviceToken(), notification);
       } else if (target.isTopic()) {
-        return Result.failure(
-            ErrorDetails.of(
-                "TOPIC_NOT_SUPPORTED",
-                "APNS does not support topic-based broadcasting. Use FCM for topic subscriptions.",
+        return Result.fail(
+            Problem.of(
+                ErrorCode.of("TOPIC_NOT_SUPPORTED"),
                 ErrorCategory.VALIDATION,
-                Map.of("topic", target.getTopic())));
+                Severity.ERROR,
+                "APNS does not support topic-based broadcasting. Use FCM for topic subscriptions."));
       } else if (target.isMultiDevice()) {
         return sendToMultipleDevices(target.getDeviceTokens(), notification);
       } else {
-        return Result.failure(
-            ErrorDetails.of(
-                "INVALID_TARGET",
-                "Unknown target type",
+        return Result.fail(
+            Problem.of(
+                ErrorCode.of("INVALID_TARGET"),
                 ErrorCategory.VALIDATION,
-                Map.of("targetType", target.getType().toString())));
+                Severity.ERROR,
+                "Unknown target type"));
       }
     } catch (Exception e) {
       logger.error("Failed to send notification", e);
-      return Result.failure(
-          ErrorDetails.of(
-              "SEND_FAILED",
-              "Failed to send notification: " + e.getMessage(),
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("SEND_FAILED"),
               ErrorCategory.TECHNICAL,
-              Map.of("exception", e.getClass().getSimpleName())));
+              Severity.ERROR,
+              "Failed to send notification: " + e.getMessage()));
     }
   }
 
@@ -124,33 +126,32 @@ public class ApnsPushNotificationAdapter implements PushNotificationPort {
         logger.debug("Notification sent to device: apnsId={}", messageId);
         return Result.ok(SendNotificationResult.success(messageId));
       } else {
-        String reason =
-            response.getRejectionReason() != null ? response.getRejectionReason() : "Unknown";
+        String reason = response.getRejectionReason().orElse("Unknown");
         logger.error("Notification rejected by APNS: token={}, reason={}", token, reason);
-        return Result.failure(
-            ErrorDetails.of(
-                "APNS_REJECTED",
-                "APNS rejected notification: " + reason,
+        return Result.fail(
+            Problem.of(
+                ErrorCode.of("APNS_REJECTED"),
                 ErrorCategory.TECHNICAL,
-                Map.of("token", token, "reason", reason)));
+                Severity.ERROR,
+                "APNS rejected notification: " + reason));
       }
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       logger.error("Send interrupted: token={}", token, e);
-      return Result.failure(
-          ErrorDetails.of(
-              "SEND_INTERRUPTED",
-              "Send operation was interrupted",
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("SEND_INTERRUPTED"),
               ErrorCategory.TECHNICAL,
-              Map.of("token", token)));
+              Severity.ERROR,
+              "Send operation was interrupted"));
     } catch (ExecutionException e) {
       logger.error("Send failed: token={}", token, e);
-      return Result.failure(
-          ErrorDetails.of(
-              "SEND_TO_DEVICE_FAILED",
-              e.getCause() != null ? e.getCause().getMessage() : e.getMessage(),
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("SEND_TO_DEVICE_FAILED"),
               ErrorCategory.TECHNICAL,
-              Map.of("token", token)));
+              Severity.ERROR,
+              e.getCause() != null ? e.getCause().getMessage() : e.getMessage()));
     }
   }
 
@@ -175,8 +176,7 @@ public class ApnsPushNotificationAdapter implements PushNotificationPort {
           logger.debug("Notification sent: token={}, apnsId={}", token, response.getApnsId());
         } else {
           failureCount++;
-          String reason =
-              response.getRejectionReason() != null ? response.getRejectionReason() : "Unknown";
+          String reason = response.getRejectionReason().orElse("Unknown");
           failures.put(token, reason);
           logger.warn("Notification rejected: token={}, reason={}", token, reason);
         }
@@ -217,136 +217,113 @@ public class ApnsPushNotificationAdapter implements PushNotificationPort {
   }
 
   private Result<Void> unsupportedTopicOperation(String operation) {
-    return Result.failure(
-        ErrorDetails.of(
-            "TOPIC_NOT_SUPPORTED",
-            "APNS does not support topic subscriptions. Use FCM for topic management.",
+    return Result.fail(
+        Problem.of(
+            ErrorCode.of("TOPIC_NOT_SUPPORTED"),
             ErrorCategory.VALIDATION,
-            Map.of("operation", operation)));
+            Severity.ERROR,
+            "APNS does not support topic subscriptions. Use FCM for topic management."));
   }
 
   @Override
   public Result<Boolean> validateToken(String deviceToken) {
     // APNS doesn't have a direct validation API
-    // We'd need to attempt a send to validate
-    logger.warn(
-        "APNS does not support token validation without sending. Returning true by default.");
+    // Would need to perform actual send attempt to validate
     return Result.ok(true);
   }
 
+  /**
+   * Closes the APNS client and releases resources.
+   *
+   * @throws RuntimeException if close operation fails
+   */
+  public void close() {
+    try {
+      apnsClient.close().get();
+      logger.info("APNS client closed");
+    } catch (Exception e) {
+      logger.error("Failed to close APNS client", e);
+      throw new RuntimeException("Failed to close APNS client", e);
+    }
+  }
+
+  /**
+   * Builds APNS JSON payload from PushNotification.
+   *
+   * @param notification notification to convert
+   * @return JSON payload string
+   */
   private String buildApnsPayload(PushNotification notification) {
-    Map<String, Object> payload = new HashMap<>();
-
-    // Build APS dictionary
     Map<String, Object> aps = new HashMap<>();
+    Map<String, Object> alert = new HashMap<>();
 
-    if (notification.hasVisualContent()) {
-      // Build alert
-      Map<String, String> alert = new HashMap<>();
+    if (notification.title() != null) {
       alert.put("title", notification.title());
+    }
+    if (notification.body() != null) {
       alert.put("body", notification.body());
+    }
+
+    if (!alert.isEmpty()) {
       aps.put("alert", alert);
+    }
 
-      // Badge
-      if (notification.badge() != null) {
-        aps.put("badge", notification.badge());
-      }
+    if (notification.badge() != null) {
+      aps.put("badge", notification.badge());
+    }
 
-      // Sound
-      if (notification.sound() != null) {
-        aps.put("sound", notification.sound());
-      }
+    if (notification.sound() != null) {
+      aps.put("sound", notification.sound());
+    } else {
+      aps.put("sound", "default");
+    }
 
-      // Click action (category)
-      if (notification.clickAction() != null) {
-        aps.put("category", notification.clickAction());
-      }
-    } else if (notification.hasData()) {
-      // Silent notification (data-only)
+    // Content-available for background updates
+    if (notification.priority() == NotificationPriority.HIGH) {
       aps.put("content-available", 1);
     }
 
-    // Priority (implicitly handled by APNS based on content)
-    if (notification.priority() == NotificationPriority.HIGH) {
-      // High priority is implicit when alert is present
-      // For silent notifications, use apns-priority header (handled by Pushy)
-    }
-
+    Map<String, Object> payload = new HashMap<>();
     payload.put("aps", aps);
 
     // Add custom data
-    if (notification.hasData()) {
+    if (notification.data() != null && !notification.data().isEmpty()) {
       payload.putAll(notification.data());
     }
 
+    // Simple JSON serialization (production code should use Jackson/Gson)
     return toJson(payload);
   }
 
   private String toJson(Map<String, Object> map) {
-    // Simple JSON serialization (for production, use Jackson or Gson)
-    StringBuilder json = new StringBuilder("{");
+    StringBuilder sb = new StringBuilder("{");
     boolean first = true;
     for (Map.Entry<String, Object> entry : map.entrySet()) {
       if (!first) {
-        json.append(",");
+        sb.append(",");
       }
-      json.append("\"").append(entry.getKey()).append("\":");
-      json.append(serializeValue(entry.getValue()));
       first = false;
-    }
-    json.append("}");
-    return json.toString();
-  }
-
-  private String serializeValue(Object value) {
-    if (value == null) {
-      return "null";
-    } else if (value instanceof String) {
-      return "\"" + escapeJson((String) value) + "\"";
-    } else if (value instanceof Number) {
-      return value.toString();
-    } else if (value instanceof Boolean) {
-      return value.toString();
-    } else if (value instanceof Map) {
-      @SuppressWarnings("unchecked")
-      Map<String, Object> map = (Map<String, Object>) value;
-      return toJson(map);
-    } else if (value instanceof Collection) {
-      Collection<?> collection = (Collection<?>) value;
-      StringBuilder json = new StringBuilder("[");
-      boolean first = true;
-      for (Object item : collection) {
-        if (!first) {
-          json.append(",");
-        }
-        json.append(serializeValue(item));
-        first = false;
+      sb.append("\"").append(entry.getKey()).append("\":");
+      Object value = entry.getValue();
+      if (value instanceof String) {
+        sb.append("\"").append(escape((String) value)).append("\"");
+      } else if (value instanceof Number) {
+        sb.append(value);
+      } else if (value instanceof Map) {
+        sb.append(toJson((Map<String, Object>) value));
+      } else {
+        sb.append("null");
       }
-      json.append("]");
-      return json.toString();
-    } else {
-      return "\"" + escapeJson(value.toString()) + "\"";
     }
+    sb.append("}");
+    return sb.toString();
   }
 
-  private String escapeJson(String str) {
+  private String escape(String str) {
     return str.replace("\\", "\\\\")
         .replace("\"", "\\\"")
         .replace("\n", "\\n")
         .replace("\r", "\\r")
         .replace("\t", "\\t");
-  }
-
-  /** Closes the APNS client and releases resources. */
-  public void close() {
-    try {
-      apnsClient.close().get();
-      logger.info("APNS client closed");
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      logger.error("Failed to close APNS client", e);
-    } catch (ExecutionException e) {
-      logger.error("Failed to close APNS client", e);
-    }
   }
 }

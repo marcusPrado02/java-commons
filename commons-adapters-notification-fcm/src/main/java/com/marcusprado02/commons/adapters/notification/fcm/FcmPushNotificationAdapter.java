@@ -6,7 +6,6 @@ import com.marcusprado02.commons.kernel.errors.*;
 import com.marcusprado02.commons.kernel.result.Result;
 import com.marcusprado02.commons.ports.notification.*;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -230,7 +229,8 @@ public class FcmPushNotificationAdapter implements PushNotificationPort {
                 ErrorCategory.TECHNICAL,
                 Severity.WARNING,
                 String.format(
-                    "%d tokens failed to subscribe to topic %s", response.getFailureCount(), topic)));
+                    "%d tokens failed to subscribe to topic %s",
+                    response.getFailureCount(), topic)));
       }
       logger.debug("Subscribed {} tokens to topic: {}", deviceTokens.size(), topic);
       return Result.ok(null);
