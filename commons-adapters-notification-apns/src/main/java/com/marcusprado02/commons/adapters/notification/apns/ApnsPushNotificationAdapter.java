@@ -124,7 +124,7 @@ public class ApnsPushNotificationAdapter implements PushNotificationPort {
       if (response.isAccepted()) {
         String messageId = response.getApnsId() != null ? response.getApnsId().toString() : null;
         logger.debug("Notification sent to device: apnsId={}", messageId);
-        return Result.ok(SendNotificationResult.success(messageId));
+        return Result.ok(SendNotificationResult.ok(messageId));
       } else {
         String reason = response.getRejectionReason().orElse("Unknown");
         logger.error("Notification rejected by APNS: token={}, reason={}", token, reason);

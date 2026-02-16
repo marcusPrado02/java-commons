@@ -19,7 +19,7 @@ class BaseGraphQLResolverTest {
 
   @Test
   void shouldExecuteAsyncResultWithSuccess() throws Exception {
-    CompletableFuture<String> future = resolver.asyncResult(() -> Result.success("test"));
+    CompletableFuture<String> future = resolver.asyncResult(() -> Result.ok("test"));
 
     String result = future.get();
     assertEquals("test", result);
@@ -53,7 +53,7 @@ class BaseGraphQLResolverTest {
 
   @Test
   void shouldMapResult() {
-    Result<Integer> source = Result.success(42);
+    Result<Integer> source = Result.ok(42);
 
     Result<String> mapped = resolver.map(source, Object::toString);
 
@@ -81,7 +81,7 @@ class BaseGraphQLResolverTest {
 
   @Test
   void shouldHandleNullInMap() {
-    Result<String> source = Result.success(null);
+    Result<String> source = Result.ok(null);
 
     Result<Integer> mapped = resolver.map(source, value -> value == null ? 0 : value.length());
 

@@ -80,7 +80,7 @@ public class CustomMigrationEngine implements MigrationEngine {
 
       if (pendingMigrations.isEmpty()) {
         logger.info("No pending migrations");
-        return Result.ok(MigrationResult.success(0, currentVersion()));
+        return Result.ok(MigrationResult.ok(0, currentVersion()));
       }
 
       logger.info("Found {} pending migrations", pendingMigrations.size());
@@ -132,7 +132,7 @@ public class CustomMigrationEngine implements MigrationEngine {
       }
 
       logger.info("Applied {} migrations. Final version: {}", executed, lastVersion);
-      return Result.ok(MigrationResult.success(executed, lastVersion));
+      return Result.ok(MigrationResult.ok(executed, lastVersion));
 
     } catch (Exception e) {
       logger.error("Migration failed", e);

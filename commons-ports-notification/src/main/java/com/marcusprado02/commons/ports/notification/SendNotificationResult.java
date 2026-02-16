@@ -16,7 +16,7 @@ import java.util.Map;
  *
  * if (result.isOk()) {
  *     SendNotificationResult sendResult = result.getOrNull();
- *     if (sendResult.success()) {
+ *     if (sendResult.ok()) {
  *         logger.info("Notification sent successfully: {}", sendResult.messageId());
  *     } else {
  *         logger.error("Notification failed: {}", sendResult.failureReason());

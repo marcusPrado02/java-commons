@@ -99,7 +99,7 @@ public class ITextPdfAdapter implements PdfPort {
       doc.close();
       log.debug("PDF document generated successfully");
 
-      return Result.success(null);
+      return Result.ok(null);
     } catch (Exception e) {
       log.error("Failed to generate PDF", e);
       return Result.failure(
@@ -132,7 +132,7 @@ public class ITextPdfAdapter implements PdfPort {
       signPdf(pdfBytes, signature, output);
 
       log.debug("PDF document signed successfully");
-      return Result.success(null);
+      return Result.ok(null);
     } catch (Exception e) {
       log.error("Failed to sign PDF", e);
       return Result.failure(

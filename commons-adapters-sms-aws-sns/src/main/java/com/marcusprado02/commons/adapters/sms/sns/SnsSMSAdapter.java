@@ -60,7 +60,7 @@ public class SnsSMSAdapter implements SMSPort {
       PublishResponse response = snsClient.publish(request);
 
       SMSReceipt receipt = createReceipt(response, sms.to());
-      return Result.success(receipt);
+      return Result.ok(receipt);
 
     } catch (Exception e) {
       Problem problem = mapSnsException(e);
@@ -97,7 +97,7 @@ public class SnsSMSAdapter implements SMSPort {
         LocalDateTime.now()
     );
 
-    return Result.success(bulkReceipt);
+    return Result.ok(bulkReceipt);
   }
 
   @Override
@@ -124,7 +124,7 @@ public class SnsSMSAdapter implements SMSPort {
       // Test connection by listing SMS attributes (lightweight operation)
       GetSMSAttributesRequest request = GetSMSAttributesRequest.builder().build();
       snsClient.getSMSAttributes(request);
-      return Result.success(true);
+      return Result.ok(true);
 
     } catch (Exception e) {
       Problem problem = mapSnsException(e);
@@ -138,7 +138,7 @@ public class SnsSMSAdapter implements SMSPort {
 
     // AWS SNS doesn't provide direct status checking for SMS
     // Return UNKNOWN status with explanation
-    return Result.success(SMSStatus.UNKNOWN);
+    return Result.ok(SMSStatus.UNKNOWN);
   }
 
   @Override
