@@ -349,6 +349,234 @@ aws appconfig create-configuration-profile \
     --location-uri hosted
 ```
 
+### ConsulConfigurationProvider
+
+Integra com HashiCorp Consul KV store para configuração distribuída com suporte a dynamic refresh e long polling.
+
+```java
+// Create configuration
+ConsulConfigurationProvider.Configuration config =
+    ConsulConfigurationProvider.Configuration.builder()
+        .host("localhost")
+        .port(8500)
+        .keyPrefix("config/myapp")
+        .token("acl-token") // Optional
+        .enablePolling(true)
+        .pollingInterval(Duration.ofSeconds(30))
+        .build();
+
+// Create provider
+ConfigurationProvider provider = new ConsulConfigurationProvider(config);
+
+// Listen for changes (auto-detected via long polling)
+provider.addChangeListener(event -> {
+    System.out.println("Configuration changed: " + event.getChangedKeys());
+    // Reload dependent services
+});
+
+// Use the provider
+Optional<String> dbUrl = provider.getString("database.url");
+```
+
+**Consul KV Structure:**
+```
+config/
+  myapp/
+    database.url = jdbc:postgresql://localhost/db
+    database.username = admin
+    database.pool.size = 10
+    feature.flags.newUI = true
+```
+
+**Requirements:**
+```xml
+<dependency>
+    <groupId>com.ecwid.consul</groupId>
+    <artifactId>consul-api</artifactId>
+    <version>1.4.5</version>
+</dependency>
+```
+
+**Setup with Docker:**
+```bash
+# Start Consul
+docker run -d -p 8500:8500 \
+    --name consul \
+    hashicorp/consul agent -dev -ui
+
+# Set configuration values
+curl -X PUT -d 'jdbc:postgresql://localhost/db' \
+  http://localhost:8500/v1/kv/config/myapp/database.url
+
+curl -X PUT -d '10' \
+  http://localhost:8500/v1/kv/config/myapp/database.pool.size
+
+# Access UI: http://localhost:8500/ui
+```
+
+**Features:**
+- **Long Polling**: Detecta mudanças em tempo real sem overhead
+- **ACL Support**: Tokens para autenticação
+- **Prefix-based Queries**: Carrega configurações por prefixo
+- **Automatic Refresh**: Polling configurável com interval customizável
+
+### EtcdConfigurationProvider
+
+Integra com etcd distributed key-value store com suporte a watches em tempo real.
+
+```java
+// Create configuration
+EtcdConfigurationProvider.Configuration config =
+    EtcdConfigurationProvider.Configuration.builder()
+        .endpoints("http://localhost:2379")
+        .keyPrefix("/config/myapp")
+        .enableWatch(true)
+        .build();
+
+// Create provider
+ConfigurationProvider provider = new EtcdConfigurationProvider(config);
+
+// Listen for changes (notificações em tempo real via etcd watch)
+provider.addChangeListener(event -> {
+    System.out.println("Configuration changed: " + event.getChangedKeys());
+});
+
+// Use the provider
+Optional<String> dbUrl = provider.getString("database.url");
+```
+
+**etcd Key Structure:**
+```
+/config/
+  myapp/
+    database.url = jdbc:postgresql://localhost/db
+    database.username = admin
+    database.pool.size = 10
+    feature.flags.newUI = true
+```
+
+**Requirements:**
+```xml
+<dependency>
+    <groupId>io.etcd</groupId>
+    <artifactId>jetcd-core</artifactId>
+    <version>0.7.7</version>
+</dependency>
+```
+
+**Setup with Docker:**
+```bash
+# Start etcd
+docker run -d -p 2379:2379 -p 2380:2380 \
+    --name etcd \
+    quay.io/coreos/etcd:latest \
+    etcd --listen-client-urls http://0.0.0.0:2379 \
+    --advertise-client-urls http://localhost:2379
+
+# Set configuration values
+etcdctl put /config/myapp/database.url jdbc:postgresql://localhost/db
+etcdctl put /config/myapp/database.pool.size 10
+
+# Get values
+etcdctl get /config/myapp/database.url
+```
+
+**Features:**
+- **Real-time Watches**: Notificações instantâneas via etcd watch API
+- **Distributed Consistency**: Garantias de consistência do etcd
+- **gRPC Protocol**: Comunicação eficiente via gRPC
+- **Prefix-based Queries**: Carrega hierarquias de configuração
+
+## 🔐 Encryption Support
+
+Sistema de encriptação para valores sensíveis de configuração usando AES-GCM.
+
+### AesConfigurationEncryptor
+
+Encriptador baseado em AES-256-GCM com autenticação.
+
+```java
+// 1. Generate a key (once, store securely)
+String encryptionKey = AesConfigurationEncryptor.generateKey();
+System.out.println("Encryption Key: " + encryptionKey);
+// Save to environment variable or secrets manager
+
+// 2. Create encryptor
+ConfigurationEncryptor encryptor = new AesConfigurationEncryptor(encryptionKey);
+
+// 3. Encrypt sensitive values
+String encryptedPassword = encryptor.encrypt("my-secret-password");
+System.out.println(encryptedPassword);
+// Output: {cipher}AbCd1234...XyZ==
+
+// 4. Store encrypted value in configuration
+config.set("database.password", encryptedPassword);
+
+// 5. Decrypt when reading
+String password = config.getString("database.password")
+    .map(encryptor::decryptIfNeeded)
+    .orElse("");
+```
+
+**Encrypted Value Format:**
+```
+{cipher}base64(iv + ciphertext + authentication_tag)
+```
+
+**Integration with Consul:**
+```bash
+# Encrypt locally
+String encrypted = encryptor.encrypt("secret-password");
+# Result: {cipher}AbCd...XyZ==
+
+# Store encrypted in Consul
+curl -X PUT -d '{cipher}AbCd...XyZ==' \
+  http://localhost:8500/v1/kv/config/myapp/database.password
+
+# Provider auto-detects {cipher} prefix and decrypts
+String password = consulProvider.getString("database.password")
+    .map(encryptor::decryptIfNeeded)
+    .orElse("");
+```
+
+**Wrapper for Auto-Decryption:**
+```java
+public class EncryptedConfigurationProvider implements ConfigurationProvider {
+    private final ConfigurationProvider delegate;
+    private final ConfigurationEncryptor encryptor;
+
+    public EncryptedConfigurationProvider(
+            ConfigurationProvider delegate,
+            ConfigurationEncryptor encryptor) {
+        this.delegate = delegate;
+        this.encryptor = encryptor;
+    }
+
+    @Override
+    public Optional<String> getString(String key) {
+        return delegate.getString(key).map(encryptor::decryptIfNeeded);
+    }
+
+    // Implement other methods similarly
+}
+
+// Usage
+ConfigurationProvider encrypted = new EncryptedConfigurationProvider(
+    consulProvider,
+    encryptor
+);
+
+// All {cipher} values are auto-decrypted
+String password = encrypted.getString("database.password").orElse("");
+```
+
+**Best Practices:**
+- ✅ Always encrypt: passwords, API keys, OAuth tokens, private keys
+- ✅ Store encryption key in environment variable or secrets manager (never in code)
+- ✅ Use different keys per environment (dev, staging, prod)
+- ✅ Rotate keys periodically
+- ✅ Use prefix `{cipher}` to identify encrypted values
+
 ## ✅ Configuration Validation
 
 Sistema de validação de configuração com fail-fast em startup.
