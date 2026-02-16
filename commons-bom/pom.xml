@@ -327,6 +327,11 @@
                 <artifactId>commons-app-idempotency</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.marcusprado02.commons</groupId>
+                <artifactId>commons-app-i18n</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <!-- Adapters - Framework Implementations -->
             <dependency>

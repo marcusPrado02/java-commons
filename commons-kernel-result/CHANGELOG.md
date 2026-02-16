@@ -134,6 +134,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🐛 Bug Fixes
 ### 🐛 Bug Fixes
+### 🐛 Bug Fixes
+- fix(compression): improve formatting and documentation in Compression classes ([88dad323c3c956e]())
 - fix(protobuf): correct formatting and build method calls in serialization adapter ([bcb14ba1b3a6c30]())
 - fix: add missing newline at end of NamingConventionRules and TestOrganizationRules files ([e9076660ae1c2d3]())
 
