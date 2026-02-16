@@ -300,6 +300,11 @@
                 <artifactId>commons-ports-files</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.marcusprado02.commons</groupId>
+                <artifactId>commons-ports-compression</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <!-- Application Services -->
             <dependency>
@@ -357,6 +362,11 @@
             <dependency>
                 <groupId>com.marcusprado02.commons</groupId>
                 <artifactId>commons-adapters-persistence-inmemory</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.marcusprado02.commons</groupId>
+                <artifactId>commons-adapters-compression</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

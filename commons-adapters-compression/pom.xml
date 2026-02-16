@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.marcusprado02.commons</groupId>
+        <artifactId>commons-parent</artifactId>
+        <version>0.1.0-SNAPSHOT</version>
+        <relativePath>../commons-parent/pom.xml</relativePath>
+    </parent>
+
+    <artifactId>commons-adapters-compression</artifactId>
+    <name>Commons Adapters - Compression</name>
+    <description>Compression adapters for multiple algorithms (GZIP, Brotli, LZ4, ZSTD, Snappy)</description>
+
+    <dependencies>
+        <!-- Commons dependencies -->
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-ports-compression</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-kernel-result</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-kernel-errors</artifactId>
+        </dependency>
+
+        <!-- Compression libraries -->
+        <!-- Brotli compression -->
+        <dependency>
+            <groupId>com.aayushatharva.brotli4j</groupId>
+            <artifactId>brotli4j</artifactId>
+            <version>1.16.0</version>
+        </dependency>
+
+        <!-- LZ4 compression -->
+        <dependency>
+            <groupId>org.lz4</groupId>
+            <artifactId>lz4-java</artifactId>
+            <version>1.8.0</version>
+        </dependency>
+
+        <!-- ZSTD compression -->
+        <dependency>
+            <groupId>com.github.luben</groupId>
+            <artifactId>zstd-jni</artifactId>
+            <version>1.5.5-11</version>
+        </dependency>
+
+        <!-- Snappy compression -->
+        <dependency>
+            <groupId>org.xerial.snappy</groupId>
+            <artifactId>snappy-java</artifactId>
+            <version>1.1.10.5</version>
+        </dependency>
+
+        <!-- SLF4J for logging -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+</project>

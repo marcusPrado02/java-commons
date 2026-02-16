@@ -133,6 +133,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - feat: update .gitignore to include additional file types and directories ([140686c71fc0748]())
 
 ### 🐛 Bug Fixes
+### 🐛 Bug Fixes
+- fix(protobuf): correct formatting and build method calls in serialization adapter ([bcb14ba1b3a6c30]())
 - fix: add missing newline at end of NamingConventionRules and TestOrganizationRules files ([e9076660ae1c2d3]())
 
 
