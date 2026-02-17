@@ -66,6 +66,7 @@
     <module>commons-app-health-checks</module>
     <module>commons-app-api-gateway</module>
     <module>commons-app-workflow-engine</module>
+    <module>commons-app-backup-restore</module>
 
     <module>commons-adapters-web</module>
     <module>commons-adapters-web-spring</module>
