@@ -388,6 +388,11 @@
                 <artifactId>commons-adapters-service-discovery-consul</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.marcusprado02.commons</groupId>
+                <artifactId>commons-adapters-service-discovery-eureka</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <!-- Spring Boot Starters -->
             <dependency>
