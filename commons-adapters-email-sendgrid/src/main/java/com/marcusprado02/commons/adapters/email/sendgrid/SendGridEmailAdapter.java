@@ -55,7 +55,7 @@ public class SendGridEmailAdapter implements EmailPort, AutoCloseable {
   }
 
   @Override
-  public Result<EmailReceipt> send(Email email) {
+  public Result<EmailReceipt> send(com.marcusprado02.commons.ports.email.Email email) {
     try {
       // Create a simple mail object
       com.sendgrid.helpers.mail.objects.Email fromEmail =
@@ -69,7 +69,9 @@ public class SendGridEmailAdapter implements EmailPort, AutoCloseable {
       Mail mail = new Mail(fromEmail, email.subject().value(), toEmail, content);
 
       if (configuration.sandboxMode()) {
-        mail.getMailSettings().setSandboxMode(new Setting(true));
+        Setting sandboxSetting = new Setting();
+        sandboxSetting.setEnable(true);
+        mail.getMailSettings().setSandboxMode(sandboxSetting);
       }
 
       Request request = new Request();
@@ -121,7 +123,9 @@ public class SendGridEmailAdapter implements EmailPort, AutoCloseable {
       Content content = new Content("text/plain", "Connection test");
 
       Mail testMail = new Mail(fromEmail, "SendGrid Connection Test", toEmail, content);
-      testMail.getMailSettings().setSandboxMode(new Setting(true));
+      Setting sandboxSetting = new Setting();
+      sandboxSetting.setEnable(true);
+      testMail.getMailSettings().setSandboxMode(sandboxSetting);
 
       Request request = new Request();
       request.setMethod(Method.POST);

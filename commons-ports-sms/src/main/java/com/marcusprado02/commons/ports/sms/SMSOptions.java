@@ -6,10 +6,7 @@ package com.marcusprado02.commons.ports.sms;
  * <p>Provides various options that can be set when sending SMS messages.
  */
 public record SMSOptions(
-    boolean deliveryReceipt,
-    int validityPeriodMinutes,
-    SMSPriority priority,
-    String webhookUrl) {
+    boolean deliveryReceipt, int validityPeriodMinutes, SMSPriority priority, String webhookUrl) {
 
   public SMSOptions {
     if (validityPeriodMinutes < 0) {

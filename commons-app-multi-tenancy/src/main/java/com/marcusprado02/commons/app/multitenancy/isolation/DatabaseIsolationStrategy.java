@@ -1,6 +1,5 @@
 package com.marcusprado02.commons.app.multitenancy.isolation;
 
-import com.marcusprado02.commons.app.multitenancy.TenantContextHolder;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import javax.sql.DataSource;
@@ -32,8 +31,9 @@ import java.util.function.Function;
  * strategy.removeIsolation();
  * }</pre>
  */
-public class DatabaseIsolationStrategy implements DataSourceProvider {
+public class DatabaseIsolationStrategy implements DataSourceProvider, TenantIsolationStrategy {
 
+  private static final ThreadLocal<String> currentTenant = new ThreadLocal<>();
   private final Function<String, String> urlGenerator;
   private final String username;
   private final String password;
@@ -60,8 +60,8 @@ public class DatabaseIsolationStrategy implements DataSourceProvider {
   }
 
   @Override
-  public IsolationType getIsolationType() {
-    return IsolationType.DATABASE_PER_TENANT;
+  public TenantIsolationStrategy.IsolationType getIsolationType() {
+    return TenantIsolationStrategy.IsolationType.DATABASE_PER_TENANT;
   }
 
   @Override
@@ -74,6 +74,15 @@ public class DatabaseIsolationStrategy implements DataSourceProvider {
   @Override
   public void removeIsolation() {
     currentTenant.remove();
+  }
+
+  @Override
+  public DataSource getDataSource() {
+    String tenantId = currentTenant.get();
+    if (tenantId == null) {
+      throw new IllegalStateException("No tenant context available");
+    }
+    return getDataSource(tenantId);
   }
 
   /**

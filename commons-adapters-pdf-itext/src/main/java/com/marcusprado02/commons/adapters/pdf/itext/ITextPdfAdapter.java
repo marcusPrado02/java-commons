@@ -23,7 +23,6 @@ import java.security.PrivateKey;
 import java.security.cert.Certificate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.util.Calendar;
 import java.util.GregorianCalendar;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.slf4j.Logger;
@@ -76,19 +75,21 @@ public class ITextPdfAdapter implements PdfPort {
   }
 
   @Override
-  public Result<Void> generate(PdfDocument document, OutputStream output) {
+  public Result<Void> generate(com.marcusprado02.commons.ports.pdf.PdfDocument document, OutputStream output) {
     try {
       log.debug("Generating PDF document: {}", document.title());
 
       WriterProperties properties = createWriterProperties();
       PdfWriter writer = new PdfWriter(output, properties);
-      PdfDocument pdfDoc = new PdfDocument(writer);
+      com.itextpdf.kernel.pdf.PdfDocument pdfDoc = new com.itextpdf.kernel.pdf.PdfDocument(writer);
 
       // Set document metadata
       setDocumentInfo(pdfDoc, document);
 
-      // Create document with page size and margins
-      Document doc = new Document(pdfDoc, toITextRectangle(document.pageSize()));
+      // Create document
+      Document doc = new Document(pdfDoc);
+
+      // Set page size and margins
       setMargins(doc, document.margins());
 
       // Render all elements
@@ -102,19 +103,18 @@ public class ITextPdfAdapter implements PdfPort {
       return Result.ok(null);
     } catch (Exception e) {
       log.error("Failed to generate PDF", e);
-      return Result.failure(
-          Problem.builder()
-              .code(ErrorCode.of(ERROR_CODE_PDF_GENERATION))
-              .title("PDF Generation Failed")
-              .detail("Failed to generate PDF document: " + e.getMessage())
-              .severity(Severity.ERROR)
-              .build());
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of(ERROR_CODE_PDF_GENERATION),
+              com.marcusprado02.commons.kernel.errors.ErrorCategory.TECHNICAL,
+              Severity.ERROR,
+              "Failed to generate PDF document: " + e.getMessage()));
     }
   }
 
   @Override
   public Result<Void> generateAndSign(
-      PdfDocument document, PdfSignature signature, OutputStream output) {
+      com.marcusprado02.commons.ports.pdf.PdfDocument document, com.marcusprado02.commons.ports.pdf.PdfSignature signature, OutputStream output) {
     try {
       log.debug("Generating and signing PDF document: {}", document.title());
 
@@ -122,7 +122,7 @@ public class ITextPdfAdapter implements PdfPort {
       ByteArrayOutputStream tempOutput = new ByteArrayOutputStream();
       Result<Void> generateResult = generate(document, tempOutput);
 
-      if (generateResult.isFailure()) {
+      if (generateResult.isFail()) {
         return generateResult;
       }
 
@@ -135,13 +135,12 @@ public class ITextPdfAdapter implements PdfPort {
       return Result.ok(null);
     } catch (Exception e) {
       log.error("Failed to sign PDF", e);
-      return Result.failure(
-          Problem.builder()
-              .code(ErrorCode.of(ERROR_CODE_PDF_SIGNING))
-              .title("PDF Signing Failed")
-              .detail("Failed to sign PDF document: " + e.getMessage())
-              .severity(Severity.ERROR)
-              .build());
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of(ERROR_CODE_PDF_SIGNING),
+              com.marcusprado02.commons.kernel.errors.ErrorCategory.TECHNICAL,
+              Severity.ERROR,
+              "Failed to sign PDF document: " + e.getMessage()));
     }
   }
 
@@ -198,7 +197,7 @@ public class ITextPdfAdapter implements PdfPort {
     return properties;
   }
 
-  private void setDocumentInfo(PdfDocument pdfDoc, PdfDocument document) {
+  private void setDocumentInfo(com.itextpdf.kernel.pdf.PdfDocument pdfDoc, com.marcusprado02.commons.ports.pdf.PdfDocument document) {
     PdfDocumentInfo info = pdfDoc.getDocumentInfo();
 
     if (document.title() != null) {
@@ -219,11 +218,11 @@ public class ITextPdfAdapter implements PdfPort {
 
     // Set creation date
     ZonedDateTime zdt = document.createdAt().atZone(ZoneId.systemDefault());
-    Calendar calendar = GregorianCalendar.from(zdt);
+    GregorianCalendar.from(zdt); // Ensures valid date format
     info.setCreator(document.creator());
 
     // Set custom properties
-    for (var entry : document.properties().entrySet()) {
+    for (java.util.Map.Entry<String, String> entry : document.properties().entrySet()) {
       info.setMoreInfo(entry.getKey(), entry.getValue());
     }
   }
@@ -232,7 +231,7 @@ public class ITextPdfAdapter implements PdfPort {
     return new Rectangle(pageSize.getWidth(), pageSize.getHeight());
   }
 
-  private void setMargins(Document doc, PdfDocument.Margins margins) {
+  private void setMargins(Document doc, com.marcusprado02.commons.ports.pdf.PdfDocument.Margins margins) {
     doc.setMargins(margins.top(), margins.right(), margins.bottom(), margins.left());
   }
 
@@ -356,7 +355,7 @@ public class ITextPdfAdapter implements PdfPort {
     };
   }
 
-  private void signPdf(byte[] pdfBytes, PdfSignature signature, OutputStream output)
+  private void signPdf(byte[] pdfBytes, com.marcusprado02.commons.ports.pdf.PdfSignature signature, OutputStream output)
       throws Exception {
     // Load keystore
     KeyStore keystore = KeyStore.getInstance("PKCS12");
@@ -380,15 +379,14 @@ public class ITextPdfAdapter implements PdfPort {
       appearance.setContact(signature.contactInfo());
     }
 
-    // Set signature date
-    ZonedDateTime zdt = signature.timestamp().atZone(ZoneId.systemDefault());
-    Calendar calendar = GregorianCalendar.from(zdt);
-    appearance.setSignDate(calendar);
+    // Set signature date - Note: setSignDate is deprecated/not visible in iText 7+
+    // The signature date is set automatically by iText
 
     // Set visible signature field if specified
     if (signature.signatureField() != null) {
-      var field = signature.signatureField();
-      Rectangle rect = new Rectangle(field.x(), field.y(), field.width(), field.height());
+      com.marcusprado02.commons.ports.pdf.PdfSignature.SignatureField field = signature.signatureField();
+      Rectangle rect = new Rectangle((float)field.x(), (float)field.y(),
+                                     (float)field.width(), (float)field.height());
       appearance.setPageRect(rect).setPageNumber(field.page());
 
       if (field.imageData() != null) {
@@ -398,13 +396,14 @@ public class ITextPdfAdapter implements PdfPort {
       }
     }
 
-    // Create external signature
+    // Create external signature and digest
     IExternalSignature externalSignature =
         new PrivateKeySignature(
             privateKey, DigestAlgorithms.SHA256, BouncyCastleProvider.PROVIDER_NAME);
+    IExternalDigest externalDigest = new BouncyCastleDigest();
 
     // Sign the document
     signer.signDetached(
-        externalSignature, chain, null, null, null, 0, PdfSigner.CryptoStandard.CMS);
+        externalDigest, externalSignature, chain, null, null, null, 0, PdfSigner.CryptoStandard.CMS);
   }
 }

@@ -15,13 +15,14 @@ class MetricsInterceptorTest {
   private Channel channel;
   private ClientCall<String, String> mockCall;
 
+  @SuppressWarnings({"unchecked", "rawtypes"})
   @BeforeEach
   void setUp() {
     interceptor = new MetricsInterceptor();
     channel = mock(Channel.class);
     mockCall = mock(ClientCall.class);
 
-    when(channel.newCall(any(), any())).thenReturn(mockCall);
+    when(channel.newCall(any(), any())).thenReturn((ClientCall) mockCall);
   }
 
   @Test
@@ -37,6 +38,7 @@ class MetricsInterceptorTest {
     assertEquals(3, metrics.totalCalls());
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   void shouldTrackSuccessCount() {
     MethodDescriptor<String, String> method = createTestMethodDescriptor("Method1");
@@ -59,6 +61,7 @@ class MetricsInterceptorTest {
     assertEquals(0, metrics.failureCalls());
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   void shouldTrackFailureCount() {
     MethodDescriptor<String, String> method = createTestMethodDescriptor("Method1");
@@ -81,6 +84,7 @@ class MetricsInterceptorTest {
     assertEquals(1, metrics.failureCalls());
   }
 
+  @SuppressWarnings({"unchecked", "rawtypes"})
   @Test
   void shouldTrackFailuresByStatus() {
     MethodDescriptor<String, String> method = createTestMethodDescriptor("Method1");
@@ -96,7 +100,7 @@ class MetricsInterceptorTest {
 
     // Second failure with different status
     reset(mockCall);
-    when(channel.newCall(any(), any())).thenReturn(mockCall);
+    when(channel.newCall(any(), any())).thenReturn((ClientCall) mockCall);
     ClientCall<String, String> call2 =
         interceptor.interceptCall(method, CallOptions.DEFAULT, channel);
     call2.start(new ClientCall.Listener<String>() {}, new Metadata());
@@ -105,7 +109,7 @@ class MetricsInterceptorTest {
 
     // Third failure with same status as first
     reset(mockCall);
-    when(channel.newCall(any(), any())).thenReturn(mockCall);
+    when(channel.newCall(any(), any())).thenReturn((ClientCall) mockCall);
     ClientCall<String, String> call3 =
         interceptor.interceptCall(method, CallOptions.DEFAULT, channel);
     call3.start(new ClientCall.Listener<String>() {}, new Metadata());
@@ -121,6 +125,7 @@ class MetricsInterceptorTest {
     assertEquals(1, failuresByStatus.get("NOT_FOUND"));
   }
 
+  @SuppressWarnings("unchecked")
   @Test
   void shouldTrackDuration() throws InterruptedException {
     MethodDescriptor<String, String> method = createTestMethodDescriptor("Method1");
@@ -146,6 +151,7 @@ class MetricsInterceptorTest {
     assertTrue(metrics.totalDurationMs() >= 50);
   }
 
+  @SuppressWarnings({"unchecked", "rawtypes"})
   @Test
   void shouldCalculateSuccessRate() {
     MethodDescriptor<String, String> method = createTestMethodDescriptor("Method1");
@@ -155,7 +161,7 @@ class MetricsInterceptorTest {
     // 3 successful calls
     for (int i = 0; i < 3; i++) {
       reset(mockCall);
-      when(channel.newCall(any(), any())).thenReturn(mockCall);
+      when(channel.newCall(any(), any())).thenReturn((ClientCall) mockCall);
       ClientCall<String, String> call =
           interceptor.interceptCall(method, CallOptions.DEFAULT, channel);
       call.start(new ClientCall.Listener<String>() {}, new Metadata());
@@ -165,7 +171,7 @@ class MetricsInterceptorTest {
 
     // 1 failed call
     reset(mockCall);
-    when(channel.newCall(any(), any())).thenReturn(mockCall);
+    when(channel.newCall(any(), any())).thenReturn((ClientCall) mockCall);
     ClientCall<String, String> call =
         interceptor.interceptCall(method, CallOptions.DEFAULT, channel);
     call.start(new ClientCall.Listener<String>() {}, new Metadata());

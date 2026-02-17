@@ -5,7 +5,8 @@ import com.marcusprado02.commons.kernel.result.Result;
 /**
  * Port for SMS operations.
  *
- * <p>Abstraction for sending SMS messages through various providers (Twilio, AWS SNS, Azure Communication Services, etc.).
+ * <p>Abstraction for sending SMS messages through various providers (Twilio, AWS SNS, Azure
+ * Communication Services, etc.).
  *
  * <p>Responsibilities:
  *
@@ -42,8 +43,8 @@ public interface SMSPort {
   /**
    * Send an MMS message with media content.
    *
-   * <p>MMS support is adapter-specific. Consult your adapter's documentation for supported
-   * media types and size limits.
+   * <p>MMS support is adapter-specific. Consult your adapter's documentation for supported media
+   * types and size limits.
    *
    * @param mms the MMS to send
    * @return Result with receipt or problem

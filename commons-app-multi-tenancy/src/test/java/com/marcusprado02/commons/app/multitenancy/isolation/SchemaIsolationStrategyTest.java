@@ -47,7 +47,7 @@ class SchemaIsolationStrategyTest {
 
     assertThat(result).isNotNull();
     // The returned datasource should be a proxy that switches schema
-    Connection conn = result.getConnection();
+    result.getConnection();
     verify(statement).execute("USE tenant123");
   }
 
@@ -57,7 +57,7 @@ class SchemaIsolationStrategyTest {
 
     DataSource result = strategy.getDataSource();
 
-    Connection conn = result.getConnection();
+    result.getConnection();
     // Should sanitize tenant ID for safe schema name
     verify(statement).execute("USE tenant_123_test");
   }
@@ -84,7 +84,7 @@ class SchemaIsolationStrategyTest {
 
   @Test
   void shouldUseCustomSchemaPattern() throws SQLException {
-    strategy = new SchemaIsolationStrategy(dataSource, "app_{tenant}_db");
+    strategy = new SchemaIsolationStrategy(dataSource, tenantId -> "app_" + tenantId + "_db");
     TenantContextHolder.setContext(TenantContext.of("tenant123"));
 
     DataSource result = strategy.getDataSource();

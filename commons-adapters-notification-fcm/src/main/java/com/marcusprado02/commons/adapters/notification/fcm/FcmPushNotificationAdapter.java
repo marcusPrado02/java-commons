@@ -95,7 +95,7 @@ public class FcmPushNotificationAdapter implements PushNotificationPort {
       Message message = buildMessage(notification).setToken(token).build();
       String messageId = messaging.send(message);
       logger.debug("Notification sent to device: messageId={}", messageId);
-      return Result.ok(SendNotificationResult.ok(messageId));
+      return Result.ok(SendNotificationResult.success(messageId));
     } catch (FirebaseMessagingException e) {
       logger.error("Failed to send to device: token={}", token, e);
       return Result.fail(
@@ -112,7 +112,7 @@ public class FcmPushNotificationAdapter implements PushNotificationPort {
       Message message = buildMessage(notification).setTopic(topic).build();
       String messageId = messaging.send(message);
       logger.debug("Notification sent to topic: topic={}, messageId={}", topic, messageId);
-      return Result.ok(SendNotificationResult.ok(messageId));
+      return Result.ok(SendNotificationResult.success(messageId));
     } catch (FirebaseMessagingException e) {
       logger.error("Failed to send to topic: topic={}", topic, e);
       return Result.fail(

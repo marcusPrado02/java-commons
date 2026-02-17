@@ -33,9 +33,13 @@ class LoggingInterceptorTest {
 
     // Setup mocks
     channel = mock(Channel.class);
-    mockCall = mock(ClientCall.class);
+    @SuppressWarnings("unchecked")
+    ClientCall<String, String> typedMockCall = (ClientCall<String, String>) mock(ClientCall.class);
+    mockCall = typedMockCall;
 
-    when(channel.newCall(any(), any())).thenReturn(mockCall);
+    @SuppressWarnings("unchecked")
+    ClientCall<Object, Object> genericMockCall = (ClientCall<Object, Object>) (Object) mockCall;
+    when(channel.newCall(any(), any())).thenReturn(genericMockCall);
   }
 
   @Test
@@ -51,8 +55,9 @@ class LoggingInterceptorTest {
   @Test
   void shouldLogSuccessfulCall() {
     MethodDescriptor<String, String> method = createTestMethodDescriptor();
+    @SuppressWarnings("unchecked")
     ArgumentCaptor<ClientCall.Listener<String>> listenerCaptor =
-        ArgumentCaptor.forClass(ClientCall.Listener.class);
+        (ArgumentCaptor<ClientCall.Listener<String>>) (ArgumentCaptor<?>) ArgumentCaptor.forClass(ClientCall.Listener.class);
 
     ClientCall<String, String> call =
         interceptor.interceptCall(method, CallOptions.DEFAULT, channel);
@@ -72,8 +77,9 @@ class LoggingInterceptorTest {
   @Test
   void shouldLogFailedCall() {
     MethodDescriptor<String, String> method = createTestMethodDescriptor();
+    @SuppressWarnings("unchecked")
     ArgumentCaptor<ClientCall.Listener<String>> listenerCaptor =
-        ArgumentCaptor.forClass(ClientCall.Listener.class);
+        (ArgumentCaptor<ClientCall.Listener<String>>) (ArgumentCaptor<?>) ArgumentCaptor.forClass(ClientCall.Listener.class);
 
     ClientCall<String, String> call =
         interceptor.interceptCall(method, CallOptions.DEFAULT, channel);

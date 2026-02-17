@@ -35,9 +35,8 @@ class AuthInterceptorTest {
     Metadata metadata = new Metadata();
     metadata.put(AuthInterceptor.AUTHORIZATION_METADATA_KEY, "Bearer valid-token");
 
-    interceptor.intercept(serverCall, metadata, next);
+    interceptor.interceptCall(serverCall, metadata, next);
 
-    ArgumentCaptor<Context> contextCaptor = ArgumentCaptor.forClass(Context.class);
     verify(next).startCall(any(), any());
   }
 
@@ -48,7 +47,7 @@ class AuthInterceptorTest {
 
     Metadata metadata = new Metadata();
 
-    interceptor.intercept(serverCall, metadata, next);
+    interceptor.interceptCall(serverCall, metadata, next);
 
     ArgumentCaptor<Status> statusCaptor = ArgumentCaptor.forClass(Status.class);
     verify(serverCall).close(statusCaptor.capture(), any());
@@ -64,7 +63,7 @@ class AuthInterceptorTest {
     Metadata metadata = new Metadata();
     metadata.put(AuthInterceptor.AUTHORIZATION_METADATA_KEY, "Bearer invalid-token");
 
-    interceptor.intercept(serverCall, metadata, next);
+    interceptor.interceptCall(serverCall, metadata, next);
 
     ArgumentCaptor<Status> statusCaptor = ArgumentCaptor.forClass(Status.class);
     verify(serverCall).close(statusCaptor.capture(), any());
@@ -79,7 +78,7 @@ class AuthInterceptorTest {
 
     Metadata metadata = new Metadata();
 
-    interceptor.intercept(serverCall, metadata, next);
+    interceptor.interceptCall(serverCall, metadata, next);
 
     verify(next).startCall(any(), any());
     verify(serverCall, never()).close(any(), any());
@@ -96,7 +95,7 @@ class AuthInterceptorTest {
     Metadata metadata = new Metadata();
     metadata.put(AuthInterceptor.AUTHORIZATION_METADATA_KEY, "Bearer my-token");
 
-    interceptor.intercept(serverCall, metadata, next);
+    interceptor.interceptCall(serverCall, metadata, next);
 
     verify(next).startCall(any(), any());
   }
@@ -112,7 +111,7 @@ class AuthInterceptorTest {
     Metadata metadata = new Metadata();
     metadata.put(AuthInterceptor.AUTHORIZATION_METADATA_KEY, "raw-token");
 
-    interceptor.intercept(serverCall, metadata, next);
+    interceptor.interceptCall(serverCall, metadata, next);
 
     verify(next).startCall(any(), any());
   }
@@ -127,7 +126,7 @@ class AuthInterceptorTest {
     Metadata metadata = new Metadata();
     metadata.put(AuthInterceptor.AUTHORIZATION_METADATA_KEY, "Bearer token");
 
-    interceptor.intercept(serverCall, metadata, next);
+    interceptor.interceptCall(serverCall, metadata, next);
 
     ArgumentCaptor<Status> statusCaptor = ArgumentCaptor.forClass(Status.class);
     verify(serverCall).close(statusCaptor.capture(), any());
@@ -143,7 +142,7 @@ class AuthInterceptorTest {
     Metadata metadata = new Metadata();
     metadata.put(AuthInterceptor.AUTHORIZATION_METADATA_KEY, "Bearer token");
 
-    interceptor.intercept(serverCall, metadata, next);
+    interceptor.interceptCall(serverCall, metadata, next);
 
     // The principal should be stored in Context
     verify(next).startCall(any(), any());

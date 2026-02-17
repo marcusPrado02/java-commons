@@ -1,5 +1,6 @@
 package com.marcusprado02.commons.adapters.grpc.server;
 
+import com.marcusprado02.commons.adapters.grpc.server.error.ErrorMapper;
 import com.marcusprado02.commons.kernel.errors.Problem;
 import com.marcusprado02.commons.kernel.errors.Severity;
 import com.marcusprado02.commons.kernel.errors.ErrorCode;
@@ -68,11 +69,11 @@ class ErrorMapperTest {
 
   @Test
   void shouldMapProblemWithNotFoundKeyword() {
-    Problem problem = Problem.builder()
-        .code("USER_NOT_FOUND")
-        .title("User not found")
-        .severity(ProblemSeverity.ERROR)
-        .build();
+    Problem problem = Problem.of(
+        ErrorCode.of("USER_NOT_FOUND"),
+        ErrorCategory.BUSINESS,
+        Severity.ERROR,
+        "User not found");
 
     Status status = ErrorMapper.mapProblemToStatus(problem);
 
@@ -81,11 +82,9 @@ class ErrorMapperTest {
 
   @Test
   void shouldMapProblemWithUnauthorizedKeyword() {
-    Problem problem = Problem.builder()
-        .code("UNAUTHORIZED_ACCESS")
-        .title("Unauthorized")
-        .severity(ProblemSeverity.ERROR)
-        .build();
+    Problem problem = Problem.of(
+        ErrorCode.of("UNAUTHORIZED_ACCESS"), ErrorCategory.BUSINESS,
+        Severity.ERROR, "Unauthorized");
 
     Status status = ErrorMapper.mapProblemToStatus(problem);
 
@@ -94,11 +93,9 @@ class ErrorMapperTest {
 
   @Test
   void shouldMapProblemWithForbiddenKeyword() {
-    Problem problem = Problem.builder()
-        .code("FORBIDDEN_OPERATION")
-        .title("Forbidden")
-        .severity(ProblemSeverity.ERROR)
-        .build();
+    Problem problem = Problem.of(
+        ErrorCode.of("FORBIDDEN_OPERATION"), ErrorCategory.BUSINESS,
+        Severity.ERROR, "Forbidden");
 
     Status status = ErrorMapper.mapProblemToStatus(problem);
 
@@ -107,11 +104,9 @@ class ErrorMapperTest {
 
   @Test
   void shouldMapProblemWithValidationKeyword() {
-    Problem problem = Problem.builder()
-        .code("VALIDATION_ERROR")
-        .title("Validation failed")
-        .severity(ProblemSeverity.ERROR)
-        .build();
+    Problem problem = Problem.of(
+        ErrorCode.of("VALIDATION_ERROR"), ErrorCategory.BUSINESS,
+        Severity.ERROR, "Validation failed");
 
     Status status = ErrorMapper.mapProblemToStatus(problem);
 
@@ -120,11 +115,9 @@ class ErrorMapperTest {
 
   @Test
   void shouldMapProblemWithConflictKeyword() {
-    Problem problem = Problem.builder()
-        .code("DUPLICATE_ENTRY")
-        .title("Conflict")
-        .severity(ProblemSeverity.ERROR)
-        .build();
+    Problem problem = Problem.of(
+        ErrorCode.of("DUPLICATE_ENTRY"), ErrorCategory.BUSINESS,
+        Severity.ERROR, "Conflict");
 
     Status status = ErrorMapper.mapProblemToStatus(problem);
 
@@ -133,11 +126,9 @@ class ErrorMapperTest {
 
   @Test
   void shouldMapProblemWithTimeoutKeyword() {
-    Problem problem = Problem.builder()
-        .code("TIMEOUT_ERROR")
-        .title("Operation timeout")
-        .severity(ProblemSeverity.ERROR)
-        .build();
+    Problem problem = Problem.of(
+        ErrorCode.of("TIMEOUT_ERROR"), ErrorCategory.BUSINESS,
+        Severity.ERROR, "Operation timeout");
 
     Status status = ErrorMapper.mapProblemToStatus(problem);
 
@@ -146,11 +137,9 @@ class ErrorMapperTest {
 
   @Test
   void shouldMapProblemWithUnavailableKeyword() {
-    Problem problem = Problem.builder()
-        .code("SERVICE_UNAVAILABLE")
-        .title("Service unavailable")
-        .severity(ProblemSeverity.ERROR)
-        .build();
+    Problem problem = Problem.of(
+        ErrorCode.of("SERVICE_UNAVAILABLE"), ErrorCategory.BUSINESS,
+        Severity.ERROR, "Service unavailable");
 
     Status status = ErrorMapper.mapProblemToStatus(problem);
 
@@ -159,11 +148,9 @@ class ErrorMapperTest {
 
   @Test
   void shouldMapProblemWithPreconditionKeyword() {
-    Problem problem = Problem.builder()
-        .code("PRECONDITION_FAILED")
-        .title("Precondition failed")
-        .severity(ProblemSeverity.ERROR)
-        .build();
+    Problem problem = Problem.of(
+        ErrorCode.of("PRECONDITION_FAILED"), ErrorCategory.BUSINESS,
+        Severity.ERROR, "Precondition failed");
 
     Status status = ErrorMapper.mapProblemToStatus(problem);
 
@@ -172,11 +159,9 @@ class ErrorMapperTest {
 
   @Test
   void shouldMapProblemWithQuotaKeyword() {
-    Problem problem = Problem.builder()
-        .code("QUOTA_EXCEEDED")
-        .title("Quota exceeded")
-        .severity(ProblemSeverity.ERROR)
-        .build();
+    Problem problem = Problem.of(
+        ErrorCode.of("QUOTA_EXCEEDED"), ErrorCategory.BUSINESS,
+        Severity.ERROR, "Quota exceeded");
 
     Status status = ErrorMapper.mapProblemToStatus(problem);
 
@@ -185,11 +170,9 @@ class ErrorMapperTest {
 
   @Test
   void shouldMapProblemWithCancelledKeyword() {
-    Problem problem = Problem.builder()
-        .code("OPERATION_CANCELLED")
-        .title("Cancelled")
-        .severity(ProblemSeverity.ERROR)
-        .build();
+    Problem problem = Problem.of(
+        ErrorCode.of("OPERATION_CANCELLED"), ErrorCategory.BUSINESS,
+        Severity.ERROR, "Cancelled");
 
     Status status = ErrorMapper.mapProblemToStatus(problem);
 
@@ -198,11 +181,9 @@ class ErrorMapperTest {
 
   @Test
   void shouldMapWarningProblemToOk() {
-    Problem problem = Problem.builder()
-        .code("SOME_WARNING")
-        .title("Warning")
-        .severity(ProblemSeverity.WARNING)
-        .build();
+    Problem problem = Problem.of(
+        ErrorCode.of("SOME_WARNING"), ErrorCategory.BUSINESS,
+        Severity.WARNING, "Warning");
 
     Status status = ErrorMapper.mapProblemToStatus(problem);
 
@@ -211,11 +192,9 @@ class ErrorMapperTest {
 
   @Test
   void shouldMapInfoProblemToOk() {
-    Problem problem = Problem.builder()
-        .code("SOME_INFO")
-        .title("Info")
-        .severity(ProblemSeverity.INFO)
-        .build();
+    Problem problem = Problem.of(
+        ErrorCode.of("SOME_INFO"), ErrorCategory.BUSINESS,
+        Severity.INFO, "Info");
 
     Status status = ErrorMapper.mapProblemToStatus(problem);
 
@@ -224,7 +203,7 @@ class ErrorMapperTest {
 
   @Test
   void shouldCreateNotFoundStatus() {
-    StatusRuntimeException ex = ErrorMapper.notFound("Resource not found");
+    StatusRuntimeException ex = ErrorMapper.notFound("User", "123");
 
     assertEquals(Status.Code.NOT_FOUND, ex.getStatus().getCode());
     assertEquals("Resource not found", ex.getStatus().getDescription());
@@ -232,10 +211,10 @@ class ErrorMapperTest {
 
   @Test
   void shouldCreateInvalidArgumentStatus() {
-    StatusRuntimeException ex = ErrorMapper.invalidArgument("Invalid input");
+    StatusRuntimeException ex = ErrorMapper.invalidArgument("email", "Invalid format");
 
     assertEquals(Status.Code.INVALID_ARGUMENT, ex.getStatus().getCode());
-    assertEquals("Invalid input", ex.getStatus().getDescription());
+    assertTrue(ex.getStatus().getDescription().contains("email"));
   }
 
   @Test
@@ -248,7 +227,7 @@ class ErrorMapperTest {
 
   @Test
   void shouldCreateAlreadyExistsStatus() {
-    StatusRuntimeException ex = ErrorMapper.alreadyExists("Resource already exists");
+    StatusRuntimeException ex = ErrorMapper.alreadyExists("User", "john@example.com");
 
     assertEquals(Status.Code.ALREADY_EXISTS, ex.getStatus().getCode());
     assertEquals("Resource already exists", ex.getStatus().getDescription());
@@ -257,7 +236,7 @@ class ErrorMapperTest {
   @Test
   void shouldWrapExceptionWithContext() {
     Exception cause = new IllegalArgumentException("Original error");
-    StatusRuntimeException ex = ErrorMapper.wrapWithContext(cause, "Failed to process request");
+    StatusRuntimeException ex = ErrorMapper.wrapWithContext("Failed to process request", cause);
 
     assertEquals(Status.Code.INVALID_ARGUMENT, ex.getStatus().getCode());
     assertTrue(ex.getStatus().getDescription().contains("Failed to process request"));
@@ -275,12 +254,9 @@ class ErrorMapperTest {
 
   @Test
   void shouldConvertProblemToStatusRuntimeException() {
-    Problem problem = Problem.builder()
-        .code("NOT_FOUND")
-        .title("Resource not found")
-        .detail("The requested resource was not found")
-        .severity(ProblemSeverity.ERROR)
-        .build();
+    Problem problem = Problem.of(
+        ErrorCode.of("NOT_FOUND"), ErrorCategory.BUSINESS,
+        Severity.ERROR, "Resource not found");
 
     StatusRuntimeException ex = ErrorMapper.toStatusRuntimeException(problem);
 

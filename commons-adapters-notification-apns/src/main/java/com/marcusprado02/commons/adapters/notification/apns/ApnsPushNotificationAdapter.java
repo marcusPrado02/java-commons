@@ -124,7 +124,7 @@ public class ApnsPushNotificationAdapter implements PushNotificationPort {
       if (response.isAccepted()) {
         String messageId = response.getApnsId() != null ? response.getApnsId().toString() : null;
         logger.debug("Notification sent to device: apnsId={}", messageId);
-        return Result.ok(SendNotificationResult.ok(messageId));
+        return Result.ok(SendNotificationResult.success(messageId));
       } else {
         String reason = response.getRejectionReason().orElse("Unknown");
         logger.error("Notification rejected by APNS: token={}, reason={}", token, reason);
@@ -310,7 +310,9 @@ public class ApnsPushNotificationAdapter implements PushNotificationPort {
       } else if (value instanceof Number) {
         sb.append(value);
       } else if (value instanceof Map) {
-        sb.append(toJson((Map<String, Object>) value));
+        @SuppressWarnings("unchecked")
+        Map<String, Object> mapValue = (Map<String, Object>) value;
+        sb.append(toJson(mapValue));
       } else {
         sb.append("null");
       }

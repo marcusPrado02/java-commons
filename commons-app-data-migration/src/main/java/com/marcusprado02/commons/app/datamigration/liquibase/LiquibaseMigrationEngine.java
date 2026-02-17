@@ -121,7 +121,7 @@ public class LiquibaseMigrationEngine implements MigrationEngine {
 
         logger.info("Migration completed. Applied {} migrations", pendingChanges);
 
-        return Result.ok(MigrationResult.ok(pendingChanges, currentVersion));
+        return Result.ok(MigrationResult.success(pendingChanges, currentVersion));
       }
 
     } catch (Exception e) {

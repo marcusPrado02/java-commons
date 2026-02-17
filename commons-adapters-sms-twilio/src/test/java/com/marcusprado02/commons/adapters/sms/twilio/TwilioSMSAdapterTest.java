@@ -7,6 +7,8 @@ import static org.mockito.Mockito.*;
 import com.marcusprado02.commons.kernel.result.Result;
 import com.marcusprado02.commons.ports.sms.*;
 import com.twilio.rest.api.v2010.account.Message;
+import com.twilio.rest.api.v2010.account.MessageCreator;
+import com.twilio.rest.api.v2010.account.MessageFetcher;
 import java.time.Duration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -50,9 +52,9 @@ class TwilioSMSAdapterTest {
 
     // Mock static Message.creator method
     try (MockedStatic<Message> mockedMessage = mockStatic(Message.class)) {
-      Message.Creator mockCreator = mock(Message.Creator.class);
+      var mockCreator = mock(MessageCreator.class);
       when(mockCreator.create()).thenReturn(mockMessage);
-      mockedMessage.when(() -> Message.creator(any(), any(), anyString()))
+      mockedMessage.when(() -> Message.creator(any(com.twilio.type.PhoneNumber.class), any(com.twilio.type.PhoneNumber.class), anyString()))
           .thenReturn(mockCreator);
 
       // When
@@ -80,13 +82,12 @@ class TwilioSMSAdapterTest {
     // Mock Twilio exception
     com.twilio.exception.TwilioException twilioException =
         mock(com.twilio.exception.TwilioException.class);
-    when(twilioException.getCode()).thenReturn(21211);
     when(twilioException.getMessage()).thenReturn("Invalid phone number");
 
     try (MockedStatic<Message> mockedMessage = mockStatic(Message.class)) {
-      Message.Creator mockCreator = mock(Message.Creator.class);
+      var mockCreator = mock(MessageCreator.class);
       when(mockCreator.create()).thenThrow(twilioException);
-      mockedMessage.when(() -> Message.creator(any(), any(), anyString()))
+      mockedMessage.when(() -> Message.creator(any(com.twilio.type.PhoneNumber.class), any(com.twilio.type.PhoneNumber.class), anyString()))
           .thenReturn(mockCreator);
 
       // When
@@ -120,21 +121,21 @@ class TwilioSMSAdapterTest {
     when(mockMessage2.getStatus()).thenReturn(Message.Status.SENT);
 
     try (MockedStatic<Message> mockedMessage = mockStatic(Message.class)) {
-      Message.Creator mockCreator1 = mock(Message.Creator.class);
-      Message.Creator mockCreator2 = mock(Message.Creator.class);
+      var mockCreator1 = mock(MessageCreator.class);
+      var mockCreator2 = mock(MessageCreator.class);
 
       when(mockCreator1.create()).thenReturn(mockMessage1);
       when(mockCreator2.create()).thenReturn(mockMessage2);
 
       mockedMessage.when(() -> Message.creator(
           eq(new com.twilio.type.PhoneNumber("+0987654321")),
-          any(),
+          any(com.twilio.type.PhoneNumber.class),
           anyString()))
           .thenReturn(mockCreator1);
 
       mockedMessage.when(() -> Message.creator(
           eq(new com.twilio.type.PhoneNumber("+1122334455")),
-          any(),
+          any(com.twilio.type.PhoneNumber.class),
           anyString()))
           .thenReturn(mockCreator2);
 
@@ -159,7 +160,7 @@ class TwilioSMSAdapterTest {
     Message mockMessage = mock(Message.class);
     when(mockMessage.getStatus()).thenReturn(Message.Status.DELIVERED);
 
-    Message.Fetcher mockFetcher = mock(Message.Fetcher.class);
+    var mockFetcher = mock(MessageFetcher.class);
     when(mockFetcher.fetch()).thenReturn(mockMessage);
 
     try (MockedStatic<Message> mockedMessage = mockStatic(Message.class)) {
@@ -181,8 +182,8 @@ class TwilioSMSAdapterTest {
     com.twilio.rest.api.v2010.account.ValidationRequest mockValidation =
         mock(com.twilio.rest.api.v2010.account.ValidationRequest.class);
 
-    com.twilio.rest.api.v2010.account.ValidationRequest.Creator mockCreator =
-        mock(com.twilio.rest.api.v2010.account.ValidationRequest.Creator.class);
+    var mockCreator =
+        mock(com.twilio.rest.api.v2010.account.ValidationRequestCreator.class);
     when(mockCreator.create()).thenReturn(mockValidation);
 
     try (MockedStatic<com.twilio.rest.api.v2010.account.ValidationRequest> mockedValidation =

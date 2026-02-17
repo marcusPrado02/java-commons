@@ -31,11 +31,7 @@ public class InMemoryProtobufSchemaRegistry implements SchemaRegistry {
       // Validate schema before registration
       ValidationResult validation = validateSchema(schema);
       if (!validation.isValid()) {
-        return Result.fail(Problem.builder()
-            .type("INVALID_SCHEMA")
-            .title("Invalid schema")
-            .detail("Schema validation failed: " + String.join(", ", validation.getErrors()))
-            .build());
+        return Result.fail(Problem.of(ErrorCode.of("INVALID_SCHEMA"), ErrorCategory.BUSINESS, Severity.ERROR, "Invalid schema"));
       }
 
       schemas.computeIfAbsent(schema.getName(), k -> new ConcurrentHashMap<>())
@@ -46,11 +42,7 @@ public class InMemoryProtobufSchemaRegistry implements SchemaRegistry {
 
     } catch (Exception e) {
       log.error("Failed to register schema", e);
-      return Result.fail(Problem.builder()
-          .type("REGISTRATION_ERROR")
-          .title("Schema registration failed")
-          .detail("Failed to register schema: " + e.getMessage())
-          .build());
+      return Result.fail(Problem.of(ErrorCode.of("REGISTRATION_ERROR"), ErrorCategory.BUSINESS, Severity.ERROR, "Schema registration failed"));
     }
   }
 
@@ -172,20 +164,12 @@ public class InMemoryProtobufSchemaRegistry implements SchemaRegistry {
     try {
       Map<String, Schema> versions = schemas.get(name);
       if (versions == null) {
-        return Result.fail(Problem.builder()
-            .type("SCHEMA_NOT_FOUND")
-            .title("Schema not found")
-            .detail("No schema found with name: " + name)
-            .build());
+        return Result.fail(Problem.of(ErrorCode.of("SCHEMA_NOT_FOUND"), ErrorCategory.BUSINESS, Severity.ERROR, "Schema not found"));
       }
 
       Schema removed = versions.remove(version);
       if (removed == null) {
-        return Result.fail(Problem.builder()
-            .type("VERSION_NOT_FOUND")
-            .title("Schema version not found")
-            .detail("No schema found with name: " + name + " version: " + version)
-            .build());
+        return Result.fail(Problem.of(ErrorCode.of("VERSION_NOT_FOUND"), ErrorCategory.BUSINESS, Severity.ERROR, "Schema version not found"));
       }
 
       // Remove schema name entry if no versions left
@@ -198,11 +182,7 @@ public class InMemoryProtobufSchemaRegistry implements SchemaRegistry {
 
     } catch (Exception e) {
       log.error("Failed to delete schema", e);
-      return Result.fail(Problem.builder()
-          .type("DELETION_ERROR")
-          .title("Schema deletion failed")
-          .detail("Failed to delete schema: " + e.getMessage())
-          .build());
+      return Result.fail(Problem.of(ErrorCode.of("DELETION_ERROR"), ErrorCategory.BUSINESS, Severity.ERROR, "Schema deletion failed"));
     }
   }
 

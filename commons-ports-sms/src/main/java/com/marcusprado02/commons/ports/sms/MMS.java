@@ -29,12 +29,11 @@ public record MMS(
     mediaContents = List.copyOf(mediaContents);
 
     // Validate total size (typical MMS limit is 300KB to 1MB)
-    long totalSize = mediaContents.stream()
-        .mapToLong(media -> media.content().length)
-        .sum();
+    long totalSize = mediaContents.stream().mapToLong(media -> media.content().length).sum();
 
     if (totalSize > 1048576) { // 1MB limit
-      throw new IllegalArgumentException("total media size exceeds 1MB limit: " + totalSize + " bytes");
+      throw new IllegalArgumentException(
+          "total media size exceeds 1MB limit: " + totalSize + " bytes");
     }
   }
 
@@ -68,11 +67,11 @@ public record MMS(
     }
 
     private static boolean isValidMmsContentType(String contentType) {
-      return contentType.startsWith("image/") ||
-             contentType.startsWith("video/") ||
-             contentType.startsWith("audio/") ||
-             "text/plain".equals(contentType) ||
-             "application/pdf".equals(contentType);
+      return contentType.startsWith("image/")
+          || contentType.startsWith("video/")
+          || contentType.startsWith("audio/")
+          || "text/plain".equals(contentType)
+          || "application/pdf".equals(contentType);
     }
 
     public static MediaContent image(byte[] imageData, String imageType) {

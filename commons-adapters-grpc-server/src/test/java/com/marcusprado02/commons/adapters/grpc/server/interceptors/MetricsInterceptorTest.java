@@ -41,13 +41,14 @@ class MetricsInterceptorTest {
         )
     );
 
-    interceptor.intercept(serverCall, new Metadata(), next);
+    interceptor.interceptCall(serverCall, new Metadata(), next);
 
     MetricsInterceptor.MethodMetrics metrics = interceptor.getMethodMetrics("test/Method");
     assertNotNull(metrics);
     assertEquals(1, metrics.totalCalls());
   }
 
+  @SuppressWarnings({"unchecked", "rawtypes"})
   @Test
   void shouldTrackSuccessfulCalls() {
     when(serverCall.getMethodDescriptor()).thenReturn(
@@ -59,7 +60,7 @@ class MetricsInterceptorTest {
         )
     );
 
-    interceptor.intercept(serverCall, new Metadata(), next);
+    interceptor.interceptCall(serverCall, new Metadata(), next);
 
     ArgumentCaptor<ServerCall> callCaptor = ArgumentCaptor.forClass(ServerCall.class);
     verify(next).startCall(callCaptor.capture(), any());
@@ -73,6 +74,7 @@ class MetricsInterceptorTest {
     assertEquals(100.0, metrics.successRate());
   }
 
+  @SuppressWarnings({"unchecked", "rawtypes"})
   @Test
   void shouldTrackFailedCalls() {
     when(serverCall.getMethodDescriptor()).thenReturn(
@@ -84,7 +86,7 @@ class MetricsInterceptorTest {
         )
     );
 
-    interceptor.intercept(serverCall, new Metadata(), next);
+    interceptor.interceptCall(serverCall, new Metadata(), next);
 
     ArgumentCaptor<ServerCall> callCaptor = ArgumentCaptor.forClass(ServerCall.class);
     verify(next).startCall(callCaptor.capture(), any());
@@ -98,6 +100,7 @@ class MetricsInterceptorTest {
     assertEquals(0.0, metrics.successRate());
   }
 
+  @SuppressWarnings({"unchecked", "rawtypes"})
   @Test
   void shouldTrackMultipleCalls() {
     when(serverCall.getMethodDescriptor()).thenReturn(
@@ -111,14 +114,14 @@ class MetricsInterceptorTest {
 
     // Simulate 3 successful calls and 2 failed calls
     for (int i = 0; i < 3; i++) {
-      interceptor.intercept(serverCall, new Metadata(), next);
+      interceptor.interceptCall(serverCall, new Metadata(), next);
       ArgumentCaptor<ServerCall> callCaptor = ArgumentCaptor.forClass(ServerCall.class);
       verify(next, times(i + 1)).startCall(callCaptor.capture(), any());
       callCaptor.getValue().close(Status.OK, new Metadata());
     }
 
     for (int i = 0; i < 2; i++) {
-      interceptor.intercept(serverCall, new Metadata(), next);
+      interceptor.interceptCall(serverCall, new Metadata(), next);
       ArgumentCaptor<ServerCall> callCaptor = ArgumentCaptor.forClass(ServerCall.class);
       verify(next, times(3 + i + 1)).startCall(callCaptor.capture(), any());
       callCaptor.getValue().close(Status.INVALID_ARGUMENT, new Metadata());
@@ -142,7 +145,7 @@ class MetricsInterceptorTest {
         )
     );
 
-    interceptor.intercept(serverCall, new Metadata(), next);
+    interceptor.interceptCall(serverCall, new Metadata(), next);
     assertNotNull(interceptor.getMethodMetrics("test/Method"));
 
     interceptor.reset();
@@ -159,7 +162,7 @@ class MetricsInterceptorTest {
             null
         )
     );
-    interceptor.intercept(serverCall, new Metadata(), next);
+    interceptor.interceptCall(serverCall, new Metadata(), next);
 
     when(serverCall.getMethodDescriptor()).thenReturn(
         io.grpc.MethodDescriptor.create(
@@ -169,7 +172,7 @@ class MetricsInterceptorTest {
             null
         )
     );
-    interceptor.intercept(serverCall, new Metadata(), next);
+    interceptor.interceptCall(serverCall, new Metadata(), next);
 
     assertEquals(2, interceptor.getAllMetrics().size());
     assertTrue(interceptor.getAllMetrics().containsKey("test/Method1"));
@@ -187,7 +190,7 @@ class MetricsInterceptorTest {
         )
     );
 
-    interceptor.intercept(serverCall, new Metadata(), next);
+    interceptor.interceptCall(serverCall, new Metadata(), next);
 
     MetricsInterceptor.MethodMetrics metrics = interceptor.getMethodMetrics("test/Method");
     assertTrue(metrics.averageDurationMs() >= 0.0);

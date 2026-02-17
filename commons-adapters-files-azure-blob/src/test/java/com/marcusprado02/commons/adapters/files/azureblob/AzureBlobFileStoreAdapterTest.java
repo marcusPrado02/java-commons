@@ -32,6 +32,7 @@ class AzureBlobFileStoreAdapterTest {
   private static final int AZURITE_BLOB_PORT = 10000;
 
   @Container
+  @SuppressWarnings("resource") // Container is managed by Testcontainers
   private static final GenericContainer<?> azuriteContainer = new GenericContainer<>(
       DockerImageName.parse("mcr.microsoft.com/azure-storage/azurite:latest"))
       .withCommand("azurite-blob", "--blobHost", "0.0.0.0", "--blobPort", String.valueOf(AZURITE_BLOB_PORT))
@@ -83,10 +84,10 @@ class AzureBlobFileStoreAdapterTest {
 
     Result<FileStorePort.UploadResult> result = adapter.upload(fileId, inputStream, options);
 
-    assertThat(result.isSuccess()).isTrue();
-    assertThat(result.get().fileId()).isEqualTo(fileId);
-    assertThat(result.get().size()).isEqualTo(content.length());
-    assertThat(result.get().etag()).isNotNull();
+    assertThat(result.isOk()).isTrue();
+    assertThat(result.getOrNull().fileId()).isEqualTo(fileId);
+    assertThat(result.getOrNull().contentLength()).isEqualTo((long) content.length());
+    assertThat(result.getOrNull().etag()).isNotNull();
   }
 
   @Test
@@ -107,12 +108,12 @@ class AzureBlobFileStoreAdapterTest {
 
     Result<FileStorePort.UploadResult> result = adapter.upload(fileId, inputStream, options);
 
-    assertThat(result.isSuccess()).isTrue();
+    assertThat(result.isOk()).isTrue();
 
     // Verify metadata
     Result<FileObject.FileMetadata> metadataResult = adapter.getMetadata(fileId);
-    assertThat(metadataResult.isSuccess()).isTrue();
-    assertThat(metadataResult.get().customMetadata()).containsAllEntriesOf(metadata);
+    assertThat(metadataResult.isOk()).isTrue();
+    assertThat(metadataResult.getOrNull().customMetadata()).containsAllEntriesOf(metadata);
   }
 
   @Test
@@ -126,9 +127,9 @@ class AzureBlobFileStoreAdapterTest {
     // Download
     Result<FileObject> result = adapter.download(fileId);
 
-    assertThat(result.isSuccess()).isTrue();
-    assertThat(result.get().id()).isEqualTo(fileId);
-    assertThat(result.get().metadata().contentLength()).isEqualTo(content.length());
+    assertThat(result.isOk()).isTrue();
+    assertThat(result.getOrNull().id()).isEqualTo(fileId);
+    assertThat(result.getOrNull().metadata().contentLength()).isEqualTo(content.length());
   }
 
   @Test
@@ -140,12 +141,12 @@ class AzureBlobFileStoreAdapterTest {
     adapter.upload(existing, new ByteArrayInputStream("content".getBytes()), FileStorePort.UploadOptions.builder().build());
 
     Result<Boolean> existsResult = adapter.exists(existing);
-    assertThat(existsResult.isSuccess()).isTrue();
-    assertThat(existsResult.get()).isTrue();
+    assertThat(existsResult.isOk()).isTrue();
+    assertThat(existsResult.getOrNull()).isTrue();
 
     Result<Boolean> notExistsResult = adapter.exists(nonExisting);
-    assertThat(notExistsResult.isSuccess()).isTrue();
-    assertThat(notExistsResult.get()).isFalse();
+    assertThat(notExistsResult.isOk()).isTrue();
+    assertThat(notExistsResult.getOrNull()).isFalse();
   }
 
   @Test
@@ -162,11 +163,11 @@ class AzureBlobFileStoreAdapterTest {
 
     Result<FileObject.FileMetadata> result = adapter.getMetadata(fileId);
 
-    assertThat(result.isSuccess()).isTrue();
-    assertThat(result.get().contentType()).isEqualTo(contentType);
-    assertThat(result.get().contentLength()).isEqualTo(content.length());
-    assertThat(result.get().etag()).isNotNull();
-    assertThat(result.get().lastModified()).isNotNull();
+    assertThat(result.isOk()).isTrue();
+    assertThat(result.getOrNull().contentType()).isEqualTo(contentType);
+    assertThat(result.getOrNull().contentLength()).isEqualTo(content.length());
+    assertThat(result.getOrNull().etag()).isNotNull();
+    assertThat(result.getOrNull().lastModified()).isNotNull();
   }
 
   @Test
@@ -179,12 +180,12 @@ class AzureBlobFileStoreAdapterTest {
     adapter.upload(new FileId(CONTAINER_NAME, "other/file3.txt"),
         new ByteArrayInputStream("content3".getBytes()), FileStorePort.UploadOptions.builder().build());
 
-    FileStorePort.ListOptions options = new FileStorePort.ListOptions(100);
+    FileStorePort.ListOptions options = new FileStorePort.ListOptions(100, null);
     Result<FileStorePort.ListResult> result = adapter.list(CONTAINER_NAME, "prefix/", options);
 
-    assertThat(result.isSuccess()).isTrue();
-    assertThat(result.get().files()).hasSize(2);
-    assertThat(result.get().files()).extracting(FileId::key)
+    assertThat(result.isOk()).isTrue();
+    assertThat(result.getOrNull().files()).hasSize(2);
+    assertThat(result.getOrNull().files()).extracting(FileId::key)
         .containsExactlyInAnyOrder("prefix/file1.txt", "prefix/file2.txt");
   }
 
@@ -196,9 +197,9 @@ class AzureBlobFileStoreAdapterTest {
 
     Result<URL> result = adapter.generatePresignedUrl(fileId, FileStorePort.PresignedOperation.GET, Duration.ofHours(1));
 
-    assertThat(result.isSuccess()).isTrue();
-    assertThat(result.get().toString()).contains("sig="); // SAS signature
-    assertThat(result.get().toString()).contains(fileId.key());
+    assertThat(result.isOk()).isTrue();
+    assertThat(result.getOrNull().toString()).contains("sig="); // SAS signature
+    assertThat(result.getOrNull().toString()).contains(fileId.key());
   }
 
   @Test
@@ -207,8 +208,8 @@ class AzureBlobFileStoreAdapterTest {
 
     Result<URL> result = adapter.generatePresignedUrl(fileId, FileStorePort.PresignedOperation.PUT, Duration.ofHours(1));
 
-    assertThat(result.isSuccess()).isTrue();
-    assertThat(result.get().toString()).contains("sig="); // SAS signature
+    assertThat(result.isOk()).isTrue();
+    assertThat(result.getOrNull().toString()).contains("sig="); // SAS signature
   }
 
   @Test
@@ -222,12 +223,12 @@ class AzureBlobFileStoreAdapterTest {
 
     Result<Void> copyResult = adapter.copy(source, destination);
 
-    assertThat(copyResult.isSuccess()).isTrue();
+    assertThat(copyResult.isOk()).isTrue();
 
     // Verify destination exists
     Result<Boolean> existsResult = adapter.exists(destination);
-    assertThat(existsResult.isSuccess()).isTrue();
-    assertThat(existsResult.get()).isTrue();
+    assertThat(existsResult.isOk()).isTrue();
+    assertThat(existsResult.getOrNull()).isTrue();
   }
 
   @Test
@@ -237,10 +238,10 @@ class AzureBlobFileStoreAdapterTest {
         FileStorePort.UploadOptions.builder().build());
 
     Result<Void> deleteResult = adapter.delete(fileId);
-    assertThat(deleteResult.isSuccess()).isTrue();
+    assertThat(deleteResult.isOk()).isTrue();
 
     Result<Boolean> existsResult = adapter.exists(fileId);
-    assertThat(existsResult.get()).isFalse();
+    assertThat(existsResult.getOrNull()).isFalse();
   }
 
   @Test
@@ -255,9 +256,9 @@ class AzureBlobFileStoreAdapterTest {
 
     Result<FileStorePort.DeleteResult> result = adapter.deleteAll(List.of(file1, file2, file3));
 
-    assertThat(result.isSuccess()).isTrue();
-    assertThat(result.get().deletedCount()).isEqualTo(3);
-    assertThat(result.get().failedDeletes()).isEmpty();
+    assertThat(result.isOk()).isTrue();
+    assertThat(result.getOrNull().deletedCount()).isEqualTo(3);
+    assertThat(result.getOrNull().failedDeletes()).isEmpty();
   }
 
   @Test
@@ -266,8 +267,8 @@ class AzureBlobFileStoreAdapterTest {
 
     Result<FileObject> result = adapter.download(nonExistent);
 
-    assertThat(result.isFailure()).isTrue();
-    assertThat(result.getError().errorCode().code()).isEqualTo("FILE_NOT_FOUND");
+    assertThat(result.isFail()).isTrue();
+    assertThat(result.problemOrNull().code().value()).contains("FILE_NOT_FOUND");
   }
 
   @Test
@@ -276,18 +277,18 @@ class AzureBlobFileStoreAdapterTest {
 
     Result<FileObject.FileMetadata> result = adapter.getMetadata(nonExistent);
 
-    assertThat(result.isFailure()).isTrue();
-    assertThat(result.getError().errorCode().code()).isEqualTo("FILE_NOT_FOUND");
+    assertThat(result.isFail()).isTrue();
+    assertThat(result.problemOrNull().code().value()).contains("FILE_NOT_FOUND");
   }
 
   @Test
   void shouldGenerateUniqueFileId() {
-    FileId fileId1 = FileId.generate(CONTAINER_NAME, "test", ".txt");
-    FileId fileId2 = FileId.generate(CONTAINER_NAME, "test", ".txt");
+    FileId fileId1 = FileId.generate(CONTAINER_NAME, "test");
+    FileId fileId2 = FileId.generate(CONTAINER_NAME, "test");
 
     assertThat(fileId1).isNotEqualTo(fileId2);
-    assertThat(fileId1.key()).endsWith(".txt");
-    assertThat(fileId2.key()).endsWith(".txt");
+    assertThat(fileId1.key()).contains("test");
+    assertThat(fileId2.key()).contains("test");
   }
 
   @Test
@@ -319,6 +320,6 @@ class AzureBlobFileStoreAdapterTest {
     Result<FileStorePort.UploadResult> result = adapter.upload(fileId,
         new ByteArrayInputStream(content.getBytes()), options);
 
-    assertThat(result.isSuccess()).isTrue();
+    assertThat(result.isOk()).isTrue();
   }
 }

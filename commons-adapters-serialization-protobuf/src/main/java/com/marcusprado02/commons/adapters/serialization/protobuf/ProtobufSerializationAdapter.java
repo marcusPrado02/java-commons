@@ -75,9 +75,7 @@ public class ProtobufSerializationAdapter<T extends Message> implements Serializ
       if (options.isValidateSchema() && schemaRegistry != null) {
         Result<ValidationResult> validationResult = validateWithRegistry(object, options);
         if (!validationResult.isOk() || !validationResult.getOrNull().isValid()) {
-          return Result.fail(Problem.builder()
-              .detail("Object does not conform to schema")
-              .build());
+          return Result.fail(Problem.of(ErrorCode.of("UNKNOWN"), ErrorCategory.BUSINESS, Severity.ERROR, "Error: Object does not conform to schema"));
         }
       }
 
@@ -129,11 +127,7 @@ public class ProtobufSerializationAdapter<T extends Message> implements Serializ
 
     } catch (IOException e) {
       log.error("Failed to write serialized data to stream", e);
-      return Result.fail(Problem.builder()
-          .type("IO_ERROR")
-          .title("Failed to write to stream")
-          .detail("IO error while writing serialized data: " + e.getMessage())
-          .build());
+      return Result.fail(Problem.of(ErrorCode.of("IO_ERROR"), ErrorCategory.BUSINESS, Severity.ERROR, "Failed to write to stream"));
     }
   }
 
@@ -149,11 +143,7 @@ public class ProtobufSerializationAdapter<T extends Message> implements Serializ
       Objects.requireNonNull(targetClass, "Target class cannot be null");
 
       if (!messageClass.equals(targetClass)) {
-        return Result.fail(Problem.builder()
-            .type("CLASS_MISMATCH")
-            .title("Target class mismatch")
-            .detail("Expected " + messageClass.getName() + " but got " + targetClass.getName())
-            .build());
+        return Result.fail(Problem.of(ErrorCode.of("CLASS_MISMATCH"), ErrorCategory.BUSINESS, Severity.ERROR, "Target class mismatch"));
       }
 
       // Get parser method from the message class
@@ -163,20 +153,9 @@ public class ProtobufSerializationAdapter<T extends Message> implements Serializ
 
       return Result.ok(message);
 
-    } catch (InvalidProtocolBufferException e) {
-      log.error("Failed to parse Protocol Buffers data", e);
-      return Result.fail(Problem.builder()
-          .type("PARSE_ERROR")
-          .title("Failed to parse Protocol Buffers data")
-          .detail("Invalid Protocol Buffers format: " + e.getMessage())
-          .build());
     } catch (Exception e) {
       log.error("Failed to deserialize object", e);
-      return Result.fail(Problem.builder()
-          .type("DESERIALIZATION_ERROR")
-          .title("Deserialization failed")
-          .detail("Failed to deserialize object: " + e.getMessage())
-          .build());
+      return Result.fail(Problem.of(ErrorCode.of("DESERIALIZATION_ERROR"), ErrorCategory.BUSINESS, Severity.ERROR, "Deserialization failed"));
     }
   }
 
@@ -195,11 +174,7 @@ public class ProtobufSerializationAdapter<T extends Message> implements Serializ
 
     } catch (IOException e) {
       log.error("Failed to read data from stream", e);
-      return Result.fail(Problem.builder()
-          .type("IO_ERROR")
-          .title("Failed to read from stream")
-          .detail("IO error while reading data: " + e.getMessage())
-          .build());
+      return Result.fail(Problem.of(ErrorCode.of("IO_ERROR"), ErrorCategory.BUSINESS, Severity.ERROR, "Failed to read from stream"));
     }
   }
 
@@ -217,11 +192,7 @@ public class ProtobufSerializationAdapter<T extends Message> implements Serializ
 
     } catch (Exception e) {
       log.error("Failed to validate object", e);
-      return Result.fail(Problem.builder()
-          .type("VALIDATION_ERROR")
-          .title("Validation failed")
-          .detail("Failed to validate object: " + e.getMessage())
-          .build());
+      return Result.fail(Problem.of(ErrorCode.of("VALIDATION_ERROR"), ErrorCategory.BUSINESS, Severity.ERROR, "Validation failed"));
     }
   }
 
@@ -243,11 +214,7 @@ public class ProtobufSerializationAdapter<T extends Message> implements Serializ
       return Result.ok(json.getBytes());
     } catch (Exception e) {
       log.error("Failed to serialize to JSON", e);
-      return Result.fail(Problem.builder()
-          .type("JSON_SERIALIZATION_ERROR")
-          .title("JSON serialization failed")
-          .detail("Failed to serialize to JSON: " + e.getMessage())
-          .build());
+      return Result.fail(Problem.of(ErrorCode.of("JSON_SERIALIZATION_ERROR"), ErrorCategory.BUSINESS, Severity.ERROR, "JSON serialization failed"));
     }
   }
 
@@ -257,11 +224,7 @@ public class ProtobufSerializationAdapter<T extends Message> implements Serializ
       return Result.ok(text.getBytes());
     } catch (Exception e) {
       log.error("Failed to serialize to text", e);
-      return Result.fail(Problem.builder()
-          .type("TEXT_SERIALIZATION_ERROR")
-          .title("Text serialization failed")
-          .detail("Failed to serialize to text: " + e.getMessage())
-          .build());
+      return Result.fail(Problem.of(ErrorCode.of("TEXT_SERIALIZATION_ERROR"), ErrorCategory.BUSINESS, Severity.ERROR, "Text serialization failed"));
     }
   }
 
@@ -275,23 +238,14 @@ public class ProtobufSerializationAdapter<T extends Message> implements Serializ
           : schemaRegistry.getLatestSchema(schemaName).orElse(null);
 
       if (schema == null) {
-        return Result.fail(Problem.builder()
-            .type("SCHEMA_NOT_FOUND")
-            .title("Schema not found")
-            .detail("No schema found for " + schemaName +
-                   (version != null ? " version " + version : ""))
-            .build());
+        return Result.fail(Problem.of(ErrorCode.of("SCHEMA_NOT_FOUND"), ErrorCategory.BUSINESS, Severity.ERROR, "Schema not found"));
       }
 
       return validate(object, schema);
 
     } catch (Exception e) {
       log.error("Failed to validate with registry", e);
-      return Result.fail(Problem.builder()
-          .type("REGISTRY_VALIDATION_ERROR")
-          .title("Registry validation failed")
-          .detail("Failed to validate with registry: " + e.getMessage())
-          .build());
+      return Result.fail(Problem.of(ErrorCode.of("REGISTRY_VALIDATION_ERROR"), ErrorCategory.BUSINESS, Severity.ERROR, "Registry validation failed"));
     }
   }
 }

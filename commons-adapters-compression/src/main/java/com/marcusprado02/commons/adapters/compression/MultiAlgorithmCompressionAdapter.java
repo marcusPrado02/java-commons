@@ -69,12 +69,11 @@ public class MultiAlgorithmCompressionAdapter implements CompressionPort {
     @Override
     public Result<CompressionResult> compress(InputStream input, OutputStream output, CompressionOptions options) {
         if (input == null || output == null || options == null) {
-            return Result.error(Problem.of(
+            return Result.fail(Problem.of(
                 ErrorCode.of("COMPRESSION_INVALID_ARGS"),
-                ErrorCategory.INVALID_INPUT,
+                ErrorCategory.VALIDATION,
                 Severity.ERROR,
-                "Input stream, output stream, and options cannot be null",
-                null
+                "Input stream, output stream, and options cannot be null"
             ));
         }
 
@@ -87,44 +86,44 @@ public class MultiAlgorithmCompressionAdapter implements CompressionPort {
                 case GZIP -> {
                     var result = compressGzip(input, output, options);
                     if (!result.isOk()) return result;
-                    originalSize = result.getValue().originalSize();
-                    compressedSize = result.getValue().compressedSize();
+                    originalSize = result.getOrNull().originalSize();
+                    compressedSize = result.getOrNull().compressedSize();
                 }
                 case DEFLATE -> {
                     var result = compressDeflate(input, output, options);
                     if (!result.isOk()) return result;
-                    originalSize = result.getValue().originalSize();
-                    compressedSize = result.getValue().compressedSize();
+                    originalSize = result.getOrNull().originalSize();
+                    compressedSize = result.getOrNull().compressedSize();
                 }
                 case BROTLI -> {
                     if (!brotliAvailable) {
-                        return Result.error(createUnsupportedAlgorithmError(options.algorithm()));
+                        return Result.fail(createUnsupportedAlgorithmError(options.algorithm()));
                     }
                     var result = compressBrotli(input, output, options);
                     if (!result.isOk()) return result;
-                    originalSize = result.getValue().originalSize();
-                    compressedSize = result.getValue().compressedSize();
+                    originalSize = result.getOrNull().originalSize();
+                    compressedSize = result.getOrNull().compressedSize();
                 }
                 case LZ4 -> {
                     var result = compressLZ4(input, output, options);
                     if (!result.isOk()) return result;
-                    originalSize = result.getValue().originalSize();
-                    compressedSize = result.getValue().compressedSize();
+                    originalSize = result.getOrNull().originalSize();
+                    compressedSize = result.getOrNull().compressedSize();
                 }
                 case ZSTD -> {
                     var result = compressZstd(input, output, options);
                     if (!result.isOk()) return result;
-                    originalSize = result.getValue().originalSize();
-                    compressedSize = result.getValue().compressedSize();
+                    originalSize = result.getOrNull().originalSize();
+                    compressedSize = result.getOrNull().compressedSize();
                 }
                 case SNAPPY -> {
                     var result = compressSnappy(input, output, options);
                     if (!result.isOk()) return result;
-                    originalSize = result.getValue().originalSize();
-                    compressedSize = result.getValue().compressedSize();
+                    originalSize = result.getOrNull().originalSize();
+                    compressedSize = result.getOrNull().compressedSize();
                 }
                 default -> {
-                    return Result.error(createUnsupportedAlgorithmError(options.algorithm()));
+                    return Result.fail(createUnsupportedAlgorithmError(options.algorithm()));
                 }
             }
 
@@ -141,12 +140,11 @@ public class MultiAlgorithmCompressionAdapter implements CompressionPort {
 
         } catch (IOException e) {
             logger.error("Compression failed for algorithm {}", options.algorithm(), e);
-            return Result.error(Problem.of(
+            return Result.fail(Problem.of(
                 ErrorCode.of("COMPRESSION_IO_ERROR"),
-                ErrorCategory.INFRASTRUCTURE,
+                ErrorCategory.TECHNICAL,
                 Severity.ERROR,
-                "I/O error during compression: " + e.getMessage(),
-                e
+                "I/O error during compression: " + e.getMessage()
             ));
         }
     }
@@ -154,12 +152,11 @@ public class MultiAlgorithmCompressionAdapter implements CompressionPort {
     @Override
     public Result<CompressionResult> decompress(InputStream input, OutputStream output, CompressionOptions options) {
         if (input == null || output == null || options == null) {
-            return Result.error(Problem.of(
+            return Result.fail(Problem.of(
                 ErrorCode.of("COMPRESSION_INVALID_ARGS"),
-                ErrorCategory.INVALID_INPUT,
+                ErrorCategory.VALIDATION,
                 Severity.ERROR,
-                "Input stream, output stream, and options cannot be null",
-                null
+                "Input stream, output stream, and options cannot be null"
             ));
         }
 
@@ -172,44 +169,44 @@ public class MultiAlgorithmCompressionAdapter implements CompressionPort {
                 case GZIP -> {
                     var result = decompressGzip(input, output, options);
                     if (!result.isOk()) return result;
-                    compressedSize = result.getValue().compressedSize();
-                    decompressedSize = result.getValue().originalSize();
+                    compressedSize = result.getOrNull().compressedSize();
+                    decompressedSize = result.getOrNull().originalSize();
                 }
                 case DEFLATE -> {
                     var result = decompressDeflate(input, output, options);
                     if (!result.isOk()) return result;
-                    compressedSize = result.getValue().compressedSize();
-                    decompressedSize = result.getValue().originalSize();
+                    compressedSize = result.getOrNull().compressedSize();
+                    decompressedSize = result.getOrNull().originalSize();
                 }
                 case BROTLI -> {
                     if (!brotliAvailable) {
-                        return Result.error(createUnsupportedAlgorithmError(options.algorithm()));
+                        return Result.fail(createUnsupportedAlgorithmError(options.algorithm()));
                     }
                     var result = decompressBrotli(input, output, options);
                     if (!result.isOk()) return result;
-                    compressedSize = result.getValue().compressedSize();
-                    decompressedSize = result.getValue().originalSize();
+                    compressedSize = result.getOrNull().compressedSize();
+                    decompressedSize = result.getOrNull().originalSize();
                 }
                 case LZ4 -> {
                     var result = decompressLZ4(input, output, options);
                     if (!result.isOk()) return result;
-                    compressedSize = result.getValue().compressedSize();
-                    decompressedSize = result.getValue().originalSize();
+                    compressedSize = result.getOrNull().compressedSize();
+                    decompressedSize = result.getOrNull().originalSize();
                 }
                 case ZSTD -> {
                     var result = decompressZstd(input, output, options);
                     if (!result.isOk()) return result;
-                    compressedSize = result.getValue().compressedSize();
-                    decompressedSize = result.getValue().originalSize();
+                    compressedSize = result.getOrNull().compressedSize();
+                    decompressedSize = result.getOrNull().originalSize();
                 }
                 case SNAPPY -> {
                     var result = decompressSnappy(input, output, options);
                     if (!result.isOk()) return result;
-                    compressedSize = result.getValue().compressedSize();
-                    decompressedSize = result.getValue().originalSize();
+                    compressedSize = result.getOrNull().compressedSize();
+                    decompressedSize = result.getOrNull().originalSize();
                 }
                 default -> {
-                    return Result.error(createUnsupportedAlgorithmError(options.algorithm()));
+                    return Result.fail(createUnsupportedAlgorithmError(options.algorithm()));
                 }
             }
 
@@ -226,12 +223,11 @@ public class MultiAlgorithmCompressionAdapter implements CompressionPort {
 
         } catch (IOException e) {
             logger.error("Decompression failed for algorithm {}", options.algorithm(), e);
-            return Result.error(Problem.of(
+            return Result.fail(Problem.of(
                 ErrorCode.of("COMPRESSION_IO_ERROR"),
-                ErrorCategory.INFRASTRUCTURE,
+                ErrorCategory.TECHNICAL,
                 Severity.ERROR,
-                "I/O error during decompression: " + e.getMessage(),
-                e
+                "I/O error during decompression: " + e.getMessage()
             ));
         }
     }
@@ -239,12 +235,11 @@ public class MultiAlgorithmCompressionAdapter implements CompressionPort {
     @Override
     public Result<byte[]> compress(byte[] data, CompressionOptions options) {
         if (data == null || options == null) {
-            return Result.error(Problem.of(
+            return Result.fail(Problem.of(
                 ErrorCode.of("COMPRESSION_INVALID_ARGS"),
-                ErrorCategory.INVALID_INPUT,
+                ErrorCategory.VALIDATION,
                 Severity.ERROR,
-                "Data and options cannot be null",
-                null
+                "Data and options cannot be null"
             ));
         }
 
@@ -253,19 +248,18 @@ public class MultiAlgorithmCompressionAdapter implements CompressionPort {
 
             Result<CompressionResult> result = compress(input, output, options);
             if (!result.isOk()) {
-                return Result.error(result.getProblem());
+                return Result.fail(result.problemOrNull());
             }
 
             return Result.ok(output.toByteArray());
 
         } catch (IOException e) {
             logger.error("Failed to compress byte array", e);
-            return Result.error(Problem.of(
+            return Result.fail(Problem.of(
                 ErrorCode.of("COMPRESSION_IO_ERROR"),
-                ErrorCategory.INFRASTRUCTURE,
+                ErrorCategory.TECHNICAL,
                 Severity.ERROR,
-                "Failed to compress byte array: " + e.getMessage(),
-                e
+                "Failed to compress byte array: " + e.getMessage()
             ));
         }
     }
@@ -273,12 +267,11 @@ public class MultiAlgorithmCompressionAdapter implements CompressionPort {
     @Override
     public Result<byte[]> decompress(byte[] compressedData, CompressionOptions options) {
         if (compressedData == null || options == null) {
-            return Result.error(Problem.of(
+            return Result.fail(Problem.of(
                 ErrorCode.of("COMPRESSION_INVALID_ARGS"),
-                ErrorCategory.INVALID_INPUT,
+                ErrorCategory.VALIDATION,
                 Severity.ERROR,
-                "Compressed data and options cannot be null",
-                null
+                "Compressed data and options cannot be null"
             ));
         }
 
@@ -287,19 +280,18 @@ public class MultiAlgorithmCompressionAdapter implements CompressionPort {
 
             Result<CompressionResult> result = decompress(input, output, options);
             if (!result.isOk()) {
-                return Result.error(result.getProblem());
+                return Result.fail(result.problemOrNull());
             }
 
             return Result.ok(output.toByteArray());
 
         } catch (IOException e) {
             logger.error("Failed to decompress byte array", e);
-            return Result.error(Problem.of(
+            return Result.fail(Problem.of(
                 ErrorCode.of("COMPRESSION_IO_ERROR"),
-                ErrorCategory.INFRASTRUCTURE,
+                ErrorCategory.TECHNICAL,
                 Severity.ERROR,
-                "Failed to decompress byte array: " + e.getMessage(),
-                e
+                "Failed to decompress byte array: " + e.getMessage()
             ));
         }
     }
@@ -317,14 +309,14 @@ public class MultiAlgorithmCompressionAdapter implements CompressionPort {
 
         Result<byte[]> compressed = compress(data, options);
         if (!compressed.isOk()) {
-            return Result.error(compressed.getProblem());
+            return Result.fail(compressed.problemOrNull());
         }
 
         if (data.length == 0) {
             return Result.ok(1.0);
         }
 
-        double ratio = (double) compressed.getValue().length / data.length;
+        double ratio = (double) compressed.getOrNull().length / data.length;
         return Result.ok(ratio);
     }
 
@@ -668,7 +660,6 @@ public class MultiAlgorithmCompressionAdapter implements CompressionPort {
         if (data.length < 2) return false;
         try {
             ByteArrayInputStream input = new ByteArrayInputStream(data);
-            ByteArrayOutputStream output = new ByteArrayOutputStream();
             try (InflaterInputStream inflater = new InflaterInputStream(input)) {
                 byte[] buffer = new byte[1024];
                 inflater.read(buffer, 0, Math.min(buffer.length, 100)); // Try to read a small amount

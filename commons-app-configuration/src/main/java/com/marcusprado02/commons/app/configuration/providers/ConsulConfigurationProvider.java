@@ -8,7 +8,11 @@ import com.marcusprado02.commons.app.configuration.ConfigurationChangeEvent;
 import com.marcusprado02.commons.app.configuration.ConfigurationChangeListener;
 import com.marcusprado02.commons.app.configuration.DynamicConfiguration;
 import com.marcusprado02.commons.kernel.result.Result;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.util.*;
 import java.util.concurrent.*;
 import java.util.function.Consumer;
@@ -101,7 +105,7 @@ public class ConsulConfigurationProvider implements DynamicConfiguration {
       if (response.getValue() != null) {
         for (GetValue value : response.getValue()) {
           String key = removePrefix(value.getKey());
-          String val = decodeValue(value.getDecodedValue());
+          String val = value.getDecodedValue();
           cache.put(key, val);
         }
       }
@@ -150,7 +154,7 @@ public class ConsulConfigurationProvider implements DynamicConfiguration {
     if (response.getValue() != null) {
       for (GetValue value : response.getValue()) {
         String key = removePrefix(value.getKey());
-        String val = decodeValue(value.getDecodedValue());
+        String val = value.getDecodedValue(); // Already a String in newer Consul client
         newCache.put(key, val);
 
         // Check if value changed
@@ -256,10 +260,20 @@ public class ConsulConfigurationProvider implements DynamicConfiguration {
       return Result.fail(
           com.marcusprado02.commons.kernel.errors.Problem.of(
               com.marcusprado02.commons.kernel.errors.ErrorCode.of("CONFIG_REFRESH_FAILED"),
-              com.marcusprado02.commons.kernel.errors.ErrorCategory.INFRASTRUCTURE,
+              com.marcusprado02.commons.kernel.errors.ErrorCategory.TECHNICAL,
               com.marcusprado02.commons.kernel.errors.Severity.ERROR,
               "Failed to refresh Consul configuration: " + e.getMessage()));
     }
+  }
+
+  @Override
+  public boolean isAutoRefreshEnabled() {
+    return configuration.enablePolling;
+  }
+
+  @Override
+  public Duration getRefreshInterval() {
+    return configuration.pollingInterval;
   }
 
   @Override

@@ -51,6 +51,11 @@ class SecretsHealthIndicatorTest {
     }
 
     @Override
+    public String put(SecretKey key, java.util.Map<String, String> values) {
+      return put(key, SecretValue.of(values.toString()));
+    }
+
+    @Override
     public java.util.Optional<SecretValue> get(SecretKey key) {
       return java.util.Optional.ofNullable(secrets.get(key));
     }
@@ -61,23 +66,8 @@ class SecretsHealthIndicatorTest {
     }
 
     @Override
-    public String putMap(SecretKey key, java.util.Map<String, String> values) {
-      return put(key, SecretValue.of(values.toString()));
-    }
-
-    @Override
-    public java.util.Map<String, String> getMap(SecretKey key) {
-      return java.util.Map.of();
-    }
-
-    @Override
-    public void delete(SecretKey key) {
-      secrets.remove(key);
-    }
-
-    @Override
-    public void delete(SecretKey key, String version) {
-      delete(key);
+    public boolean delete(SecretKey key) {
+      return secrets.remove(key) != null;
     }
 
     @Override
@@ -100,6 +90,11 @@ class SecretsHealthIndicatorTest {
     }
 
     @Override
+    public String put(SecretKey key, java.util.Map<String, String> values) {
+      throw new RuntimeException("Secret store connection failed");
+    }
+
+    @Override
     public java.util.Optional<SecretValue> get(SecretKey key) {
       throw new RuntimeException("Secret store connection failed");
     }
@@ -110,22 +105,7 @@ class SecretsHealthIndicatorTest {
     }
 
     @Override
-    public String putMap(SecretKey key, java.util.Map<String, String> values) {
-      throw new RuntimeException("Secret store connection failed");
-    }
-
-    @Override
-    public java.util.Map<String, String> getMap(SecretKey key) {
-      throw new RuntimeException("Secret store connection failed");
-    }
-
-    @Override
-    public void delete(SecretKey key) {
-      throw new RuntimeException("Secret store connection failed");
-    }
-
-    @Override
-    public void delete(SecretKey key, String version) {
+    public boolean delete(SecretKey key) {
       throw new RuntimeException("Secret store connection failed");
     }
 

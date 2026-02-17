@@ -7,11 +7,7 @@ import java.util.Objects;
  *
  * <p>Represents a complete SMS message with sender, recipient, and content.
  */
-public record SMS(
-    PhoneNumber from,
-    PhoneNumber to,
-    String message,
-    SMSOptions options) {
+public record SMS(PhoneNumber from, PhoneNumber to, String message, SMSOptions options) {
 
   public SMS {
     Objects.requireNonNull(from, "from phone number must not be null");
@@ -25,7 +21,8 @@ public record SMS(
 
     // SMS message length validation (standard SMS is 160 characters for GSM, 70 for Unicode)
     if (message.length() > 1600) { // Allow up to 10 concatenated SMS messages
-      throw new IllegalArgumentException("message too long: " + message.length() + " characters (max 1600)");
+      throw new IllegalArgumentException(
+          "message too long: " + message.length() + " characters (max 1600)");
     }
   }
 
@@ -47,11 +44,7 @@ public record SMS(
    * @return SMS instance
    */
   public static SMS of(String from, String to, String message) {
-    return builder()
-        .from(from)
-        .to(to)
-        .message(message)
-        .build();
+    return builder().from(from).to(to).message(message).build();
   }
 
   /**
@@ -63,11 +56,7 @@ public record SMS(
    * @return SMS instance
    */
   public static SMS of(PhoneNumber from, PhoneNumber to, String message) {
-    return builder()
-        .from(from)
-        .to(to)
-        .message(message)
-        .build();
+    return builder().from(from).to(to).message(message).build();
   }
 
   /** Builder for SMS instances. */
@@ -162,7 +151,8 @@ public record SMS(
      * @return this builder
      */
     public Builder validityPeriod(int validityPeriodMinutes) {
-      this.options = SMSOptions.builder(options).validityPeriodMinutes(validityPeriodMinutes).build();
+      this.options =
+          SMSOptions.builder(options).validityPeriodMinutes(validityPeriodMinutes).build();
       return this;
     }
 

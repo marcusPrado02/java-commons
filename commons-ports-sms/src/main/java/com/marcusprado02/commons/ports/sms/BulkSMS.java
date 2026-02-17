@@ -8,11 +8,7 @@ import java.util.Objects;
  *
  * <p>Optimized for sending identical messages to many recipients efficiently.
  */
-public record BulkSMS(
-    PhoneNumber from,
-    List<PhoneNumber> to,
-    String message,
-    SMSOptions options) {
+public record BulkSMS(PhoneNumber from, List<PhoneNumber> to, String message, SMSOptions options) {
 
   public BulkSMS {
     Objects.requireNonNull(from, "from phone number must not be null");
@@ -30,7 +26,8 @@ public record BulkSMS(
 
     // Validate message length
     if (message.length() > 1600) {
-      throw new IllegalArgumentException("message too long: " + message.length() + " characters (max 1600)");
+      throw new IllegalArgumentException(
+          "message too long: " + message.length() + " characters (max 1600)");
     }
 
     // Limit number of recipients to prevent abuse
@@ -60,11 +57,7 @@ public record BulkSMS(
    * @return BulkSMS instance
    */
   public static BulkSMS of(String from, List<String> recipients, String message) {
-    return builder()
-        .from(from)
-        .toAll(recipients)
-        .message(message)
-        .build();
+    return builder().from(from).toAll(recipients).message(message).build();
   }
 
   /** Builder for BulkSMS instances. */
@@ -181,7 +174,8 @@ public record BulkSMS(
      * @return this builder
      */
     public Builder validityPeriod(int validityPeriodMinutes) {
-      this.options = SMSOptions.builder(options).validityPeriodMinutes(validityPeriodMinutes).build();
+      this.options =
+          SMSOptions.builder(options).validityPeriodMinutes(validityPeriodMinutes).build();
       return this;
     }
 

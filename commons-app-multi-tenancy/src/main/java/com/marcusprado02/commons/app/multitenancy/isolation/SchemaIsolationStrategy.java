@@ -30,7 +30,7 @@ import java.util.function.Function;
  * strategy.removeIsolation();
  * }</pre>
  */
-public class SchemaIsolationStrategy implements DataSourceProvider {
+public class SchemaIsolationStrategy implements DataSourceProvider, TenantIsolationStrategy {
 
   private final DataSource dataSource;
   private final Function<String, String> schemaNameGenerator;
@@ -48,8 +48,17 @@ public class SchemaIsolationStrategy implements DataSourceProvider {
   }
 
   @Override
-  public IsolationType getIsolationType() {
-    return IsolationType.SCHEMA_PER_TENANT;
+  public TenantIsolationStrategy.IsolationType getIsolationType() {
+    return TenantIsolationStrategy.IsolationType.SCHEMA_PER_TENANT;
+  }
+
+  @Override
+  public DataSource getDataSource() {
+    String tenantId = TenantContextHolder.getCurrentTenantId();
+    if (tenantId == null) {
+      throw new IllegalStateException("No tenant context available");
+    }
+    return dataSource;
   }
 
   @Override

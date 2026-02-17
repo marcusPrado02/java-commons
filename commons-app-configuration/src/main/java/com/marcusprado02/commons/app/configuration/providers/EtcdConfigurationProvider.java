@@ -5,6 +5,7 @@ import com.marcusprado02.commons.app.configuration.ConfigurationChangeListener;
 import com.marcusprado02.commons.app.configuration.DynamicConfiguration;
 import com.marcusprado02.commons.kernel.result.Result;
 import io.etcd.jetcd.ByteSequence;
+import java.util.function.Consumer;
 import io.etcd.jetcd.Client;
 import io.etcd.jetcd.KV;
 import io.etcd.jetcd.KeyValue;
@@ -244,7 +245,7 @@ public class EtcdConfigurationProvider implements DynamicConfiguration {
       return Result.fail(
           com.marcusprado02.commons.kernel.errors.Problem.of(
               com.marcusprado02.commons.kernel.errors.ErrorCode.of("CONFIG_REFRESH_FAILED"),
-              com.marcusprado02.commons.kernel.errors.ErrorCategory.INFRASTRUCTURE,
+              com.marcusprado02.commons.kernel.errors.ErrorCategory.TECHNICAL,
               com.marcusprado02.commons.kernel.errors.Severity.ERROR,
               "Failed to refresh etcd configuration: " + e.getMessage()));
     }
@@ -284,6 +285,17 @@ public class EtcdConfigurationProvider implements DynamicConfiguration {
   @Override
   public void disableAutoRefresh() {
     // Controlled via enableWatch configuration
+  }
+
+  @Override
+  public java.time.Duration getRefreshInterval() {
+    // etcd uses watch mechanism, not polling interval
+    return java.time.Duration.ZERO;
+  }
+
+  @Override
+  public boolean isAutoRefreshEnabled() {
+    return configuration.enableWatch;
   }
 
   private void notifyListeners(ConfigurationChangeEvent event) {

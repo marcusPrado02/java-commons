@@ -7,10 +7,11 @@ import java.util.regex.Pattern;
  * Value object representing a phone number.
  *
  * <p>Supports various formats:
+ *
  * <ul>
- *   <li>E.164 format: +1234567890</li>
- *   <li>National format with country code: +55 11 98765-4321</li>
- *   <li>International dialing: +44 20 7946 0958</li>
+ *   <li>E.164 format: +1234567890
+ *   <li>National format with country code: +55 11 98765-4321
+ *   <li>International dialing: +44 20 7946 0958
  * </ul>
  *
  * <p>The phone number is internally normalized to E.164 format for consistency.
@@ -30,7 +31,8 @@ public record PhoneNumber(String value, String countryCode, String nationalNumbe
     // Normalize the phone number
     String normalized = normalizePhoneNumber(value);
     if (!E164_PATTERN.matcher(normalized).matches()) {
-      throw new IllegalArgumentException("Invalid phone number format: " + value + " (normalized: " + normalized + ")");
+      throw new IllegalArgumentException(
+          "Invalid phone number format: " + value + " (normalized: " + normalized + ")");
     }
 
     // Extract country code and national number from normalized format
@@ -133,7 +135,7 @@ public record PhoneNumber(String value, String countryCode, String nationalNumbe
       throw new IllegalArgumentException("Cannot parse country code from: " + e164);
     }
 
-    return new String[]{countryCode, nationalNumber};
+    return new String[] {countryCode, nationalNumber};
   }
 
   /**
@@ -155,7 +157,8 @@ public record PhoneNumber(String value, String countryCode, String nationalNumbe
     if ("1".equals(countryCode)) {
       // US/Canada format: +1 (555) 123-4567
       if (nationalNumber.length() == 10) {
-        return String.format("+%s (%s) %s-%s",
+        return String.format(
+            "+%s (%s) %s-%s",
             countryCode,
             nationalNumber.substring(0, 3),
             nationalNumber.substring(3, 6),
@@ -167,10 +170,8 @@ public record PhoneNumber(String value, String countryCode, String nationalNumbe
         String areaCode = nationalNumber.substring(0, 2);
         String number = nationalNumber.substring(2);
         if (number.length() == 9) {
-          return String.format("+%s (%s) %s-%s",
-              countryCode, areaCode,
-              number.substring(0, 5),
-              number.substring(5));
+          return String.format(
+              "+%s (%s) %s-%s", countryCode, areaCode, number.substring(0, 5), number.substring(5));
         }
       }
     }

@@ -52,7 +52,6 @@ class AzureStorageQueueAdapterTest {
   void tearDown() {
     if (adapter != null) {
       adapter.purge();
-      adapter.close();
     }
   }
 

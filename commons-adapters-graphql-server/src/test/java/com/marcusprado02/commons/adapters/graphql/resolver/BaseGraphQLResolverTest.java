@@ -27,16 +27,15 @@ class BaseGraphQLResolverTest {
 
   @Test
   void shouldExecuteAsyncResultWithFailure() {
-    ErrorCode errorCode = new ErrorCode("TEST_ERROR");
+    ErrorCode errorCode = ErrorCode.of("TEST_ERROR");
     Problem problem = Problem.of(
         errorCode,
         ErrorCategory.BUSINESS,
         Severity.ERROR,
         "Test error"
     );
-    DomainException error = new DomainException(problem);
 
-    CompletableFuture<String> future = resolver.asyncResult(() -> Result.failure(error));
+    CompletableFuture<String> future = resolver.asyncResult(() -> Result.fail(problem));
 
     ExecutionException exception = assertThrows(ExecutionException.class, future::get);
     assertTrue(exception.getCause() instanceof DomainException);
@@ -57,26 +56,25 @@ class BaseGraphQLResolverTest {
 
     Result<String> mapped = resolver.map(source, Object::toString);
 
-    assertTrue(mapped.isSuccess()););
+    assertTrue(mapped.isOk());
+    assertEquals("42", mapped.getOrNull());
+  }
+
+  @Test
+  void shouldMapFailureResult() {
+    ErrorCode errorCode = ErrorCode.of("TEST_ERROR");
     Problem problem = Problem.of(
         errorCode,
         ErrorCategory.BUSINESS,
         Severity.ERROR,
         "Test error"
     );
-    DomainException error = new DomainException(problem);
-    Result<Integer> source = Result.failure(error);
+    Result<Integer> source = Result.fail(problem);
 
     Result<String> mapped = resolver.map(source, Object::toString);
 
-    assertTrue(mapped.isFailure());
-    assertEquals("Test error", mapped.getError().getMr", errorCode);
-    Result<Integer> source = Result.failure(error);
-
-    Result<String> mapped = resolver.map(source, Object::toString);
-
-    assertTrue(mapped.isFailure());
-    assertEquals("Test error", mapped.getError().message());
+    assertTrue(mapped.isFail());
+    assertEquals("Test error", mapped.problemOrNull().message());
   }
 
   @Test
@@ -85,8 +83,8 @@ class BaseGraphQLResolverTest {
 
     Result<Integer> mapped = resolver.map(source, value -> value == null ? 0 : value.length());
 
-    assertTrue(mapped.isSuccess());
-    assertEquals(0, mapped.getOrThrow());
+    assertTrue(mapped.isOk());
+    assertEquals(0, mapped.getOrNull());
   }
 
   // Test implementation

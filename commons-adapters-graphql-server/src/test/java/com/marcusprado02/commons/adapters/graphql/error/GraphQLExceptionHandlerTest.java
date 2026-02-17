@@ -9,7 +9,7 @@ import graphql.ErrorType;
 import graphql.GraphQLError;
 import graphql.execution.DataFetcherExceptionHandlerParameters;
 import graphql.execution.DataFetcherExceptionHandlerResult;
-import graphql.execution.ExecutionPath;
+import graphql.execution.ResultPath;
 import graphql.language.SourceLocation;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -59,53 +59,7 @@ class GraphQLExceptionHandlerTest {
     Map<String, Object> extensions = error.getExtensions();
     assertNotNull(extensions);
     assertEquals("USER_NOT_FOUND", extensions.get("errorCode"));
-    assertTrue(extensions.containsKey("details")););
-    Problem problem = Problem.of(
-        errorCode,
-        ErrorCategory.VALIDATION,
-        Severity.ERROR,
-        "Invalid input"
-    );
-    DomainException domainException = new DomainException(problem);
-
-    DataFetcherExceptionHandlerParameters params = createParams(domainException
-    ErrorCode errorCode = new ErrorCode("INVALID_INPUT", ErrorCategory.VALIDATION);
-    DomainError domainError =
-        new DomainError("Invalid input", errorCode, Map.of("field", "email"));
-
-    DataFetcherExceptionHandlerParameters params = createParams(domainError);
-
-    CompletableFuture<DataFetcherExceptionHandlerResult> result =
-        handler.handleException(params);
-
-    DataFetcherExceptionHandlerResult handlerResult = result.get();
-    GraphQLError error = handlerResult.getErrors().get(0);
-
-    assertEquals("Invalid input", error.getMessage());
-    assertEquals(ErrorType.ValidationError, error.getErrorType());
-    Problem problem = Problem.of(
-        errorCode,
-        ErrorCategory.BUSINESS,
-        Severity.ERROR,
-        "Business rule violated"
-    );
-    DomainException domainException = new DomainException(problem);
-
-    DataFetcherExceptionHandlerParameters params = createParams(domainException
-    ErrorCode errorCode = new ErrorCode("BUSINESS_RULE_VIOLATED", ErrorCategory.BUSINESS);
-    DomainError domainError =
-        new DomainError("Business rule violated", errorCode, Map.of());
-
-    DataFetcherExceptionHandlerParameters params = createParams(domainError);
-
-    CompletableFuture<DataFetcherExceptionHandlerResult> result =
-        handler.handleException(params);
-
-    DataFetcherExceptionHandlerResult handlerResult = result.get();
-    GraphQLError error = handlerResult.getErrors().get(0);
-
-    assertEquals("Business rule violated", error.getMessage());
-    assertEquals(ErrorType.ExecutionAborted, error.getErrorType());
+    assertTrue(extensions.containsKey("details"));
   }
 
   @Test
@@ -162,7 +116,7 @@ class GraphQLExceptionHandlerTest {
 
     when(params.getException()).thenReturn(exception);
     when(params.getSourceLocation()).thenReturn(new SourceLocation(10, 5));
-    when(params.getPath()).thenReturn(ExecutionPath.parse("/user/email"));
+    when(params.getPath()).thenReturn(ResultPath.parse("/user/email"));
 
     return params;
   }

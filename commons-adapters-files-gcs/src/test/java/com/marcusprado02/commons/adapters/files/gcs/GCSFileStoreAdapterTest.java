@@ -22,6 +22,7 @@ class GCSFileStoreAdapterTest {
   private static final String BUCKET_NAME = "test-bucket";
 
   @Container
+  @SuppressWarnings("resource")
   private static final GenericContainer<?> fakeGcs =
       new GenericContainer<>("fsouza/fake-gcs-server:latest")
           .withExposedPorts(4443)
@@ -64,7 +65,7 @@ class GCSFileStoreAdapterTest {
 
     // Then
     assertThat(result.isOk()).isTrue();
-    assertThat(result.getOrNull().id()).isEqualTo(fileId);
+    assertThat(result.getOrNull().fileId()).isEqualTo(fileId);
     assertThat(result.getOrNull().contentLength()).isEqualTo(10L);
   }
 
@@ -112,7 +113,7 @@ class GCSFileStoreAdapterTest {
     assertThat(fileObject.id()).isEqualTo(fileId);
     assertThat(new String(convertStreamToBytes(fileObject.content()), StandardCharsets.UTF_8))
         .isEqualTo(originalContent);
-    assertThat(fileObject.customMetadata().contentLength()).isEqualTo(originalContent.length());
+    assertThat(fileObject.metadata().contentLength()).isEqualTo(originalContent.length());
   }
 
   @Test
@@ -125,7 +126,7 @@ class GCSFileStoreAdapterTest {
 
     // Then
     assertThat(result.isFail()).isTrue();
-    assertThat(result.problemOrNull().title()).isEqualTo("File Not Found");
+    assertThat(result.problemOrNull().message()).isEqualTo("File Not Found");
   }
 
   @Test
@@ -253,7 +254,7 @@ class GCSFileStoreAdapterTest {
     // Verify destination exists with same content
     var downloadResult = adapter.download(destination);
     assertThat(downloadResult.isOk()).isTrue();
-    assertThat(new String(downloadResult.getOrNull().content(), StandardCharsets.UTF_8))
+    assertThat(new String(convertStreamToBytes(downloadResult.getOrNull().content()), StandardCharsets.UTF_8))
         .isEqualTo(content);
   }
 
@@ -338,7 +339,7 @@ class GCSFileStoreAdapterTest {
 
     // Then
     assertThat(result.isFail()).isTrue();
-    assertThat(result.problemOrNull().title()).isEqualTo("Source File Not Found");
+    assertThat(result.problemOrNull().message()).isEqualTo("Source File Not Found");
   }
 
   @Test
@@ -351,6 +352,6 @@ class GCSFileStoreAdapterTest {
 
     // Then
     assertThat(result.isFail()).isTrue();
-    assertThat(result.problemOrNull().title()).isEqualTo("File Not Found");
+    assertThat(result.problemOrNull().message()).isEqualTo("File Not Found");
   }
 }

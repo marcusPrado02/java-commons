@@ -32,6 +32,7 @@ class S3FileStoreAdapterTest {
   private static final String TEST_CONTENT = "Hello, S3!";
 
   @Container
+  @SuppressWarnings("resource")
   static LocalStackContainer localstack = new LocalStackContainer(
       DockerImageName.parse("localstack/localstack:3.0")
   ).withServices(S3);
@@ -329,7 +330,7 @@ class S3FileStoreAdapterTest {
     // Then
     assertThat(result.isFail()).isTrue();
     assertThat(result.problemOrNull()).isNotNull();
-    assertThat(result.problemOrNull().title()).isEqualTo("File Not Found");
+    assertThat(result.problemOrNull().message()).isEqualTo("File Not Found");
   }
 
   @Test
@@ -345,7 +346,7 @@ class S3FileStoreAdapterTest {
     // Then
     assertThat(result.isFail()).isTrue();
     assertThat(result.problemOrNull()).isNotNull();
-    assertThat(result.problemOrNull().title()).isEqualTo("File Not Found");
+    assertThat(result.problemOrNull().message()).isEqualTo("File Not Found");
   }
 
   @Test

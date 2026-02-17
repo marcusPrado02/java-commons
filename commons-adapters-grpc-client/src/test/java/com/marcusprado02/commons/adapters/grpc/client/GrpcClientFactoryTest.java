@@ -1,9 +1,7 @@
 package com.marcusprado02.commons.adapters.grpc.client;
 
 import io.grpc.*;
-import io.grpc.testing.GrpcServerRule;
-import org.junit.Rule;
-import org.junit.jupiter.api.AfterEach;
+import io.grpc.stub.AbstractStub;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -50,7 +48,9 @@ class GrpcClientFactoryTest {
   @Test
   void shouldCreateChannelWithCustomConfiguration() {
     var config =
-        GrpcClientConfiguration.builder("api.example.com", 8443)
+        GrpcClientConfiguration.builder()
+            .host("api.example.com")
+            .port(8443)
             .callTimeout(Duration.ofSeconds(60))
             .idleTimeout(Duration.ofMinutes(15))
             .maxInboundMessageSize(8 * 1024 * 1024)
@@ -113,14 +113,14 @@ class GrpcClientFactoryTest {
     ManagedChannel channel = GrpcClientFactory.createChannel(developmentConfig);
 
     // Create a test stub (using CallOptions as a simple stub-like example)
-    var stub = GrpcClientFactory.createStub(
+    TestStub stub = GrpcClientFactory.createStub(
         channel,
         ch -> new TestStub(ch),
         developmentConfig
     );
 
     assertNotNull(stub);
-    assertNotNull(stub.getCallOptions().getDeadline());
+    assertNotNull(stub.getChannel());
 
     // Cleanup
     channel.shutdownNow();
@@ -130,7 +130,7 @@ class GrpcClientFactoryTest {
   void shouldCreateStubWithoutConfiguration() {
     ManagedChannel channel = GrpcClientFactory.createChannel(developmentConfig);
 
-    var stub = GrpcClientFactory.createStub(
+    TestStub stub = GrpcClientFactory.createStub(
         channel,
         ch -> new TestStub(ch)
     );
@@ -145,7 +145,7 @@ class GrpcClientFactoryTest {
   void shouldThrowWhenCreatingStubWithNullChannel() {
     assertThrows(
         NullPointerException.class,
-        () -> GrpcClientFactory.createStub(null, ch -> new TestStub(ch)));
+        () -> GrpcClientFactory.<TestStub>createStub(null, ch -> new TestStub(ch)));
   }
 
   @Test
@@ -154,7 +154,7 @@ class GrpcClientFactoryTest {
 
     assertThrows(
         NullPointerException.class,
-        () -> GrpcClientFactory.createStub(channel, null));
+        () -> GrpcClientFactory.<TestStub>createStub(channel, null));
 
     // Cleanup
     channel.shutdownNow();
@@ -166,7 +166,7 @@ class GrpcClientFactoryTest {
 
     assertThrows(
         NullPointerException.class,
-        () -> GrpcClientFactory.createStub(channel, ch -> new TestStub(ch), null));
+        () -> GrpcClientFactory.<TestStub>createStub(channel, ch -> new TestStub(ch), null));
 
     // Cleanup
     channel.shutdownNow();

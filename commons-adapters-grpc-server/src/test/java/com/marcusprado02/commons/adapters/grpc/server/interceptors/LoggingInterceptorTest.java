@@ -3,7 +3,6 @@ package com.marcusprado02.commons.adapters.grpc.server.interceptors;
 import io.grpc.Metadata;
 import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
-import io.grpc.Status;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -52,7 +51,7 @@ class LoggingInterceptorTest {
         )
     );
 
-    interceptor.intercept(serverCall, new Metadata(), next);
+    interceptor.interceptCall(serverCall, new Metadata(), next);
 
     assertTrue(logHandler.hasLoggedMessage("Starting gRPC call: test/Method"));
   }
@@ -68,7 +67,7 @@ class LoggingInterceptorTest {
         )
     );
 
-    ServerCall.Listener<String> result = interceptor.intercept(serverCall, new Metadata(), next);
+    ServerCall.Listener<String> result = interceptor.interceptCall(serverCall, new Metadata(), next);
 
     verify(next).startCall(any(), any());
     assertNotNull(result);
