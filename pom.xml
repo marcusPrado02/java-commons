@@ -65,6 +65,7 @@
     <module>commons-app-audit-log</module>
     <module>commons-app-health-checks</module>
     <module>commons-app-api-gateway</module>
+    <module>commons-app-workflow-engine</module>
 
     <module>commons-adapters-web</module>
     <module>commons-adapters-web-spring</module>

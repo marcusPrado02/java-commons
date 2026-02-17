@@ -342,6 +342,11 @@
                 <artifactId>commons-app-api-gateway</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.marcusprado02.commons</groupId>
+                <artifactId>commons-app-workflow-engine</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <!-- Adapters - Framework Implementations -->
             <dependency>
