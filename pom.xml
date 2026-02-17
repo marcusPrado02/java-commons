@@ -41,6 +41,7 @@
     <module>commons-ports-excel</module>
     <module>commons-ports-blockchain</module>
     <module>commons-ports-payment</module>
+    <module>commons-ports-ml</module>
 
     <module>commons-testkit-core</module>
     <module>commons-testkit-contracts</module>
@@ -139,6 +140,8 @@
     <module>commons-adapters-blockchain-web3j</module>
 
     <module>commons-adapters-payment-stripe</module>
+
+    <module>commons-adapters-ml-tensorflow</module>
 
     <module>commons-spring-starter-observability</module>
     <module>commons-spring-starter-otel</module>

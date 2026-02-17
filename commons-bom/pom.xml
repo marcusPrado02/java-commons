@@ -315,6 +315,11 @@
                 <artifactId>commons-ports-payment</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.marcusprado02.commons</groupId>
+                <artifactId>commons-ports-ml</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <!-- Application Services -->
             <dependency>
@@ -430,6 +435,13 @@
             <dependency>
                 <groupId>com.marcusprado02.commons</groupId>
                 <artifactId>commons-adapters-payment-stripe</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- Adapters - ML -->
+            <dependency>
+                <groupId>com.marcusprado02.commons</groupId>
+                <artifactId>commons-adapters-ml-tensorflow</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
