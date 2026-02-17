@@ -310,6 +310,11 @@
                 <artifactId>commons-ports-blockchain</artifactId>
                 <version>${project.version}</version>
             </dependency>
+            <dependency>
+                <groupId>com.marcusprado02.commons</groupId>
+                <artifactId>commons-ports-payment</artifactId>
+                <version>${project.version}</version>
+            </dependency>
 
             <!-- Application Services -->
             <dependency>
@@ -418,6 +423,13 @@
             <dependency>
                 <groupId>com.marcusprado02.commons</groupId>
                 <artifactId>commons-adapters-blockchain-web3j</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!-- Adapters - Payment -->
+            <dependency>
+                <groupId>com.marcusprado02.commons</groupId>
+                <artifactId>commons-adapters-payment-stripe</artifactId>
                 <version>${project.version}</version>
             </dependency>
 
