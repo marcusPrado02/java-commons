@@ -12,7 +12,7 @@
 
     <properties>
         <!-- Spring Framework -->
-        <spring.boot.version>3.5.10</spring.boot.version>
+        <spring.boot.version>4.0.2</spring.boot.version>
         <spring.cloud.version>2024.0.0</spring.cloud.version>
 
         <!-- Testing -->
