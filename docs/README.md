@@ -149,17 +149,127 @@ Complete documentation for all core modules with examples:
   - Request aggregation pattern
   - Service discovery integration
 
+- [**commons-app-saga**](api-reference/app-saga.md) ⭐⭐⭐
+  - `Saga` - Distributed transactions pattern
+  - `SagaStep` - Step with compensation logic
+  - Orchestration vs Choreography patterns
+  - Saga state management e recovery
+
+- [**commons-app-api-rate-limiting**](api-reference/app-api-rate-limiting.md) ⭐⭐⭐
+  - `RateLimiter` - Token bucket, sliding window
+  - Tiered rate limiting (free/premium)
+  - IP, user, API key strategies
+  - Distributed rate limiting with Redis
+
+- [**commons-app-workflow-engine**](api-reference/app-workflow-engine.md) ⭐⭐⭐
+  - `Workflow` - Orquestração de processos
+  - `WorkflowStep` - Steps com timeout e retry
+  - State machines e conditional transitions
+  - Event-based resume e compensation
+
+- [**commons-app-backup-restore**](api-reference/app-backup-restore.md) ⭐⭐⭐
+  - `BackupService` - Full, incremental backups
+  - `RestoreService` - Point-in-time recovery
+  - Automated backup scheduling
+  - Checksum validation e retention policies
+
+- [**commons-app-data-migration**](api-reference/app-data-migration.md) ⭐⭐⭐
+  - `Migration` - Versioned schema migrations
+  - Up/Down migrations com rollback
+  - Data transformations
+  - Checksum validation e history tracking
+
 ### Ports (Interfaces)
 - [**Ports Index**](api-reference/ports/README.md) ⭐⭐⭐
   - Complete catalog of all port interfaces
   - Hexagonal architecture contracts
-- [**commons-ports-persistence**](api-reference/ports/persistence.md)
+
+- [**commons-ports-persistence**](api-reference/ports/persistence.md) ⭐⭐⭐
   - `Repository<T, ID>` - CRUD genérico
   - `SpecificationRepository` - Queries dinâmicas
   - `EventStore` - Event Sourcing
-- [**commons-ports-messaging**](api-reference/ports/messaging.md)
-  - `MessagePublisher`, `MessageConsumer`
-  - Pub/Sub patterns
+
+- [**commons-ports-messaging**](api-reference/ports/messaging.md) ⭐⭐⭐
+  - `MessagePublisher`, `MessageConsumer` - Pub/Sub patterns
+  - At-least-once, exactly-once delivery
+  - Transactional publishing
+
+- [**commons-ports-http**](api-reference/ports/http.md) ⭐⭐⭐
+  - `HttpClient`, `RestClient` - HTTP abstractions
+  - Resilient service-to-service calls
+  - Circuit breaker e retry integration
+  - Adapters: OkHttp, WebClient
+
+- [**commons-ports-cache**](api-reference/ports/cache.md) ⭐⭐⭐
+  - `CacheProvider` - Distributed caching
+  - `DistributedLock` - Coordination
+  - Multi-level cache patterns
+  - Adapters: Redis, Memcached
+
+- [**commons-ports-secrets**](api-reference/ports/secrets.md) ⭐⭐⭐
+  - `SecretsProvider` - Secure credentials management
+  - `EncryptionService` - Envelope encryption
+  - Secret rotation patterns
+  - Adapters: AWS Secrets Manager, Azure Key Vault, Vault
+
+- [**commons-ports-files**](api-reference/ports/files.md) ⭐⭐⭐
+  - `FileStorage` - Cloud storage abstraction
+  - Presigned URLs para secure downloads
+  - Multipart upload for large files
+  - Adapters: S3, Azure Blob, GCS
+
+- [**commons-ports-communication**](api-reference/ports/communication.md) ⭐⭐⭐
+  - `EmailSender`, `SmsSender`, `PushNotificationSender`
+  - Multi-channel notifications
+  - Template emails e user preferences
+  - Adapters: SendGrid, SMTP, Twilio, FCM, APNS
+
+- [**commons-ports-search**](api-reference/ports/search.md) ⭐⭐⭐
+  - `SearchEngine` - Full-text search
+  - Faceted search, aggregations, autocomplete
+  - Fuzzy matching e relevance scoring
+  - Adapters: Elasticsearch, OpenSearch
+
+- [**commons-ports-queue**](api-reference/ports/queue.md) ⭐⭐⭐
+  - `QueuePublisher`, `QueueConsumer` - Async processing
+  - Delayed messages, batch operations
+  - Visibility timeout extension
+  - Adapters: AWS SQS, Azure Storage Queue
+
+- [**commons-ports-templates**](api-reference/ports/templates.md) ⭐⭐
+  - `TemplateEngine` - HTML/email rendering
+  - Localized templates (i18n)
+  - Email templates e PDF generation
+  - Adapters: Thymeleaf
+
+- [**commons-ports-documents**](api-reference/ports/documents.md) ⭐⭐⭐
+  - `DocumentGenerator` - PDF, Excel, CSV
+  - Invoice e report generation
+  - Multi-sheet exports, async processing
+  - Adapters: iText (PDF), Apache POI (Excel)
+
+- [**commons-ports-notification**](api-reference/ports/notification.md) ⭐⭐⭐
+  - `NotificationService` - Unified notifications
+  - User preferences, in-app notification center
+  - Multi-channel delivery (email, SMS, push)
+  - Event-driven notification patterns
+
+- [**commons-ports-serialization**](api-reference/ports/serialization.md) ⭐⭐⭐
+  - `Serializer` - JSON, XML, Protobuf
+  - TypeReference for generics
+  - Event e message serialization
+  - Adapters: Jackson, Protocol Buffers
+
+- [**commons-ports-compression**](api-reference/ports/compression.md) ⭐⭐
+  - `Compressor` - Gzip, Zip, Tar
+  - File archiving e log compression
+  - HTTP response compression
+
+- [**commons-ports-service-discovery**](api-reference/ports/service-discovery.md) ⭐⭐⭐
+  - `ServiceDiscovery` - Service registry
+  - Load balancing, health checking
+  - Dynamic service locations
+  - Adapters: Consul, Eureka
 
 ### Adapters (Implementations)
 See [Adapters Index](api-reference/adapters/README.md) for complete list.
@@ -232,9 +342,107 @@ Comprehensive guides for implementing patterns and solving common problems:
   - Web, Persistence, Messaging, Cloud, etc.
   - When to use each adapter
 
+### Adapter Implementation Guides
+Deep-dive guides for implementing major infrastructure adapters:
+
+- [**Kafka Adapter**](guides/adapters/kafka.md) ⭐⭐⭐
+  - Event-driven messaging with Kafka
+  - Producer configuration (acks, idempotence, compression)
+  - Consumer patterns (manual acknowledgment, idempotency)
+  - Partitioning strategies (entity ID, custom partitioner)
+  - Consumer groups (scaling, broadcasting)
+  - Performance tuning (batching, compression, concurrency)
+  - Dead Letter Topics (DLT) and error handling
+  - Consumer lag monitoring and alerting
+
+- [**Redis Adapter**](guides/adapters/redis.md) ⭐⭐⭐
+  - Distributed caching patterns
+  - Cache-aside, multi-level cache (L1/L2/L3)
+  - Distributed locks with Lua scripts
+  - Rate limiting (token bucket, sliding window)
+  - Counters and leaderboards (sorted sets)
+  - Pub/Sub messaging
+  - Connection pooling and monitoring
+
+- [**JPA Adapter**](guides/adapters/jpa.md) ⭐⭐⭐
+  - Entity mapping and repository patterns
+  - Transaction management
+  - Query methods and specifications
+  - N+1 problem prevention (fetch joins)
+  - Batch operations and pagination
+  - Auditing and optimistic locking
+  - Testing with Testcontainers
+
+- [**MongoDB Adapter**](guides/adapters/mongodb.md) ⭐⭐⭐
+  - Document modeling patterns
+  - MongoTemplate operations
+  - Aggregation pipelines
+  - Indexing strategies (compound, text, TTL)
+  - Change streams for reactive updates
+  - Multi-document transactions
+  - Testing with embedded MongoDB
+
+- [**RabbitMQ Adapter**](guides/adapters/rabbitmq.md) ⭐⭐⭐
+  - AMQP messaging patterns
+  - Exchanges (direct, topic, fanout, headers)
+  - Queue configuration and bindings
+  - Manual acknowledgment and publisher confirms
+  - Dead Letter Exchanges (DLX)
+  - Message TTL and priority queues
+  - Testing with Testcontainers
+
+- [**Elasticsearch Adapter**](guides/adapters/elasticsearch.md) ⭐⭐⭐
+  - Full-text search and document indexing
+  - Query DSL (match, bool, range queries)
+  - Aggregations (terms, stats, date histogram)
+  - Highlighting and relevance scoring
+  - Bulk operations and update by query
+  - Index management (mappings, settings)
+  - Testing with Testcontainers
+
+- [**Cloud Storage Adapter**](guides/adapters/cloud-storage.md) ⭐⭐⭐
+  - AWS S3 and Azure Blob Storage
+  - File upload/download patterns
+  - Presigned URLs for secure access
+  - Multipart upload for large files
+  - Metadata management
+  - Lifecycle policies and versioning
+  - Testing with LocalStack
+
 ---
 
-## 🏗️ Architecture
+## � Specialized Guides
+
+Production-ready patterns for security, performance, and cloud deployment:
+
+- [**Security Best Practices**](guides/security-best-practices.md) ⭐⭐⭐
+  - Authentication & Authorization (JWT, OAuth2)
+  - Secrets management (rotation, KMS integration)
+  - Encryption at rest (AES-GCM, envelope encryption)
+  - OWASP Top 10 mitigations (SQL injection, XSS, CSRF)
+  - Access control and rate limiting
+  - Security testing strategies
+
+- [**Performance Optimization**](guides/performance-optimization.md) ⭐⭐⭐
+  - Profiling & monitoring (APM, custom metrics)
+  - Async processing (CompletableFuture, @Async, Virtual Threads)
+  - Multi-level caching (L1 Caffeine + L2 Redis)
+  - Database optimization (N+1 prevention, batch operations, read replicas)
+  - JVM tuning (G1GC, container support)
+  - Load testing with Gatling
+
+- [**Cloud Deployment**](guides/cloud-deployment.md) ⭐⭐⭐
+  - Docker containerization (multi-stage builds, non-root user)
+  - Kubernetes deployment (manifests, HPA, health checks)
+  - Azure (AKS, ACR, managed services)
+  - AWS (EKS, ECR, RDS, ElastiCache)
+  - GCP (GKE, GCR, Cloud SQL, Memorystore)
+  - CI/CD pipelines (GitHub Actions, rolling updates)
+  - Monitoring & observability (Prometheus, Grafana)
+
+---
+
+## �🏗️ Architecture
 
 ### Architecture & Design
 - [**Architecture Overview**](architecture.md) - Hexagonal architecture, layers
