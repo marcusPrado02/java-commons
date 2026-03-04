@@ -85,6 +85,35 @@ public class RateLimitConfig {
         .build();
   }
 
+  /**
+   * Creates a rate limit configuration with explicit capacity and refill rate.
+   *
+   * @param capacity maximum number of tokens
+   * @param refillRate tokens added per period
+   * @param period time period
+   * @return rate limit configuration
+   */
+  public static RateLimitConfig of(long capacity, long refillRate, Duration period) {
+    return builder().capacity(capacity).refillRate(refillRate).refillPeriod(period).build();
+  }
+
+  /**
+   * Creates a rate limit configuration with burst capacity (alternative parameter order).
+   *
+   * @param requestsPerPeriod steady rate of requests per period
+   * @param burstCapacity maximum burst capacity
+   * @param period time period
+   * @return rate limit configuration
+   */
+  public static RateLimitConfig withBurst(
+      long requestsPerPeriod, long burstCapacity, Duration period) {
+    return builder()
+        .capacity(burstCapacity)
+        .refillRate(requestsPerPeriod)
+        .refillPeriod(period)
+        .build();
+  }
+
   // Common configurations
 
   /** 100 requests per hour. */
@@ -124,6 +153,24 @@ public class RateLimitConfig {
    */
   public double getRefillRatePerSecond() {
     return (double) refillRate / refillPeriod.getSeconds();
+  }
+
+  /**
+   * Calculates the refill rate per second with sub-second precision.
+   *
+   * @return tokens per second
+   */
+  public double getRatePerSecond() {
+    return refillRate * 1_000_000_000.0 / refillPeriod.toNanos();
+  }
+
+  /**
+   * Calculates the duration between individual token refills.
+   *
+   * @return interval between each token being added
+   */
+  public Duration getRefillInterval() {
+    return refillPeriod.dividedBy(refillRate);
   }
 
   @Override

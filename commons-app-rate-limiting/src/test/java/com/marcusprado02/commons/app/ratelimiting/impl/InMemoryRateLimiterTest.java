@@ -38,13 +38,13 @@ class InMemoryRateLimiterTest {
     for (int i = 0; i < 10; i++) {
       RateLimitResult result = rateLimiter.tryConsume(key);
       assertTrue(result.isAllowed(), "Request " + (i + 1) + " should be allowed");
-      assertEquals(9 - i, result.getRemainingTokens(), "Remaining tokens should decrease");
+      assertEquals(9 - i, result.remainingTokens(), "Remaining tokens should decrease");
     }
 
     // Next request should be rejected
     RateLimitResult result = rateLimiter.tryConsume(key);
     assertFalse(result.isAllowed(), "Request should be rejected when limit exceeded");
-    assertEquals(0, result.getRemainingTokens(), "No tokens should remain");
+    assertEquals(0, result.remainingTokens(), "No tokens should remain");
   }
 
   @Test
@@ -54,8 +54,8 @@ class InMemoryRateLimiterTest {
     // Consume multiple tokens at once
     RateLimitResult result = rateLimiter.tryConsume(key, 5);
     assertTrue(result.isAllowed(), "Multi-token consumption should be allowed");
-    assertEquals(5, result.getConsumedTokens(), "Should consume 5 tokens");
-    assertEquals(5, result.getRemainingTokens(), "Should have 5 tokens remaining");
+    assertEquals(5, result.consumedTokens(), "Should consume 5 tokens");
+    assertEquals(5, result.remainingTokens(), "Should have 5 tokens remaining");
 
     // Try to consume more than available
     result = rateLimiter.tryConsume(key, 10);
@@ -69,15 +69,15 @@ class InMemoryRateLimiterTest {
     // Probe should not consume tokens
     RateLimitResult probeResult = rateLimiter.probe(key);
     assertTrue(probeResult.isAllowed(), "Probe should be allowed");
-    assertEquals(0, probeResult.getConsumedTokens(), "Probe should not consume tokens");
-    assertEquals(10, probeResult.getRemainingTokens(), "All tokens should remain");
+    assertEquals(0, probeResult.consumedTokens(), "Probe should not consume tokens");
+    assertEquals(10, probeResult.remainingTokens(), "All tokens should remain");
 
     // Consume some tokens
     rateLimiter.tryConsume(key, 3);
 
     // Probe again
     probeResult = rateLimiter.probe(key);
-    assertEquals(7, probeResult.getRemainingTokens(), "Probe should show remaining tokens");
+    assertEquals(7, probeResult.remainingTokens(), "Probe should show remaining tokens");
   }
 
   @Test
@@ -87,7 +87,7 @@ class InMemoryRateLimiterTest {
     // Consume all tokens
     rateLimiter.tryConsume(key, 10);
     RateLimitResult result = rateLimiter.probe(key);
-    assertEquals(0, result.getRemainingTokens(), "No tokens should remain");
+    assertEquals(0, result.remainingTokens(), "No tokens should remain");
 
     // Reset the bucket
     rateLimiter.reset(key);
@@ -169,15 +169,15 @@ class InMemoryRateLimiterTest {
     RateLimitResult result = future.join();
 
     assertTrue(result.isAllowed(), "Async consume should be allowed");
-    assertEquals(1, result.getConsumedTokens(), "Should consume 1 token");
-    assertEquals(9, result.getRemainingTokens(), "Should have 9 tokens remaining");
+    assertEquals(1, result.consumedTokens(), "Should consume 1 token");
+    assertEquals(9, result.remainingTokens(), "Should have 9 tokens remaining");
 
     // Test async probe
     CompletableFuture<RateLimitResult> probeFuture = rateLimiter.probeAsync(key);
     RateLimitResult probeResult = probeFuture.join();
 
-    assertEquals(0, probeResult.getConsumedTokens(), "Probe should not consume tokens");
-    assertEquals(9, probeResult.getRemainingTokens(), "Should show current remaining tokens");
+    assertEquals(0, probeResult.consumedTokens(), "Probe should not consume tokens");
+    assertEquals(9, probeResult.remainingTokens(), "Should show current remaining tokens");
   }
 
   @Test
@@ -195,11 +195,11 @@ class InMemoryRateLimiterTest {
 
     RateLimiterStats stats = rateLimiter.getStats();
 
-    assertTrue(stats.getAllowedRequests() >= 3, "Should have at least 3 allowed requests");
-    assertTrue(stats.getRejectedRequests() >= 2, "Should have at least 2 rejected requests");
-    assertTrue(stats.getTotalRequests() >= 5, "Should have at least 5 total requests");
+    assertTrue(stats.allowedRequests() >= 3, "Should have at least 3 allowed requests");
+    assertTrue(stats.rejectedRequests() >= 2, "Should have at least 2 rejected requests");
+    assertTrue(stats.totalRequests() >= 5, "Should have at least 5 total requests");
     assertTrue(stats.getAllowRate() > 0, "Allow rate should be positive");
-    assertTrue(stats.getRejectRate() > 0, "Reject rate should be positive");
+    assertTrue(stats.getRejectionRate() > 0, "Reject rate should be positive");
   }
 
   @Test
