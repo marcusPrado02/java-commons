@@ -1,19 +1,18 @@
 package com.marcusprado02.commons.app.ratelimiting.impl;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.marcusprado02.commons.app.ratelimiting.RateLimitConfig;
 import com.marcusprado02.commons.app.ratelimiting.RateLimitResult;
 import com.marcusprado02.commons.app.ratelimiting.RateLimiterStats;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class InMemoryRateLimiterTest {
 
@@ -22,11 +21,12 @@ class InMemoryRateLimiterTest {
 
   @BeforeEach
   void setUp() {
-    config = RateLimitConfig.builder()
-        .capacity(10)
-        .refillRate(5)
-        .refillPeriod(Duration.ofSeconds(1))
-        .build();
+    config =
+        RateLimitConfig.builder()
+            .capacity(10)
+            .refillRate(5)
+            .refillPeriod(Duration.ofSeconds(1))
+            .build();
     rateLimiter = new InMemoryRateLimiter(config);
   }
 
@@ -128,33 +128,36 @@ class InMemoryRateLimiterTest {
     AtomicInteger rejectedCount = new AtomicInteger(0);
 
     for (int i = 0; i < threadCount; i++) {
-      executor.submit(() -> {
-        try {
-          for (int j = 0; j < requestsPerThread; j++) {
-            RateLimitResult result = rateLimiter.tryConsume(key);
-            if (result.isAllowed()) {
-              allowedCount.incrementAndGet();
-            } else {
-              rejectedCount.incrementAndGet();
+      executor.submit(
+          () -> {
+            try {
+              for (int j = 0; j < requestsPerThread; j++) {
+                RateLimitResult result = rateLimiter.tryConsume(key);
+                if (result.isAllowed()) {
+                  allowedCount.incrementAndGet();
+                } else {
+                  rejectedCount.incrementAndGet();
+                }
+              }
+            } finally {
+              latch.countDown();
             }
-          }
-        } finally {
-          latch.countDown();
-        }
-      });
+          });
     }
 
     latch.await();
     executor.shutdown();
 
     int totalRequests = threadCount * requestsPerThread;
-    assertEquals(totalRequests, allowedCount.get() + rejectedCount.get(),
+    assertEquals(
+        totalRequests,
+        allowedCount.get() + rejectedCount.get(),
         "All requests should be processed");
 
     // Should allow up to capacity (10), reject the rest
     assertTrue(allowedCount.get() <= 10, "Should not allow more than capacity");
-    assertEquals(totalRequests - allowedCount.get(), rejectedCount.get(),
-        "Remaining should be rejected");
+    assertEquals(
+        totalRequests - allowedCount.get(), rejectedCount.get(), "Remaining should be rejected");
   }
 
   @Test
@@ -227,16 +230,24 @@ class InMemoryRateLimiterTest {
 
   @Test
   void testInvalidInput() {
-    assertThrows(IllegalArgumentException.class, () ->
-        rateLimiter.tryConsume(null), "Should reject null key");
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> rateLimiter.tryConsume(null),
+        "Should reject null key");
 
-    assertThrows(IllegalArgumentException.class, () ->
-        rateLimiter.tryConsume(""), "Should reject empty key");
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> rateLimiter.tryConsume(""),
+        "Should reject empty key");
 
-    assertThrows(IllegalArgumentException.class, () ->
-        rateLimiter.tryConsume("key", 0), "Should reject zero tokens");
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> rateLimiter.tryConsume("key", 0),
+        "Should reject zero tokens");
 
-    assertThrows(IllegalArgumentException.class, () ->
-        rateLimiter.tryConsume("key", -1), "Should reject negative tokens");
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> rateLimiter.tryConsume("key", -1),
+        "Should reject negative tokens");
   }
 }

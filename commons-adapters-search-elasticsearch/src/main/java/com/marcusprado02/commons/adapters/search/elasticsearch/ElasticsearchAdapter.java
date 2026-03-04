@@ -20,17 +20,16 @@ import com.marcusprado02.commons.kernel.errors.Problem;
 import com.marcusprado02.commons.kernel.errors.Severity;
 import com.marcusprado02.commons.kernel.result.Result;
 import com.marcusprado02.commons.ports.search.*;
+import java.io.IOException;
+import java.time.Instant;
+import java.util.*;
+import java.util.stream.Collectors;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
 import org.apache.http.auth.UsernamePasswordCredentials;
 import org.apache.http.impl.client.BasicCredentialsProvider;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestClientBuilder;
-
-import java.io.IOException;
-import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Elasticsearch implementation of SearchPort using Elasticsearch Java Client 8.x.
@@ -61,11 +60,8 @@ public class ElasticsearchAdapter implements SearchPort {
     Objects.requireNonNull(document, "Document cannot be null");
 
     try {
-      IndexRequest<Map<String, Object>> request = IndexRequest.of(i -> i
-          .index(index)
-          .id(document.id())
-          .document(document.source())
-      );
+      IndexRequest<Map<String, Object>> request =
+          IndexRequest.of(i -> i.index(index).id(document.id()).document(document.source()));
 
       IndexResponse response = client.index(request);
       return Result.ok(response.id());
@@ -73,8 +69,8 @@ public class ElasticsearchAdapter implements SearchPort {
     } catch (ElasticsearchException e) {
       return Result.fail(mapElasticsearchException(e, "indexing document"));
     } catch (IOException e) {
-      return Result.fail(createProblem("INDEX_IO_ERROR",
-          "I/O error during indexing: " + e.getMessage()));
+      return Result.fail(
+          createProblem("INDEX_IO_ERROR", "I/O error during indexing: " + e.getMessage()));
     }
   }
 
@@ -88,20 +84,16 @@ public class ElasticsearchAdapter implements SearchPort {
     }
 
     try {
-      List<BulkOperation> operations = documents.stream()
-          .map(doc -> BulkOperation.of(b -> b
-              .index(idx -> idx
-                  .index(index)
-                  .id(doc.id())
-                  .document(doc.source())
-              )
-          ))
-          .collect(Collectors.toList());
+      List<BulkOperation> operations =
+          documents.stream()
+              .map(
+                  doc ->
+                      BulkOperation.of(
+                          b ->
+                              b.index(idx -> idx.index(index).id(doc.id()).document(doc.source()))))
+              .collect(Collectors.toList());
 
-      BulkRequest request = BulkRequest.of(b -> b
-          .index(index)
-          .operations(operations)
-      );
+      BulkRequest request = BulkRequest.of(b -> b.index(index).operations(operations));
 
       BulkResponse response = client.bulk(request);
 
@@ -118,20 +110,17 @@ public class ElasticsearchAdapter implements SearchPort {
         }
       }
 
-      SearchPort.BulkIndexResult result = new SearchPort.BulkIndexResult(
-          documents.size(),
-          successCount,
-          failureCount,
-          errors
-      );
+      SearchPort.BulkIndexResult result =
+          new SearchPort.BulkIndexResult(documents.size(), successCount, failureCount, errors);
 
       return Result.ok(result);
 
     } catch (ElasticsearchException e) {
       return Result.fail(mapElasticsearchException(e, "bulk indexing"));
     } catch (IOException e) {
-      return Result.fail(createProblem("BULK_INDEX_IO_ERROR",
-          "I/O error during bulk indexing: " + e.getMessage()));
+      return Result.fail(
+          createProblem(
+              "BULK_INDEX_IO_ERROR", "I/O error during bulk indexing: " + e.getMessage()));
     }
   }
 
@@ -148,21 +137,24 @@ public class ElasticsearchAdapter implements SearchPort {
     try {
       Query esQuery = buildQuery(query);
 
-      SearchRequest.Builder requestBuilder = new SearchRequest.Builder()
-          .index(indices)
-          .query(esQuery)
-          .from(query.from())
-          .size(query.size());
+      SearchRequest.Builder requestBuilder =
+          new SearchRequest.Builder()
+              .index(indices)
+              .query(esQuery)
+              .from(query.from())
+              .size(query.size());
 
       // Add sorting
       for (SearchQuery.SortField sortField : query.sorting()) {
-        requestBuilder.sort(s -> s
-            .field(f -> f
-                .field(sortField.field())
-                .order(sortField.order() == SearchQuery.SortOrder.ASC ?
-                    SortOrder.Asc : SortOrder.Desc)
-            )
-        );
+        requestBuilder.sort(
+            s ->
+                s.field(
+                    f ->
+                        f.field(sortField.field())
+                            .order(
+                                sortField.order() == SearchQuery.SortOrder.ASC
+                                    ? SortOrder.Asc
+                                    : SortOrder.Desc)));
       }
 
       // Add minimum score filter
@@ -173,24 +165,23 @@ public class ElasticsearchAdapter implements SearchPort {
       SearchRequest request = requestBuilder.build();
       SearchResponse<Map> response = client.search(request, Map.class);
 
-      List<Document> hits = response.hits().hits().stream()
-          .map(this::mapHitToDocument)
-          .collect(Collectors.toList());
+      List<Document> hits =
+          response.hits().hits().stream().map(this::mapHitToDocument).collect(Collectors.toList());
 
-      SearchResult result = new SearchResult(
-          hits,
-          response.hits().total() != null ? response.hits().total().value() : 0,
-          response.hits().maxScore() != null ? response.hits().maxScore().floatValue() : 0f,
-          response.took()
-      );
+      SearchResult result =
+          new SearchResult(
+              hits,
+              response.hits().total() != null ? response.hits().total().value() : 0,
+              response.hits().maxScore() != null ? response.hits().maxScore().floatValue() : 0f,
+              response.took());
 
       return Result.ok(result);
 
     } catch (ElasticsearchException e) {
       return Result.fail(mapElasticsearchException(e, "searching documents"));
     } catch (IOException e) {
-      return Result.fail(createProblem("SEARCH_IO_ERROR",
-          "I/O error during search: " + e.getMessage()));
+      return Result.fail(
+          createProblem("SEARCH_IO_ERROR", "I/O error during search: " + e.getMessage()));
     }
   }
 
@@ -200,16 +191,12 @@ public class ElasticsearchAdapter implements SearchPort {
     Objects.requireNonNull(id, "ID cannot be null");
 
     try {
-      GetRequest request = GetRequest.of(g -> g
-          .index(index)
-          .id(id)
-      );
+      GetRequest request = GetRequest.of(g -> g.index(index).id(id));
 
       GetResponse<Map> response = client.get(request, Map.class);
 
       if (!response.found()) {
-        return Result.fail(createProblem("DOCUMENT_NOT_FOUND",
-            "Document not found: " + id));
+        return Result.fail(createProblem("DOCUMENT_NOT_FOUND", "Document not found: " + id));
       }
 
       Document document = Document.of(response.id(), response.source());
@@ -218,8 +205,7 @@ public class ElasticsearchAdapter implements SearchPort {
     } catch (ElasticsearchException e) {
       return Result.fail(mapElasticsearchException(e, "getting document"));
     } catch (IOException e) {
-      return Result.fail(createProblem("GET_IO_ERROR",
-          "I/O error during get: " + e.getMessage()));
+      return Result.fail(createProblem("GET_IO_ERROR", "I/O error during get: " + e.getMessage()));
     }
   }
 
@@ -229,10 +215,7 @@ public class ElasticsearchAdapter implements SearchPort {
     Objects.requireNonNull(id, "ID cannot be null");
 
     try {
-      DeleteRequest request = DeleteRequest.of(d -> d
-          .index(index)
-          .id(id)
-      );
+      DeleteRequest request = DeleteRequest.of(d -> d.index(index).id(id));
 
       client.delete(request);
       return Result.ok(null);
@@ -240,8 +223,8 @@ public class ElasticsearchAdapter implements SearchPort {
     } catch (ElasticsearchException e) {
       return Result.fail(mapElasticsearchException(e, "deleting document"));
     } catch (IOException e) {
-      return Result.fail(createProblem("DELETE_IO_ERROR",
-          "I/O error during delete: " + e.getMessage()));
+      return Result.fail(
+          createProblem("DELETE_IO_ERROR", "I/O error during delete: " + e.getMessage()));
     }
   }
 
@@ -253,11 +236,7 @@ public class ElasticsearchAdapter implements SearchPort {
 
     try {
       UpdateRequest<Map<String, Object>, Map<String, Object>> request =
-          UpdateRequest.of(u -> u
-              .index(index)
-              .id(id)
-              .doc(updates)
-          );
+          UpdateRequest.of(u -> u.index(index).id(id).doc(updates));
 
       client.update(request, Map.class);
       return Result.ok(null);
@@ -265,19 +244,18 @@ public class ElasticsearchAdapter implements SearchPort {
     } catch (ElasticsearchException e) {
       return Result.fail(mapElasticsearchException(e, "updating document"));
     } catch (IOException e) {
-      return Result.fail(createProblem("UPDATE_IO_ERROR",
-          "I/O error during update: " + e.getMessage()));
+      return Result.fail(
+          createProblem("UPDATE_IO_ERROR", "I/O error during update: " + e.getMessage()));
     }
   }
 
   @Override
-  public Result<Void> createIndex(String index, Map<String, Object> settings,
-                                   Map<String, Object> mappings) {
+  public Result<Void> createIndex(
+      String index, Map<String, Object> settings, Map<String, Object> mappings) {
     Objects.requireNonNull(index, "Index cannot be null");
 
     try {
-      CreateIndexRequest.Builder builder = new CreateIndexRequest.Builder()
-          .index(index);
+      CreateIndexRequest.Builder builder = new CreateIndexRequest.Builder().index(index);
 
       // Settings and mappings would need proper type conversion
       // For simplicity, using withJson approach
@@ -289,8 +267,9 @@ public class ElasticsearchAdapter implements SearchPort {
     } catch (ElasticsearchException e) {
       return Result.fail(mapElasticsearchException(e, "creating index"));
     } catch (IOException e) {
-      return Result.fail(createProblem("CREATE_INDEX_IO_ERROR",
-          "I/O error during index creation: " + e.getMessage()));
+      return Result.fail(
+          createProblem(
+              "CREATE_INDEX_IO_ERROR", "I/O error during index creation: " + e.getMessage()));
     }
   }
 
@@ -299,9 +278,7 @@ public class ElasticsearchAdapter implements SearchPort {
     Objects.requireNonNull(index, "Index cannot be null");
 
     try {
-      DeleteIndexRequest request = DeleteIndexRequest.of(d -> d
-          .index(index)
-      );
+      DeleteIndexRequest request = DeleteIndexRequest.of(d -> d.index(index));
 
       client.indices().delete(request);
       return Result.ok(null);
@@ -309,8 +286,9 @@ public class ElasticsearchAdapter implements SearchPort {
     } catch (ElasticsearchException e) {
       return Result.fail(mapElasticsearchException(e, "deleting index"));
     } catch (IOException e) {
-      return Result.fail(createProblem("DELETE_INDEX_IO_ERROR",
-          "I/O error during index deletion: " + e.getMessage()));
+      return Result.fail(
+          createProblem(
+              "DELETE_INDEX_IO_ERROR", "I/O error during index deletion: " + e.getMessage()));
     }
   }
 
@@ -320,9 +298,7 @@ public class ElasticsearchAdapter implements SearchPort {
 
     try {
       co.elastic.clients.elasticsearch.indices.ExistsRequest request =
-          co.elastic.clients.elasticsearch.indices.ExistsRequest.of(e -> e
-              .index(index)
-          );
+          co.elastic.clients.elasticsearch.indices.ExistsRequest.of(e -> e.index(index));
 
       boolean exists = client.indices().exists(request).value();
       return Result.ok(exists);
@@ -330,8 +306,10 @@ public class ElasticsearchAdapter implements SearchPort {
     } catch (ElasticsearchException e) {
       return Result.fail(mapElasticsearchException(e, "checking index existence"));
     } catch (IOException e) {
-      return Result.fail(createProblem("INDEX_EXISTS_IO_ERROR",
-          "I/O error during index existence check: " + e.getMessage()));
+      return Result.fail(
+          createProblem(
+              "INDEX_EXISTS_IO_ERROR",
+              "I/O error during index existence check: " + e.getMessage()));
     }
   }
 
@@ -340,9 +318,7 @@ public class ElasticsearchAdapter implements SearchPort {
     Objects.requireNonNull(index, "Index cannot be null");
 
     try {
-      RefreshRequest request = RefreshRequest.of(r -> r
-          .index(index)
-      );
+      RefreshRequest request = RefreshRequest.of(r -> r.index(index));
 
       client.indices().refresh(request);
       return Result.ok(null);
@@ -350,14 +326,16 @@ public class ElasticsearchAdapter implements SearchPort {
     } catch (ElasticsearchException e) {
       return Result.fail(mapElasticsearchException(e, "refreshing index"));
     } catch (IOException e) {
-      return Result.fail(createProblem("REFRESH_IO_ERROR",
-          "I/O error during refresh: " + e.getMessage()));
+      return Result.fail(
+          createProblem("REFRESH_IO_ERROR", "I/O error during refresh: " + e.getMessage()));
     }
   }
 
   @Override
-  public Result<AggregationResult> aggregate(String index, SearchQuery query,
-                                              List<com.marcusprado02.commons.ports.search.Aggregation> aggregations) {
+  public Result<AggregationResult> aggregate(
+      String index,
+      SearchQuery query,
+      List<com.marcusprado02.commons.ports.search.Aggregation> aggregations) {
     Objects.requireNonNull(index, "Index cannot be null");
     Objects.requireNonNull(query, "Query cannot be null");
     Objects.requireNonNull(aggregations, "Aggregations cannot be null");
@@ -371,12 +349,13 @@ public class ElasticsearchAdapter implements SearchPort {
       Map<String, co.elastic.clients.elasticsearch._types.aggregations.Aggregation> esAggs =
           buildAggregations(aggregations);
 
-      SearchRequest request = SearchRequest.of(s -> s
-          .index(index)
-          .query(esQuery)
-          .size(0) // Don't return hits, only aggregations
-          .aggregations(esAggs)
-      );
+      SearchRequest request =
+          SearchRequest.of(
+              s ->
+                  s.index(index)
+                      .query(esQuery)
+                      .size(0) // Don't return hits, only aggregations
+                      .aggregations(esAggs));
 
       SearchResponse<Map> response = client.search(request, Map.class);
 
@@ -397,8 +376,8 @@ public class ElasticsearchAdapter implements SearchPort {
     } catch (ElasticsearchException e) {
       return Result.fail(mapElasticsearchException(e, "executing aggregation"));
     } catch (IOException e) {
-      return Result.fail(createProblem("AGGREGATE_IO_ERROR",
-          "I/O error during aggregation: " + e.getMessage()));
+      return Result.fail(
+          createProblem("AGGREGATE_IO_ERROR", "I/O error during aggregation: " + e.getMessage()));
     }
   }
 
@@ -416,38 +395,34 @@ public class ElasticsearchAdapter implements SearchPort {
   // Private helper methods
 
   private RestClient createRestClient(ElasticsearchConfiguration config) {
-    HttpHost[] hosts = config.serverUrls().stream()
-        .map(HttpHost::create)
-        .toArray(HttpHost[]::new);
+    HttpHost[] hosts = config.serverUrls().stream().map(HttpHost::create).toArray(HttpHost[]::new);
 
     RestClientBuilder builder = RestClient.builder(hosts);
 
     // Configure authentication
     if (config.username() != null && !config.username().isBlank()) {
       BasicCredentialsProvider credentialsProvider = new BasicCredentialsProvider();
-      credentialsProvider.setCredentials(AuthScope.ANY,
-          new UsernamePasswordCredentials(config.username(), config.password()));
+      credentialsProvider.setCredentials(
+          AuthScope.ANY, new UsernamePasswordCredentials(config.username(), config.password()));
 
-      builder.setHttpClientConfigCallback(httpClientBuilder ->
-          httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider)
-      );
+      builder.setHttpClientConfigCallback(
+          httpClientBuilder ->
+              httpClientBuilder.setDefaultCredentialsProvider(credentialsProvider));
     }
 
     // Configure timeouts
-    builder.setRequestConfigCallback(requestConfigBuilder ->
-        requestConfigBuilder
-            .setConnectTimeout((int) config.connectionTimeout().toMillis())
-            .setSocketTimeout((int) config.socketTimeout().toMillis())
-    );
+    builder.setRequestConfigCallback(
+        requestConfigBuilder ->
+            requestConfigBuilder
+                .setConnectTimeout((int) config.connectionTimeout().toMillis())
+                .setSocketTimeout((int) config.socketTimeout().toMillis()));
 
     return builder.build();
   }
 
   private ElasticsearchClient createElasticsearchClient(RestClient restClient) {
-    RestClientTransport transport = new RestClientTransport(
-        restClient,
-        new JacksonJsonpMapper(new ObjectMapper())
-    );
+    RestClientTransport transport =
+        new RestClientTransport(restClient, new JacksonJsonpMapper(new ObjectMapper()));
     return new ElasticsearchClient(transport);
   }
 
@@ -461,72 +436,82 @@ public class ElasticsearchAdapter implements SearchPort {
     return switch (query.queryType()) {
       case MATCH -> {
         if (query.fields().isEmpty()) {
-          yield Query.of(q -> q.multiMatch(m -> m
-              .query(query.query())
-          ));
+          yield Query.of(q -> q.multiMatch(m -> m.query(query.query())));
         } else {
-          yield Query.of(q -> q.multiMatch(m -> m
-              .query(query.query())
-              .fields(query.fields())
-          ));
+          yield Query.of(q -> q.multiMatch(m -> m.query(query.query()).fields(query.fields())));
         }
       }
-      case TERM -> Query.of(q -> q.term(t -> t
-          .field(query.fields().isEmpty() ? "_all" : query.fields().get(0))
-          .value(FieldValue.of(query.query()))
-      ));
-      case PHRASE -> Query.of(q -> q.matchPhrase(m -> m
-          .field(query.fields().isEmpty() ? "_all" : query.fields().get(0))
-          .query(query.query())
-      ));
-      case PREFIX -> Query.of(q -> q.prefix(p -> p
-          .field(query.fields().isEmpty() ? "_all" : query.fields().get(0))
-          .value(query.query())
-      ));
-      case WILDCARD -> Query.of(q -> q.wildcard(w -> w
-          .field(query.fields().isEmpty() ? "_all" : query.fields().get(0))
-          .value(query.query())
-      ));
-      case FUZZY -> Query.of(q -> q.fuzzy(f -> f
-          .field(query.fields().isEmpty() ? "_all" : query.fields().get(0))
-          .value(query.query())
-      ));
+      case TERM ->
+          Query.of(
+              q ->
+                  q.term(
+                      t ->
+                          t.field(query.fields().isEmpty() ? "_all" : query.fields().get(0))
+                              .value(FieldValue.of(query.query()))));
+      case PHRASE ->
+          Query.of(
+              q ->
+                  q.matchPhrase(
+                      m ->
+                          m.field(query.fields().isEmpty() ? "_all" : query.fields().get(0))
+                              .query(query.query())));
+      case PREFIX ->
+          Query.of(
+              q ->
+                  q.prefix(
+                      p ->
+                          p.field(query.fields().isEmpty() ? "_all" : query.fields().get(0))
+                              .value(query.query())));
+      case WILDCARD ->
+          Query.of(
+              q ->
+                  q.wildcard(
+                      w ->
+                          w.field(query.fields().isEmpty() ? "_all" : query.fields().get(0))
+                              .value(query.query())));
+      case FUZZY ->
+          Query.of(
+              q ->
+                  q.fuzzy(
+                      f ->
+                          f.field(query.fields().isEmpty() ? "_all" : query.fields().get(0))
+                              .value(query.query())));
       default -> Query.of(q -> q.matchAll(m -> m));
     };
   }
 
   private Map<String, co.elastic.clients.elasticsearch._types.aggregations.Aggregation>
-  buildAggregations(List<com.marcusprado02.commons.ports.search.Aggregation> aggregations) {
+      buildAggregations(List<com.marcusprado02.commons.ports.search.Aggregation> aggregations) {
     Map<String, co.elastic.clients.elasticsearch._types.aggregations.Aggregation> result =
         new HashMap<>();
 
     for (com.marcusprado02.commons.ports.search.Aggregation agg : aggregations) {
-      co.elastic.clients.elasticsearch._types.aggregations.Aggregation esAgg = switch (agg.type()) {
-        case TERMS -> co.elastic.clients.elasticsearch._types.aggregations.Aggregation.of(a -> a
-            .terms(t -> t
-                .field(agg.field())
-                .size(agg.size() != null ? agg.size() : 10)
-            )
-        );
-        case AVG -> co.elastic.clients.elasticsearch._types.aggregations.Aggregation.of(a -> a
-            .avg(avg -> avg.field(agg.field()))
-        );
-        case SUM -> co.elastic.clients.elasticsearch._types.aggregations.Aggregation.of(a -> a
-            .sum(sum -> sum.field(agg.field()))
-        );
-        case MIN -> co.elastic.clients.elasticsearch._types.aggregations.Aggregation.of(a -> a
-            .min(min -> min.field(agg.field()))
-        );
-        case MAX -> co.elastic.clients.elasticsearch._types.aggregations.Aggregation.of(a -> a
-            .max(max -> max.field(agg.field()))
-        );
-        case CARDINALITY -> co.elastic.clients.elasticsearch._types.aggregations.Aggregation.of(a -> a
-            .cardinality(c -> c.field(agg.field()))
-        );
-        default -> co.elastic.clients.elasticsearch._types.aggregations.Aggregation.of(a -> a
-            .terms(t -> t.field(agg.field()))
-        );
-      };
+      co.elastic.clients.elasticsearch._types.aggregations.Aggregation esAgg =
+          switch (agg.type()) {
+            case TERMS ->
+                co.elastic.clients.elasticsearch._types.aggregations.Aggregation.of(
+                    a ->
+                        a.terms(
+                            t -> t.field(agg.field()).size(agg.size() != null ? agg.size() : 10)));
+            case AVG ->
+                co.elastic.clients.elasticsearch._types.aggregations.Aggregation.of(
+                    a -> a.avg(avg -> avg.field(agg.field())));
+            case SUM ->
+                co.elastic.clients.elasticsearch._types.aggregations.Aggregation.of(
+                    a -> a.sum(sum -> sum.field(agg.field())));
+            case MIN ->
+                co.elastic.clients.elasticsearch._types.aggregations.Aggregation.of(
+                    a -> a.min(min -> min.field(agg.field())));
+            case MAX ->
+                co.elastic.clients.elasticsearch._types.aggregations.Aggregation.of(
+                    a -> a.max(max -> max.field(agg.field())));
+            case CARDINALITY ->
+                co.elastic.clients.elasticsearch._types.aggregations.Aggregation.of(
+                    a -> a.cardinality(c -> c.field(agg.field())));
+            default ->
+                co.elastic.clients.elasticsearch._types.aggregations.Aggregation.of(
+                    a -> a.terms(t -> t.field(agg.field())));
+          };
 
       result.put(agg.name(), esAgg);
     }
@@ -543,13 +528,14 @@ public class ElasticsearchAdapter implements SearchPort {
         .build();
   }
 
-  private AggregationResult mapAggregateToResult(String name,
-                                                  co.elastic.clients.elasticsearch._types.aggregations.Aggregate aggregate) {
+  private AggregationResult mapAggregateToResult(
+      String name, co.elastic.clients.elasticsearch._types.aggregations.Aggregate aggregate) {
     if (aggregate.isSterms()) {
       StringTermsAggregate terms = aggregate.sterms();
-      List<AggregationResult.Bucket> buckets = terms.buckets().array().stream()
-          .map(b -> AggregationResult.Bucket.of(b.key().stringValue(), b.docCount()))
-          .collect(Collectors.toList());
+      List<AggregationResult.Bucket> buckets =
+          terms.buckets().array().stream()
+              .map(b -> AggregationResult.Bucket.of(b.key().stringValue(), b.docCount()))
+              .collect(Collectors.toList());
 
       return new AggregationResult(name, buckets, Map.of());
     }
@@ -576,18 +562,12 @@ public class ElasticsearchAdapter implements SearchPort {
     ErrorCategory category = ErrorCategory.TECHNICAL;
     Severity severity = Severity.ERROR;
 
-    String message = String.format("Elasticsearch error during %s: %s",
-        operation, e.getMessage());
+    String message = String.format("Elasticsearch error during %s: %s", operation, e.getMessage());
 
     return Problem.of(ErrorCode.of(errorCode), category, severity, message);
   }
 
   private Problem createProblem(String code, String message) {
-    return Problem.of(
-        ErrorCode.of(code),
-        ErrorCategory.TECHNICAL,
-        Severity.ERROR,
-        message
-    );
+    return Problem.of(ErrorCode.of(code), ErrorCategory.TECHNICAL, Severity.ERROR, message);
   }
 }

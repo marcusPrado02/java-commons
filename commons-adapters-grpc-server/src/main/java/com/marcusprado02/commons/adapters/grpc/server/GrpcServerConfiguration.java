@@ -1,7 +1,6 @@
 package com.marcusprado02.commons.adapters.grpc.server;
 
 import io.grpc.ServerInterceptor;
-
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +32,7 @@ public record GrpcServerConfiguration(
     boolean enableReflection,
     boolean enableHealthCheck,
     boolean enableMetrics,
-    List<ServerInterceptor> interceptors
-) {
+    List<ServerInterceptor> interceptors) {
 
   private static final int DEFAULT_PORT = 9090;
   private static final int DEFAULT_MAX_MESSAGE_SIZE = 4 * 1024 * 1024; // 4MB
@@ -114,9 +112,7 @@ public record GrpcServerConfiguration(
     return new Builder();
   }
 
-  /**
-   * Builder for {@link GrpcServerConfiguration}.
-   */
+  /** Builder for {@link GrpcServerConfiguration}. */
   public static class Builder {
     private int port = DEFAULT_PORT;
     private int maxInboundMessageSize = DEFAULT_MAX_MESSAGE_SIZE;
@@ -297,8 +293,7 @@ public record GrpcServerConfiguration(
           enableReflection,
           enableHealthCheck,
           enableMetrics,
-          interceptors
-      );
+          interceptors);
     }
   }
 }

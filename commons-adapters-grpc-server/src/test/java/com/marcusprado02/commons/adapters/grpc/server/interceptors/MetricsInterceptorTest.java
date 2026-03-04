@@ -1,5 +1,9 @@
 package com.marcusprado02.commons.adapters.grpc.server.interceptors;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import io.grpc.Metadata;
 import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
@@ -7,10 +11,6 @@ import io.grpc.Status;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
 
 class MetricsInterceptorTest {
 
@@ -32,14 +32,10 @@ class MetricsInterceptorTest {
 
   @Test
   void shouldCollectBasicMetrics() {
-    when(serverCall.getMethodDescriptor()).thenReturn(
-        io.grpc.MethodDescriptor.create(
-            io.grpc.MethodDescriptor.MethodType.UNARY,
-            "test/Method",
-            null,
-            null
-        )
-    );
+    when(serverCall.getMethodDescriptor())
+        .thenReturn(
+            io.grpc.MethodDescriptor.create(
+                io.grpc.MethodDescriptor.MethodType.UNARY, "test/Method", null, null));
 
     interceptor.interceptCall(serverCall, new Metadata(), next);
 
@@ -51,14 +47,10 @@ class MetricsInterceptorTest {
   @SuppressWarnings({"unchecked", "rawtypes"})
   @Test
   void shouldTrackSuccessfulCalls() {
-    when(serverCall.getMethodDescriptor()).thenReturn(
-        io.grpc.MethodDescriptor.create(
-            io.grpc.MethodDescriptor.MethodType.UNARY,
-            "test/Method",
-            null,
-            null
-        )
-    );
+    when(serverCall.getMethodDescriptor())
+        .thenReturn(
+            io.grpc.MethodDescriptor.create(
+                io.grpc.MethodDescriptor.MethodType.UNARY, "test/Method", null, null));
 
     interceptor.interceptCall(serverCall, new Metadata(), next);
 
@@ -77,14 +69,10 @@ class MetricsInterceptorTest {
   @SuppressWarnings({"unchecked", "rawtypes"})
   @Test
   void shouldTrackFailedCalls() {
-    when(serverCall.getMethodDescriptor()).thenReturn(
-        io.grpc.MethodDescriptor.create(
-            io.grpc.MethodDescriptor.MethodType.UNARY,
-            "test/Method",
-            null,
-            null
-        )
-    );
+    when(serverCall.getMethodDescriptor())
+        .thenReturn(
+            io.grpc.MethodDescriptor.create(
+                io.grpc.MethodDescriptor.MethodType.UNARY, "test/Method", null, null));
 
     interceptor.interceptCall(serverCall, new Metadata(), next);
 
@@ -103,14 +91,10 @@ class MetricsInterceptorTest {
   @SuppressWarnings({"unchecked", "rawtypes"})
   @Test
   void shouldTrackMultipleCalls() {
-    when(serverCall.getMethodDescriptor()).thenReturn(
-        io.grpc.MethodDescriptor.create(
-            io.grpc.MethodDescriptor.MethodType.UNARY,
-            "test/Method",
-            null,
-            null
-        )
-    );
+    when(serverCall.getMethodDescriptor())
+        .thenReturn(
+            io.grpc.MethodDescriptor.create(
+                io.grpc.MethodDescriptor.MethodType.UNARY, "test/Method", null, null));
 
     // Simulate 3 successful calls and 2 failed calls
     for (int i = 0; i < 3; i++) {
@@ -136,14 +120,10 @@ class MetricsInterceptorTest {
 
   @Test
   void shouldResetMetrics() {
-    when(serverCall.getMethodDescriptor()).thenReturn(
-        io.grpc.MethodDescriptor.create(
-            io.grpc.MethodDescriptor.MethodType.UNARY,
-            "test/Method",
-            null,
-            null
-        )
-    );
+    when(serverCall.getMethodDescriptor())
+        .thenReturn(
+            io.grpc.MethodDescriptor.create(
+                io.grpc.MethodDescriptor.MethodType.UNARY, "test/Method", null, null));
 
     interceptor.interceptCall(serverCall, new Metadata(), next);
     assertNotNull(interceptor.getMethodMetrics("test/Method"));
@@ -154,24 +134,16 @@ class MetricsInterceptorTest {
 
   @Test
   void shouldReturnAllMetrics() {
-    when(serverCall.getMethodDescriptor()).thenReturn(
-        io.grpc.MethodDescriptor.create(
-            io.grpc.MethodDescriptor.MethodType.UNARY,
-            "test/Method1",
-            null,
-            null
-        )
-    );
+    when(serverCall.getMethodDescriptor())
+        .thenReturn(
+            io.grpc.MethodDescriptor.create(
+                io.grpc.MethodDescriptor.MethodType.UNARY, "test/Method1", null, null));
     interceptor.interceptCall(serverCall, new Metadata(), next);
 
-    when(serverCall.getMethodDescriptor()).thenReturn(
-        io.grpc.MethodDescriptor.create(
-            io.grpc.MethodDescriptor.MethodType.UNARY,
-            "test/Method2",
-            null,
-            null
-        )
-    );
+    when(serverCall.getMethodDescriptor())
+        .thenReturn(
+            io.grpc.MethodDescriptor.create(
+                io.grpc.MethodDescriptor.MethodType.UNARY, "test/Method2", null, null));
     interceptor.interceptCall(serverCall, new Metadata(), next);
 
     assertEquals(2, interceptor.getAllMetrics().size());
@@ -181,14 +153,10 @@ class MetricsInterceptorTest {
 
   @Test
   void shouldCalculateAverageDuration() {
-    when(serverCall.getMethodDescriptor()).thenReturn(
-        io.grpc.MethodDescriptor.create(
-            io.grpc.MethodDescriptor.MethodType.UNARY,
-            "test/Method",
-            null,
-            null
-        )
-    );
+    when(serverCall.getMethodDescriptor())
+        .thenReturn(
+            io.grpc.MethodDescriptor.create(
+                io.grpc.MethodDescriptor.MethodType.UNARY, "test/Method", null, null));
 
     interceptor.interceptCall(serverCall, new Metadata(), next);
 

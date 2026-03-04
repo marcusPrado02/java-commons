@@ -31,9 +31,8 @@ public class CompositeTenantResolver<T> implements TenantResolver<T> {
   private final List<TenantResolver<T>> resolvers;
 
   public CompositeTenantResolver(List<TenantResolver<T>> resolvers) {
-    this.resolvers = resolvers.stream()
-        .sorted(Comparator.comparingInt(TenantResolver::getPriority))
-        .toList();
+    this.resolvers =
+        resolvers.stream().sorted(Comparator.comparingInt(TenantResolver::getPriority)).toList();
   }
 
   @Override

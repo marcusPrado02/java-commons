@@ -1,48 +1,30 @@
 package com.marcusprado02.commons.ports.serialization;
 
-/**
- * Supported serialization formats.
- */
+/** Supported serialization formats. */
 public enum SerializationFormat {
 
-  /**
-   * Protocol Buffers binary format.
-   */
+  /** Protocol Buffers binary format. */
   PROTOBUF("application/x-protobuf", "protobuf", true),
 
-  /**
-   * Protocol Buffers JSON format.
-   */
+  /** Protocol Buffers JSON format. */
   PROTOBUF_JSON("application/json", "protobuf-json", false),
 
-  /**
-   * Protocol Buffers text format.
-   */
+  /** Protocol Buffers text format. */
   PROTOBUF_TEXT("text/plain", "protobuf-text", false),
 
-  /**
-   * Apache Avro binary format.
-   */
+  /** Apache Avro binary format. */
   AVRO("application/avro", "avro", true),
 
-  /**
-   * Apache Avro JSON format.
-   */
+  /** Apache Avro JSON format. */
   AVRO_JSON("application/json", "avro-json", false),
 
-  /**
-   * MessagePack binary format.
-   */
+  /** MessagePack binary format. */
   MESSAGEPACK("application/msgpack", "messagepack", true),
 
-  /**
-   * Standard JSON format.
-   */
+  /** Standard JSON format. */
   JSON("application/json", "json", false),
 
-  /**
-   * XML format.
-   */
+  /** XML format. */
   XML("application/xml", "xml", false);
 
   private final String contentType;

@@ -1,7 +1,6 @@
 package com.marcusprado02.commons.ports.serialization;
 
 import com.marcusprado02.commons.kernel.result.Result;
-
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -23,7 +22,7 @@ public interface SerializationPort<T> {
   /**
    * Serializes an object to bytes with options.
    *
-   * @param object  the object to serialize
+   * @param object the object to serialize
    * @param options serialization options
    * @return the serialized bytes or error details
    */
@@ -32,7 +31,7 @@ public interface SerializationPort<T> {
   /**
    * Serializes an object to an output stream.
    *
-   * @param object       the object to serialize
+   * @param object the object to serialize
    * @param outputStream the output stream to write to
    * @return success or error details
    */
@@ -41,9 +40,9 @@ public interface SerializationPort<T> {
   /**
    * Serializes an object to an output stream with options.
    *
-   * @param object       the object to serialize
+   * @param object the object to serialize
    * @param outputStream the output stream to write to
-   * @param options      serialization options
+   * @param options serialization options
    * @return success or error details
    */
   Result<Void> serialize(T object, OutputStream outputStream, SerializationOptions options);
@@ -51,7 +50,7 @@ public interface SerializationPort<T> {
   /**
    * Deserializes bytes to an object.
    *
-   * @param data        the data to deserialize
+   * @param data the data to deserialize
    * @param targetClass the target class type
    * @return the deserialized object or error details
    */
@@ -60,9 +59,9 @@ public interface SerializationPort<T> {
   /**
    * Deserializes bytes to an object with options.
    *
-   * @param data        the data to deserialize
+   * @param data the data to deserialize
    * @param targetClass the target class type
-   * @param options     serialization options
+   * @param options serialization options
    * @return the deserialized object or error details
    */
   Result<T> deserialize(byte[] data, Class<T> targetClass, SerializationOptions options);
@@ -81,10 +80,11 @@ public interface SerializationPort<T> {
    *
    * @param inputStream the input stream to read from
    * @param targetClass the target class type
-   * @param options     serialization options
+   * @param options serialization options
    * @return the deserialized object or error details
    */
-  Result<T> deserialize(InputStream inputStream, Class<T> targetClass, SerializationOptions options);
+  Result<T> deserialize(
+      InputStream inputStream, Class<T> targetClass, SerializationOptions options);
 
   /**
    * Validates an object against a schema.

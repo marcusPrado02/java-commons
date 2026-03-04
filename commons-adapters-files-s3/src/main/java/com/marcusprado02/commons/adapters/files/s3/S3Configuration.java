@@ -3,16 +3,13 @@ package com.marcusprado02.commons.adapters.files.s3;
 import java.net.URI;
 import java.util.Objects;
 
-/**
- * Configuration for S3FileStoreAdapter.
- */
+/** Configuration for S3FileStoreAdapter. */
 public record S3Configuration(
     String region,
     URI endpoint,
     boolean pathStyleAccessEnabled,
     long multipartThresholdBytes,
-    int multipartChunkSizeBytes
-) {
+    int multipartChunkSizeBytes) {
 
   public S3Configuration {
     Objects.requireNonNull(region, "region must not be null");
@@ -24,30 +21,21 @@ public record S3Configuration(
     }
   }
 
-  /**
-   * Default configuration for AWS S3.
-   */
+  /** Default configuration for AWS S3. */
   public static S3Configuration defaults(String region) {
     return new S3Configuration(
         region,
         null,
         false,
         5 * 1024 * 1024, // 5 MB
-        5 * 1024 * 1024  // 5 MB
-    );
+        5 * 1024 * 1024 // 5 MB
+        );
   }
 
-  /**
-   * Configuration for LocalStack (testing).
-   */
+  /** Configuration for LocalStack (testing). */
   public static S3Configuration localStack(String endpoint) {
     return new S3Configuration(
-        "us-east-1",
-        URI.create(endpoint),
-        true,
-        5 * 1024 * 1024,
-        5 * 1024 * 1024
-    );
+        "us-east-1", URI.create(endpoint), true, 5 * 1024 * 1024, 5 * 1024 * 1024);
   }
 
   public static Builder builder() {
@@ -97,8 +85,7 @@ public record S3Configuration(
           endpoint,
           pathStyleAccessEnabled,
           multipartThresholdBytes,
-          multipartChunkSizeBytes
-      );
+          multipartChunkSizeBytes);
     }
   }
 }

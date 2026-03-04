@@ -66,8 +66,7 @@ public class LaunchDarklyFeatureFlagProvider implements FeatureFlagProvider {
   }
 
   private LDContext toLDContext(FeatureFlagContext context) {
-    var builder =
-        LDContext.builder(context.userId() != null ? context.userId() : "anonymous");
+    var builder = LDContext.builder(context.userId() != null ? context.userId() : "anonymous");
 
     // Add session ID as attribute
     if (context.sessionId() != null) {

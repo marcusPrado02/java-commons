@@ -5,13 +5,12 @@ import com.marcusprado02.commons.kernel.errors.ErrorCode;
 import com.marcusprado02.commons.kernel.errors.Problem;
 import com.marcusprado02.commons.kernel.errors.Severity;
 import com.marcusprado02.commons.kernel.result.Result;
+import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.*;
 
-import java.util.concurrent.TimeUnit;
-
 /**
- * Benchmarks for Result<T> pattern operations.
- * Tests performance of Result creation, mapping, and error handling.
+ * Benchmarks for Result<T> pattern operations. Tests performance of Result creation, mapping, and
+ * error handling.
  */
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -29,12 +28,12 @@ public class ResultBenchmark {
   public void setup() {
     successResult = Result.ok(42);
 
-    problem = Problem.of(
-        ErrorCode.of("TEST_ERROR"),
-        ErrorCategory.TECHNICAL,
-        Severity.ERROR,
-        "Test error message"
-    );
+    problem =
+        Problem.of(
+            ErrorCode.of("TEST_ERROR"),
+            ErrorCategory.TECHNICAL,
+            Severity.ERROR,
+            "Test error message");
 
     failureResult = Result.fail(problem);
   }
@@ -91,10 +90,7 @@ public class ResultBenchmark {
 
   @Benchmark
   public Result<Integer> chainedOperations() {
-    return Result.ok(10)
-        .map(v -> v * 2)
-        .flatMap(v -> Result.ok(v + 5))
-        .map(v -> v * 3);
+    return Result.ok(10).map(v -> v * 2).flatMap(v -> Result.ok(v + 5)).map(v -> v * 3);
   }
 
   @Benchmark

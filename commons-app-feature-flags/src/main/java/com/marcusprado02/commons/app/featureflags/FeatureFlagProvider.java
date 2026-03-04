@@ -57,9 +57,7 @@ public interface FeatureFlagProvider {
     }
   }
 
-  /**
-   * Shuts down the provider and releases resources.
-   */
+  /** Shuts down the provider and releases resources. */
   default void shutdown() {
     // Default: no-op
   }

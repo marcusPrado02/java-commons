@@ -4,9 +4,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 
-/**
- * Represents the result of a schema validation operation.
- */
+/** Represents the result of a schema validation operation. */
 public class ValidationResult {
 
   private final boolean valid;
@@ -51,7 +49,7 @@ public class ValidationResult {
   /**
    * Creates a failed validation result with errors and warnings.
    *
-   * @param errors   the validation errors
+   * @param errors the validation errors
    * @param warnings the validation warnings
    * @return an invalid result with errors and warnings
    */
@@ -109,9 +107,9 @@ public class ValidationResult {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     ValidationResult that = (ValidationResult) o;
-    return valid == that.valid &&
-           Objects.equals(errors, that.errors) &&
-           Objects.equals(warnings, that.warnings);
+    return valid == that.valid
+        && Objects.equals(errors, that.errors)
+        && Objects.equals(warnings, that.warnings);
   }
 
   @Override
@@ -121,10 +119,13 @@ public class ValidationResult {
 
   @Override
   public String toString() {
-    return "ValidationResult{" +
-           "valid=" + valid +
-           ", errors=" + errors.size() +
-           ", warnings=" + warnings.size() +
-           '}';
+    return "ValidationResult{"
+        + "valid="
+        + valid
+        + ", errors="
+        + errors.size()
+        + ", warnings="
+        + warnings.size()
+        + '}';
   }
 }

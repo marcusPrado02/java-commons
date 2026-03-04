@@ -5,8 +5,8 @@ import java.util.Optional;
 /**
  * Tenant resolver interface.
  *
- * <p>Implementations resolve tenant context from different sources (HTTP headers, subdomains, paths,
- * etc.).
+ * <p>Implementations resolve tenant context from different sources (HTTP headers, subdomains,
+ * paths, etc.).
  *
  * <p>Example usage:
  *

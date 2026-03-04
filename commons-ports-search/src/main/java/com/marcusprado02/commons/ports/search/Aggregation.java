@@ -24,12 +24,7 @@ import java.util.Objects;
  *     .build();
  * }</pre>
  */
-public record Aggregation(
-    String name,
-    AggregationType type,
-    String field,
-    Integer size
-) {
+public record Aggregation(String name, AggregationType type, String field, Integer size) {
 
   public Aggregation {
     Objects.requireNonNull(name, "Aggregation name cannot be null");

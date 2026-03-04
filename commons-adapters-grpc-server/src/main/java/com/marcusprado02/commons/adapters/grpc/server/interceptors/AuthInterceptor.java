@@ -7,7 +7,6 @@ import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
 import io.grpc.Status;
-
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -32,15 +31,10 @@ import java.util.function.Function;
  */
 public class AuthInterceptor implements ServerInterceptor {
 
-  /**
-   * Context key for the authenticated principal.
-   */
-  public static final Context.Key<String> PRINCIPAL_CONTEXT_KEY =
-      Context.key("principal");
+  /** Context key for the authenticated principal. */
+  public static final Context.Key<String> PRINCIPAL_CONTEXT_KEY = Context.key("principal");
 
-  /**
-   * Metadata key for authorization header.
-   */
+  /** Metadata key for authorization header. */
   public static final Metadata.Key<String> AUTHORIZATION_METADATA_KEY =
       Metadata.Key.of("authorization", Metadata.ASCII_STRING_MARSHALLER);
 
@@ -60,7 +54,7 @@ public class AuthInterceptor implements ServerInterceptor {
    * Creates a new auth interceptor.
    *
    * @param tokenValidator function that validates token and returns principal (null if invalid)
-   * @param required       whether authentication is required
+   * @param required whether authentication is required
    */
   public AuthInterceptor(Function<String, String> tokenValidator, boolean required) {
     this.tokenValidator = Objects.requireNonNull(tokenValidator, "Token validator cannot be null");
@@ -68,16 +62,14 @@ public class AuthInterceptor implements ServerInterceptor {
   }
 
   @Override
-  public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call,
-                                                                 Metadata headers,
-                                                                 ServerCallHandler<ReqT, RespT> next) {
+  public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(
+      ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
     String authHeader = headers.get(AUTHORIZATION_METADATA_KEY);
 
     if (authHeader == null) {
       if (required) {
         call.close(Status.UNAUTHENTICATED.withDescription("Missing authorization header"), headers);
-        return new ServerCall.Listener<>() {
-        };
+        return new ServerCall.Listener<>() {};
       }
       // Authentication not required, proceed without principal
       return next.startCall(call, headers);
@@ -86,18 +78,16 @@ public class AuthInterceptor implements ServerInterceptor {
     // Extract token (assuming "Bearer <token>" format)
     String token = extractToken(authHeader);
     if (token == null) {
-      call.close(Status.UNAUTHENTICATED.withDescription("Invalid authorization header format"),
-          headers);
-      return new ServerCall.Listener<>() {
-      };
+      call.close(
+          Status.UNAUTHENTICATED.withDescription("Invalid authorization header format"), headers);
+      return new ServerCall.Listener<>() {};
     }
 
     // Validate token
     String principal = tokenValidator.apply(token);
     if (principal == null) {
       call.close(Status.UNAUTHENTICATED.withDescription("Invalid or expired token"), headers);
-      return new ServerCall.Listener<>() {
-      };
+      return new ServerCall.Listener<>() {};
     }
 
     // Create context with principal and proceed

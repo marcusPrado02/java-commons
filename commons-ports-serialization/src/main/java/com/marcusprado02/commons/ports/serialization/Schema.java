@@ -2,9 +2,7 @@ package com.marcusprado02.commons.ports.serialization;
 
 import java.util.Objects;
 
-/**
- * Represents a serialization schema with version information.
- */
+/** Represents a serialization schema with version information. */
 public class Schema {
 
   private final String name;
@@ -15,10 +13,10 @@ public class Schema {
   /**
    * Creates a new schema.
    *
-   * @param name       the schema name
-   * @param version    the schema version
+   * @param name the schema name
+   * @param version the schema version
    * @param definition the schema definition content
-   * @param format     the serialization format
+   * @param format the serialization format
    */
   public Schema(String name, String version, String definition, SerializationFormat format) {
     this.name = Objects.requireNonNull(name, "Schema name cannot be null");
@@ -77,10 +75,10 @@ public class Schema {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     Schema schema = (Schema) o;
-    return Objects.equals(name, schema.name) &&
-           Objects.equals(version, schema.version) &&
-           Objects.equals(definition, schema.definition) &&
-           format == schema.format;
+    return Objects.equals(name, schema.name)
+        && Objects.equals(version, schema.version)
+        && Objects.equals(definition, schema.definition)
+        && format == schema.format;
   }
 
   @Override
@@ -90,10 +88,15 @@ public class Schema {
 
   @Override
   public String toString() {
-    return "Schema{" +
-           "name='" + name + '\'' +
-           ", version='" + version + '\'' +
-           ", format=" + format +
-           '}';
+    return "Schema{"
+        + "name='"
+        + name
+        + '\''
+        + ", version='"
+        + version
+        + '\''
+        + ", format="
+        + format
+        + '}';
   }
 }

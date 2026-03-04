@@ -5,8 +5,8 @@ import static org.mockito.Mockito.*;
 
 import com.marcusprado02.commons.app.multitenancy.TenantContext;
 import com.marcusprado02.commons.app.multitenancy.TenantResolver;
-import org.junit.jupiter.api.Test;
 import java.util.Optional;
+import org.junit.jupiter.api.Test;
 
 class CompositeTenantResolverTest {
 
@@ -18,8 +18,7 @@ class CompositeTenantResolverTest {
     when(resolver1.getPriority()).thenReturn(10);
     when(resolver2.getPriority()).thenReturn(20);
     when(resolver1.resolve("request")).thenReturn(Optional.empty());
-    when(resolver2.resolve("request"))
-        .thenReturn(Optional.of(TenantContext.of("tenant123")));
+    when(resolver2.resolve("request")).thenReturn(Optional.of(TenantContext.of("tenant123")));
 
     CompositeTenantResolver<String> composite =
         CompositeTenantResolver.<String>builder()
@@ -46,10 +45,7 @@ class CompositeTenantResolverTest {
     when(resolver2.resolve("request")).thenReturn(Optional.empty());
 
     CompositeTenantResolver<String> composite =
-        CompositeTenantResolver.<String>builder()
-            .resolver(resolver1)
-            .resolver(resolver2)
-            .build();
+        CompositeTenantResolver.<String>builder().resolver(resolver1).resolver(resolver2).build();
 
     Optional<TenantContext> result = composite.resolve("request");
 
@@ -63,14 +59,10 @@ class CompositeTenantResolverTest {
 
     when(resolver1.getPriority()).thenReturn(10);
     when(resolver2.getPriority()).thenReturn(20);
-    when(resolver1.resolve("request"))
-        .thenReturn(Optional.of(TenantContext.of("tenant123")));
+    when(resolver1.resolve("request")).thenReturn(Optional.of(TenantContext.of("tenant123")));
 
     CompositeTenantResolver<String> composite =
-        CompositeTenantResolver.<String>builder()
-            .resolver(resolver1)
-            .resolver(resolver2)
-            .build();
+        CompositeTenantResolver.<String>builder().resolver(resolver1).resolver(resolver2).build();
 
     Optional<TenantContext> result = composite.resolve("request");
 
@@ -90,8 +82,7 @@ class CompositeTenantResolverTest {
     when(lowPriority.getPriority()).thenReturn(100);
     when(highPriority.getPriority()).thenReturn(1);
     when(lowPriority.resolve("request")).thenReturn(Optional.empty());
-    when(highPriority.resolve("request"))
-        .thenReturn(Optional.of(TenantContext.of("tenant123")));
+    when(highPriority.resolve("request")).thenReturn(Optional.of(TenantContext.of("tenant123")));
 
     // Add in reverse priority order
     CompositeTenantResolver<String> composite =

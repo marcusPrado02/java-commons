@@ -413,7 +413,7 @@ public class GraphQLSecurityConfig {
             Authentication auth = SecurityContextHolder
                 .getContext()
                 .getAuthentication();
-            
+
             return roles.stream()
                 .anyMatch(role -> auth.getAuthorities().stream()
                     .anyMatch(grantedAuthority ->

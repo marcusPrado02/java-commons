@@ -38,9 +38,7 @@ public class PathTenantResolver implements TenantResolver<HttpServletRequest> {
 
   private final Pattern pattern;
 
-  /**
-   * Creates path resolver with default pattern (first path segment).
-   */
+  /** Creates path resolver with default pattern (first path segment). */
   public PathTenantResolver() {
     this("/([^/]+)/.*");
   }

@@ -24,33 +24,27 @@ class InMemoryFeatureFlagProviderTest {
                 FeatureFlagValue.of(true),
                 FeatureFlagValue.of(false))
             .flagWithPercentageRollout(
-                "rollout-flag",
-                50,
-                FeatureFlagValue.of(true),
-                FeatureFlagValue.of(false))
+                "rollout-flag", 50, FeatureFlagValue.of(true), FeatureFlagValue.of(false))
             .build();
   }
 
   @Test
   void shouldReturnSimpleFlag() {
-    boolean enabled =
-        provider.isEnabled("simple-flag", FeatureFlagContext.anonymous());
+    boolean enabled = provider.isEnabled("simple-flag", FeatureFlagContext.anonymous());
 
     assertThat(enabled).isTrue();
   }
 
   @Test
   void shouldReturnStringFlag() {
-    FeatureFlagValue value =
-        provider.getValue("string-flag", FeatureFlagContext.anonymous());
+    FeatureFlagValue value = provider.getValue("string-flag", FeatureFlagContext.anonymous());
 
     assertThat(value.asString()).isEqualTo("dark-theme");
   }
 
   @Test
   void shouldReturnNumberFlag() {
-    FeatureFlagValue value =
-        provider.getValue("number-flag", FeatureFlagContext.anonymous());
+    FeatureFlagValue value = provider.getValue("number-flag", FeatureFlagContext.anonymous());
 
     assertThat(value.asInt()).isEqualTo(100);
   }
@@ -86,8 +80,7 @@ class InMemoryFeatureFlagProviderTest {
   void shouldUpdateFlag() {
     provider.updateFlag("simple-flag", FeatureFlagValue.of(false));
 
-    boolean enabled =
-        provider.isEnabled("simple-flag", FeatureFlagContext.anonymous());
+    boolean enabled = provider.isEnabled("simple-flag", FeatureFlagContext.anonymous());
     assertThat(enabled).isFalse();
   }
 
@@ -95,8 +88,7 @@ class InMemoryFeatureFlagProviderTest {
   void shouldRemoveFlag() {
     provider.removeFlag("simple-flag");
 
-    assertThatThrownBy(
-            () -> provider.getValue("simple-flag", FeatureFlagContext.anonymous()))
+    assertThatThrownBy(() -> provider.getValue("simple-flag", FeatureFlagContext.anonymous()))
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("Feature flag not found");
   }
@@ -105,22 +97,19 @@ class InMemoryFeatureFlagProviderTest {
   void shouldClearAllFlags() {
     provider.clear();
 
-    assertThat(provider.isEnabled("simple-flag", FeatureFlagContext.anonymous()))
-        .isFalse();
+    assertThat(provider.isEnabled("simple-flag", FeatureFlagContext.anonymous())).isFalse();
   }
 
   @Test
   void shouldReturnFalseForMissingFlag() {
-    boolean enabled =
-        provider.isEnabled("missing-flag", FeatureFlagContext.anonymous());
+    boolean enabled = provider.isEnabled("missing-flag", FeatureFlagContext.anonymous());
 
     assertThat(enabled).isFalse();
   }
 
   @Test
   void shouldThrowForMissingFlagWhenGettingValue() {
-    assertThatThrownBy(
-            () -> provider.getValue("missing-flag", FeatureFlagContext.anonymous()))
+    assertThatThrownBy(() -> provider.getValue("missing-flag", FeatureFlagContext.anonymous()))
         .isInstanceOf(IllegalArgumentException.class);
   }
 }

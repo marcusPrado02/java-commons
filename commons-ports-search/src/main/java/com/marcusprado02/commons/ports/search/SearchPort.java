@@ -101,7 +101,8 @@ public interface SearchPort extends AutoCloseable {
    * @param mappings field mappings
    * @return Result indicating success or failure
    */
-  Result<Void> createIndex(String index, Map<String, Object> settings, Map<String, Object> mappings);
+  Result<Void> createIndex(
+      String index, Map<String, Object> settings, Map<String, Object> mappings);
 
   /**
    * Deletes an index.
@@ -135,7 +136,8 @@ public interface SearchPort extends AutoCloseable {
    * @param aggregations aggregations to execute
    * @return Result containing aggregation results
    */
-  Result<AggregationResult> aggregate(String index, SearchQuery query, List<Aggregation> aggregations);
+  Result<AggregationResult> aggregate(
+      String index, SearchQuery query, List<Aggregation> aggregations);
 
   @Override
   void close();
@@ -148,10 +150,5 @@ public interface SearchPort extends AutoCloseable {
    * @param failureCount failed documents
    * @param errors list of errors for failed documents
    */
-  record BulkIndexResult(
-      int totalDocs,
-      int successCount,
-      int failureCount,
-      List<String> errors
-  ) {}
+  record BulkIndexResult(int totalDocs, int successCount, int failureCount, List<String> errors) {}
 }

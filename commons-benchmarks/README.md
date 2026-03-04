@@ -216,12 +216,12 @@ java -jar benchmarks.jar -prof comp
    @OutputTimeUnit(TimeUnit.NANOSECONDS)
    @State(Scope.Thread)
    public class MyBenchmark {
-     
+
      @Setup
      public void setup() {
        // Initialize test data
      }
-     
+
      @Benchmark
      public void myOperation() {
        // Code to benchmark

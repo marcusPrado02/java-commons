@@ -1,7 +1,7 @@
 package com.marcusprado02.commons.ports.excel;
 
-import com.marcusprado02.commons.kernel.result.Result;
 import com.marcusprado02.commons.kernel.errors.Problems;
+import com.marcusprado02.commons.kernel.result.Result;
 
 /**
  * Streaming reader for processing large Excel files row by row.
@@ -71,9 +71,7 @@ public interface ExcelStreamReader extends AutoCloseable {
    */
   Result<Void> skip(int count);
 
-  /**
-   * Closes the reader and releases resources.
-   */
+  /** Closes the reader and releases resources. */
   @Override
   void close();
 }

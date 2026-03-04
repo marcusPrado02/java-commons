@@ -1,48 +1,36 @@
 package com.marcusprado02.commons.adapters.search.elasticsearch;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
-import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch._types.aggregations.*;
 import co.elastic.clients.elasticsearch.core.*;
-import co.elastic.clients.elasticsearch.core.bulk.BulkResponseItem;
-import co.elastic.clients.elasticsearch.core.search.Hit;
-import co.elastic.clients.elasticsearch.core.search.HitsMetadata;
-import co.elastic.clients.elasticsearch.core.search.TotalHits;
-import co.elastic.clients.elasticsearch.core.search.TotalHitsRelation;
 import co.elastic.clients.elasticsearch.indices.*;
-import com.marcusprado02.commons.kernel.result.Result;
 // Explicitly import our Aggregation class to resolve ambiguity
-import com.marcusprado02.commons.ports.search.Aggregation;
 import com.marcusprado02.commons.ports.search.*;
+import com.marcusprado02.commons.ports.search.Aggregation;
+import java.io.IOException;
+import java.time.Instant;
+import java.util.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.io.IOException;
-import java.time.Instant;
-import java.util.*;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 class ElasticsearchAdapterTest {
 
-  @Mock
-  private ElasticsearchClient client;
+  @Mock private ElasticsearchClient client;
 
   private ElasticsearchConfiguration config;
 
   @BeforeEach
   void setUp() {
-    config = ElasticsearchConfiguration.forDevelopment(
-        "http://localhost:9200",
-        "elastic",
-        "changeme"
-    );
+    config =
+        ElasticsearchConfiguration.forDevelopment("http://localhost:9200", "elastic", "changeme");
   }
 
   @Test
@@ -58,11 +46,12 @@ class ElasticsearchAdapterTest {
 
   @Test
   void shouldBuildMatchQuery() {
-    SearchQuery query = SearchQuery.builder()
-        .query("test search")
-        .queryType(SearchQuery.QueryType.MATCH)
-        .fields(List.of("title", "content"))
-        .build();
+    SearchQuery query =
+        SearchQuery.builder()
+            .query("test search")
+            .queryType(SearchQuery.QueryType.MATCH)
+            .fields(List.of("title", "content"))
+            .build();
 
     assertNotNull(query);
     assertEquals("test search", query.query());
@@ -71,55 +60,60 @@ class ElasticsearchAdapterTest {
 
   @Test
   void shouldBuildTermQuery() {
-    SearchQuery query = SearchQuery.builder()
-        .query("exact-value")
-        .queryType(SearchQuery.QueryType.TERM)
-        .fields(List.of("status"))
-        .build();
+    SearchQuery query =
+        SearchQuery.builder()
+            .query("exact-value")
+            .queryType(SearchQuery.QueryType.TERM)
+            .fields(List.of("status"))
+            .build();
 
     assertEquals(SearchQuery.QueryType.TERM, query.queryType());
   }
 
   @Test
   void shouldBuildPhraseQuery() {
-    SearchQuery query = SearchQuery.builder()
-        .query("exact phrase match")
-        .queryType(SearchQuery.QueryType.PHRASE)
-        .fields(List.of("description"))
-        .build();
+    SearchQuery query =
+        SearchQuery.builder()
+            .query("exact phrase match")
+            .queryType(SearchQuery.QueryType.PHRASE)
+            .fields(List.of("description"))
+            .build();
 
     assertEquals(SearchQuery.QueryType.PHRASE, query.queryType());
   }
 
   @Test
   void shouldBuildPrefixQuery() {
-    SearchQuery query = SearchQuery.builder()
-        .query("test")
-        .queryType(SearchQuery.QueryType.PREFIX)
-        .fields(List.of("name"))
-        .build();
+    SearchQuery query =
+        SearchQuery.builder()
+            .query("test")
+            .queryType(SearchQuery.QueryType.PREFIX)
+            .fields(List.of("name"))
+            .build();
 
     assertEquals(SearchQuery.QueryType.PREFIX, query.queryType());
   }
 
   @Test
   void shouldBuildWildcardQuery() {
-    SearchQuery query = SearchQuery.builder()
-        .query("test*")
-        .queryType(SearchQuery.QueryType.WILDCARD)
-        .fields(List.of("name"))
-        .build();
+    SearchQuery query =
+        SearchQuery.builder()
+            .query("test*")
+            .queryType(SearchQuery.QueryType.WILDCARD)
+            .fields(List.of("name"))
+            .build();
 
     assertEquals(SearchQuery.QueryType.WILDCARD, query.queryType());
   }
 
   @Test
   void shouldBuildFuzzyQuery() {
-    SearchQuery query = SearchQuery.builder()
-        .query("tets") // typo
-        .queryType(SearchQuery.QueryType.FUZZY)
-        .fields(List.of("title"))
-        .build();
+    SearchQuery query =
+        SearchQuery.builder()
+            .query("tets") // typo
+            .queryType(SearchQuery.QueryType.FUZZY)
+            .fields(List.of("title"))
+            .build();
 
     assertEquals(SearchQuery.QueryType.FUZZY, query.queryType());
   }
@@ -178,11 +172,12 @@ class ElasticsearchAdapterTest {
 
   @Test
   void shouldCreateSearchQueryWithSorting() {
-    SearchQuery query = SearchQuery.builder()
-        .query("test")
-        .sortBy("created_at", SearchQuery.SortOrder.DESC)
-        .sortBy("_score", SearchQuery.SortOrder.DESC)
-        .build();
+    SearchQuery query =
+        SearchQuery.builder()
+            .query("test")
+            .sortBy("created_at", SearchQuery.SortOrder.DESC)
+            .sortBy("_score", SearchQuery.SortOrder.DESC)
+            .build();
 
     assertNotNull(query.sorting());
     assertEquals(2, query.sorting().size());
@@ -192,11 +187,7 @@ class ElasticsearchAdapterTest {
 
   @Test
   void shouldCreateSearchQueryWithPagination() {
-    SearchQuery query = SearchQuery.builder()
-        .query("search term")
-        .from(20)
-        .size(10)
-        .build();
+    SearchQuery query = SearchQuery.builder().query("search term").from(20).size(10).build();
 
     assertEquals(20, query.from());
     assertEquals(10, query.size());
@@ -204,10 +195,7 @@ class ElasticsearchAdapterTest {
 
   @Test
   void shouldCreateSearchQueryWithMinScore() {
-    SearchQuery query = SearchQuery.builder()
-        .query("relevant results only")
-        .minScore(0.5f)
-        .build();
+    SearchQuery query = SearchQuery.builder().query("relevant results only").minScore(0.5f).build();
 
     assertNotNull(query.minScore());
     assertEquals(0.5f, query.minScore());
@@ -219,10 +207,7 @@ class ElasticsearchAdapterTest {
     filters.put("status", "published");
     filters.put("category", "tech");
 
-    SearchQuery query = SearchQuery.builder()
-        .query("article")
-        .filters(filters)
-        .build();
+    SearchQuery query = SearchQuery.builder().query("article").filters(filters).build();
 
     assertNotNull(query.filters());
     assertEquals(2, query.filters().size());
@@ -237,12 +222,8 @@ class ElasticsearchAdapterTest {
     source.put("content", "This is test content");
     source.put("views", 100);
 
-    Document doc = Document.builder()
-        .id("doc1")
-        .source(source)
-        .score(0.95f)
-        .timestamp(Instant.now())
-        .build();
+    Document doc =
+        Document.builder().id("doc1").source(source).score(0.95f).timestamp(Instant.now()).build();
 
     assertEquals("doc1", doc.id());
     assertEquals("Test Document", doc.getField("title"));
@@ -291,12 +272,7 @@ class ElasticsearchAdapterTest {
     Document doc1 = Document.of("1", Map.of("title", "Doc 1"));
     Document doc2 = Document.of("2", Map.of("title", "Doc 2"));
 
-    SearchResult result = new SearchResult(
-        List.of(doc1, doc2),
-        2L,
-        0.98f,
-        15
-    );
+    SearchResult result = new SearchResult(List.of(doc1, doc2), 2L, 0.98f, 15);
 
     assertTrue(result.hasHits());
     assertEquals(2, result.hitCount());
@@ -318,10 +294,10 @@ class ElasticsearchAdapterTest {
 
   @Test
   void shouldCreateAggregationResultWithBuckets() {
-    List<AggregationResult.Bucket> buckets = List.of(
-        AggregationResult.Bucket.of("category-a", 50L),
-        AggregationResult.Bucket.of("category-b", 30L)
-    );
+    List<AggregationResult.Bucket> buckets =
+        List.of(
+            AggregationResult.Bucket.of("category-a", 50L),
+            AggregationResult.Bucket.of("category-b", 30L));
 
     AggregationResult result = new AggregationResult("categories", buckets, Collections.emptyMap());
 
@@ -333,12 +309,12 @@ class ElasticsearchAdapterTest {
 
   @Test
   void shouldCreateAggregationResultWithMetrics() {
-    Map<String, Double> metrics = Map.of(
-        "avg", 45.5,
-        "sum", 1000.0,
-        "min", 10.0,
-        "max", 100.0
-    );
+    Map<String, Double> metrics =
+        Map.of(
+            "avg", 45.5,
+            "sum", 1000.0,
+            "min", 10.0,
+            "max", 100.0);
 
     AggregationResult result = new AggregationResult("metrics", Collections.emptyList(), metrics);
 
@@ -351,29 +327,18 @@ class ElasticsearchAdapterTest {
 
   @Test
   void shouldValidateSearchQuerySize() {
-    assertThrows(IllegalArgumentException.class, () ->
-        SearchQuery.builder()
-            .query("test")
-            .size(0)
-            .build()
-    );
+    assertThrows(
+        IllegalArgumentException.class, () -> SearchQuery.builder().query("test").size(0).build());
 
-    assertThrows(IllegalArgumentException.class, () ->
-        SearchQuery.builder()
-            .query("test")
-            .size(10001)
-            .build()
-    );
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> SearchQuery.builder().query("test").size(10001).build());
   }
 
   @Test
   void shouldValidateSearchQueryFrom() {
-    assertThrows(IllegalArgumentException.class, () ->
-        SearchQuery.builder()
-            .query("test")
-            .from(-1)
-            .build()
-    );
+    assertThrows(
+        IllegalArgumentException.class, () -> SearchQuery.builder().query("test").from(-1).build());
   }
 
   @Test

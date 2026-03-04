@@ -1,12 +1,12 @@
 package com.marcusprado02.commons.app.multitenancy.isolation;
 
 import com.marcusprado02.commons.app.multitenancy.TenantContextHolder;
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import javax.sql.DataSource;
 
 /**
  * Schema-based tenant isolation strategy.
@@ -146,9 +146,7 @@ public class SchemaIsolationStrategy implements DataSourceProvider, TenantIsolat
     }
   }
 
-  /**
-   * Exception thrown when tenant isolation operations fail.
-   */
+  /** Exception thrown when tenant isolation operations fail. */
   public static class TenantIsolationException extends RuntimeException {
     public TenantIsolationException(String message, Throwable cause) {
       super(message, cause);

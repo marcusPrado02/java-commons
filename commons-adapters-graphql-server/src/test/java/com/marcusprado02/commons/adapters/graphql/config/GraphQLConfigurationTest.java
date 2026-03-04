@@ -1,12 +1,12 @@
 package com.marcusprado02.commons.adapters.graphql.config;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import graphql.scalars.ExtendedScalars;
 import graphql.schema.GraphQLScalarType;
 import graphql.schema.idl.RuntimeWiring;
 import org.junit.jupiter.api.Test;
 import org.springframework.graphql.execution.RuntimeWiringConfigurer;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class GraphQLConfigurationTest {
 
@@ -58,6 +58,6 @@ class GraphQLConfigurationTest {
     assertEquals(ExtendedScalars.DateTime.getName(), dateTime.getName());
 
     GraphQLScalarType uuid = wiring.getScalars().get("UUID");
- assertEquals(ExtendedScalars.UUID.getName(), uuid.getName());
+    assertEquals(ExtendedScalars.UUID.getName(), uuid.getName());
   }
 }

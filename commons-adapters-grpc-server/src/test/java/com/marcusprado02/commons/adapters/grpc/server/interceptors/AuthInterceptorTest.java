@@ -1,15 +1,14 @@
 package com.marcusprado02.commons.adapters.grpc.server.interceptors;
 
-import io.grpc.*;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-
-import java.util.function.Function;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+
+import io.grpc.*;
+import java.util.function.Function;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 class AuthInterceptorTest {
 
@@ -86,10 +85,11 @@ class AuthInterceptorTest {
 
   @Test
   void shouldExtractBearerToken() {
-    Function<String, String> validator = token -> {
-      assertEquals("my-token", token);
-      return "user@example.com";
-    };
+    Function<String, String> validator =
+        token -> {
+          assertEquals("my-token", token);
+          return "user@example.com";
+        };
     AuthInterceptor interceptor = new AuthInterceptor(validator, true);
 
     Metadata metadata = new Metadata();
@@ -102,10 +102,11 @@ class AuthInterceptorTest {
 
   @Test
   void shouldExtractRawToken() {
-    Function<String, String> validator = token -> {
-      assertEquals("raw-token", token);
-      return "user@example.com";
-    };
+    Function<String, String> validator =
+        token -> {
+          assertEquals("raw-token", token);
+          return "user@example.com";
+        };
     AuthInterceptor interceptor = new AuthInterceptor(validator, true);
 
     Metadata metadata = new Metadata();
@@ -118,9 +119,10 @@ class AuthInterceptorTest {
 
   @Test
   void shouldHandleValidationException() {
-    Function<String, String> validator = token -> {
-      throw new RuntimeException("Validation error");
-    };
+    Function<String, String> validator =
+        token -> {
+          throw new RuntimeException("Validation error");
+        };
     AuthInterceptor interceptor = new AuthInterceptor(validator, true);
 
     Metadata metadata = new Metadata();

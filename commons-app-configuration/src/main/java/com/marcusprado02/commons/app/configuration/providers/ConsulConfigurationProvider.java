@@ -8,9 +8,6 @@ import com.marcusprado02.commons.app.configuration.ConfigurationChangeEvent;
 import com.marcusprado02.commons.app.configuration.ConfigurationChangeListener;
 import com.marcusprado02.commons.app.configuration.DynamicConfiguration;
 import com.marcusprado02.commons.kernel.result.Result;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.*;

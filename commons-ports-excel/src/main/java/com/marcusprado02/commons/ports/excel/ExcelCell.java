@@ -135,7 +135,8 @@ public record ExcelCell(
    * @param dateTime cell datetime
    * @param style cell style
    */
-  public static ExcelCell dateTime(int row, int column, LocalDateTime dateTime, ExcelCellStyle style) {
+  public static ExcelCell dateTime(
+      int row, int column, LocalDateTime dateTime, ExcelCellStyle style) {
     return new ExcelCell(row, column, CellType.NUMERIC, dateTime, null, style);
   }
 

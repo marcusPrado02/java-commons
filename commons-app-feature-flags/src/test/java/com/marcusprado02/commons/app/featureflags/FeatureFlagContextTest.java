@@ -43,8 +43,7 @@ class FeatureFlagContextTest {
 
   @Test
   void shouldCreateImmutableAttributes() {
-    FeatureFlagContext context =
-        FeatureFlagContext.builder().attribute("key", "value").build();
+    FeatureFlagContext context = FeatureFlagContext.builder().attribute("key", "value").build();
 
     assertThatThrownBy(() -> context.attributes().put("new", "value"))
         .isInstanceOf(UnsupportedOperationException.class);

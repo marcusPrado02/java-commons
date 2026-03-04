@@ -1,7 +1,6 @@
 package com.marcusprado02.commons.adapters.grpc.client.interceptors;
 
 import io.grpc.*;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
@@ -100,16 +99,12 @@ public class MetricsInterceptor implements ClientInterceptor {
     return Map.copyOf(metricsMap);
   }
 
-  /**
-   * Resets all metrics.
-   */
+  /** Resets all metrics. */
   public void reset() {
     metricsMap.clear();
   }
 
-  /**
-   * Metrics for a single method.
-   */
+  /** Metrics for a single method. */
   public static class MethodMetrics {
     private final AtomicLong requestCount = new AtomicLong();
     private final AtomicLong successCount = new AtomicLong();
@@ -174,8 +169,7 @@ public class MetricsInterceptor implements ClientInterceptor {
      */
     public Map<String, Long> failuresByStatus() {
       return failuresByStatus.entrySet().stream()
-          .collect(
-              java.util.stream.Collectors.toMap(Map.Entry::getKey, e -> e.getValue().get()));
+          .collect(java.util.stream.Collectors.toMap(Map.Entry::getKey, e -> e.getValue().get()));
     }
 
     /**

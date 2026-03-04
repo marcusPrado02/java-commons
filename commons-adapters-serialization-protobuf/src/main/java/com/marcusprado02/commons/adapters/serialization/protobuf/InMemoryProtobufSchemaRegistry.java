@@ -1,22 +1,19 @@
 package com.marcusprado02.commons.adapters.serialization.protobuf;
 
-import com.marcusprado02.commons.kernel.errors.Problem;
-import com.marcusprado02.commons.kernel.errors.ErrorCode;
 import com.marcusprado02.commons.kernel.errors.ErrorCategory;
+import com.marcusprado02.commons.kernel.errors.ErrorCode;
+import com.marcusprado02.commons.kernel.errors.Problem;
 import com.marcusprado02.commons.kernel.errors.Severity;
 import com.marcusprado02.commons.kernel.result.Result;
 import com.marcusprado02.commons.ports.serialization.Schema;
 import com.marcusprado02.commons.ports.serialization.SchemaRegistry;
 import com.marcusprado02.commons.ports.serialization.ValidationResult;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-
-/**
- * In-memory implementation of SchemaRegistry for Protocol Buffers.
- */
+/** In-memory implementation of SchemaRegistry for Protocol Buffers. */
 public class InMemoryProtobufSchemaRegistry implements SchemaRegistry {
 
   private static final Logger log = LoggerFactory.getLogger(InMemoryProtobufSchemaRegistry.class);
@@ -31,18 +28,29 @@ public class InMemoryProtobufSchemaRegistry implements SchemaRegistry {
       // Validate schema before registration
       ValidationResult validation = validateSchema(schema);
       if (!validation.isValid()) {
-        return Result.fail(Problem.of(ErrorCode.of("INVALID_SCHEMA"), ErrorCategory.BUSINESS, Severity.ERROR, "Invalid schema"));
+        return Result.fail(
+            Problem.of(
+                ErrorCode.of("INVALID_SCHEMA"),
+                ErrorCategory.BUSINESS,
+                Severity.ERROR,
+                "Invalid schema"));
       }
 
-      schemas.computeIfAbsent(schema.getName(), k -> new ConcurrentHashMap<>())
-              .put(schema.getVersion(), schema);
+      schemas
+          .computeIfAbsent(schema.getName(), k -> new ConcurrentHashMap<>())
+          .put(schema.getVersion(), schema);
 
       log.info("Registered schema: {} version {}", schema.getName(), schema.getVersion());
       return Result.ok(null);
 
     } catch (Exception e) {
       log.error("Failed to register schema", e);
-      return Result.fail(Problem.of(ErrorCode.of("REGISTRATION_ERROR"), ErrorCategory.BUSINESS, Severity.ERROR, "Schema registration failed"));
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("REGISTRATION_ERROR"),
+              ErrorCategory.BUSINESS,
+              Severity.ERROR,
+              "Schema registration failed"));
     }
   }
 
@@ -51,8 +59,7 @@ public class InMemoryProtobufSchemaRegistry implements SchemaRegistry {
     Objects.requireNonNull(name, "Schema name cannot be null");
     Objects.requireNonNull(version, "Schema version cannot be null");
 
-    return Optional.ofNullable(schemas.get(name))
-                   .map(versions -> versions.get(version));
+    return Optional.ofNullable(schemas.get(name)).map(versions -> versions.get(version));
   }
 
   @Override
@@ -65,8 +72,7 @@ public class InMemoryProtobufSchemaRegistry implements SchemaRegistry {
     }
 
     // Find the latest version (assuming semantic versioning)
-    return versions.values().stream()
-                   .max(Comparator.comparing(s -> parseVersion(s.getVersion())));
+    return versions.values().stream().max(Comparator.comparing(s -> parseVersion(s.getVersion())));
   }
 
   @Override
@@ -83,9 +89,7 @@ public class InMemoryProtobufSchemaRegistry implements SchemaRegistry {
 
   @Override
   public List<Schema> getAllSchemas() {
-    return schemas.values().stream()
-                  .flatMap(versions -> versions.values().stream())
-                  .toList();
+    return schemas.values().stream().flatMap(versions -> versions.values().stream()).toList();
   }
 
   @Override
@@ -152,7 +156,9 @@ public class InMemoryProtobufSchemaRegistry implements SchemaRegistry {
     }
 
     return errors.isEmpty()
-        ? (warnings.isEmpty() ? ValidationResult.valid() : ValidationResult.validWithWarnings(warnings))
+        ? (warnings.isEmpty()
+            ? ValidationResult.valid()
+            : ValidationResult.validWithWarnings(warnings))
         : ValidationResult.invalid(errors, warnings);
   }
 
@@ -164,12 +170,22 @@ public class InMemoryProtobufSchemaRegistry implements SchemaRegistry {
     try {
       Map<String, Schema> versions = schemas.get(name);
       if (versions == null) {
-        return Result.fail(Problem.of(ErrorCode.of("SCHEMA_NOT_FOUND"), ErrorCategory.BUSINESS, Severity.ERROR, "Schema not found"));
+        return Result.fail(
+            Problem.of(
+                ErrorCode.of("SCHEMA_NOT_FOUND"),
+                ErrorCategory.BUSINESS,
+                Severity.ERROR,
+                "Schema not found"));
       }
 
       Schema removed = versions.remove(version);
       if (removed == null) {
-        return Result.fail(Problem.of(ErrorCode.of("VERSION_NOT_FOUND"), ErrorCategory.BUSINESS, Severity.ERROR, "Schema version not found"));
+        return Result.fail(
+            Problem.of(
+                ErrorCode.of("VERSION_NOT_FOUND"),
+                ErrorCategory.BUSINESS,
+                Severity.ERROR,
+                "Schema version not found"));
       }
 
       // Remove schema name entry if no versions left
@@ -182,7 +198,12 @@ public class InMemoryProtobufSchemaRegistry implements SchemaRegistry {
 
     } catch (Exception e) {
       log.error("Failed to delete schema", e);
-      return Result.fail(Problem.of(ErrorCode.of("DELETION_ERROR"), ErrorCategory.BUSINESS, Severity.ERROR, "Schema deletion failed"));
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("DELETION_ERROR"),
+              ErrorCategory.BUSINESS,
+              Severity.ERROR,
+              "Schema deletion failed"));
     }
   }
 
@@ -215,9 +236,7 @@ public class InMemoryProtobufSchemaRegistry implements SchemaRegistry {
     return Arrays.asList(source, target);
   }
 
-  /**
-   * Parse version string to Version object for comparison.
-   */
+  /** Parse version string to Version object for comparison. */
   private Version parseVersion(String versionString) {
     try {
       String[] parts = versionString.split("\\.");
@@ -231,9 +250,7 @@ public class InMemoryProtobufSchemaRegistry implements SchemaRegistry {
     }
   }
 
-  /**
-   * Simple version representation for comparison.
-   */
+  /** Simple version representation for comparison. */
   private record Version(int major, int minor, int patch) implements Comparable<Version> {
     @Override
     public int compareTo(Version other) {

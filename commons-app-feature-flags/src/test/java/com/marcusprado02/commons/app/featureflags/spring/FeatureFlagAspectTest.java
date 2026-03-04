@@ -30,8 +30,7 @@ class FeatureFlagAspectTest {
   @Test
   void shouldProceedWhenFeatureEnabled() throws Throwable {
     FeatureFlag annotation =
-        createAnnotation(
-            "feature-key", FeatureFlag.FallbackStrategy.THROW_EXCEPTION, "", "");
+        createAnnotation("feature-key", FeatureFlag.FallbackStrategy.THROW_EXCEPTION, "", "");
 
     when(featureFlagService.isEnabled(eq("feature-key"), any(FeatureFlagContext.class)))
         .thenReturn(true);
@@ -46,8 +45,7 @@ class FeatureFlagAspectTest {
   @Test
   void shouldThrowExceptionWhenFeatureDisabledAndThrowStrategy() {
     FeatureFlag annotation =
-        createAnnotation(
-            "feature-key", FeatureFlag.FallbackStrategy.THROW_EXCEPTION, "", "");
+        createAnnotation("feature-key", FeatureFlag.FallbackStrategy.THROW_EXCEPTION, "", "");
 
     when(featureFlagService.isEnabled(eq("feature-key"), any(FeatureFlagContext.class)))
         .thenReturn(false);
@@ -71,11 +69,9 @@ class FeatureFlagAspectTest {
   }
 
   @Test
-  void shouldReturnDefaultValueWhenFeatureDisabledAndReturnDefaultStrategy()
-      throws Throwable {
+  void shouldReturnDefaultValueWhenFeatureDisabledAndReturnDefaultStrategy() throws Throwable {
     FeatureFlag annotation =
-        createAnnotation(
-            "feature-key", FeatureFlag.FallbackStrategy.RETURN_DEFAULT, "", "");
+        createAnnotation("feature-key", FeatureFlag.FallbackStrategy.RETURN_DEFAULT, "", "");
 
     when(featureFlagService.isEnabled(eq("feature-key"), any(FeatureFlagContext.class)))
         .thenReturn(false);

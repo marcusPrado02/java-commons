@@ -1,8 +1,8 @@
 package com.marcusprado02.commons.adapters.sms.sns;
 
-import software.amazon.awssdk.regions.Region;
 import java.time.Duration;
 import java.util.Objects;
+import software.amazon.awssdk.regions.Region;
 
 /**
  * Configuration for AWS SNS SMS adapter.
@@ -36,12 +36,16 @@ public record SnsConfiguration(
     Objects.requireNonNull(smsType, "SMS type cannot be null");
 
     // Validate credentials - either access key or session token should be provided
-    if ((accessKeyId == null || accessKeyId.isBlank()) && (sessionToken == null || sessionToken.isBlank())) {
+    if ((accessKeyId == null || accessKeyId.isBlank())
+        && (sessionToken == null || sessionToken.isBlank())) {
       throw new IllegalArgumentException("Either access key ID or session token must be provided");
     }
 
-    if (accessKeyId != null && !accessKeyId.isBlank() && (secretAccessKey == null || secretAccessKey.isBlank())) {
-      throw new IllegalArgumentException("Secret access key is required when access key ID is provided");
+    if (accessKeyId != null
+        && !accessKeyId.isBlank()
+        && (secretAccessKey == null || secretAccessKey.isBlank())) {
+      throw new IllegalArgumentException(
+          "Secret access key is required when access key ID is provided");
     }
 
     if (requestTimeout.isNegative() || requestTimeout.isZero()) {
@@ -74,7 +78,8 @@ public record SnsConfiguration(
    * @param secretAccessKey AWS secret access key
    * @return development configuration
    */
-  public static SnsConfiguration forDevelopment(Region region, String accessKeyId, String secretAccessKey) {
+  public static SnsConfiguration forDevelopment(
+      Region region, String accessKeyId, String secretAccessKey) {
     return builder()
         .region(region)
         .accessKeyId(accessKeyId)
@@ -95,8 +100,8 @@ public record SnsConfiguration(
    * @param senderId default sender ID for messages
    * @return production configuration
    */
-  public static SnsConfiguration forProduction(Region region, String accessKeyId,
-                                               String secretAccessKey, String senderId) {
+  public static SnsConfiguration forProduction(
+      Region region, String accessKeyId, String secretAccessKey, String senderId) {
     return builder()
         .region(region)
         .accessKeyId(accessKeyId)
@@ -128,15 +133,11 @@ public record SnsConfiguration(
   /** SMS message types supported by AWS SNS. */
   public enum SmsType {
     /**
-     * Promotional messages (marketing, ads).
-     * Lower delivery priority, may be filtered by carriers.
+     * Promotional messages (marketing, ads). Lower delivery priority, may be filtered by carriers.
      */
     PROMOTIONAL,
 
-    /**
-     * Transactional messages (OTP, notifications).
-     * Higher delivery priority and reliability.
-     */
+    /** Transactional messages (OTP, notifications). Higher delivery priority and reliability. */
     TRANSACTIONAL
   }
 

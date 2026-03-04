@@ -48,7 +48,8 @@ public record RateLimitResult(
    */
   public static RateLimitResult allowed(
       long consumedTokens, long remainingTokens, long totalCapacity, long refillTimeNanos) {
-    return new RateLimitResult(true, consumedTokens, remainingTokens, totalCapacity, refillTimeNanos);
+    return new RateLimitResult(
+        true, consumedTokens, remainingTokens, totalCapacity, refillTimeNanos);
   }
 
   /**

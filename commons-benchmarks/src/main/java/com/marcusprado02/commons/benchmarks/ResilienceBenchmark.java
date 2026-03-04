@@ -4,15 +4,14 @@ import io.github.resilience4j.circuitbreaker.CircuitBreaker;
 import io.github.resilience4j.circuitbreaker.CircuitBreakerConfig;
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryConfig;
-import org.openjdk.jmh.annotations.*;
-
 import java.time.Duration;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.openjdk.jmh.annotations.*;
 
 /**
- * Benchmarks for resilience patterns (Circuit Breaker, Retry).
- * Tests performance overhead of resilience4j patterns.
+ * Benchmarks for resilience patterns (Circuit Breaker, Retry). Tests performance overhead of
+ * resilience4j patterns.
  */
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -29,19 +28,18 @@ public class ResilienceBenchmark {
   @Setup
   public void setup() {
     // Circuit breaker configuration
-    CircuitBreakerConfig circuitBreakerConfig = CircuitBreakerConfig.custom()
-        .failureRateThreshold(50)
-        .waitDurationInOpenState(Duration.ofMillis(1000))
-        .slidingWindowSize(10)
-        .build();
+    CircuitBreakerConfig circuitBreakerConfig =
+        CircuitBreakerConfig.custom()
+            .failureRateThreshold(50)
+            .waitDurationInOpenState(Duration.ofMillis(1000))
+            .slidingWindowSize(10)
+            .build();
 
     circuitBreaker = CircuitBreaker.of("benchmark", circuitBreakerConfig);
 
     // Retry configuration
-    RetryConfig retryConfig = RetryConfig.custom()
-        .maxAttempts(3)
-        .waitDuration(Duration.ofMillis(100))
-        .build();
+    RetryConfig retryConfig =
+        RetryConfig.custom().maxAttempts(3).waitDuration(Duration.ofMillis(100)).build();
 
     retry = Retry.of("benchmark", retryConfig);
 
@@ -66,9 +64,8 @@ public class ResilienceBenchmark {
   @Benchmark
   public int circuitBreakerAndRetry() {
     return CircuitBreaker.decorateSupplier(
-        circuitBreaker,
-        Retry.decorateSupplier(retry, this::successfulOperation)
-    ).get();
+            circuitBreaker, Retry.decorateSupplier(retry, this::successfulOperation))
+        .get();
   }
 
   @Benchmark

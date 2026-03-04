@@ -5,14 +5,13 @@ import static org.mockito.Mockito.*;
 
 import com.marcusprado02.commons.app.multitenancy.TenantContext;
 import com.marcusprado02.commons.app.multitenancy.TenantContextHolder;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.function.Function;
+import javax.sql.DataSource;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class DatabaseIsolationStrategyTest {
 
@@ -20,7 +19,8 @@ class DatabaseIsolationStrategyTest {
 
   @BeforeEach
   void setUp() {
-    Function<String, String> urlGenerator = tenantId -> "jdbc:h2:mem:" + tenantId + ";DB_CLOSE_DELAY=-1";
+    Function<String, String> urlGenerator =
+        tenantId -> "jdbc:h2:mem:" + tenantId + ";DB_CLOSE_DELAY=-1";
     strategy = new DatabaseIsolationStrategy(urlGenerator, "sa", "");
     TenantContextHolder.clear();
   }

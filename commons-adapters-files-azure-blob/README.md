@@ -379,13 +379,13 @@ The module includes comprehensive integration tests using Testcontainers:
 ```java
 @Testcontainers
 class AzureBlobFileStoreAdapterTest {
-  
+
   @Container
   private static final GenericContainer<?> azuriteContainer = new GenericContainer<>(
       DockerImageName.parse("mcr.microsoft.com/azure-storage/azurite:latest"))
       .withCommand("azurite-blob", "--blobHost", "0.0.0.0")
       .withExposedPorts(10000);
-  
+
   @Test
   void shouldUploadAndDownload() {
     // Test implementation
@@ -514,20 +514,20 @@ import java.io.*;
 import java.util.*;
 
 public class AzureBlobExample {
-  
+
   public static void main(String[] args) {
     // 1. Create configuration with Managed Identity
     AzureBlobConfiguration config = AzureBlobConfiguration.withManagedIdentity(
         "https://myaccount.blob.core.windows.net",
         "myaccount"
     );
-    
+
     // 2. Create adapter
     AzureBlobFileStoreAdapter adapter = AzureBlobClientFactory.createAdapter(config);
-    
+
     // 3. Upload a file
     FileId fileId = new FileId("my-container", "documents/report.pdf");
-    
+
     try (InputStream content = new FileInputStream("report.pdf")) {
       UploadOptions uploadOptions = UploadOptions.builder()
           .contentType("application/pdf")
@@ -538,9 +538,9 @@ public class AzureBlobExample {
           ))
           .storageClass(StorageClass.STANDARD)
           .build();
-      
+
       Result<UploadResult> uploadResult = adapter.upload(fileId, content, uploadOptions);
-      
+
       uploadResult.ifSuccess(result -> {
         System.out.println("✓ File uploaded successfully");
         System.out.println("  ETag: " + result.etag());
@@ -550,22 +550,22 @@ public class AzureBlobExample {
       System.err.println("Failed to read file: " + e.getMessage());
       return;
     }
-    
+
     // 4. Generate presigned URL for sharing
     Result<URL> urlResult = adapter.generatePresignedUrl(
-        fileId, 
-        PresignedOperation.GET, 
+        fileId,
+        PresignedOperation.GET,
         Duration.ofHours(24)
     );
-    
+
     urlResult.ifSuccess(url -> {
       System.out.println("✓ Shareable URL (valid for 24 hours):");
       System.out.println("  " + url);
     });
-    
+
     // 5. Download the file
     Result<FileObject> downloadResult = adapter.download(fileId);
-    
+
     downloadResult.ifSuccess(fileObject -> {
       try (InputStream stream = fileObject.content()) {
         Files.copy(stream, Path.of("downloaded-report.pdf"));
@@ -576,24 +576,24 @@ public class AzureBlobExample {
         System.err.println("Failed to save file: " + e.getMessage());
       }
     });
-    
+
     // 6. List all documents
     Result<ListResult> listResult = adapter.list(
-        "my-container", 
-        "documents/", 
+        "my-container",
+        "documents/",
         new ListOptions(100)
     );
-    
+
     listResult.ifSuccess(result -> {
       System.out.println("✓ Found " + result.files().size() + " documents:");
       result.files().forEach(id -> {
         System.out.println("  - " + id.key());
       });
     });
-    
+
     // 7. Delete the file
     Result<Void> deleteResult = adapter.delete(fileId);
-    
+
     deleteResult.ifSuccess(() -> {
       System.out.println("✓ File deleted successfully");
     });

@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.poi.EncryptedDocumentException;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.openxml4j.opc.PackageAccess;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -97,25 +96,22 @@ public final class PoiFileValidator {
       boolean isValid = errors.isEmpty() && info.canOpen;
 
       return new ExcelValidationResult(
-        isValid,
-        info.actualFormat != null ? info.actualFormat : detectedFormat,
-        info.version,
-        info.worksheetCount,
-        info.isEncrypted,
-        info.hasFormulas,
-        info.hasMacros,
-        warnings,
-        errors
-      );
+          isValid,
+          info.actualFormat != null ? info.actualFormat : detectedFormat,
+          info.version,
+          info.worksheetCount,
+          info.isEncrypted,
+          info.hasFormulas,
+          info.hasMacros,
+          warnings,
+          errors);
 
     } catch (Exception e) {
       return ExcelValidationResult.invalid("Validation failed: " + e.getMessage());
     }
   }
 
-  /**
-   * Detects Excel format based on file extension.
-   */
+  /** Detects Excel format based on file extension. */
   private static String detectFormat(String fileName) {
     if (fileName.endsWith(".xlsx")) {
       return "XLSX";
@@ -131,9 +127,7 @@ public final class PoiFileValidator {
     return null;
   }
 
-  /**
-   * Validates workbook by attempting to open it and gather information.
-   */
+  /** Validates workbook by attempting to open it and gather information. */
   private static ValidationInfo validateWorkbook(Path filePath) {
     ValidationInfo info = new ValidationInfo();
 
@@ -179,9 +173,7 @@ public final class PoiFileValidator {
     return info;
   }
 
-  /**
-   * Determines the actual format of an opened workbook.
-   */
+  /** Determines the actual format of an opened workbook. */
   private static String determineActualFormat(Workbook workbook) {
     if (workbook instanceof XSSFWorkbook) {
       return "XLSX";
@@ -192,9 +184,7 @@ public final class PoiFileValidator {
     }
   }
 
-  /**
-   * Checks if the workbook contains any formulas.
-   */
+  /** Checks if the workbook contains any formulas. */
   private static boolean checkForFormulas(Workbook workbook) {
     try {
       for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
@@ -220,9 +210,7 @@ public final class PoiFileValidator {
     return false;
   }
 
-  /**
-   * Checks if the workbook contains macros (simplified check).
-   */
+  /** Checks if the workbook contains macros (simplified check). */
   private static boolean checkForMacros(Workbook workbook) {
     try {
       // For XLSX files, macros would be in XLSM format
@@ -237,9 +225,7 @@ public final class PoiFileValidator {
     }
   }
 
-  /**
-   * Checks if the workbook has external references.
-   */
+  /** Checks if the workbook has external references. */
   private static boolean checkForExternalReferences(Workbook workbook) {
     try {
       // External reference checking not implemented for now
@@ -250,9 +236,7 @@ public final class PoiFileValidator {
     }
   }
 
-  /**
-   * Checks if the workbook has large worksheets that might impact performance.
-   */
+  /** Checks if the workbook has large worksheets that might impact performance. */
   private static boolean checkForLargeWorksheets(Workbook workbook) {
     try {
       for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
@@ -270,9 +254,7 @@ public final class PoiFileValidator {
     return false;
   }
 
-  /**
-   * Determines the version/compatibility level of the workbook.
-   */
+  /** Determines the version/compatibility level of the workbook. */
   private static String determineVersion(Workbook workbook) {
     if (workbook instanceof XSSFWorkbook) {
       return "Excel 2007+";
@@ -283,26 +265,21 @@ public final class PoiFileValidator {
     }
   }
 
-  /**
-   * Checks if a file is encrypted (when normal open fails).
-   */
+  /** Checks if a file is encrypted (when normal open fails). */
   private static boolean checkIfEncrypted(Path filePath) {
     try (var opcPackage = OPCPackage.open(filePath.toFile(), PackageAccess.READ)) {
       return false; // If we can open the OPC package, it's not encrypted
     } catch (Exception e) {
       // If we can't open the OPC package, it might be encrypted
       String message = e.getMessage();
-      return message != null && (
-        message.contains("password") ||
-        message.contains("encrypted") ||
-        message.contains("protected")
-      );
+      return message != null
+          && (message.contains("password")
+              || message.contains("encrypted")
+              || message.contains("protected"));
     }
   }
 
-  /**
-   * Helper class to hold validation information.
-   */
+  /** Helper class to hold validation information. */
   private static class ValidationInfo {
     boolean canOpen = false;
     boolean isEncrypted = false;

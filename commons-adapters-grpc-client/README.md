@@ -178,19 +178,19 @@ ClientInterceptor authInterceptor = new ClientInterceptor() {
             MethodDescriptor<ReqT, RespT> method,
             CallOptions callOptions,
             Channel next) {
-        
+
         return new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(
                 next.newCall(method, callOptions)) {
-            
+
             @Override
             public void start(Listener<RespT> responseListener, Metadata headers) {
                 // Add authorization header
                 Metadata.Key<String> authKey = Metadata.Key.of(
-                    "Authorization", 
+                    "Authorization",
                     Metadata.ASCII_STRING_MARSHALLER
                 );
                 headers.put(authKey, "Bearer " + getAccessToken());
-                
+
                 super.start(responseListener, headers);
             }
         };

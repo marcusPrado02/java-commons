@@ -14,11 +14,12 @@ import java.util.Objects;
  * Twilio adapter for SMSPort using Twilio Java SDK.
  *
  * <p>Basic implementation supporting:
+ *
  * <ul>
- *   <li>SMS sending with text content</li>
- *   <li>Bulk SMS operations</li>
- *   <li>Delivery status tracking</li>
- *   <li>Connection verification</li>
+ *   <li>SMS sending with text content
+ *   <li>Bulk SMS operations
+ *   <li>Delivery status tracking
+ *   <li>Connection verification
  * </ul>
  */
 public class TwilioSMSAdapter implements SMSPort, AutoCloseable {
@@ -41,11 +42,11 @@ public class TwilioSMSAdapter implements SMSPort, AutoCloseable {
   @Override
   public Result<SMSReceipt> send(SMS sms) {
     try {
-      MessageCreator messageCreator = Message.creator(
-          new PhoneNumber(sms.to().toE164()),
-          new PhoneNumber(sms.from().toE164()),
-          sms.message()
-      );
+      MessageCreator messageCreator =
+          Message.creator(
+              new PhoneNumber(sms.to().toE164()),
+              new PhoneNumber(sms.from().toE164()),
+              sms.message());
 
       // Configure webhook URL for status callbacks if enabled
       if (configuration.deliveryReceiptsEnabled() && configuration.webhookUrl() != null) {
@@ -54,11 +55,8 @@ public class TwilioSMSAdapter implements SMSPort, AutoCloseable {
 
       Message message = messageCreator.create();
 
-      SMSReceipt receipt = SMSReceipt.of(
-          message.getSid(),
-          message.getStatus().toString(),
-          sms.to()
-      );
+      SMSReceipt receipt =
+          SMSReceipt.of(message.getSid(), message.getStatus().toString(), sms.to());
 
       return Result.ok(receipt);
 
@@ -80,12 +78,13 @@ public class TwilioSMSAdapter implements SMSPort, AutoCloseable {
     int failureCount = 0;
 
     for (com.marcusprado02.commons.ports.sms.PhoneNumber recipient : bulkSMS.to()) {
-      SMS individualSMS = SMS.builder()
-          .from(bulkSMS.from())
-          .to(recipient)
-          .message(bulkSMS.message())
-          .options(bulkSMS.options())
-          .build();
+      SMS individualSMS =
+          SMS.builder()
+              .from(bulkSMS.from())
+              .to(recipient)
+              .message(bulkSMS.message())
+              .options(bulkSMS.options())
+              .build();
 
       Result<SMSReceipt> result = send(individualSMS);
       if (result.isOk()) {
@@ -95,11 +94,7 @@ public class TwilioSMSAdapter implements SMSPort, AutoCloseable {
       }
     }
 
-    BulkSMSReceipt bulkReceipt = BulkSMSReceipt.of(
-        bulkSMS.to().size(),
-        successCount,
-        failureCount
-    );
+    BulkSMSReceipt bulkReceipt = BulkSMSReceipt.of(bulkSMS.to().size(), successCount, failureCount);
 
     return Result.ok(bulkReceipt);
   }
@@ -112,8 +107,7 @@ public class TwilioSMSAdapter implements SMSPort, AutoCloseable {
       Message.creator(
           new PhoneNumber(configuration.fromPhoneNumber()),
           new PhoneNumber(configuration.fromPhoneNumber()),
-          "Connection test - not sent"
-      );
+          "Connection test - not sent");
 
       // Note: We don't call create() to avoid sending actual message
       return Result.ok(null);
@@ -168,10 +162,7 @@ public class TwilioSMSAdapter implements SMSPort, AutoCloseable {
     }
 
     return Problem.of(
-        ErrorCode.of(errorCode),
-        category,
-        Severity.ERROR,
-        "Twilio API error: " + e.getMessage());
+        ErrorCode.of(errorCode), category, Severity.ERROR, "Twilio API error: " + e.getMessage());
   }
 
   private SMSStatus mapTwilioStatus(Message.Status twilioStatus) {

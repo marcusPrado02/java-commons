@@ -1,17 +1,15 @@
 package com.marcusprado02.commons.adapters.grpc.server;
 
-import io.grpc.BindableService;
-import io.grpc.ServerServiceDefinition;
-import io.grpc.health.v1.HealthCheckResponse;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import java.io.IOException;
-import java.time.Duration;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import io.grpc.BindableService;
+import io.grpc.ServerServiceDefinition;
+import java.io.IOException;
+import java.time.Duration;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class GrpcServerTest {
 
@@ -20,11 +18,12 @@ class GrpcServerTest {
   @BeforeEach
   void setUp() {
     // Use a random port for testing to avoid conflicts
-    config = GrpcServerConfiguration.builder()
-        .port(0) // Let the OS assign a random available port
-        .enableHealthCheck(true)
-        .enableReflection(true)
-        .build();
+    config =
+        GrpcServerConfiguration.builder()
+            .port(0) // Let the OS assign a random available port
+            .enableHealthCheck(true)
+            .enableReflection(true)
+            .build();
   }
 
   @Test
@@ -81,10 +80,8 @@ class GrpcServerTest {
 
   @Test
   void shouldProvideMetricsInterceptor() {
-    GrpcServerConfiguration configWithMetrics = GrpcServerConfiguration.builder()
-        .port(0)
-        .enableMetrics(true)
-        .build();
+    GrpcServerConfiguration configWithMetrics =
+        GrpcServerConfiguration.builder().port(0).enableMetrics(true).build();
 
     GrpcServer server = new GrpcServer(configWithMetrics);
 
@@ -93,10 +90,8 @@ class GrpcServerTest {
 
   @Test
   void shouldReturnNullMetricsWhenDisabled() {
-    GrpcServerConfiguration configWithoutMetrics = GrpcServerConfiguration.builder()
-        .port(0)
-        .enableMetrics(false)
-        .build();
+    GrpcServerConfiguration configWithoutMetrics =
+        GrpcServerConfiguration.builder().port(0).enableMetrics(false).build();
 
     GrpcServer server = new GrpcServer(configWithoutMetrics);
 
@@ -113,34 +108,36 @@ class GrpcServerTest {
 
   @Test
   void shouldApplyConfigurationSettings() {
-    GrpcServerConfiguration customConfig = GrpcServerConfiguration.builder()
-        .port(0)
-        .maxInboundMessageSize(8 * 1024 * 1024) // 8MB
-        .maxInboundMetadataSize(16 * 1024) // 16KB
-        .keepAliveTime(Duration.ofMinutes(1))
-        .keepAliveTimeout(Duration.ofSeconds(10))
-        .maxConnectionIdle(Duration.ofMinutes(5))
-        .maxConnectionAge(Duration.ofMinutes(30))
-        .handshakeTimeout(Duration.ofSeconds(15))
-        .enableHealthCheck(true)
-        .enableReflection(true)
-        .enableMetrics(true)
-        .build();
+    GrpcServerConfiguration customConfig =
+        GrpcServerConfiguration.builder()
+            .port(0)
+            .maxInboundMessageSize(8 * 1024 * 1024) // 8MB
+            .maxInboundMetadataSize(16 * 1024) // 16KB
+            .keepAliveTime(Duration.ofMinutes(1))
+            .keepAliveTimeout(Duration.ofSeconds(10))
+            .maxConnectionIdle(Duration.ofMinutes(5))
+            .maxConnectionAge(Duration.ofMinutes(30))
+            .handshakeTimeout(Duration.ofSeconds(15))
+            .enableHealthCheck(true)
+            .enableReflection(true)
+            .enableMetrics(true)
+            .build();
 
     GrpcServer server = new GrpcServer(customConfig);
     server.addService(createMockService());
 
     // Should not throw exception with custom config
-    assertDoesNotThrow(() -> {
-      server.start();
-      server.shutdown();
-    });
+    assertDoesNotThrow(
+        () -> {
+          server.start();
+          server.shutdown();
+        });
   }
 
   private BindableService createMockService() {
     BindableService mockService = mock(BindableService.class);
-    ServerServiceDefinition mockDefinition = ServerServiceDefinition.builder("test.Service")
-        .build();
+    ServerServiceDefinition mockDefinition =
+        ServerServiceDefinition.builder("test.Service").build();
     when(mockService.bindService()).thenReturn(mockDefinition);
     return mockService;
   }

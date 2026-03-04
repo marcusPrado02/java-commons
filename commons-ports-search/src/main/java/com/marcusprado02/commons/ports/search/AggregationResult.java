@@ -23,11 +23,7 @@ import java.util.Objects;
  * });
  * }</pre>
  */
-public record AggregationResult(
-    String name,
-    List<Bucket> buckets,
-    Map<String, Double> metrics
-) {
+public record AggregationResult(String name, List<Bucket> buckets, Map<String, Double> metrics) {
 
   public AggregationResult {
     Objects.requireNonNull(name, "Aggregation name cannot be null");
@@ -80,11 +76,7 @@ public record AggregationResult(
    * @param docCount number of documents in bucket
    * @param subAggregations sub-aggregation results
    */
-  public record Bucket(
-      String key,
-      long docCount,
-      Map<String, AggregationResult> subAggregations
-  ) {
+  public record Bucket(String key, long docCount, Map<String, AggregationResult> subAggregations) {
     public Bucket {
       Objects.requireNonNull(key, "Bucket key cannot be null");
       subAggregations = subAggregations == null ? Map.of() : Map.copyOf(subAggregations);

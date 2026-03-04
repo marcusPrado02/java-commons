@@ -25,8 +25,9 @@ public interface DataSourceProvider {
   /**
    * Gets the DataSource for the current tenant context.
    *
-   * <p>Uses the tenant ID from {@link com.marcusprado02.commons.app.multitenancy.TenantContextHolder}
-   * to determine which DataSource to return.
+   * <p>Uses the tenant ID from {@link
+   * com.marcusprado02.commons.app.multitenancy.TenantContextHolder} to determine which DataSource
+   * to return.
    *
    * @return tenant-specific DataSource
    * @throws IllegalStateException if no tenant context is available

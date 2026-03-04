@@ -1,49 +1,44 @@
 package com.marcusprado02.commons.adapters.sms.sns;
 
-import com.marcusprado02.commons.ports.sms.*;
-import com.marcusprado02.commons.kernel.result.Result;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
+import com.marcusprado02.commons.kernel.result.Result;
+import com.marcusprado02.commons.ports.sms.*;
+import java.time.Duration;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sns.SnsClient;
 import software.amazon.awssdk.services.sns.SnsClientBuilder;
 import software.amazon.awssdk.services.sns.model.*;
 
-import java.time.Duration;
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
-
 @ExtendWith(MockitoExtension.class)
 class SnsSMSAdapterTest {
 
-  @Mock
-  private SnsClient snsClient;
+  @Mock private SnsClient snsClient;
 
-  @Mock
-  private SnsClientBuilder snsClientBuilder;
+  @Mock private SnsClientBuilder snsClientBuilder;
 
   private SnsConfiguration configuration;
   private SnsSMSAdapter adapter;
 
   @BeforeEach
   void setUp() {
-    configuration = SnsConfiguration.builder()
-        .region(Region.US_EAST_1)
-        .accessKeyId("AKIAIOSFODNN7EXAMPLE")
-        .secretAccessKey("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY")
-        .requestTimeout(Duration.ofSeconds(15))
-        .maxPriceUSD(1.0)
-        .build();
+    configuration =
+        SnsConfiguration.builder()
+            .region(Region.US_EAST_1)
+            .accessKeyId("AKIAIOSFODNN7EXAMPLE")
+            .secretAccessKey("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY")
+            .requestTimeout(Duration.ofSeconds(15))
+            .maxPriceUSD(1.0)
+            .build();
   }
 
   @Test
@@ -53,12 +48,12 @@ class SnsSMSAdapterTest {
       snsClientMock.when(SnsClient::builder).thenReturn(snsClientBuilder);
       when(snsClientBuilder.region(any(Region.class))).thenReturn(snsClientBuilder);
       when(snsClientBuilder.credentialsProvider(any())).thenReturn(snsClientBuilder);
-      when(snsClientBuilder.overrideConfiguration(any(software.amazon.awssdk.core.client.config.ClientOverrideConfiguration.class))).thenReturn(snsClientBuilder);
+      when(snsClientBuilder.overrideConfiguration(
+              any(software.amazon.awssdk.core.client.config.ClientOverrideConfiguration.class)))
+          .thenReturn(snsClientBuilder);
       when(snsClientBuilder.build()).thenReturn(snsClient);
 
-      PublishResponse response = PublishResponse.builder()
-          .messageId("12345-67890")
-          .build();
+      PublishResponse response = PublishResponse.builder().messageId("12345-67890").build();
       when(snsClient.publish(any(PublishRequest.class))).thenReturn(response);
 
       adapter = new SnsSMSAdapter(configuration);
@@ -87,9 +82,7 @@ class SnsSMSAdapterTest {
     try (MockedStatic<SnsClient> snsClientMock = mockStatic(SnsClient.class)) {
       setupMockedClient(snsClientMock);
 
-      PublishResponse response = PublishResponse.builder()
-          .messageId("msg-123")
-          .build();
+      PublishResponse response = PublishResponse.builder().messageId("msg-123").build();
       when(snsClient.publish(any(PublishRequest.class))).thenReturn(response);
 
       adapter = new SnsSMSAdapter(configuration);
@@ -97,10 +90,8 @@ class SnsSMSAdapterTest {
       PhoneNumber from = PhoneNumber.of("+1000000000");
       PhoneNumber to = PhoneNumber.of("+1234567890");
       SMS sms = SMS.of(from, to, "Test with options");
-      SMSOptions options = SMSOptions.builder()
-          .deliveryReceipt(true)
-          .priority(SMSOptions.SMSPriority.HIGH)
-          .build();
+      SMSOptions options =
+          SMSOptions.builder().deliveryReceipt(true).priority(SMSOptions.SMSPriority.HIGH).build();
 
       // When
       Result<SMSPort.SMSReceipt> result = adapter.send(sms, options);
@@ -117,9 +108,8 @@ class SnsSMSAdapterTest {
     try (MockedStatic<SnsClient> snsClientMock = mockStatic(SnsClient.class)) {
       setupMockedClient(snsClientMock);
 
-      InvalidParameterException exception = InvalidParameterException.builder()
-          .message("Invalid phone number")
-          .build();
+      InvalidParameterException exception =
+          InvalidParameterException.builder().message("Invalid phone number").build();
       when(snsClient.publish(any(PublishRequest.class))).thenThrow(exception);
 
       adapter = new SnsSMSAdapter(configuration);
@@ -142,9 +132,8 @@ class SnsSMSAdapterTest {
     try (MockedStatic<SnsClient> snsClientMock = mockStatic(SnsClient.class)) {
       setupMockedClient(snsClientMock);
 
-      AuthorizationErrorException exception = AuthorizationErrorException.builder()
-          .message("Access denied")
-          .build();
+      AuthorizationErrorException exception =
+          AuthorizationErrorException.builder().message("Access denied").build();
       when(snsClient.publish(any(PublishRequest.class))).thenThrow(exception);
 
       adapter = new SnsSMSAdapter(configuration);
@@ -166,9 +155,8 @@ class SnsSMSAdapterTest {
     try (MockedStatic<SnsClient> snsClientMock = mockStatic(SnsClient.class)) {
       setupMockedClient(snsClientMock);
 
-      OptedOutException exception = OptedOutException.builder()
-          .message("Phone number opted out")
-          .build();
+      OptedOutException exception =
+          OptedOutException.builder().message("Phone number opted out").build();
       when(snsClient.publish(any(PublishRequest.class))).thenThrow(exception);
 
       adapter = new SnsSMSAdapter(configuration);
@@ -198,15 +186,14 @@ class SnsSMSAdapterTest {
 
       adapter = new SnsSMSAdapter(configuration);
 
-      List<PhoneNumber> recipients = List.of(
-          PhoneNumber.of("+1234567890"),
-          PhoneNumber.of("+1987654321")
-      );
-      BulkSMS bulkSMS = BulkSMS.builder()
-          .from("+1000000000")
-          .toAllPhones(recipients)
-          .message("Bulk message")
-          .build();
+      List<PhoneNumber> recipients =
+          List.of(PhoneNumber.of("+1234567890"), PhoneNumber.of("+1987654321"));
+      BulkSMS bulkSMS =
+          BulkSMS.builder()
+              .from("+1000000000")
+              .toAllPhones(recipients)
+              .message("Bulk message")
+              .build();
 
       // When
       Result<SMSPort.BulkSMSReceipt> result = adapter.sendBulk(bulkSMS);
@@ -229,9 +216,8 @@ class SnsSMSAdapterTest {
       setupMockedClient(snsClientMock);
 
       PublishResponse successResponse = PublishResponse.builder().messageId("msg-1").build();
-      InvalidParameterException exception = InvalidParameterException.builder()
-          .message("Invalid phone")
-          .build();
+      InvalidParameterException exception =
+          InvalidParameterException.builder().message("Invalid phone").build();
 
       when(snsClient.publish(any(PublishRequest.class)))
           .thenReturn(successResponse)
@@ -239,15 +225,17 @@ class SnsSMSAdapterTest {
 
       adapter = new SnsSMSAdapter(configuration);
 
-      List<PhoneNumber> recipients = List.of(
-          PhoneNumber.of("+1234567890"),
-          PhoneNumber.of("+1987654321") // This would fail but let's simplify the test
-      );
-      BulkSMS bulkSMS = BulkSMS.builder()
-          .from("+1000000000")
-          .toAllPhones(recipients)
-          .message("Bulk message")
-          .build();
+      List<PhoneNumber> recipients =
+          List.of(
+              PhoneNumber.of("+1234567890"),
+              PhoneNumber.of("+1987654321") // This would fail but let's simplify the test
+              );
+      BulkSMS bulkSMS =
+          BulkSMS.builder()
+              .from("+1000000000")
+              .toAllPhones(recipients)
+              .message("Bulk message")
+              .build();
 
       // When
       Result<SMSPort.BulkSMSReceipt> result = adapter.sendBulk(bulkSMS);
@@ -266,11 +254,12 @@ class SnsSMSAdapterTest {
     // Given
     adapter = new SnsSMSAdapter(configuration);
 
-    MMS mms = MMS.builder()
-        .from("+1000000000")
-        .to(PhoneNumber.of("+1234567890"))
-        .message("Test MMS")
-        .build();
+    MMS mms =
+        MMS.builder()
+            .from("+1000000000")
+            .to(PhoneNumber.of("+1234567890"))
+            .message("Test MMS")
+            .build();
 
     // When
     Result<SMSPort.SMSReceipt> result = adapter.sendMMS(mms);
@@ -334,7 +323,9 @@ class SnsSMSAdapterTest {
     snsClientMock.when(SnsClient::builder).thenReturn(snsClientBuilder);
     when(snsClientBuilder.region(any(Region.class))).thenReturn(snsClientBuilder);
     when(snsClientBuilder.credentialsProvider(any())).thenReturn(snsClientBuilder);
-    when(snsClientBuilder.overrideConfiguration(any(software.amazon.awssdk.core.client.config.ClientOverrideConfiguration.class))).thenReturn(snsClientBuilder);
+    when(snsClientBuilder.overrideConfiguration(
+            any(software.amazon.awssdk.core.client.config.ClientOverrideConfiguration.class)))
+        .thenReturn(snsClientBuilder);
     when(snsClientBuilder.build()).thenReturn(snsClient);
   }
 }

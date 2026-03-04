@@ -97,11 +97,11 @@ Result<ExcelWorkbook> result = excelPort.readWorkbook(Paths.get("data.xlsx"));
 
 result.onSuccess(workbook -> {
     System.out.println("Loaded workbook with " + workbook.getWorksheetCount() + " sheets");
-    
+
     ExcelWorksheet sheet = workbook.getActiveWorksheet();
     System.out.println("Active sheet: " + sheet.name());
     System.out.println("Used range: " + sheet.getUsedRange());
-    
+
     // Access specific cell
     ExcelCell cell = sheet.getCell("A1");
     if (cell != null) {
@@ -135,19 +135,19 @@ ExcelWorkbook workbook = ExcelWorkbook.builder()
             .cell(ExcelCell.text(0, 0, "Product", ExcelCellStyle.headerStyle()))
             .cell(ExcelCell.text(0, 1, "Q4 Sales", ExcelCellStyle.headerStyle()))
             .cell(ExcelCell.text(0, 2, "Growth %", ExcelCellStyle.headerStyle()))
-            
+
             // Data rows
             .cell(ExcelCell.text(1, 0, "Widget Pro"))
             .cell(ExcelCell.number(1, 1, 125000.00, ExcelCellStyle.currencyStyle()))
             .cell(ExcelCell.number(1, 2, 0.15, ExcelCellStyle.percentageStyle()))
-            
+
             .cell(ExcelCell.text(2, 0, "Gadget Max"))
             .cell(ExcelCell.number(2, 1, 89500.00, ExcelCellStyle.currencyStyle()))
             .cell(ExcelCell.number(2, 2, -0.05, ExcelCellStyle.percentageStyle()))
-            
+
             // Formula cell
             .cell(ExcelCell.formula(3, 1, "SUM(B2:B3)", ExcelCellStyle.currencyStyle()))
-            
+
             // Configuration
             .columnWidth(0, 15.0)  // Product column wider
             .columnWidth(1, 12.0)  // Sales column
@@ -175,29 +175,29 @@ Result<Void> result = excelPort.writeWorkbook(workbook, Paths.get("sales-report.
 // Read large file efficiently
 ExcelReadOptions options = ExcelReadOptions.streaming();
 Result<ExcelStreamReader> readerResult = excelPort.createStreamReader(
-    Paths.get("large-dataset.xlsx"), 
+    Paths.get("large-dataset.xlsx"),
     options
 );
 
 readerResult.onSuccess(reader -> {
     try {
         reader.selectFirstWorksheet();
-        
+
         int recordCount = 0;
         while (reader.hasNext()) {
             Result<List<ExcelCell>> rowResult = reader.readNext();
-            
+
             rowResult.onSuccess(cells -> {
                 // Process row efficiently
                 processRow(cells);
                 recordCount++;
-                
+
                 if (recordCount % 1000 == 0) {
                     System.out.println("Processed " + recordCount + " records");
                 }
             });
         }
-        
+
         System.out.println("Total records processed: " + recordCount);
     } finally {
         reader.close();
@@ -210,7 +210,7 @@ private void processRow(List<ExcelCell> cells) {
     String name = cells.get(1).getStringValue();
     double amount = cells.get(2).getNumericValue();
     LocalDate date = (LocalDate) cells.get(3).value();
-    
+
     // Process business logic
     saveToDatabase(id, name, amount, date);
 }
@@ -225,29 +225,29 @@ ExcelWriteOptions options = ExcelWriteOptions.builder()
     .build();
 
 Result<ExcelStreamWriter> writerResult = excelPort.createStreamWriter(
-    Paths.get("large-export.xlsx"), 
+    Paths.get("large-export.xlsx"),
     options
 );
 
 writerResult.onSuccess(writer -> {
     try {
         writer.createWorksheet("Data Export");
-        
+
         // Write header
         writer.writeRow("ID", "Name", "Amount", "Date", "Category");
         writer.freezePanes(1, 0);
-        
+
         // Set column widths
         writer.setColumnWidth(0, 10);  // ID
         writer.setColumnWidth(1, 25);  // Name
         writer.setColumnWidth(2, 12);  // Amount
         writer.setColumnWidth(3, 12);  // Date
         writer.setColumnWidth(4, 15);  // Category
-        
+
         // Write data rows (example: from database)
         ResultSet rs = executeQuery("SELECT id, name, amount, date, category FROM sales_data");
         int rowCount = 0;
-        
+
         while (rs.next()) {
             writer.writeRow(
                 rs.getString("id"),
@@ -256,16 +256,16 @@ writerResult.onSuccess(writer -> {
                 rs.getDate("date").toLocalDate(),
                 rs.getString("category")
             );
-            
+
             rowCount++;
-            
+
             // Flush periodically to manage memory
             if (rowCount % 5000 == 0) {
                 writer.flush();
                 System.out.println("Written " + rowCount + " rows");
             }
         }
-        
+
         System.out.println("Export complete: " + rowCount + " rows");
     } finally {
         writer.close();
@@ -277,7 +277,7 @@ writerResult.onSuccess(writer -> {
 ```java
 // Excel to CSV
 Result<String> csvResult = excelPort.toCsv(
-    workbook, 
+    workbook,
     "Sales Data",  // worksheet name
     CsvOptions.builder()
         .delimiter(';')
@@ -295,7 +295,7 @@ csvResult.onSuccess(csvContent -> {
 // CSV to Excel
 String csvData = Files.readString(Paths.get("input.csv"));
 Result<ExcelWorkbook> workbookResult = excelPort.fromCsv(
-    csvData, 
+    csvData,
     "Imported Data",
     CsvOptions.defaults()
 );
@@ -320,7 +320,7 @@ validation.onSuccess(result -> {
         System.out.println("  Encrypted: " + result.isEncrypted());
         System.out.println("  Has Formulas: " + result.hasFormulas());
         System.out.println("  Has Macros: " + result.hasMacros());
-        
+
         if (result.hasWarnings()) {
             System.out.println("Warnings:");
             result.warnings().forEach(warning -> System.out.println("  - " + warning));
@@ -342,13 +342,13 @@ ExcelWorkbook workbook = ExcelWorkbook.builder()
             .cell(ExcelCell.number(0, 0, 100))
             .cell(ExcelCell.number(1, 0, 200))
             .cell(ExcelCell.number(2, 0, 300))
-            
+
             // Formula cells
             .cell(ExcelCell.formula(3, 0, "SUM(A1:A3)"))           // Simple sum
             .cell(ExcelCell.formula(4, 0, "AVERAGE(A1:A3)"))       // Average
             .cell(ExcelCell.formula(5, 0, "IF(A4>500,\"High\",\"Normal\")")) // Conditional
             .cell(ExcelCell.formula(6, 0, "A4*0.1"))               // Calculation
-            
+
             .build())
     .build();
 

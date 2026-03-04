@@ -4,25 +4,18 @@ import com.azure.core.credential.TokenCredential;
 import com.azure.identity.DefaultAzureCredentialBuilder;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
-import com.azure.storage.common.StorageSharedKeyCredential;
-
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Factory for creating Azure Blob clients and adapters.
- */
+/** Factory for creating Azure Blob clients and adapters. */
 public final class AzureBlobClientFactory {
 
   private static final Pattern ACCOUNT_NAME_PATTERN = Pattern.compile("AccountName=([^;]+)");
 
-  private AzureBlobClientFactory() {
-  }
+  private AzureBlobClientFactory() {}
 
-  /**
-   * Create a BlobServiceClient with the given configuration.
-   */
+  /** Create a BlobServiceClient with the given configuration. */
   public static BlobServiceClient createClient(AzureBlobConfiguration config) {
     Objects.requireNonNull(config, "config must not be null");
 
@@ -48,9 +41,7 @@ public final class AzureBlobClientFactory {
     return builder.buildClient();
   }
 
-  /**
-   * Create a fully configured AzureBlobFileStoreAdapter.
-   */
+  /** Create a fully configured AzureBlobFileStoreAdapter. */
   public static AzureBlobFileStoreAdapter createAdapter(AzureBlobConfiguration config) {
     Objects.requireNonNull(config, "config must not be null");
 
@@ -59,9 +50,7 @@ public final class AzureBlobClientFactory {
     return new AzureBlobFileStoreAdapter(client, config);
   }
 
-  /**
-   * Extract account name from connection string.
-   */
+  /** Extract account name from connection string. */
   static String extractAccountName(String connectionString) {
     Matcher matcher = ACCOUNT_NAME_PATTERN.matcher(connectionString);
     if (matcher.find()) {

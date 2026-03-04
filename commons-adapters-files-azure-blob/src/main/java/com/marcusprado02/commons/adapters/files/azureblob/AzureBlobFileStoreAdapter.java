@@ -17,9 +17,6 @@ import com.marcusprado02.commons.kernel.result.Result;
 import com.marcusprado02.commons.ports.files.FileId;
 import com.marcusprado02.commons.ports.files.FileObject;
 import com.marcusprado02.commons.ports.files.FileStorePort;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,10 +28,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
- * Azure Blob Storage implementation of FileStorePort.
- * Provides file storage operations using Azure Blob Storage.
+ * Azure Blob Storage implementation of FileStorePort. Provides file storage operations using Azure
+ * Blob Storage.
  */
 public class AzureBlobFileStoreAdapter implements FileStorePort {
 
@@ -43,8 +42,10 @@ public class AzureBlobFileStoreAdapter implements FileStorePort {
   private final BlobServiceClient blobServiceClient;
   private final AzureBlobConfiguration configuration;
 
-  public AzureBlobFileStoreAdapter(BlobServiceClient blobServiceClient, AzureBlobConfiguration configuration) {
-    this.blobServiceClient = Objects.requireNonNull(blobServiceClient, "blobServiceClient must not be null");
+  public AzureBlobFileStoreAdapter(
+      BlobServiceClient blobServiceClient, AzureBlobConfiguration configuration) {
+    this.blobServiceClient =
+        Objects.requireNonNull(blobServiceClient, "blobServiceClient must not be null");
     this.configuration = Objects.requireNonNull(configuration, "configuration must not be null");
   }
 
@@ -58,10 +59,10 @@ public class AzureBlobFileStoreAdapter implements FileStorePort {
 
       byte[] bytes = content.readAllBytes();
 
-      BlobParallelUploadOptions uploadOptions = new BlobParallelUploadOptions(new ByteArrayInputStream(bytes), bytes.length);
+      BlobParallelUploadOptions uploadOptions =
+          new BlobParallelUploadOptions(new ByteArrayInputStream(bytes), bytes.length);
 
-      BlobHttpHeaders headers = new BlobHttpHeaders()
-          .setContentType(options.contentType());
+      BlobHttpHeaders headers = new BlobHttpHeaders().setContentType(options.contentType());
       uploadOptions.setHeaders(headers);
       uploadOptions.setMetadata(options.metadata());
 
@@ -69,7 +70,8 @@ public class AzureBlobFileStoreAdapter implements FileStorePort {
         uploadOptions.setTier(mapAccessTier(options.storageClass()));
       }
 
-      BlockBlobItem response = blobClient.uploadWithResponse(uploadOptions, null, Context.NONE).getValue();
+      BlockBlobItem response =
+          blobClient.uploadWithResponse(uploadOptions, null, Context.NONE).getValue();
 
       log.info("Blob uploaded successfully: {} (etag: {})", fileId, response.getETag());
 
@@ -77,25 +79,28 @@ public class AzureBlobFileStoreAdapter implements FileStorePort {
 
     } catch (BlobStorageException e) {
       log.error("Azure Blob error uploading blob: {}", fileId, e);
-      return Result.fail(Problem.of(
-          ErrorCode.of("AZURE_UPLOAD_ERROR"),
-          ErrorCategory.TECHNICAL,
-          Severity.ERROR,
-          "Failed to upload blob to Azure: " + e.getMessage()));
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("AZURE_UPLOAD_ERROR"),
+              ErrorCategory.TECHNICAL,
+              Severity.ERROR,
+              "Failed to upload blob to Azure: " + e.getMessage()));
     } catch (IOException e) {
       log.error("I/O error reading file content: {}", fileId, e);
-      return Result.fail(Problem.of(
-          ErrorCode.of("IO_ERROR"),
-          ErrorCategory.TECHNICAL,
-          Severity.ERROR,
-          "Failed to read file content: " + e.getMessage()));
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("IO_ERROR"),
+              ErrorCategory.TECHNICAL,
+              Severity.ERROR,
+              "Failed to read file content: " + e.getMessage()));
     } catch (Exception e) {
       log.error("Unexpected error uploading blob: {}", fileId, e);
-      return Result.fail(Problem.of(
-          ErrorCode.of("UPLOAD_ERROR"),
-          ErrorCategory.TECHNICAL,
-          Severity.ERROR,
-          "Unexpected error: " + e.getMessage()));
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("UPLOAD_ERROR"),
+              ErrorCategory.TECHNICAL,
+              Severity.ERROR,
+              "Unexpected error: " + e.getMessage()));
     }
   }
 
@@ -110,13 +115,14 @@ public class AzureBlobFileStoreAdapter implements FileStorePort {
       InputStream inputStream = blobClient.openInputStream();
       BlobProperties properties = blobClient.getProperties();
 
-      FileObject.FileMetadata metadata = FileObject.FileMetadata.builder()
-          .contentType(properties.getContentType())
-          .contentLength(properties.getBlobSize())
-          .lastModified(properties.getLastModified().toInstant())
-          .etag(properties.getETag())
-          .customMetadata(properties.getMetadata())
-          .build();
+      FileObject.FileMetadata metadata =
+          FileObject.FileMetadata.builder()
+              .contentType(properties.getContentType())
+              .contentLength(properties.getBlobSize())
+              .lastModified(properties.getLastModified().toInstant())
+              .etag(properties.getETag())
+              .customMetadata(properties.getMetadata())
+              .build();
 
       log.info("Blob downloaded successfully: {}", fileId);
 
@@ -125,25 +131,28 @@ public class AzureBlobFileStoreAdapter implements FileStorePort {
     } catch (BlobStorageException e) {
       if (e.getErrorCode() == BlobErrorCode.BLOB_NOT_FOUND) {
         log.warn("Blob not found: {}", fileId);
-        return Result.fail(Problem.of(
-            ErrorCode.of("FILE_NOT_FOUND"),
-            ErrorCategory.NOT_FOUND,
-            Severity.ERROR,
-            "Blob does not exist: " + fileId));
+        return Result.fail(
+            Problem.of(
+                ErrorCode.of("FILE_NOT_FOUND"),
+                ErrorCategory.NOT_FOUND,
+                Severity.ERROR,
+                "Blob does not exist: " + fileId));
       }
       log.error("Azure Blob error downloading blob: {}", fileId, e);
-      return Result.fail(Problem.of(
-          ErrorCode.of("AZURE_DOWNLOAD_ERROR"),
-          ErrorCategory.TECHNICAL,
-          Severity.ERROR,
-          "Failed to download blob from Azure: " + e.getMessage()));
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("AZURE_DOWNLOAD_ERROR"),
+              ErrorCategory.TECHNICAL,
+              Severity.ERROR,
+              "Failed to download blob from Azure: " + e.getMessage()));
     } catch (Exception e) {
       log.error("Unexpected error downloading blob: {}", fileId, e);
-      return Result.fail(Problem.of(
-          ErrorCode.of("DOWNLOAD_ERROR"),
-          ErrorCategory.TECHNICAL,
-          Severity.ERROR,
-          "Unexpected error: " + e.getMessage()));
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("DOWNLOAD_ERROR"),
+              ErrorCategory.TECHNICAL,
+              Severity.ERROR,
+              "Unexpected error: " + e.getMessage()));
     }
   }
 
@@ -162,18 +171,20 @@ public class AzureBlobFileStoreAdapter implements FileStorePort {
 
     } catch (BlobStorageException e) {
       log.error("Azure Blob error deleting blob: {}", fileId, e);
-      return Result.fail(Problem.of(
-          ErrorCode.of("AZURE_DELETE_ERROR"),
-          ErrorCategory.TECHNICAL,
-          Severity.ERROR,
-          "Failed to delete blob from Azure: " + e.getMessage()));
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("AZURE_DELETE_ERROR"),
+              ErrorCategory.TECHNICAL,
+              Severity.ERROR,
+              "Failed to delete blob from Azure: " + e.getMessage()));
     } catch (Exception e) {
       log.error("Unexpected error deleting blob: {}", fileId, e);
-      return Result.fail(Problem.of(
-          ErrorCode.of("DELETE_ERROR"),
-          ErrorCategory.TECHNICAL,
-          Severity.ERROR,
-          "Unexpected error: " + e.getMessage()));
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("DELETE_ERROR"),
+              ErrorCategory.TECHNICAL,
+              Severity.ERROR,
+              "Unexpected error: " + e.getMessage()));
     }
   }
 
@@ -214,11 +225,12 @@ public class AzureBlobFileStoreAdapter implements FileStorePort {
 
     } catch (Exception e) {
       log.error("Unexpected error deleting blobs", e);
-      return Result.fail(Problem.of(
-          ErrorCode.of("DELETE_ERROR"),
-          ErrorCategory.TECHNICAL,
-          Severity.ERROR,
-          "Unexpected error: " + e.getMessage()));
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("DELETE_ERROR"),
+              ErrorCategory.TECHNICAL,
+              Severity.ERROR,
+              "Unexpected error: " + e.getMessage()));
     }
   }
 
@@ -234,18 +246,20 @@ public class AzureBlobFileStoreAdapter implements FileStorePort {
 
     } catch (BlobStorageException e) {
       log.error("Azure Blob error checking blob existence: {}", fileId, e);
-      return Result.fail(Problem.of(
-          ErrorCode.of("AZURE_ERROR"),
-          ErrorCategory.TECHNICAL,
-          Severity.ERROR,
-          "Failed to check blob existence: " + e.getMessage()));
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("AZURE_ERROR"),
+              ErrorCategory.TECHNICAL,
+              Severity.ERROR,
+              "Failed to check blob existence: " + e.getMessage()));
     } catch (Exception e) {
       log.error("Unexpected error checking blob existence: {}", fileId, e);
-      return Result.fail(Problem.of(
-          ErrorCode.of("ERROR"),
-          ErrorCategory.TECHNICAL,
-          Severity.ERROR,
-          "Unexpected error: " + e.getMessage()));
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("ERROR"),
+              ErrorCategory.TECHNICAL,
+              Severity.ERROR,
+              "Unexpected error: " + e.getMessage()));
     }
   }
 
@@ -259,13 +273,14 @@ public class AzureBlobFileStoreAdapter implements FileStorePort {
 
       BlobProperties properties = blobClient.getProperties();
 
-      FileObject.FileMetadata metadata = FileObject.FileMetadata.builder()
-          .contentType(properties.getContentType())
-          .contentLength(properties.getBlobSize())
-          .lastModified(properties.getLastModified().toInstant())
-          .etag(properties.getETag())
-          .customMetadata(properties.getMetadata())
-          .build();
+      FileObject.FileMetadata metadata =
+          FileObject.FileMetadata.builder()
+              .contentType(properties.getContentType())
+              .contentLength(properties.getBlobSize())
+              .lastModified(properties.getLastModified().toInstant())
+              .etag(properties.getETag())
+              .customMetadata(properties.getMetadata())
+              .build();
 
       log.info("Retrieved metadata for blob: {}", fileId);
       return Result.ok(metadata);
@@ -273,25 +288,28 @@ public class AzureBlobFileStoreAdapter implements FileStorePort {
     } catch (BlobStorageException e) {
       if (e.getErrorCode() == BlobErrorCode.BLOB_NOT_FOUND) {
         log.warn("Blob not found: {}", fileId);
-        return Result.fail(Problem.of(
-            ErrorCode.of("FILE_NOT_FOUND"),
-            ErrorCategory.NOT_FOUND,
-            Severity.ERROR,
-            "Blob does not exist: " + fileId));
+        return Result.fail(
+            Problem.of(
+                ErrorCode.of("FILE_NOT_FOUND"),
+                ErrorCategory.NOT_FOUND,
+                Severity.ERROR,
+                "Blob does not exist: " + fileId));
       }
       log.error("Azure Blob error getting blob metadata: {}", fileId, e);
-      return Result.fail(Problem.of(
-          ErrorCode.of("AZURE_ERROR"),
-          ErrorCategory.TECHNICAL,
-          Severity.ERROR,
-          "Failed to get blob metadata: " + e.getMessage()));
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("AZURE_ERROR"),
+              ErrorCategory.TECHNICAL,
+              Severity.ERROR,
+              "Failed to get blob metadata: " + e.getMessage()));
     } catch (Exception e) {
       log.error("Unexpected error getting blob metadata: {}", fileId, e);
-      return Result.fail(Problem.of(
-          ErrorCode.of("ERROR"),
-          ErrorCategory.TECHNICAL,
-          Severity.ERROR,
-          "Unexpected error: " + e.getMessage()));
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("ERROR"),
+              ErrorCategory.TECHNICAL,
+              Severity.ERROR,
+              "Unexpected error: " + e.getMessage()));
     }
   }
 
@@ -302,9 +320,8 @@ public class AzureBlobFileStoreAdapter implements FileStorePort {
 
       BlobContainerClient containerClient = getContainerClient(container);
 
-      ListBlobsOptions listOptions = new ListBlobsOptions()
-          .setPrefix(prefix)
-          .setMaxResultsPerPage(options.maxKeys());
+      ListBlobsOptions listOptions =
+          new ListBlobsOptions().setPrefix(prefix).setMaxResultsPerPage(options.maxKeys());
 
       PagedIterable<BlobItem> blobs = containerClient.listBlobs(listOptions, null);
 
@@ -326,25 +343,32 @@ public class AzureBlobFileStoreAdapter implements FileStorePort {
 
     } catch (BlobStorageException e) {
       log.error("Azure Blob error listing blobs in container: {}", container, e);
-      return Result.fail(Problem.of(
-          ErrorCode.of("AZURE_LIST_ERROR"),
-          ErrorCategory.TECHNICAL,
-          Severity.ERROR,
-          "Failed to list blobs: " + e.getMessage()));
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("AZURE_LIST_ERROR"),
+              ErrorCategory.TECHNICAL,
+              Severity.ERROR,
+              "Failed to list blobs: " + e.getMessage()));
     } catch (Exception e) {
       log.error("Unexpected error listing blobs in container: {}", container, e);
-      return Result.fail(Problem.of(
-          ErrorCode.of("LIST_ERROR"),
-          ErrorCategory.TECHNICAL,
-          Severity.ERROR,
-          "Unexpected error: " + e.getMessage()));
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("LIST_ERROR"),
+              ErrorCategory.TECHNICAL,
+              Severity.ERROR,
+              "Unexpected error: " + e.getMessage()));
     }
   }
 
   @Override
-  public Result<URL> generatePresignedUrl(FileId fileId, PresignedOperation operation, Duration duration) {
+  public Result<URL> generatePresignedUrl(
+      FileId fileId, PresignedOperation operation, Duration duration) {
     try {
-      log.debug("Generating SAS URL for blob: {}, operation: {}, duration: {}", fileId, operation, duration);
+      log.debug(
+          "Generating SAS URL for blob: {}, operation: {}, duration: {}",
+          fileId,
+          operation,
+          duration);
 
       BlobContainerClient containerClient = getContainerClient(fileId.bucket());
       BlobClient blobClient = containerClient.getBlobClient(fileId.key());
@@ -357,7 +381,8 @@ public class AzureBlobFileStoreAdapter implements FileStorePort {
 
       OffsetDateTime expiryTime = OffsetDateTime.now().plus(duration);
 
-      BlobServiceSasSignatureValues sasValues = new BlobServiceSasSignatureValues(expiryTime, permissions);
+      BlobServiceSasSignatureValues sasValues =
+          new BlobServiceSasSignatureValues(expiryTime, permissions);
 
       String sasToken = blobClient.generateSas(sasValues);
       String sasUrl = blobClient.getBlobUrl() + "?" + sasToken;
@@ -367,18 +392,20 @@ public class AzureBlobFileStoreAdapter implements FileStorePort {
 
     } catch (BlobStorageException e) {
       log.error("Azure Blob error generating SAS URL: {}", fileId, e);
-      return Result.fail(Problem.of(
-          ErrorCode.of("AZURE_SAS_ERROR"),
-          ErrorCategory.TECHNICAL,
-          Severity.ERROR,
-          "Failed to generate SAS URL: " + e.getMessage()));
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("AZURE_SAS_ERROR"),
+              ErrorCategory.TECHNICAL,
+              Severity.ERROR,
+              "Failed to generate SAS URL: " + e.getMessage()));
     } catch (Exception e) {
       log.error("Unexpected error generating SAS URL: {}", fileId, e);
-      return Result.fail(Problem.of(
-          ErrorCode.of("SAS_ERROR"),
-          ErrorCategory.TECHNICAL,
-          Severity.ERROR,
-          "Unexpected error: " + e.getMessage()));
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("SAS_ERROR"),
+              ErrorCategory.TECHNICAL,
+              Severity.ERROR,
+              "Unexpected error: " + e.getMessage()));
     }
   }
 
@@ -401,18 +428,20 @@ public class AzureBlobFileStoreAdapter implements FileStorePort {
 
     } catch (BlobStorageException e) {
       log.error("Azure Blob error copying blob from {} to {}", source, destination, e);
-      return Result.fail(Problem.of(
-          ErrorCode.of("AZURE_COPY_ERROR"),
-          ErrorCategory.TECHNICAL,
-          Severity.ERROR,
-          "Failed to copy blob: " + e.getMessage()));
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("AZURE_COPY_ERROR"),
+              ErrorCategory.TECHNICAL,
+              Severity.ERROR,
+              "Failed to copy blob: " + e.getMessage()));
     } catch (Exception e) {
       log.error("Unexpected error copying blob from {} to {}", source, destination, e);
-      return Result.fail(Problem.of(
-          ErrorCode.of("COPY_ERROR"),
-          ErrorCategory.TECHNICAL,
-          Severity.ERROR,
-          "Unexpected error: " + e.getMessage()));
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("COPY_ERROR"),
+              ErrorCategory.TECHNICAL,
+              Severity.ERROR,
+              "Unexpected error: " + e.getMessage()));
     }
   }
 

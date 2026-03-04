@@ -81,12 +81,12 @@ SerializationOptions options = SerializationOptions.builder()
 ```java
 @Component
 public class UserEventProcessor {
-    
+
     private final SerializationPort<UserEvent> serializer;
-    
+
     public void processEvent(UserEvent event) {
         Result<byte[]> result = serializer.serialize(event);
-        
+
         if (result.isSuccess()) {
             byte[] data = result.getValue();
             // Send data to message queue, store in database, etc.
@@ -104,16 +104,16 @@ public class UserEventProcessor {
 ```java
 @Service
 public class EventValidator {
-    
+
     private final SerializationPort<Event> serializer;
     private final SchemaRegistry registry;
-    
+
     public boolean isValidEvent(Event event) {
         Schema schema = registry.getLatestSchema("Event").orElse(null);
         if (schema == null) {
             return false;
         }
-        
+
         Result<ValidationResult> result = serializer.validate(event, schema);
         return result.isSuccess() && result.getValue().isValid();
     }
@@ -125,13 +125,13 @@ public class EventValidator {
 ```java
 @RestController
 public class EventController {
-    
+
     private final SerializationPort<Event> serializer;
-    
+
     @PostMapping(value = "/events", consumes = "application/x-protobuf")
     public ResponseEntity<?> createEvent(@RequestBody byte[] data) {
         Result<Event> result = serializer.deserialize(data, Event.class);
-        
+
         if (result.isSuccess()) {
             Event event = result.getValue();
             // Process event
@@ -141,13 +141,13 @@ public class EventController {
                 .body(result.getProblem().getDetail());
         }
     }
-    
+
     @GetMapping(value = "/events/{id}", produces = "application/x-protobuf")
     public ResponseEntity<byte[]> getEvent(@PathVariable String id) {
         Event event = findEventById(id);
         Result<byte[]> result = serializer.serialize(event);
-        
-        return result.isSuccess() 
+
+        return result.isSuccess()
             ? ResponseEntity.ok(result.getValue())
             : ResponseEntity.internalServerError().build();
     }
@@ -159,28 +159,28 @@ public class EventController {
 ```java
 @Service
 public class SchemaEvolutionService {
-    
+
     private final SchemaRegistry registry;
-    
+
     public void upgradeSchema(String schemaName, String newDefinition) {
         Schema currentSchema = registry.getLatestSchema(schemaName)
             .orElseThrow(() -> new IllegalStateException("Schema not found"));
-        
+
         String newVersion = incrementVersion(currentSchema.getVersion());
-        Schema newSchema = new Schema(schemaName, newVersion, newDefinition, 
+        Schema newSchema = new Schema(schemaName, newVersion, newDefinition,
                                     currentSchema.getFormat());
-        
+
         // Check compatibility
         ValidationResult compatibility = registry.isCompatible(currentSchema, newSchema);
         if (!compatibility.isValid()) {
-            throw new IllegalArgumentException("Incompatible schema: " + 
+            throw new IllegalArgumentException("Incompatible schema: " +
                                              compatibility.getErrors());
         }
-        
+
         // Register new version
         Result<Void> result = registry.register(newSchema);
         if (!result.isSuccess()) {
-            throw new RuntimeException("Failed to register schema: " + 
+            throw new RuntimeException("Failed to register schema: " +
                                      result.getProblem().getDetail());
         }
     }
@@ -215,7 +215,7 @@ switch (serializationResult) {
 This ports module defines the contracts that concrete adapters must implement:
 
 - **commons-adapters-serialization-protobuf**: Protocol Buffers implementation
-- **commons-adapters-serialization-avro**: Apache Avro implementation  
+- **commons-adapters-serialization-avro**: Apache Avro implementation
 - **commons-adapters-serialization-messagepack**: MessagePack implementation
 
 ## Dependencies

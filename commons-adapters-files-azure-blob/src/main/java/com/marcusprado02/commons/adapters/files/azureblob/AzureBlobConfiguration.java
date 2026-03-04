@@ -1,10 +1,6 @@
 package com.marcusprado02.commons.adapters.files.azureblob;
 
-import java.util.Objects;
-
-/**
- * Configuration for AzureBlobFileStoreAdapter.
- */
+/** Configuration for AzureBlobFileStoreAdapter. */
 public record AzureBlobConfiguration(
     String endpoint,
     String accountName,
@@ -13,8 +9,7 @@ public record AzureBlobConfiguration(
     String sasToken,
     boolean useManagedIdentity,
     int maxRetries,
-    long timeoutSeconds
-) {
+    long timeoutSeconds) {
 
   public AzureBlobConfiguration {
     if (authenticationType == null) {
@@ -28,77 +23,35 @@ public record AzureBlobConfiguration(
     }
   }
 
-  /**
-   * Authentication type for Azure Blob Storage.
-   */
+  /** Authentication type for Azure Blob Storage. */
   public enum AuthenticationType {
     CONNECTION_STRING,
     SAS_TOKEN,
     MANAGED_IDENTITY
   }
 
-  /**
-   * Default configuration with connection string.
-   */
+  /** Default configuration with connection string. */
   public static AzureBlobConfiguration withConnectionString(String connectionString) {
     return new AzureBlobConfiguration(
-        null,
-        null,
-        AuthenticationType.CONNECTION_STRING,
-        connectionString,
-        null,
-        false,
-        3,
-        30
-    );
+        null, null, AuthenticationType.CONNECTION_STRING, connectionString, null, false, 3, 30);
   }
 
-  /**
-   * Configuration with SAS token.
-   */
+  /** Configuration with SAS token. */
   public static AzureBlobConfiguration withSasToken(String endpoint, String sasToken) {
     return new AzureBlobConfiguration(
-        endpoint,
-        null,
-        AuthenticationType.SAS_TOKEN,
-        null,
-        sasToken,
-        false,
-        3,
-        30
-    );
+        endpoint, null, AuthenticationType.SAS_TOKEN, null, sasToken, false, 3, 30);
   }
 
-  /**
-   * Configuration with Managed Identity.
-   */
+  /** Configuration with Managed Identity. */
   public static AzureBlobConfiguration withManagedIdentity(String endpoint, String accountName) {
     return new AzureBlobConfiguration(
-        endpoint,
-        accountName,
-        AuthenticationType.MANAGED_IDENTITY,
-        null,
-        null,
-        true,
-        3,
-        30
-    );
+        endpoint, accountName, AuthenticationType.MANAGED_IDENTITY, null, null, true, 3, 30);
   }
 
-  /**
-   * Configuration for Azurite (local emulator).
-   */
+  /** Configuration for Azurite (local emulator). */
   public static AzureBlobConfiguration azurite(String connectionString) {
     return new AzureBlobConfiguration(
-        null,
-        null,
-        AuthenticationType.CONNECTION_STRING,
-        connectionString,
-        null,
-        false,
-        3,
-        30
-    );
+        null, null, AuthenticationType.CONNECTION_STRING, connectionString, null, false, 3, 30);
   }
 
   public static Builder builder() {
@@ -169,8 +122,7 @@ public record AzureBlobConfiguration(
           sasToken,
           useManagedIdentity,
           maxRetries,
-          timeoutSeconds
-      );
+          timeoutSeconds);
     }
   }
 }

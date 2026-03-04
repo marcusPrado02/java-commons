@@ -1,23 +1,12 @@
 package com.marcusprado02.commons.adapters.excel.poi;
 
-import com.marcusprado02.commons.kernel.errors.ErrorCategory;
-import com.marcusprado02.commons.kernel.errors.ErrorCode;
-import com.marcusprado02.commons.kernel.errors.Problem;
 import com.marcusprado02.commons.kernel.errors.Problems;
-import com.marcusprado02.commons.kernel.errors.Severity;
 import com.marcusprado02.commons.kernel.result.Result;
 import com.marcusprado02.commons.ports.excel.*;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
-import java.util.stream.StreamSupport;
 import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.eventusermodel.XSSFReader;
-import org.apache.poi.xssf.eventusermodel.XSSFSheetXMLHandler;
-import org.apache.poi.xssf.model.SharedStringsTable;
-import org.apache.poi.xssf.model.StylesTable;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.apache.poi.openxml4j.opc.OPCPackage;
 
 /**
  * Streaming reader implementation using Apache POI for memory-efficient Excel file processing.
@@ -44,19 +33,20 @@ public class PoiStreamReader implements ExcelStreamReader {
    * @param configuration POI configuration
    * @throws IOException if file cannot be opened
    */
-  public PoiStreamReader(Path filePath, ExcelReadOptions options, PoiConfiguration configuration) throws IOException {
+  public PoiStreamReader(Path filePath, ExcelReadOptions options, PoiConfiguration configuration)
+      throws IOException {
     this.filePath = filePath;
     this.options = options;
     this.configuration = configuration;
     initialize();
   }
 
-  /**
-   * Initializes the reader by opening the workbook and reading sheet names.
-   */
+  /** Initializes the reader by opening the workbook and reading sheet names. */
   private void initialize() throws IOException {
     try {
-      this.workbook = WorkbookFactory.create(filePath.toFile(), options.password(), configuration.readOnlyMode());
+      this.workbook =
+          WorkbookFactory.create(
+              filePath.toFile(), options.password(), configuration.readOnlyMode());
       this.worksheetNames = new ArrayList<>();
 
       for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
@@ -84,7 +74,9 @@ public class PoiStreamReader implements ExcelStreamReader {
     try {
       Sheet sheet = workbook.getSheet(worksheetName);
       if (sheet == null) {
-        return Result.fail(Problems.notFound("EXCEL_WORKSHEET_NOT_FOUND", "Worksheet '" + worksheetName + "' not found"));
+        return Result.fail(
+            Problems.notFound(
+                "EXCEL_WORKSHEET_NOT_FOUND", "Worksheet '" + worksheetName + "' not found"));
       }
 
       this.currentSheet = sheet;
@@ -93,7 +85,9 @@ public class PoiStreamReader implements ExcelStreamReader {
 
       return Result.ok(null);
     } catch (Exception e) {
-      return Result.fail(Problems.technical("EXCEL_WORKSHEET_SELECT_ERROR", "Failed to select worksheet: " + e.getMessage()));
+      return Result.fail(
+          Problems.technical(
+              "EXCEL_WORKSHEET_SELECT_ERROR", "Failed to select worksheet: " + e.getMessage()));
     }
   }
 
@@ -142,13 +136,16 @@ public class PoiStreamReader implements ExcelStreamReader {
 
       // Check row limit
       if (options.maxRows() > 0 && currentRowNum >= options.maxRows()) {
-        return Result.fail(Problems.validation("EXCEL_MAX_ROWS_EXCEEDED", "Maximum row limit reached: " + options.maxRows()));
+        return Result.fail(
+            Problems.validation(
+                "EXCEL_MAX_ROWS_EXCEEDED", "Maximum row limit reached: " + options.maxRows()));
       }
 
       List<ExcelCell> cells = new ArrayList<>();
-      int maxColumn = options.maxColumns() > 0
-          ? Math.min(poiRow.getLastCellNum(), options.maxColumns())
-          : poiRow.getLastCellNum();
+      int maxColumn =
+          options.maxColumns() > 0
+              ? Math.min(poiRow.getLastCellNum(), options.maxColumns())
+              : poiRow.getLastCellNum();
 
       for (int col = 0; col < maxColumn; col++) {
         Cell poiCell = poiRow.getCell(col);
@@ -163,7 +160,8 @@ public class PoiStreamReader implements ExcelStreamReader {
 
       return Result.ok(cells);
     } catch (Exception e) {
-      return Result.fail(Problems.technical("EXCEL_ROW_READ_ERROR", "Failed to read row: " + e.getMessage()));
+      return Result.fail(
+          Problems.technical("EXCEL_ROW_READ_ERROR", "Failed to read row: " + e.getMessage()));
     }
   }
 
@@ -189,13 +187,12 @@ public class PoiStreamReader implements ExcelStreamReader {
       }
       return Result.ok(null);
     } catch (Exception e) {
-      return Result.fail(Problems.technical("EXCEL_SKIP_ROWS_ERROR", "Failed to skip rows: " + e.getMessage()));
+      return Result.fail(
+          Problems.technical("EXCEL_SKIP_ROWS_ERROR", "Failed to skip rows: " + e.getMessage()));
     }
   }
 
-  /**
-   * Checks if a row is empty (all cells are blank).
-   */
+  /** Checks if a row is empty (all cells are blank). */
   private boolean isRowEmpty(Row row) {
     if (row == null) {
       return true;
@@ -228,26 +225,24 @@ public class PoiStreamReader implements ExcelStreamReader {
   }
 }
 
-/**
- * Helper class for mapping POI cells to Commons cells.
- */
+/** Helper class for mapping POI cells to Commons cells. */
 final class PoiCellMapper {
 
   private PoiCellMapper() {
     // Utility class
   }
 
-  /**
-   * Converts a POI Cell to Commons ExcelCell with simplified style mapping for streaming.
-   */
+  /** Converts a POI Cell to Commons ExcelCell with simplified style mapping for streaming. */
   public static ExcelCell fromPoi(Cell poiCell) {
     int row = poiCell.getRowIndex();
     int column = poiCell.getColumnIndex();
 
     com.marcusprado02.commons.ports.excel.CellType cellType = mapCellType(poiCell.getCellType());
     Object value = extractCellValue(poiCell);
-    String formula = poiCell.getCellType() == org.apache.poi.ss.usermodel.CellType.FORMULA
-        ? poiCell.getCellFormula() : null;
+    String formula =
+        poiCell.getCellType() == org.apache.poi.ss.usermodel.CellType.FORMULA
+            ? poiCell.getCellFormula()
+            : null;
 
     // For streaming, we skip detailed style mapping to improve performance
     ExcelCellStyle style = null;
@@ -255,7 +250,8 @@ final class PoiCellMapper {
     return new ExcelCell(row, column, cellType, value, formula, style);
   }
 
-  private static com.marcusprado02.commons.ports.excel.CellType mapCellType(org.apache.poi.ss.usermodel.CellType poiCellType) {
+  private static com.marcusprado02.commons.ports.excel.CellType mapCellType(
+      org.apache.poi.ss.usermodel.CellType poiCellType) {
     return switch (poiCellType) {
       case BLANK -> com.marcusprado02.commons.ports.excel.CellType.BLANK;
       case BOOLEAN -> com.marcusprado02.commons.ports.excel.CellType.BOOLEAN;

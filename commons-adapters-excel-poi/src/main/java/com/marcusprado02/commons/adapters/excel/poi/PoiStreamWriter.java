@@ -40,23 +40,23 @@ public class PoiStreamWriter implements ExcelStreamWriter {
    * @param configuration POI configuration
    * @throws IOException if file cannot be created
    */
-  public PoiStreamWriter(Path filePath, ExcelWriteOptions options, PoiConfiguration configuration) throws IOException {
+  public PoiStreamWriter(Path filePath, ExcelWriteOptions options, PoiConfiguration configuration)
+      throws IOException {
     this.filePath = filePath;
     this.options = options;
     this.configuration = configuration;
     initialize();
   }
 
-  /**
-   * Initializes the writer by creating the workbook.
-   */
+  /** Initializes the writer by creating the workbook. */
   private void initialize() throws IOException {
     try {
       // Use streaming workbook for XLSX to minimize memory usage
-      this.workbook = switch (options.format()) {
-        case XLSX -> new SXSSFWorkbook(configuration.streamingRowAccessWindow());
-        case XLS -> WorkbookFactory.create(true); // Create empty HSSFWorkbook
-      };
+      this.workbook =
+          switch (options.format()) {
+            case XLSX -> new SXSSFWorkbook(configuration.streamingRowAccessWindow());
+            case XLS -> WorkbookFactory.create(true); // Create empty HSSFWorkbook
+          };
     } catch (Exception e) {
       throw new IOException("Failed to create Excel workbook: " + e.getMessage(), e);
     }
@@ -75,7 +75,10 @@ public class PoiStreamWriter implements ExcelStreamWriter {
       this.pendingColumnWidths.clear();
       return Result.ok(null);
     } catch (Exception e) {
-      return Result.fail(Problems.technical("EXCEL_CREATE_WORKSHEET_ERROR", "Failed to create worksheet '" + name + "': " + e.getMessage()));
+      return Result.fail(
+          Problems.technical(
+              "EXCEL_CREATE_WORKSHEET_ERROR",
+              "Failed to create worksheet '" + name + "': " + e.getMessage()));
     }
   }
 
@@ -88,7 +91,8 @@ public class PoiStreamWriter implements ExcelStreamWriter {
     try {
       Sheet sheet = workbook.getSheet(name);
       if (sheet == null) {
-        return Result.fail(Problems.notFound("EXCEL_WORKSHEET_NOT_FOUND", "Worksheet '" + name + "' not found"));
+        return Result.fail(
+            Problems.notFound("EXCEL_WORKSHEET_NOT_FOUND", "Worksheet '" + name + "' not found"));
       }
 
       this.currentSheet = sheet;
@@ -96,7 +100,9 @@ public class PoiStreamWriter implements ExcelStreamWriter {
       this.pendingColumnWidths.clear();
       return Result.ok(null);
     } catch (Exception e) {
-      return Result.fail(Problems.technical("EXCEL_SELECT_WORKSHEET_ERROR", "Failed to select worksheet: " + e.getMessage()));
+      return Result.fail(
+          Problems.technical(
+              "EXCEL_SELECT_WORKSHEET_ERROR", "Failed to select worksheet: " + e.getMessage()));
     }
   }
 
@@ -116,9 +122,14 @@ public class PoiStreamWriter implements ExcelStreamWriter {
       for (ExcelCell cell : cells) {
         // Ensure cell is on the current row
         if (cell.row() != currentRowNum) {
-          ExcelCell adjustedCell = new ExcelCell(
-            currentRowNum, cell.column(), cell.cellType(),
-            cell.value(), cell.formula(), cell.style());
+          ExcelCell adjustedCell =
+              new ExcelCell(
+                  currentRowNum,
+                  cell.column(),
+                  cell.cellType(),
+                  cell.value(),
+                  cell.formula(),
+                  cell.style());
           cell = adjustedCell;
         }
 
@@ -134,7 +145,8 @@ public class PoiStreamWriter implements ExcelStreamWriter {
       currentRowNum++;
       return Result.ok(null);
     } catch (Exception e) {
-      return Result.fail(Problems.technical("EXCEL_WRITE_ROW_ERROR", "Failed to write row: " + e.getMessage()));
+      return Result.fail(
+          Problems.technical("EXCEL_WRITE_ROW_ERROR", "Failed to write row: " + e.getMessage()));
     }
   }
 
@@ -160,7 +172,9 @@ public class PoiStreamWriter implements ExcelStreamWriter {
 
       return Result.ok(null);
     } catch (Exception e) {
-      return Result.fail(Problems.technical("EXCEL_SET_COLUMN_WIDTH_ERROR", "Failed to set column width: " + e.getMessage()));
+      return Result.fail(
+          Problems.technical(
+              "EXCEL_SET_COLUMN_WIDTH_ERROR", "Failed to set column width: " + e.getMessage()));
     }
   }
 
@@ -181,7 +195,9 @@ public class PoiStreamWriter implements ExcelStreamWriter {
       }
       return Result.ok(null);
     } catch (Exception e) {
-      return Result.fail(Problems.technical("EXCEL_SET_ROW_HEIGHT_ERROR", "Failed to set row height: " + e.getMessage()));
+      return Result.fail(
+          Problems.technical(
+              "EXCEL_SET_ROW_HEIGHT_ERROR", "Failed to set row height: " + e.getMessage()));
     }
   }
 
@@ -199,7 +215,9 @@ public class PoiStreamWriter implements ExcelStreamWriter {
       currentSheet.createFreezePane(column, row);
       return Result.ok(null);
     } catch (Exception e) {
-      return Result.fail(Problems.technical("EXCEL_FREEZE_PANES_ERROR", "Failed to freeze panes: " + e.getMessage()));
+      return Result.fail(
+          Problems.technical(
+              "EXCEL_FREEZE_PANES_ERROR", "Failed to freeze panes: " + e.getMessage()));
     }
   }
 
@@ -218,7 +236,9 @@ public class PoiStreamWriter implements ExcelStreamWriter {
       // For now, just mark that auto-filter should be enabled
       return Result.ok(null);
     } catch (Exception e) {
-      return Result.fail(Problems.technical("EXCEL_AUTO_FILTER_ERROR", "Failed to enable auto-filter: " + e.getMessage()));
+      return Result.fail(
+          Problems.technical(
+              "EXCEL_AUTO_FILTER_ERROR", "Failed to enable auto-filter: " + e.getMessage()));
     }
   }
 
@@ -246,7 +266,8 @@ public class PoiStreamWriter implements ExcelStreamWriter {
       }
       return Result.ok(null);
     } catch (Exception e) {
-      return Result.fail(Problems.technical("EXCEL_FLUSH_ERROR", "Failed to flush data: " + e.getMessage()));
+      return Result.fail(
+          Problems.technical("EXCEL_FLUSH_ERROR", "Failed to flush data: " + e.getMessage()));
     }
   }
 
@@ -289,9 +310,7 @@ public class PoiStreamWriter implements ExcelStreamWriter {
     }
   }
 
-  /**
-   * Sets the value of a POI cell based on the Commons cell data.
-   */
+  /** Sets the value of a POI cell based on the Commons cell data. */
   private void setCellValue(Cell poiCell, ExcelCell cell) {
     switch (cell.cellType()) {
       case BLANK -> poiCell.setBlank();
@@ -332,15 +351,15 @@ public class PoiStreamWriter implements ExcelStreamWriter {
     }
   }
 
-  /**
-   * Creates a POI CellStyle from a Commons ExcelCellStyle (simplified for streaming).
-   */
+  /** Creates a POI CellStyle from a Commons ExcelCellStyle (simplified for streaming). */
   private CellStyle createCellStyle(ExcelCellStyle style) {
     CellStyle poiStyle = workbook.createCellStyle();
 
     // Create font if needed
-    if (style.fontName() != null || style.fontSize() != null ||
-        style.bold() != null || style.italic() != null) {
+    if (style.fontName() != null
+        || style.fontSize() != null
+        || style.bold() != null
+        || style.italic() != null) {
       Font font = workbook.createFont();
 
       if (style.fontName() != null) {

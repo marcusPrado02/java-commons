@@ -82,9 +82,7 @@ public class InMemoryFeatureFlagProvider implements FeatureFlagProvider {
     flags.remove(featureKey);
   }
 
-  /**
-   * Clears all feature flags.
-   */
+  /** Clears all feature flags. */
   public void clear() {
     flags.clear();
   }

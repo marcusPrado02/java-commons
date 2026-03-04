@@ -1,14 +1,11 @@
 package com.marcusprado02.commons.adapters.graphql.subscription;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.reactivestreams.Publisher;
-import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
-
-import java.time.Duration;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class GraphQLSubscriptionManagerTest {
 
@@ -41,11 +38,7 @@ class GraphQLSubscriptionManagerTest {
     manager.publish("other");
     manager.publish("test2");
 
-    StepVerifier.create(subscription)
-        .expectNext("test1")
-        .expectNext("test2")
-        .thenCancel()
-        .verify();
+    StepVerifier.create(subscription).expectNext("test1").expectNext("test2").thenCancel().verify();
   }
 
   @Test

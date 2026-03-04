@@ -63,7 +63,7 @@ if (result.isOk()) {
    // Production configuration
    SendGridConfiguration config = SendGridConfiguration.forProduction(
        "SG.your-production-api-key",
-       "noreply@yourcompany.com", 
+       "noreply@yourcompany.com",
        "Your Company Name"
    );
    ```
@@ -119,7 +119,7 @@ Result<EmailReceipt> result = emailAdapter.send(email);
 
 ```java
 Email email = Email.builder()
-    .from("marketing@company.com") 
+    .from("marketing@company.com")
     .to("customer@example.com")
     .subject("Welcome to Our Service!")
     .htmlContent("""
@@ -141,7 +141,7 @@ Result<EmailReceipt> result = emailAdapter.send(email);
 ```java
 Email email = Email.builder()
     .from("newsletter@company.com")
-    .to("subscriber@example.com") 
+    .to("subscriber@example.com")
     .subject("Monthly Newsletter")
     .htmlContent("<h1>Newsletter</h1><p>HTML version...</p>")
     .textContent("Newsletter\n\nText version...")
@@ -257,7 +257,7 @@ class EmailServiceTest {
 ```java
 @TestConfiguration
 public class EmailTestConfig {
-    
+
     @Bean
     @Primary
     public SendGridConfiguration testSendGridConfig() {
@@ -284,9 +284,9 @@ public void sendWelcomeEmail(String userEmail, String userName) {
         .build();
 
     Result<EmailReceipt> result = emailAdapter.send(email);
-    
+
     if (result.isFail()) {
-        logger.error("Failed to send welcome email to {}: {}", 
+        logger.error("Failed to send welcome email to {}: {}",
                     userEmail, result.problemOrNull().message());
     }
 }
@@ -297,7 +297,7 @@ public void sendWelcomeEmail(String userEmail, String userName) {
 ```java
 public void sendPasswordResetEmail(String userEmail, String resetToken) {
     String resetLink = "https://app.company.com/reset-password?token=" + resetToken;
-    
+
     Email email = Email.builder()
         .from("security@company.com")
         .to(userEmail)
@@ -320,7 +320,7 @@ public void sendPasswordResetEmail(String userEmail, String resetToken) {
 ```java
 public void sendOrderConfirmation(String customerEmail, Order order) {
     Email email = Email.builder()
-        .from("orders@company.com") 
+        .from("orders@company.com")
         .to(customerEmail)
         .subject("Order Confirmation - #" + order.getId())
         .htmlContent(generateOrderHtml(order))
@@ -345,7 +345,7 @@ public void sendNewsletter(List<String> subscribers, Newsletter newsletter) {
             .build();
 
         emailAdapter.send(email);
-        
+
         // Add delay to respect rate limits
         Thread.sleep(100);
     }
@@ -395,9 +395,9 @@ SendGrid has rate limits. Consider implementing your own:
 ```java
 @Component
 public class EmailService {
-    
+
     private final RateLimiter rateLimiter = RateLimiter.create(100.0); // 100 emails/second
-    
+
     public Result<EmailReceipt> sendEmail(Email email) {
         if (!rateLimiter.tryAcquire(Duration.ofSeconds(1))) {
             return Result.fail(Problem.of(
@@ -406,7 +406,7 @@ public class EmailService {
                 Severity.WARNING,
                 "Email sending rate limit exceeded"));
         }
-        
+
         return emailAdapter.send(email);
     }
 }
@@ -421,23 +421,23 @@ Result<EmailReceipt> result = emailAdapter.send(email);
 
 if (result.isFail()) {
     Problem problem = result.problemOrNull();
-    
+
     switch (problem.code().value()) {
         case "SENDGRID_UNAUTHORIZED":
             logger.error("SendGrid API key is invalid or expired");
             // Alert operations team
             break;
-            
+
         case "SENDGRID_RATE_LIMITED":
             logger.warn("SendGrid rate limit exceeded, retrying later");
             // Implement exponential backoff
             break;
-            
+
         case "SENDGRID_TIMEOUT":
             logger.warn("SendGrid API timeout, email may be retried");
             // Queue for retry
             break;
-            
+
         default:
             logger.error("SendGrid email failed: {}", problem.message());
     }
@@ -449,13 +449,13 @@ if (result.isFail()) {
 ```java
 @Component
 public class EmailMetrics {
-    
+
     private final Counter emailsSent = Counter.build()
         .name("emails_sent_total")
         .help("Total emails sent")
         .labelNames("adapter", "status")
         .register();
-    
+
     public void recordEmailSent(boolean success) {
         emailsSent.labels("sendgrid", success ? "success" : "failure").inc();
     }
@@ -477,7 +477,7 @@ for (String recipient : recipients) {
         .subject("Newsletter")
         .htmlContent(content)
         .build();
-    
+
     emailAdapter.send(email);
     Thread.sleep(10); // Rate limiting
 }
@@ -488,7 +488,7 @@ for (String recipient : recipients) {
 ```java
 @Service
 public class AsyncEmailService {
-    
+
     @Async("emailExecutor")
     public CompletableFuture<Result<EmailReceipt>> sendEmailAsync(Email email) {
         return CompletableFuture.completedFuture(emailAdapter.send(email));
@@ -516,7 +516,7 @@ SendGridConfiguration config = SendGridConfiguration.builder()
    - Ensure API key has "Mail Send" permissions
    - Verify key is not expired
 
-2. **403 Forbidden** 
+2. **403 Forbidden**
    - Check sender email domain verification
    - Ensure sender reputation is good
    - Verify account is not suspended

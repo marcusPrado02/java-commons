@@ -3,7 +3,6 @@ package com.marcusprado02.commons.app.multitenancy.resolver.servlet;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-import com.marcusprado02.commons.app.multitenancy.TenantContext;
 import jakarta.servlet.http.HttpServletRequest;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;

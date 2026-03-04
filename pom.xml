@@ -69,6 +69,7 @@
     <module>commons-app-api-gateway</module>
     <module>commons-app-workflow-engine</module>
     <module>commons-app-backup-restore</module>
+    <module>commons-app-rate-limiting</module>
 
     <module>commons-adapters-web</module>
     <module>commons-adapters-web-spring</module>
@@ -189,6 +190,7 @@
       <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
+        <version>3.2.1</version>
       </plugin>
 
       <!-- Maven Release Plugin for semantic versioning -->

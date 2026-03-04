@@ -3,7 +3,6 @@ package com.marcusprado02.commons.adapters.graphql.resolver;
 import com.marcusprado02.commons.kernel.errors.DomainException;
 import com.marcusprado02.commons.kernel.errors.Problem;
 import com.marcusprado02.commons.kernel.result.Result;
-
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Function;
 

@@ -2,9 +2,7 @@ package com.marcusprado02.commons.ports.serialization;
 
 import java.util.Objects;
 
-/**
- * Configuration options for serialization operations.
- */
+/** Configuration options for serialization operations. */
 public class SerializationOptions {
 
   private final boolean validateSchema;
@@ -84,9 +82,7 @@ public class SerializationOptions {
     return format;
   }
 
-  /**
-   * Builder class for SerializationOptions.
-   */
+  /** Builder class for SerializationOptions. */
   public static class Builder {
     private boolean validateSchema = true;
     private boolean useSchemaRegistry = false;
@@ -164,11 +160,11 @@ public class SerializationOptions {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     SerializationOptions that = (SerializationOptions) o;
-    return validateSchema == that.validateSchema &&
-           useSchemaRegistry == that.useSchemaRegistry &&
-           includeMetadata == that.includeMetadata &&
-           Objects.equals(schemaVersion, that.schemaVersion) &&
-           format == that.format;
+    return validateSchema == that.validateSchema
+        && useSchemaRegistry == that.useSchemaRegistry
+        && includeMetadata == that.includeMetadata
+        && Objects.equals(schemaVersion, that.schemaVersion)
+        && format == that.format;
   }
 
   @Override
@@ -178,12 +174,18 @@ public class SerializationOptions {
 
   @Override
   public String toString() {
-    return "SerializationOptions{" +
-           "validateSchema=" + validateSchema +
-           ", useSchemaRegistry=" + useSchemaRegistry +
-           ", includeMetadata=" + includeMetadata +
-           ", schemaVersion='" + schemaVersion + '\'' +
-           ", format=" + format +
-           '}';
+    return "SerializationOptions{"
+        + "validateSchema="
+        + validateSchema
+        + ", useSchemaRegistry="
+        + useSchemaRegistry
+        + ", includeMetadata="
+        + includeMetadata
+        + ", schemaVersion='"
+        + schemaVersion
+        + '\''
+        + ", format="
+        + format
+        + '}';
   }
 }

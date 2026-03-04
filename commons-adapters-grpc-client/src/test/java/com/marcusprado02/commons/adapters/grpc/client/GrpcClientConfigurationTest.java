@@ -1,11 +1,10 @@
 package com.marcusprado02.commons.adapters.grpc.client;
 
-import io.grpc.*;
-import org.junit.jupiter.api.Test;
-
-import java.time.Duration;
-
 import static org.junit.jupiter.api.Assertions.*;
+
+import io.grpc.*;
+import java.time.Duration;
+import org.junit.jupiter.api.Test;
 
 class GrpcClientConfigurationTest {
 
@@ -49,7 +48,9 @@ class GrpcClientConfigurationTest {
   @Test
   void shouldCreateCustomConfiguration() {
     var config =
-        GrpcClientConfiguration.builder().host("api.example.com").port(8443)
+        GrpcClientConfiguration.builder()
+            .host("api.example.com")
+            .port(8443)
             .callTimeout(Duration.ofSeconds(60))
             .idleTimeout(Duration.ofMinutes(15))
             .maxInboundMessageSize(8 * 1024 * 1024) // 8MB
@@ -84,28 +85,32 @@ class GrpcClientConfigurationTest {
 
   @Test
   void shouldValidateNullHost() {
-    GrpcClientConfiguration.Builder builder = GrpcClientConfiguration.builder().host(null).port(9090);
+    GrpcClientConfiguration.Builder builder =
+        GrpcClientConfiguration.builder().host(null).port(9090);
 
     assertThrows(IllegalArgumentException.class, builder::build);
   }
 
   @Test
   void shouldValidateBlankHost() {
-    GrpcClientConfiguration.Builder builder = GrpcClientConfiguration.builder().host("  ").port(9090);
+    GrpcClientConfiguration.Builder builder =
+        GrpcClientConfiguration.builder().host("  ").port(9090);
 
     assertThrows(IllegalArgumentException.class, builder::build);
   }
 
   @Test
   void shouldValidateMinPort() {
-    GrpcClientConfiguration.Builder builder = GrpcClientConfiguration.builder().host("localhost").port(0);
+    GrpcClientConfiguration.Builder builder =
+        GrpcClientConfiguration.builder().host("localhost").port(0);
 
     assertThrows(IllegalArgumentException.class, builder::build);
   }
 
   @Test
   void shouldValidateMaxPort() {
-    GrpcClientConfiguration.Builder builder = GrpcClientConfiguration.builder().host("localhost").port(65536);
+    GrpcClientConfiguration.Builder builder =
+        GrpcClientConfiguration.builder().host("localhost").port(65536);
 
     assertThrows(IllegalArgumentException.class, builder::build);
   }
@@ -113,7 +118,9 @@ class GrpcClientConfigurationTest {
   @Test
   void shouldValidatePositiveCallTimeout() {
     var builder =
-        GrpcClientConfiguration.builder().host("localhost").port(9090)
+        GrpcClientConfiguration.builder()
+            .host("localhost")
+            .port(9090)
             .callTimeout(Duration.ofMillis(0));
 
     assertThrows(IllegalArgumentException.class, builder::build);
@@ -122,7 +129,9 @@ class GrpcClientConfigurationTest {
   @Test
   void shouldValidatePositiveIdleTimeout() {
     var builder =
-        GrpcClientConfiguration.builder().host("localhost").port(9090)
+        GrpcClientConfiguration.builder()
+            .host("localhost")
+            .port(9090)
             .idleTimeout(Duration.ofMillis(-1));
 
     assertThrows(IllegalArgumentException.class, builder::build);
@@ -146,9 +155,7 @@ class GrpcClientConfigurationTest {
 
   @Test
   void shouldValidateRetrySettingsWhenEnabled() {
-    var builder =
-        GrpcClientConfiguration.builder().host("localhost").port(9090)
-            .enableRetry(true);
+    var builder = GrpcClientConfiguration.builder().host("localhost").port(9090).enableRetry(true);
 
     // Missing retry settings
     assertThrows(IllegalArgumentException.class, builder::build);
@@ -157,7 +164,9 @@ class GrpcClientConfigurationTest {
   @Test
   void shouldValidatePositiveMaxRetries() {
     var builder =
-        GrpcClientConfiguration.builder().host("localhost").port(9090)
+        GrpcClientConfiguration.builder()
+            .host("localhost")
+            .port(9090)
             .enableRetry(true)
             .maxRetries(0)
             .retryDelay(Duration.ofMillis(100))
@@ -169,7 +178,9 @@ class GrpcClientConfigurationTest {
   @Test
   void shouldValidatePositiveRetryDelay() {
     var builder =
-        GrpcClientConfiguration.builder().host("localhost").port(9090)
+        GrpcClientConfiguration.builder()
+            .host("localhost")
+            .port(9090)
             .enableRetry(true)
             .maxRetries(3)
             .retryDelay(Duration.ofMillis(0))
@@ -181,7 +192,9 @@ class GrpcClientConfigurationTest {
   @Test
   void shouldValidatePositiveMaxRetryDelay() {
     var builder =
-        GrpcClientConfiguration.builder().host("localhost").port(9090)
+        GrpcClientConfiguration.builder()
+            .host("localhost")
+            .port(9090)
             .enableRetry(true)
             .maxRetries(3)
             .retryDelay(Duration.ofMillis(100))
@@ -193,8 +206,7 @@ class GrpcClientConfigurationTest {
   @Test
   void shouldValidateCircuitBreakerSettingsWhenEnabled() {
     var builder =
-        GrpcClientConfiguration.builder().host("localhost").port(9090)
-            .enableCircuitBreaker(true);
+        GrpcClientConfiguration.builder().host("localhost").port(9090).enableCircuitBreaker(true);
 
     // Missing circuit breaker settings
     assertThrows(IllegalArgumentException.class, builder::build);
@@ -203,7 +215,9 @@ class GrpcClientConfigurationTest {
   @Test
   void shouldValidatePositiveCircuitBreakerFailureThreshold() {
     var builder =
-        GrpcClientConfiguration.builder().host("localhost").port(9090)
+        GrpcClientConfiguration.builder()
+            .host("localhost")
+            .port(9090)
             .enableCircuitBreaker(true)
             .circuitBreakerFailureThreshold(0)
             .circuitBreakerWaitDuration(Duration.ofSeconds(60));
@@ -214,7 +228,9 @@ class GrpcClientConfigurationTest {
   @Test
   void shouldValidatePositiveCircuitBreakerWaitDuration() {
     var builder =
-        GrpcClientConfiguration.builder().host("localhost").port(9090)
+        GrpcClientConfiguration.builder()
+            .host("localhost")
+            .port(9090)
             .enableCircuitBreaker(true)
             .circuitBreakerFailureThreshold(5)
             .circuitBreakerWaitDuration(Duration.ofMillis(0));
@@ -224,23 +240,27 @@ class GrpcClientConfigurationTest {
 
   @Test
   void shouldAcceptCustomInterceptors() {
-    ClientInterceptor interceptor1 = new ClientInterceptor() {
-      @Override
-      public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
-          MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
-        return next.newCall(method, callOptions);
-      }
-    };
-    ClientInterceptor interceptor2 = new ClientInterceptor() {
-      @Override
-      public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
-          MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
-        return next.newCall(method, callOptions);
-      }
-    };
+    ClientInterceptor interceptor1 =
+        new ClientInterceptor() {
+          @Override
+          public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
+              MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
+            return next.newCall(method, callOptions);
+          }
+        };
+    ClientInterceptor interceptor2 =
+        new ClientInterceptor() {
+          @Override
+          public <ReqT, RespT> ClientCall<ReqT, RespT> interceptCall(
+              MethodDescriptor<ReqT, RespT> method, CallOptions callOptions, Channel next) {
+            return next.newCall(method, callOptions);
+          }
+        };
 
     GrpcClientConfiguration config =
-        GrpcClientConfiguration.builder().host("localhost").port(9090)
+        GrpcClientConfiguration.builder()
+            .host("localhost")
+            .port(9090)
             .addInterceptor(interceptor1)
             .addInterceptor(interceptor2)
             .build();
@@ -253,8 +273,7 @@ class GrpcClientConfigurationTest {
   @Test
   void shouldHaveEmptyInterceptorsByDefault() {
     GrpcClientConfiguration config =
-        GrpcClientConfiguration.builder().host("localhost").port(9090)
-            .build();
+        GrpcClientConfiguration.builder().host("localhost").port(9090).build();
 
     assertTrue(config.interceptors().isEmpty());
   }
@@ -262,9 +281,7 @@ class GrpcClientConfigurationTest {
   @Test
   void shouldAcceptNullUserAgent() {
     GrpcClientConfiguration config =
-        GrpcClientConfiguration.builder().host("localhost").port(9090)
-            .userAgent(null)
-            .build();
+        GrpcClientConfiguration.builder().host("localhost").port(9090).userAgent(null).build();
 
     assertNull(config.userAgent());
   }
@@ -272,7 +289,9 @@ class GrpcClientConfigurationTest {
   @Test
   void shouldAllowRetryWithoutCircuitBreaker() {
     GrpcClientConfiguration config =
-        GrpcClientConfiguration.builder().host("localhost").port(9090)
+        GrpcClientConfiguration.builder()
+            .host("localhost")
+            .port(9090)
             .enableRetry(true)
             .maxRetries(3)
             .retryDelay(Duration.ofMillis(100))
@@ -287,7 +306,9 @@ class GrpcClientConfigurationTest {
   @Test
   void shouldAllowCircuitBreakerWithRetry() {
     GrpcClientConfiguration config =
-        GrpcClientConfiguration.builder().host("localhost").port(9090)
+        GrpcClientConfiguration.builder()
+            .host("localhost")
+            .port(9090)
             .enableRetry(true)
             .maxRetries(3)
             .retryDelay(Duration.ofMillis(100))

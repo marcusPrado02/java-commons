@@ -1,15 +1,15 @@
 package com.marcusprado02.commons.adapters.grpc.server;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.marcusprado02.commons.adapters.grpc.server.error.ErrorMapper;
+import com.marcusprado02.commons.kernel.errors.ErrorCategory;
+import com.marcusprado02.commons.kernel.errors.ErrorCode;
 import com.marcusprado02.commons.kernel.errors.Problem;
 import com.marcusprado02.commons.kernel.errors.Severity;
-import com.marcusprado02.commons.kernel.errors.ErrorCode;
-import com.marcusprado02.commons.kernel.errors.ErrorCategory;
 import io.grpc.Status;
 import io.grpc.StatusRuntimeException;
 import org.junit.jupiter.api.Test;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class ErrorMapperTest {
 
@@ -69,11 +69,12 @@ class ErrorMapperTest {
 
   @Test
   void shouldMapProblemWithNotFoundKeyword() {
-    Problem problem = Problem.of(
-        ErrorCode.of("USER_NOT_FOUND"),
-        ErrorCategory.BUSINESS,
-        Severity.ERROR,
-        "User not found");
+    Problem problem =
+        Problem.of(
+            ErrorCode.of("USER_NOT_FOUND"),
+            ErrorCategory.BUSINESS,
+            Severity.ERROR,
+            "User not found");
 
     Status status = ErrorMapper.mapProblemToStatus(problem);
 
@@ -82,9 +83,12 @@ class ErrorMapperTest {
 
   @Test
   void shouldMapProblemWithUnauthorizedKeyword() {
-    Problem problem = Problem.of(
-        ErrorCode.of("UNAUTHORIZED_ACCESS"), ErrorCategory.BUSINESS,
-        Severity.ERROR, "Unauthorized");
+    Problem problem =
+        Problem.of(
+            ErrorCode.of("UNAUTHORIZED_ACCESS"),
+            ErrorCategory.BUSINESS,
+            Severity.ERROR,
+            "Unauthorized");
 
     Status status = ErrorMapper.mapProblemToStatus(problem);
 
@@ -93,9 +97,12 @@ class ErrorMapperTest {
 
   @Test
   void shouldMapProblemWithForbiddenKeyword() {
-    Problem problem = Problem.of(
-        ErrorCode.of("FORBIDDEN_OPERATION"), ErrorCategory.BUSINESS,
-        Severity.ERROR, "Forbidden");
+    Problem problem =
+        Problem.of(
+            ErrorCode.of("FORBIDDEN_OPERATION"),
+            ErrorCategory.BUSINESS,
+            Severity.ERROR,
+            "Forbidden");
 
     Status status = ErrorMapper.mapProblemToStatus(problem);
 
@@ -104,9 +111,12 @@ class ErrorMapperTest {
 
   @Test
   void shouldMapProblemWithValidationKeyword() {
-    Problem problem = Problem.of(
-        ErrorCode.of("VALIDATION_ERROR"), ErrorCategory.BUSINESS,
-        Severity.ERROR, "Validation failed");
+    Problem problem =
+        Problem.of(
+            ErrorCode.of("VALIDATION_ERROR"),
+            ErrorCategory.BUSINESS,
+            Severity.ERROR,
+            "Validation failed");
 
     Status status = ErrorMapper.mapProblemToStatus(problem);
 
@@ -115,9 +125,9 @@ class ErrorMapperTest {
 
   @Test
   void shouldMapProblemWithConflictKeyword() {
-    Problem problem = Problem.of(
-        ErrorCode.of("DUPLICATE_ENTRY"), ErrorCategory.BUSINESS,
-        Severity.ERROR, "Conflict");
+    Problem problem =
+        Problem.of(
+            ErrorCode.of("DUPLICATE_ENTRY"), ErrorCategory.BUSINESS, Severity.ERROR, "Conflict");
 
     Status status = ErrorMapper.mapProblemToStatus(problem);
 
@@ -126,9 +136,12 @@ class ErrorMapperTest {
 
   @Test
   void shouldMapProblemWithTimeoutKeyword() {
-    Problem problem = Problem.of(
-        ErrorCode.of("TIMEOUT_ERROR"), ErrorCategory.BUSINESS,
-        Severity.ERROR, "Operation timeout");
+    Problem problem =
+        Problem.of(
+            ErrorCode.of("TIMEOUT_ERROR"),
+            ErrorCategory.BUSINESS,
+            Severity.ERROR,
+            "Operation timeout");
 
     Status status = ErrorMapper.mapProblemToStatus(problem);
 
@@ -137,9 +150,12 @@ class ErrorMapperTest {
 
   @Test
   void shouldMapProblemWithUnavailableKeyword() {
-    Problem problem = Problem.of(
-        ErrorCode.of("SERVICE_UNAVAILABLE"), ErrorCategory.BUSINESS,
-        Severity.ERROR, "Service unavailable");
+    Problem problem =
+        Problem.of(
+            ErrorCode.of("SERVICE_UNAVAILABLE"),
+            ErrorCategory.BUSINESS,
+            Severity.ERROR,
+            "Service unavailable");
 
     Status status = ErrorMapper.mapProblemToStatus(problem);
 
@@ -148,9 +164,12 @@ class ErrorMapperTest {
 
   @Test
   void shouldMapProblemWithPreconditionKeyword() {
-    Problem problem = Problem.of(
-        ErrorCode.of("PRECONDITION_FAILED"), ErrorCategory.BUSINESS,
-        Severity.ERROR, "Precondition failed");
+    Problem problem =
+        Problem.of(
+            ErrorCode.of("PRECONDITION_FAILED"),
+            ErrorCategory.BUSINESS,
+            Severity.ERROR,
+            "Precondition failed");
 
     Status status = ErrorMapper.mapProblemToStatus(problem);
 
@@ -159,9 +178,12 @@ class ErrorMapperTest {
 
   @Test
   void shouldMapProblemWithQuotaKeyword() {
-    Problem problem = Problem.of(
-        ErrorCode.of("QUOTA_EXCEEDED"), ErrorCategory.BUSINESS,
-        Severity.ERROR, "Quota exceeded");
+    Problem problem =
+        Problem.of(
+            ErrorCode.of("QUOTA_EXCEEDED"),
+            ErrorCategory.BUSINESS,
+            Severity.ERROR,
+            "Quota exceeded");
 
     Status status = ErrorMapper.mapProblemToStatus(problem);
 
@@ -170,9 +192,12 @@ class ErrorMapperTest {
 
   @Test
   void shouldMapProblemWithCancelledKeyword() {
-    Problem problem = Problem.of(
-        ErrorCode.of("OPERATION_CANCELLED"), ErrorCategory.BUSINESS,
-        Severity.ERROR, "Cancelled");
+    Problem problem =
+        Problem.of(
+            ErrorCode.of("OPERATION_CANCELLED"),
+            ErrorCategory.BUSINESS,
+            Severity.ERROR,
+            "Cancelled");
 
     Status status = ErrorMapper.mapProblemToStatus(problem);
 
@@ -181,9 +206,9 @@ class ErrorMapperTest {
 
   @Test
   void shouldMapWarningProblemToOk() {
-    Problem problem = Problem.of(
-        ErrorCode.of("SOME_WARNING"), ErrorCategory.BUSINESS,
-        Severity.WARNING, "Warning");
+    Problem problem =
+        Problem.of(
+            ErrorCode.of("SOME_WARNING"), ErrorCategory.BUSINESS, Severity.WARNING, "Warning");
 
     Status status = ErrorMapper.mapProblemToStatus(problem);
 
@@ -192,9 +217,8 @@ class ErrorMapperTest {
 
   @Test
   void shouldMapInfoProblemToOk() {
-    Problem problem = Problem.of(
-        ErrorCode.of("SOME_INFO"), ErrorCategory.BUSINESS,
-        Severity.INFO, "Info");
+    Problem problem =
+        Problem.of(ErrorCode.of("SOME_INFO"), ErrorCategory.BUSINESS, Severity.INFO, "Info");
 
     Status status = ErrorMapper.mapProblemToStatus(problem);
 
@@ -254,9 +278,12 @@ class ErrorMapperTest {
 
   @Test
   void shouldConvertProblemToStatusRuntimeException() {
-    Problem problem = Problem.of(
-        ErrorCode.of("NOT_FOUND"), ErrorCategory.BUSINESS,
-        Severity.ERROR, "Resource not found");
+    Problem problem =
+        Problem.of(
+            ErrorCode.of("NOT_FOUND"),
+            ErrorCategory.BUSINESS,
+            Severity.ERROR,
+            "Resource not found");
 
     StatusRuntimeException ex = ErrorMapper.toStatusRuntimeException(problem);
 

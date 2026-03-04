@@ -17,12 +17,7 @@ import java.util.Objects;
  * }
  * }</pre>
  */
-public record SearchResult(
-    List<Document> hits,
-    long totalHits,
-    float maxScore,
-    long tookMillis
-) {
+public record SearchResult(List<Document> hits, long totalHits, float maxScore, long tookMillis) {
 
   public SearchResult {
     Objects.requireNonNull(hits, "Hits cannot be null");

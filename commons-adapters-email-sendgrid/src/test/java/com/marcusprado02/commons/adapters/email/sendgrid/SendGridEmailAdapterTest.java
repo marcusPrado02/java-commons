@@ -16,15 +16,16 @@ class SendGridEmailAdapterTest {
 
   @BeforeEach
   void setUp() {
-    config = SendGridConfiguration.builder()
-        .apiKey("SG.test-key-123456789")
-        .defaultFromEmail("noreply@example.com")
-        .defaultFromName("Test App")
-        .requestTimeout(Duration.ofSeconds(10))
-        .trackClicks(true)
-        .trackOpens(true)
-        .sandboxMode(false)
-        .build();
+    config =
+        SendGridConfiguration.builder()
+            .apiKey("SG.test-key-123456789")
+            .defaultFromEmail("noreply@example.com")
+            .defaultFromName("Test App")
+            .requestTimeout(Duration.ofSeconds(10))
+            .trackClicks(true)
+            .trackOpens(true)
+            .sandboxMode(false)
+            .build();
 
     emailAdapter = new SendGridEmailAdapter(config);
   }
@@ -35,11 +36,11 @@ class SendGridEmailAdapterTest {
     // Given
     com.marcusprado02.commons.ports.email.Email email =
         com.marcusprado02.commons.ports.email.Email.builder()
-        .from("sender@example.com")
-        .to("recipient@example.com")
-        .subject("Test Subject")
-        .textContent("Test message")
-        .build();
+            .from("sender@example.com")
+            .to("recipient@example.com")
+            .subject("Test Subject")
+            .textContent("Test message")
+            .build();
 
     // When
     Result<EmailPort.EmailReceipt> result = emailAdapter.send(email);
@@ -64,11 +65,11 @@ class SendGridEmailAdapterTest {
     // Given
     com.marcusprado02.commons.ports.email.Email email =
         com.marcusprado02.commons.ports.email.Email.builder()
-        .from("sender@example.com")
-        .to("recipient@example.com")
-        .subject("Test Subject")
-        .htmlContent("<h1>Hello World</h1>")
-        .build();
+            .from("sender@example.com")
+            .to("recipient@example.com")
+            .subject("Test Subject")
+            .htmlContent("<h1>Hello World</h1>")
+            .build();
 
     // When
     Result<EmailPort.EmailReceipt> result = emailAdapter.send(email);
@@ -91,13 +92,14 @@ class SendGridEmailAdapterTest {
   @DisplayName("Should fail template send (not implemented)")
   void shouldFailTemplateSend() {
     // Given
-    TemplateEmailRequest templateRequest = TemplateEmailRequest.builder()
-        .templateName("welcome")
-        .from("sender@example.com")
-        .to("recipient@example.com")
-        .subject("Welcome")
-        .variable("name", "John")
-        .build();
+    TemplateEmailRequest templateRequest =
+        TemplateEmailRequest.builder()
+            .templateName("welcome")
+            .from("sender@example.com")
+            .to("recipient@example.com")
+            .subject("Welcome")
+            .variable("name", "John")
+            .build();
 
     // When
     Result<EmailPort.EmailReceipt> result = emailAdapter.sendWithTemplate(templateRequest);

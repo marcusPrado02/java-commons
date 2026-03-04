@@ -2,7 +2,6 @@ package com.marcusprado02.commons.app.ratelimiting;
 
 import com.marcusprado02.commons.app.ratelimiting.impl.InMemoryRateLimiter;
 import com.marcusprado02.commons.app.ratelimiting.impl.RedisRateLimiter;
-
 import java.util.function.Supplier;
 
 /**
@@ -62,9 +61,7 @@ public final class RateLimiterFactory {
     return new RedisBuilder(() -> jedisPool);
   }
 
-  /**
-   * Builder for creating in-memory rate limiters.
-   */
+  /** Builder for creating in-memory rate limiters. */
   public static class InMemoryBuilder {
     private RateLimitConfig config;
 
@@ -93,9 +90,7 @@ public final class RateLimiterFactory {
     }
   }
 
-  /**
-   * Builder for creating Redis-based rate limiters.
-   */
+  /** Builder for creating Redis-based rate limiters. */
   public static class RedisBuilder {
     private final Supplier<redis.clients.jedis.JedisPool> jedisPoolSupplier;
     private RateLimitConfig config;

@@ -60,8 +60,7 @@ class TenantContextHolderTest {
     TenantContext context = TenantContext.of("tenant123");
 
     String result =
-        TenantContextHolder.supplyWithContext(
-            context, TenantContextHolder::getCurrentTenantId);
+        TenantContextHolder.supplyWithContext(context, TenantContextHolder::getCurrentTenantId);
 
     assertThat(result).isEqualTo("tenant123");
     assertThat(TenantContextHolder.hasContext()).isFalse();

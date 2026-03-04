@@ -6,7 +6,7 @@ A comprehensive multi-tenancy support library providing flexible tenant identifi
 
 - **Multiple Tenant Identification Strategies**
   - HTTP Header-based resolution
-  - Subdomain-based resolution  
+  - Subdomain-based resolution
   - URL Path-based resolution
   - Composite resolver with priority ordering
 
@@ -120,10 +120,10 @@ TenantResolver<HttpServletRequest> resolver = new PathTenantResolver("/api/v1/([
 Combines multiple resolvers with priority ordering:
 
 ```java
-CompositeTenantResolver<HttpServletRequest> composite = 
+CompositeTenantResolver<HttpServletRequest> composite =
     CompositeTenantResolver.<HttpServletRequest>builder()
         .resolver(new HeaderTenantResolver("X-Tenant-ID"))      // Priority 10
-        .resolver(new SubdomainTenantResolver())                // Priority 20  
+        .resolver(new SubdomainTenantResolver())                // Priority 20
         .resolver(new PathTenantResolver())                     // Priority 30
         .build();
 ```
@@ -173,7 +173,7 @@ TenantIsolationStrategy strategy = new SchemaIsolationStrategy(sharedDataSource)
 
 // Custom schema naming pattern
 TenantIsolationStrategy strategy = new SchemaIsolationStrategy(
-    sharedDataSource, 
+    sharedDataSource,
     "app_{tenant}_schema"  // {tenant} replaced with actual tenant ID
 );
 
@@ -207,7 +207,7 @@ DataSource dataSource = strategy.getDataSource(); // Returns same shared DataSou
 public List<Order> findOrdersForCurrentTenant() {
     String tenantId = TenantContextHolder.getCurrentTenantId();
     return jdbcTemplate.query(
-        "SELECT * FROM orders WHERE tenant_id = ?", 
+        "SELECT * FROM orders WHERE tenant_id = ?",
         tenantId
     );
 }
@@ -248,7 +248,7 @@ Alternative to servlet filter for Spring MVC applications:
 ```java
 @Configuration
 public class WebConfig implements WebMvcConfigurer {
-    
+
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new TenantInterceptor(tenantResolver))
@@ -283,7 +283,7 @@ Override defaults with your own beans:
 ```java
 @Configuration
 public class MultiTenancyConfig {
-    
+
     @Bean
     @Primary
     public TenantResolver<HttpServletRequest> customTenantResolver() {
@@ -292,12 +292,12 @@ public class MultiTenancyConfig {
             .resolver(new SubdomainTenantResolver("client-"))
             .build();
     }
-    
+
     @Bean
     public TenantIsolationStrategy tenantIsolationStrategy() {
         return new DatabaseIsolationStrategy(this::createTenantConfig);
     }
-    
+
     private HikariConfig createTenantConfig(String tenantId) {
         HikariConfig config = new HikariConfig();
         config.setJdbcUrl("jdbc:postgresql://localhost/" + tenantId);
@@ -316,7 +316,7 @@ Store additional tenant-specific information:
 ```java
 TenantContext context = TenantContext.builder()
     .tenantId("acme-corp")
-    .name("Acme Corporation")  
+    .name("Acme Corporation")
     .domain("acme.example.com")
     .attribute("plan", "premium")
     .attribute("maxUsers", 1000)
@@ -336,16 +336,16 @@ Implement custom tenant identification logic:
 
 ```java
 public class DatabaseTenantResolver implements TenantResolver<HttpServletRequest> {
-    
+
     private final UserRepository userRepository;
-    
+
     @Override
     public Optional<TenantContext> resolve(HttpServletRequest request) {
         String userId = extractUserId(request);
         if (userId == null) {
             return Optional.empty();
         }
-        
+
         return userRepository.findById(userId)
             .map(user -> TenantContext.builder()
                 .tenantId(user.getTenantId())
@@ -353,7 +353,7 @@ public class DatabaseTenantResolver implements TenantResolver<HttpServletRequest
                 .attribute("userId", userId)
                 .build());
     }
-    
+
     @Override
     public int getPriority() {
         return 5; // Higher priority than defaults
@@ -368,12 +368,12 @@ Ensure tenant context is preserved across async operations:
 ```java
 @Service
 public class OrderService {
-    
+
     @Async
     public CompletableFuture<Order> processOrderAsync(Long orderId) {
         TenantContext context = TenantContextHolder.getContext();
-        
-        return CompletableFuture.supplyAsync(() -> 
+
+        return CompletableFuture.supplyAsync(() ->
             TenantContextHolder.supplyWithContext(context, () -> {
                 // Process order with tenant context
                 return orderRepository.findById(orderId);
@@ -390,10 +390,10 @@ Example using Flyway for schema-per-tenant:
 ```java
 @Service
 public class TenantMigrationService {
-    
+
     public void migrateTenant(String tenantId) {
         TenantContextHolder.runWithContext(
-            TenantContext.of(tenantId), 
+            TenantContext.of(tenantId),
             () -> {
                 DataSource dataSource = isolationStrategy.getDataSource();
                 Flyway flyway = Flyway.configure()
@@ -422,7 +422,7 @@ commons:
       subdomain:
         enabled: true
         prefixes: ["api-", "app-"]
-        suffixes: ["-staging", "-dev"]  
+        suffixes: ["-staging", "-dev"]
       path:
         enabled: true
         pattern: "/([^/]+)/.*"
@@ -440,7 +440,7 @@ commons:
 @Test
 void shouldProcessOrderForTenant() {
     TenantContext context = TenantContext.of("test-tenant");
-    
+
     TenantContextHolder.runWithContext(context, () -> {
         // Test with tenant context
         Order order = orderService.createOrder(orderData);
@@ -457,7 +457,7 @@ void shouldProcessOrderForTenant() {
     "commons.multi-tenancy.resolver.header.enabled=true"
 })
 class MultiTenancyIntegrationTest {
-    
+
     @Test
     void shouldResolveTenantFromHeader() {
         mockMvc.perform(get("/api/orders")
@@ -492,7 +492,7 @@ jdbcTemplate.query(
     tenantId, status
 );
 
-// ❌ Dangerous - SQL injection risk  
+// ❌ Dangerous - SQL injection risk
 jdbcTemplate.query(
     "SELECT * FROM orders WHERE tenant_id = '" + tenantId + "'"
 );
@@ -505,9 +505,9 @@ Validate tenant IDs to prevent directory traversal and injection:
 ```java
 public class TenantValidator {
     private static final Pattern VALID_TENANT_ID = Pattern.compile("^[a-zA-Z0-9_-]+$");
-    
+
     public static boolean isValid(String tenantId) {
-        return tenantId != null 
+        return tenantId != null
             && tenantId.length() <= 50
             && VALID_TENANT_ID.matcher(tenantId).matches();
     }
@@ -539,7 +539,7 @@ Avoid repeated tenant resolution:
 ```java
 @Component
 public class CachingTenantResolver implements TenantResolver<HttpServletRequest> {
-    
+
     @Cacheable(value = "tenant-cache", key = "#request.remoteAddr")
     public Optional<TenantContext> resolve(HttpServletRequest request) {
         // Expensive tenant resolution logic
@@ -552,10 +552,10 @@ public class CachingTenantResolver implements TenantResolver<HttpServletRequest>
 ```java
 @Component
 public class TenantMetrics {
-    
+
     @EventListener
     public void onTenantContextSet(TenantContextSetEvent event) {
-        meterRegistry.counter("tenant.context.set", 
+        meterRegistry.counter("tenant.context.set",
             "tenant", event.getTenantId()).increment();
     }
 }
@@ -603,7 +603,7 @@ Monitor tenant-specific resources:
 ```java
 @Component
 public class TenantHealthIndicator implements HealthIndicator {
-    
+
     @Override
     public Health health() {
         try {
@@ -624,7 +624,7 @@ public class TenantHealthIndicator implements HealthIndicator {
 
 1. **Choose the Right Strategy**
    - Database-per-tenant: High isolation, regulatory requirements
-   - Schema-per-tenant: Moderate isolation, shared infrastructure  
+   - Schema-per-tenant: Moderate isolation, shared infrastructure
    - Shared database: High density, cost optimization
 
 2. **Implement Proper Validation**
@@ -644,7 +644,7 @@ public class TenantHealthIndicator implements HealthIndicator {
 
 5. **Test Thoroughly**
    - Test tenant isolation
-   - Validate data access controls  
+   - Validate data access controls
    - Performance test with multiple tenants
 
 ## Dependencies

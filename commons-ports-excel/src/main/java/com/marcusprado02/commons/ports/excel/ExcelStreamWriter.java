@@ -91,9 +91,7 @@ public interface ExcelStreamWriter extends AutoCloseable {
    */
   int getCurrentRowNum();
 
-  /**
-   * Moves to the next row for writing.
-   */
+  /** Moves to the next row for writing. */
   void nextRow();
 
   /**
@@ -103,15 +101,11 @@ public interface ExcelStreamWriter extends AutoCloseable {
    */
   Result<Void> flush();
 
-  /**
-   * Closes the writer and finalizes the Excel file.
-   */
+  /** Closes the writer and finalizes the Excel file. */
   @Override
   void close();
 
-  /**
-   * Helper method to create a cell from a value.
-   */
+  /** Helper method to create a cell from a value. */
   private ExcelCell createCell(int row, int column, Object value) {
     return switch (value) {
       case null -> ExcelCell.blank(row, column);

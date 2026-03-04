@@ -163,8 +163,7 @@ public class FeatureFlagAspect {
     } catch (NoSuchMethodException e) {
       // Try to find method with compatible parameter types
       for (Method method : targetClass.getDeclaredMethods()) {
-        if (method.getName().equals(methodName)
-            && method.getParameterCount() == args.length) {
+        if (method.getName().equals(methodName) && method.getParameterCount() == args.length) {
           return method;
         }
       }

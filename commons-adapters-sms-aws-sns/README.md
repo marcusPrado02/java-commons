@@ -87,7 +87,7 @@ SnsSMSAdapter smsAdapter = new SnsSMSAdapter(config);
 SnsConfiguration config = SnsConfiguration.forProduction(
     Region.US_EAST_1,
     "AKIA...",
-    "secret...", 
+    "secret...",
     "MyCompany"  // Sender ID
 );
 ```
@@ -124,7 +124,7 @@ SnsConfiguration config = SnsConfiguration.forDevelopment(
     "your-secret-key"
 );
 
-// Create adapter  
+// Create adapter
 SnsSMSAdapter smsAdapter = new SnsSMSAdapter(config);
 
 // Send SMS
@@ -180,28 +180,28 @@ if (verification.isSuccess()) {
 ```java
 public class OTPService {
     private final SnsSMSAdapter smsAdapter;
-    
+
     public OTPService(SnsSMSAdapter smsAdapter) {
         this.smsAdapter = smsAdapter;
     }
-    
+
     public Result<String> sendOTP(PhoneNumber phoneNumber) {
         String otpCode = generateOTP();
         String message = String.format(
-            "Your verification code is: %s. Valid for 5 minutes.", 
+            "Your verification code is: %s. Valid for 5 minutes.",
             otpCode
         );
-        
+
         SMS sms = SMS.of(phoneNumber, message);
         SMSOptions options = SMSOptions.builder()
             .priority(SMSOptions.SMSPriority.HIGH)
             .deliveryReceipt(true)
             .build();
-            
+
         return smsAdapter.send(sms, options)
             .map(receipt -> otpCode);
     }
-    
+
     private String generateOTP() {
         return String.format("%06d", new Random().nextInt(1000000));
     }
@@ -213,7 +213,7 @@ public class OTPService {
 ```java
 public class MarketingService {
     private final SnsSMSAdapter smsAdapter;
-    
+
     public MarketingService() {
         SnsConfiguration config = SnsConfiguration.builder()
             .region(Region.US_EAST_1)
@@ -223,16 +223,16 @@ public class MarketingService {
             .maxPriceUSD(0.10) // Lower limit for promotions
             .defaultSenderId("DEALS")
             .build();
-            
+
         this.smsAdapter = new SnsSMSAdapter(config);
     }
-    
+
     public void sendDailyDeals(List<PhoneNumber> subscribers) {
         String message = "Daily Deal: 50% off all items! Visit our store today.";
         BulkSMS campaign = BulkSMS.of(subscribers, message);
-        
+
         Result<BulkSMSReceipt> result = smsAdapter.sendBulk(campaign);
-        
+
         result.ifSuccess(receipt -> {
             logCampaignMetrics(receipt);
         }).ifFailure(error -> {
@@ -248,7 +248,7 @@ public class MarketingService {
 @Configuration
 @EnableConfigurationProperties(SnsProperties.class)
 public class SnsConfig {
-    
+
     @Bean
     @ConditionalOnProperty("aws.sns.enabled")
     public SnsSMSAdapter snsSMSAdapter(SnsProperties properties) {
@@ -261,7 +261,7 @@ public class SnsConfig {
             .smsType(properties.getSmsType())
             .deliveryStatusLogging(properties.isDeliveryStatusLogging())
             .build();
-            
+
         return new SnsSMSAdapter(config);
     }
 }
@@ -319,9 +319,9 @@ SnsConfiguration localConfig = SnsConfiguration.builder()
 ```java
 @TestMethodOrder(OrderAnnotation.class)
 class SmsIntegrationTest {
-    
+
     private SnsSMSAdapter adapter;
-    
+
     @BeforeEach
     void setUp() {
         SnsConfiguration config = SnsConfiguration.forDevelopment(
@@ -331,20 +331,20 @@ class SmsIntegrationTest {
         );
         adapter = new SnsSMSAdapter(config);
     }
-    
+
     @Test
     @Order(1)
     void shouldVerifyConnection() {
         Result<Boolean> result = adapter.verify();
         assertTrue(result.isSuccess());
     }
-    
+
     @Test
-    @Order(2) 
+    @Order(2)
     void shouldSendTestSMS() {
         SMS sms = SMS.of(PhoneNumber.of("+1234567890"), "Test message");
         Result<SMSReceipt> result = adapter.send(sms);
-        
+
         assertTrue(result.isSuccess());
         assertNotNull(result.getValue().messageId());
     }
@@ -401,7 +401,7 @@ For production environments with specific topics:
     "Version": "2012-10-17",
     "Statement": [
         {
-            "Effect": "Allow", 
+            "Effect": "Allow",
             "Action": [
                 "sns:Publish"
             ],
@@ -515,7 +515,7 @@ CompletableFuture<Result<SMSReceipt>> future = CompletableFuture
         }
     });
 
-// Batch operations efficiently  
+// Batch operations efficiently
 List<CompletableFuture<Result<SMSReceipt>>> futures = messages.stream()
     .map(sms -> CompletableFuture.supplyAsync(() -> smsAdapter.send(sms)))
     .collect(Collectors.toList());

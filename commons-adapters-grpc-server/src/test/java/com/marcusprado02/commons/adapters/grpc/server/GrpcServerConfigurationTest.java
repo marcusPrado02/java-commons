@@ -1,20 +1,17 @@
 package com.marcusprado02.commons.adapters.grpc.server;
 
-import io.grpc.ServerInterceptor;
-import org.junit.jupiter.api.Test;
-
-import java.time.Duration;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
+
+import io.grpc.ServerInterceptor;
+import java.time.Duration;
+import org.junit.jupiter.api.Test;
 
 class GrpcServerConfigurationTest {
 
   @Test
   void shouldCreateMinimalConfiguration() {
-    GrpcServerConfiguration config = GrpcServerConfiguration.builder()
-        .port(9090)
-        .build();
+    GrpcServerConfiguration config = GrpcServerConfiguration.builder().port(9090).build();
 
     assertEquals(9090, config.port());
     assertEquals(4 * 1024 * 1024, config.maxInboundMessageSize());
@@ -55,20 +52,21 @@ class GrpcServerConfigurationTest {
   void shouldConfigureAllSettings() {
     ServerInterceptor interceptor = mock(ServerInterceptor.class);
 
-    GrpcServerConfiguration config = GrpcServerConfiguration.builder()
-        .port(8080)
-        .maxInboundMessageSize(8 * 1024 * 1024)
-        .maxInboundMetadataSize(16 * 1024)
-        .keepAliveTime(Duration.ofSeconds(30))
-        .keepAliveTimeout(Duration.ofSeconds(10))
-        .maxConnectionIdle(Duration.ofMinutes(1))
-        .maxConnectionAge(Duration.ofMinutes(30))
-        .handshakeTimeout(Duration.ofSeconds(15))
-        .enableReflection(true)
-        .enableHealthCheck(false)
-        .enableMetrics(true)
-        .addInterceptor(interceptor)
-        .build();
+    GrpcServerConfiguration config =
+        GrpcServerConfiguration.builder()
+            .port(8080)
+            .maxInboundMessageSize(8 * 1024 * 1024)
+            .maxInboundMetadataSize(16 * 1024)
+            .keepAliveTime(Duration.ofSeconds(30))
+            .keepAliveTimeout(Duration.ofSeconds(10))
+            .maxConnectionIdle(Duration.ofMinutes(1))
+            .maxConnectionAge(Duration.ofMinutes(30))
+            .handshakeTimeout(Duration.ofSeconds(15))
+            .enableReflection(true)
+            .enableHealthCheck(false)
+            .enableMetrics(true)
+            .addInterceptor(interceptor)
+            .build();
 
     assertEquals(8080, config.port());
     assertEquals(8 * 1024 * 1024, config.maxInboundMessageSize());
@@ -86,92 +84,73 @@ class GrpcServerConfigurationTest {
 
   @Test
   void shouldFailWhenPortTooLow() {
-    assertThrows(IllegalArgumentException.class, () ->
-        GrpcServerConfiguration.builder()
-            .port(0)
-            .build()
-    );
+    assertThrows(
+        IllegalArgumentException.class, () -> GrpcServerConfiguration.builder().port(0).build());
   }
 
   @Test
   void shouldFailWhenPortTooHigh() {
-    assertThrows(IllegalArgumentException.class, () ->
-        GrpcServerConfiguration.builder()
-            .port(65536)
-            .build()
-    );
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> GrpcServerConfiguration.builder().port(65536).build());
   }
 
   @Test
   void shouldFailWhenPortNegative() {
-    assertThrows(IllegalArgumentException.class, () ->
-        GrpcServerConfiguration.builder()
-            .port(-1)
-            .build()
-    );
+    assertThrows(
+        IllegalArgumentException.class, () -> GrpcServerConfiguration.builder().port(-1).build());
   }
 
   @Test
   void shouldFailWhenMaxMessageSizeZero() {
-    assertThrows(IllegalArgumentException.class, () ->
-        GrpcServerConfiguration.builder()
-            .maxInboundMessageSize(0)
-            .build()
-    );
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> GrpcServerConfiguration.builder().maxInboundMessageSize(0).build());
   }
 
   @Test
   void shouldFailWhenMaxMessageSizeNegative() {
-    assertThrows(IllegalArgumentException.class, () ->
-        GrpcServerConfiguration.builder()
-            .maxInboundMessageSize(-1)
-            .build()
-    );
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> GrpcServerConfiguration.builder().maxInboundMessageSize(-1).build());
   }
 
   @Test
   void shouldFailWhenMaxMetadataSizeZero() {
-    assertThrows(IllegalArgumentException.class, () ->
-        GrpcServerConfiguration.builder()
-            .maxInboundMetadataSize(0)
-            .build()
-    );
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> GrpcServerConfiguration.builder().maxInboundMetadataSize(0).build());
   }
 
   @Test
   void shouldFailWhenKeepAliveTimeZero() {
-    assertThrows(IllegalArgumentException.class, () ->
-        GrpcServerConfiguration.builder()
-            .keepAliveTime(Duration.ZERO)
-            .build()
-    );
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> GrpcServerConfiguration.builder().keepAliveTime(Duration.ZERO).build());
   }
 
   @Test
   void shouldFailWhenKeepAliveTimeNegative() {
-    assertThrows(IllegalArgumentException.class, () ->
-        GrpcServerConfiguration.builder()
-            .keepAliveTime(Duration.ofSeconds(-1))
-            .build()
-    );
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> GrpcServerConfiguration.builder().keepAliveTime(Duration.ofSeconds(-1)).build());
   }
 
   @Test
   void shouldFailWhenKeepAliveTimeoutZero() {
-    assertThrows(IllegalArgumentException.class, () ->
-        GrpcServerConfiguration.builder()
-            .keepAliveTimeout(Duration.ZERO)
-            .build()
-    );
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> GrpcServerConfiguration.builder().keepAliveTimeout(Duration.ZERO).build());
   }
 
   @Test
   void shouldAllowValidPortRange() {
-    assertDoesNotThrow(() -> {
-      GrpcServerConfiguration.builder().port(1).build();
-      GrpcServerConfiguration.builder().port(8080).build();
-      GrpcServerConfiguration.builder().port(65535).build();
-    });
+    assertDoesNotThrow(
+        () -> {
+          GrpcServerConfiguration.builder().port(1).build();
+          GrpcServerConfiguration.builder().port(8080).build();
+          GrpcServerConfiguration.builder().port(65535).build();
+        });
   }
 
   @Test
@@ -179,19 +158,18 @@ class GrpcServerConfigurationTest {
     ServerInterceptor interceptor1 = mock(ServerInterceptor.class);
     ServerInterceptor interceptor2 = mock(ServerInterceptor.class);
 
-    GrpcServerConfiguration config = GrpcServerConfiguration.builder()
-        .addInterceptor(interceptor1)
-        .addInterceptor(interceptor2)
-        .build();
+    GrpcServerConfiguration config =
+        GrpcServerConfiguration.builder()
+            .addInterceptor(interceptor1)
+            .addInterceptor(interceptor2)
+            .build();
 
     assertEquals(2, config.interceptors().size());
   }
 
   @Test
   void shouldIgnoreNullInterceptor() {
-    GrpcServerConfiguration config = GrpcServerConfiguration.builder()
-        .addInterceptor(null)
-        .build();
+    GrpcServerConfiguration config = GrpcServerConfiguration.builder().addInterceptor(null).build();
 
     assertTrue(config.interceptors().isEmpty());
   }
@@ -200,8 +178,8 @@ class GrpcServerConfigurationTest {
   void shouldReturnImmutableInterceptorList() {
     GrpcServerConfiguration config = GrpcServerConfiguration.builder().build();
 
-    assertThrows(UnsupportedOperationException.class, () ->
-        config.interceptors().add(mock(ServerInterceptor.class))
-    );
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> config.interceptors().add(mock(ServerInterceptor.class)));
   }
 }

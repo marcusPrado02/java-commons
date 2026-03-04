@@ -1,19 +1,18 @@
 package com.marcusprado02.commons.adapters.graphql.error;
 
 import com.marcusprado02.commons.kernel.errors.DomainException;
-import com.marcusprado02.commons.kernel.errors.ErrorCode;
 import com.marcusprado02.commons.kernel.errors.ErrorCategory;
+import com.marcusprado02.commons.kernel.errors.ErrorCode;
 import graphql.ErrorClassification;
 import graphql.GraphQLError;
 import graphql.execution.DataFetcherExceptionHandler;
 import graphql.execution.DataFetcherExceptionHandlerParameters;
 import graphql.execution.DataFetcherExceptionHandlerResult;
 import graphql.language.SourceLocation;
-import org.springframework.stereotype.Component;
-
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import org.springframework.stereotype.Component;
 
 /**
  * GraphQL exception handler that converts domain errors to GraphQL errors.
@@ -96,8 +95,7 @@ public class GraphQLExceptionHandler implements DataFetcherExceptionHandler {
     @Override
     public Map<String, Object> getExtensions() {
       return Map.of(
-          "errorCode", errorCode.value(),
-          "details", details != null ? details : Map.of());
+          "errorCode", errorCode.value(), "details", details != null ? details : Map.of());
     }
 
     private ErrorClassification mapErrorCategoryToClassification(ErrorCategory category) {
@@ -113,8 +111,7 @@ public class GraphQLExceptionHandler implements DataFetcherExceptionHandler {
 
   /** GraphQL error for generic exceptions. */
   private record GenericGraphQLError(
-      String message, List<SourceLocation> locations, List<Object> path)
-      implements GraphQLError {
+      String message, List<SourceLocation> locations, List<Object> path) implements GraphQLError {
 
     static GenericGraphQLError from(
         Throwable exception, SourceLocation location, List<Object> path) {

@@ -13,15 +13,16 @@ class SendGridConfigurationTest {
   @DisplayName("Should create configuration with all fields")
   void shouldCreateConfigurationWithAllFields() {
     // When
-    SendGridConfiguration config = SendGridConfiguration.builder()
-        .apiKey("SG.test-key-123")
-        .requestTimeout(Duration.ofSeconds(30))
-        .defaultFromEmail("noreply@example.com")
-        .defaultFromName("My App")
-        .trackClicks(true)
-        .trackOpens(false)
-        .sandboxMode(true)
-        .build();
+    SendGridConfiguration config =
+        SendGridConfiguration.builder()
+            .apiKey("SG.test-key-123")
+            .requestTimeout(Duration.ofSeconds(30))
+            .defaultFromEmail("noreply@example.com")
+            .defaultFromName("My App")
+            .trackClicks(true)
+            .trackOpens(false)
+            .sandboxMode(true)
+            .build();
 
     // Then
     assertThat(config.apiKey()).isEqualTo("SG.test-key-123");
@@ -37,9 +38,8 @@ class SendGridConfigurationTest {
   @DisplayName("Should create configuration with defaults")
   void shouldCreateConfigurationWithDefaults() {
     // When
-    SendGridConfiguration config = SendGridConfiguration.builder()
-        .apiKey("SG.test-key-123")
-        .build();
+    SendGridConfiguration config =
+        SendGridConfiguration.builder().apiKey("SG.test-key-123").build();
 
     // Then
     assertThat(config.apiKey()).isEqualTo("SG.test-key-123");
@@ -68,10 +68,8 @@ class SendGridConfigurationTest {
   @DisplayName("Should create production configuration")
   void shouldCreateProductionConfiguration() {
     // When
-    SendGridConfiguration config = SendGridConfiguration.forProduction(
-        "SG.prod-key",
-        "noreply@company.com",
-        "Company Name");
+    SendGridConfiguration config =
+        SendGridConfiguration.forProduction("SG.prod-key", "noreply@company.com", "Company Name");
 
     // Then
     assertThat(config.apiKey()).isEqualTo("SG.prod-key");
@@ -86,9 +84,7 @@ class SendGridConfigurationTest {
   @DisplayName("Should reject null API key")
   void shouldRejectNullApiKey() {
     // When/Then
-    assertThatThrownBy(() -> SendGridConfiguration.builder()
-        .apiKey(null)
-        .build())
+    assertThatThrownBy(() -> SendGridConfiguration.builder().apiKey(null).build())
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("API key cannot be null");
   }
@@ -97,9 +93,7 @@ class SendGridConfigurationTest {
   @DisplayName("Should reject blank API key")
   void shouldRejectBlankApiKey() {
     // When/Then
-    assertThatThrownBy(() -> SendGridConfiguration.builder()
-        .apiKey("   ")
-        .build())
+    assertThatThrownBy(() -> SendGridConfiguration.builder().apiKey("   ").build())
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("API key cannot be null or blank");
   }
@@ -108,10 +102,8 @@ class SendGridConfigurationTest {
   @DisplayName("Should reject null timeout")
   void shouldRejectNullTimeout() {
     // When/Then
-    assertThatThrownBy(() -> SendGridConfiguration.builder()
-        .apiKey("SG.test")
-        .requestTimeout(null)
-        .build())
+    assertThatThrownBy(
+            () -> SendGridConfiguration.builder().apiKey("SG.test").requestTimeout(null).build())
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("Request timeout cannot be null");
   }
@@ -120,10 +112,12 @@ class SendGridConfigurationTest {
   @DisplayName("Should reject negative timeout")
   void shouldRejectNegativeTimeout() {
     // When/Then
-    assertThatThrownBy(() -> SendGridConfiguration.builder()
-        .apiKey("SG.test")
-        .requestTimeout(Duration.ofSeconds(-1))
-        .build())
+    assertThatThrownBy(
+            () ->
+                SendGridConfiguration.builder()
+                    .apiKey("SG.test")
+                    .requestTimeout(Duration.ofSeconds(-1))
+                    .build())
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("Request timeout must be positive");
   }
@@ -132,10 +126,12 @@ class SendGridConfigurationTest {
   @DisplayName("Should reject zero timeout")
   void shouldRejectZeroTimeout() {
     // When/Then
-    assertThatThrownBy(() -> SendGridConfiguration.builder()
-        .apiKey("SG.test")
-        .requestTimeout(Duration.ZERO)
-        .build())
+    assertThatThrownBy(
+            () ->
+                SendGridConfiguration.builder()
+                    .apiKey("SG.test")
+                    .requestTimeout(Duration.ZERO)
+                    .build())
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("Request timeout must be positive");
   }

@@ -29,9 +29,7 @@ public class PoiExcelAdapter implements ExcelPort {
 
   private final PoiConfiguration configuration;
 
-  /**
-   * Creates a new POI Excel adapter with default configuration.
-   */
+  /** Creates a new POI Excel adapter with default configuration. */
   public PoiExcelAdapter() {
     this.configuration = PoiConfiguration.defaults();
   }
@@ -82,7 +80,8 @@ public class PoiExcelAdapter implements ExcelPort {
   }
 
   @Override
-  public Result<Void> writeWorkbook(ExcelWorkbook workbook, Path filePath, ExcelWriteOptions options) {
+  public Result<Void> writeWorkbook(
+      ExcelWorkbook workbook, Path filePath, ExcelWriteOptions options) {
     try (OutputStream outputStream = Files.newOutputStream(filePath)) {
       return writeWorkbook(workbook, outputStream, options);
     } catch (IOException e) {
@@ -96,7 +95,8 @@ public class PoiExcelAdapter implements ExcelPort {
   }
 
   @Override
-  public Result<Void> writeWorkbook(ExcelWorkbook workbook, OutputStream outputStream, ExcelWriteOptions options) {
+  public Result<Void> writeWorkbook(
+      ExcelWorkbook workbook, OutputStream outputStream, ExcelWriteOptions options) {
     try {
       Workbook poiWorkbook = createPoiWorkbook(options);
       PoiWorkbookMapper.toPoi(workbook, poiWorkbook, options);
@@ -168,7 +168,8 @@ public class PoiExcelAdapter implements ExcelPort {
   }
 
   @Override
-  public Result<ExcelWorkbook> fromCsv(String csvContent, String worksheetName, CsvOptions options) {
+  public Result<ExcelWorkbook> fromCsv(
+      String csvContent, String worksheetName, CsvOptions options) {
     try {
       ExcelWorkbook workbook = PoiCsvConverter.fromCsv(csvContent, worksheetName, options);
       return Result.ok(workbook);
@@ -207,9 +208,7 @@ public class PoiExcelAdapter implements ExcelPort {
     return configuration.maxColumns();
   }
 
-  /**
-   * Creates the appropriate POI workbook based on write options.
-   */
+  /** Creates the appropriate POI workbook based on write options. */
   private Workbook createPoiWorkbook(ExcelWriteOptions options) {
     return switch (options.format()) {
       case XLSX -> new XSSFWorkbook();
@@ -217,9 +216,7 @@ public class PoiExcelAdapter implements ExcelPort {
     };
   }
 
-  /**
-   * Creates a streaming POI workbook for large file operations.
-   */
+  /** Creates a streaming POI workbook for large file operations. */
   Workbook createStreamingWorkbook(ExcelWriteOptions options) {
     return switch (options.format()) {
       case XLSX -> new SXSSFWorkbook(configuration.streamingRowAccessWindow());

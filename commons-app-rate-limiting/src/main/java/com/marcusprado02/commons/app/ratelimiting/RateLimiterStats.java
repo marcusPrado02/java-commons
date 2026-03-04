@@ -81,9 +81,7 @@ public record RateLimiterStats(
     return totalRequests > 0;
   }
 
-  /**
-   * Mutable builder for collecting rate limiter statistics.
-   */
+  /** Mutable builder for collecting rate limiter statistics. */
   public static class Builder {
     private final AtomicLong totalRequests = new AtomicLong(0);
     private final AtomicLong allowedRequests = new AtomicLong(0);
@@ -169,30 +167,22 @@ public record RateLimiterStats(
           lastResetTime);
     }
 
-    /**
-     * Gets current total requests.
-     */
+    /** Gets current total requests. */
     public long getTotalRequests() {
       return totalRequests.get();
     }
 
-    /**
-     * Gets current allowed requests.
-     */
+    /** Gets current allowed requests. */
     public long getAllowedRequests() {
       return allowedRequests.get();
     }
 
-    /**
-     * Gets current rejected requests.
-     */
+    /** Gets current rejected requests. */
     public long getRejectedRequests() {
       return rejectedRequests.get();
     }
 
-    /**
-     * Gets current active buckets count.
-     */
+    /** Gets current active buckets count. */
     public long getActiveBuckets() {
       return activeBuckets.get();
     }

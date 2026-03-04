@@ -76,7 +76,8 @@ public class RateLimitConfig {
    * @param burstCapacity maximum burst capacity
    * @return rate limit configuration
    */
-  public static RateLimitConfig withBurst(long requestsPerPeriod, Duration period, long burstCapacity) {
+  public static RateLimitConfig withBurst(
+      long requestsPerPeriod, Duration period, long burstCapacity) {
     return builder()
         .capacity(burstCapacity)
         .refillRate(requestsPerPeriod)
@@ -86,44 +87,32 @@ public class RateLimitConfig {
 
   // Common configurations
 
-  /**
-   * 100 requests per hour.
-   */
+  /** 100 requests per hour. */
   public static RateLimitConfig perHour(long requests) {
     return of(requests, Duration.ofHours(1));
   }
 
-  /**
-   * Requests per minute.
-   */
+  /** Requests per minute. */
   public static RateLimitConfig perMinute(long requests) {
     return of(requests, Duration.ofMinutes(1));
   }
 
-  /**
-   * Requests per second.
-   */
+  /** Requests per second. */
   public static RateLimitConfig perSecond(long requests) {
     return of(requests, Duration.ofSeconds(1));
   }
 
-  /**
-   * Gets the bucket capacity (maximum tokens).
-   */
+  /** Gets the bucket capacity (maximum tokens). */
   public long getCapacity() {
     return capacity;
   }
 
-  /**
-   * Gets the refill rate (tokens per period).
-   */
+  /** Gets the refill rate (tokens per period). */
   public long getRefillRate() {
     return refillRate;
   }
 
-  /**
-   * Gets the refill period.
-   */
+  /** Gets the refill period. */
   public Duration getRefillPeriod() {
     return refillPeriod;
   }
@@ -142,9 +131,9 @@ public class RateLimitConfig {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
     RateLimitConfig that = (RateLimitConfig) o;
-    return capacity == that.capacity &&
-        refillRate == that.refillRate &&
-        Objects.equals(refillPeriod, that.refillPeriod);
+    return capacity == that.capacity
+        && refillRate == that.refillRate
+        && Objects.equals(refillPeriod, that.refillPeriod);
   }
 
   @Override
@@ -154,13 +143,12 @@ public class RateLimitConfig {
 
   @Override
   public String toString() {
-    return String.format("RateLimitConfig{capacity=%d, refillRate=%d, refillPeriod=%s}",
+    return String.format(
+        "RateLimitConfig{capacity=%d, refillRate=%d, refillPeriod=%s}",
         capacity, refillRate, refillPeriod);
   }
 
-  /**
-   * Builder for {@link RateLimitConfig}.
-   */
+  /** Builder for {@link RateLimitConfig}. */
   public static class Builder {
     private long capacity;
     private long refillRate;

@@ -1,17 +1,16 @@
 package com.marcusprado02.commons.adapters.graphql.resolver;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 import com.marcusprado02.commons.kernel.errors.DomainException;
 import com.marcusprado02.commons.kernel.errors.ErrorCategory;
 import com.marcusprado02.commons.kernel.errors.ErrorCode;
 import com.marcusprado02.commons.kernel.errors.Problem;
 import com.marcusprado02.commons.kernel.errors.Severity;
 import com.marcusprado02.commons.kernel.result.Result;
-import org.junit.jupiter.api.Test;
-
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class BaseGraphQLResolverTest {
 
@@ -28,12 +27,7 @@ class BaseGraphQLResolverTest {
   @Test
   void shouldExecuteAsyncResultWithFailure() {
     ErrorCode errorCode = ErrorCode.of("TEST_ERROR");
-    Problem problem = Problem.of(
-        errorCode,
-        ErrorCategory.BUSINESS,
-        Severity.ERROR,
-        "Test error"
-    );
+    Problem problem = Problem.of(errorCode, ErrorCategory.BUSINESS, Severity.ERROR, "Test error");
 
     CompletableFuture<String> future = resolver.asyncResult(() -> Result.fail(problem));
 
@@ -63,12 +57,7 @@ class BaseGraphQLResolverTest {
   @Test
   void shouldMapFailureResult() {
     ErrorCode errorCode = ErrorCode.of("TEST_ERROR");
-    Problem problem = Problem.of(
-        errorCode,
-        ErrorCategory.BUSINESS,
-        Severity.ERROR,
-        "Test error"
-    );
+    Problem problem = Problem.of(errorCode, ErrorCategory.BUSINESS, Severity.ERROR, "Test error");
     Result<Integer> source = Result.fail(problem);
 
     Result<String> mapped = resolver.map(source, Object::toString);

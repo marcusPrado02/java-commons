@@ -28,8 +28,7 @@ public record ElasticsearchConfiguration(
     Duration socketTimeout,
     int maxConnections,
     boolean enableSsl,
-    boolean verifySslCertificates
-) {
+    boolean verifySslCertificates) {
 
   public ElasticsearchConfiguration {
     Objects.requireNonNull(serverUrls, "Server URLs cannot be null");
@@ -50,8 +49,8 @@ public record ElasticsearchConfiguration(
     }
 
     // Validate authentication - either username/password or apiKey
-    boolean hasBasicAuth = username != null && !username.isBlank() &&
-                           password != null && !password.isBlank();
+    boolean hasBasicAuth =
+        username != null && !username.isBlank() && password != null && !password.isBlank();
     boolean hasApiKey = apiKey != null && !apiKey.isBlank();
 
     if (!hasBasicAuth && !hasApiKey) {
@@ -290,8 +289,7 @@ public record ElasticsearchConfiguration(
           socketTimeout,
           maxConnections,
           enableSsl,
-          verifySslCertificates
-      );
+          verifySslCertificates);
     }
   }
 }

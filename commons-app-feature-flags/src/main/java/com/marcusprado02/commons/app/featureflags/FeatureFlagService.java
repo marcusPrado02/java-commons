@@ -57,8 +57,7 @@ public class FeatureFlagService {
     return provider.getValue(featureKey, FeatureFlagContext.forUser(userId));
   }
 
-  public FeatureFlagValue getValueOrDefault(
-      String featureKey, FeatureFlagValue defaultValue) {
+  public FeatureFlagValue getValueOrDefault(String featureKey, FeatureFlagValue defaultValue) {
     return provider.getValue(featureKey, FeatureFlagContext.anonymous(), defaultValue);
   }
 

@@ -1,18 +1,17 @@
 package com.marcusprado02.commons.adapters.grpc.client.interceptors;
 
-import io.grpc.*;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
+import io.grpc.*;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 
 class LoggingInterceptorTest {
 
@@ -57,7 +56,8 @@ class LoggingInterceptorTest {
     MethodDescriptor<String, String> method = createTestMethodDescriptor();
     @SuppressWarnings("unchecked")
     ArgumentCaptor<ClientCall.Listener<String>> listenerCaptor =
-        (ArgumentCaptor<ClientCall.Listener<String>>) (ArgumentCaptor<?>) ArgumentCaptor.forClass(ClientCall.Listener.class);
+        (ArgumentCaptor<ClientCall.Listener<String>>)
+            (ArgumentCaptor<?>) ArgumentCaptor.forClass(ClientCall.Listener.class);
 
     ClientCall<String, String> call =
         interceptor.interceptCall(method, CallOptions.DEFAULT, channel);
@@ -70,7 +70,9 @@ class LoggingInterceptorTest {
     listenerCaptor.getValue().onClose(Status.OK, new Metadata());
 
     // Verify success log
-    assertTrue(logHandler.hasLogContaining(Level.INFO, "gRPC client call completed: test.service/TestMethod"));
+    assertTrue(
+        logHandler.hasLogContaining(
+            Level.INFO, "gRPC client call completed: test.service/TestMethod"));
     assertTrue(logHandler.hasLogContaining(Level.INFO, "duration:"));
   }
 
@@ -79,7 +81,8 @@ class LoggingInterceptorTest {
     MethodDescriptor<String, String> method = createTestMethodDescriptor();
     @SuppressWarnings("unchecked")
     ArgumentCaptor<ClientCall.Listener<String>> listenerCaptor =
-        (ArgumentCaptor<ClientCall.Listener<String>>) (ArgumentCaptor<?>) ArgumentCaptor.forClass(ClientCall.Listener.class);
+        (ArgumentCaptor<ClientCall.Listener<String>>)
+            (ArgumentCaptor<?>) ArgumentCaptor.forClass(ClientCall.Listener.class);
 
     ClientCall<String, String> call =
         interceptor.interceptCall(method, CallOptions.DEFAULT, channel);
@@ -93,7 +96,9 @@ class LoggingInterceptorTest {
     listenerCaptor.getValue().onClose(errorStatus, new Metadata());
 
     // Verify failure log
-    assertTrue(logHandler.hasLogContaining(Level.WARNING, "gRPC client call failed: test.service/TestMethod"));
+    assertTrue(
+        logHandler.hasLogContaining(
+            Level.WARNING, "gRPC client call failed: test.service/TestMethod"));
     assertTrue(logHandler.hasLogContaining(Level.WARNING, "status: INTERNAL"));
     assertTrue(logHandler.hasLogContaining(Level.WARNING, "Test error"));
   }
@@ -149,8 +154,7 @@ class LoggingInterceptorTest {
 
     public boolean hasLogContaining(Level level, String substring) {
       return records.stream()
-          .anyMatch(
-              r -> r.getLevel().equals(level) && r.getMessage().contains(substring));
+          .anyMatch(r -> r.getLevel().equals(level) && r.getMessage().contains(substring));
     }
   }
 }

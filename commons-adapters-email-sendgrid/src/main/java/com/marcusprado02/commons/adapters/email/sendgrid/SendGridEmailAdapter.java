@@ -13,6 +13,7 @@ import java.util.Objects;
  * SendGrid adapter for EmailPort using SendGrid Java SDK.
  *
  * <p>Basic implementation supporting:
+ *
  * <ul>
  *   <li>Simple email sending
  *   <li>HTML and plain text content
@@ -21,6 +22,7 @@ import java.util.Objects;
  * </ul>
  *
  * <p>Example usage:
+ *
  * <pre>{@code
  * SendGridConfiguration config = SendGridConfiguration.builder()
  *     .apiKey("SG.your-api-key")
@@ -171,27 +173,25 @@ public class SendGridEmailAdapter implements EmailPort, AutoCloseable {
   }
 
   private Problem createSendGridProblem(Response response) {
-    String errorMessage = String.format(
-        "SendGrid API request failed with status %d", response.getStatusCode());
+    String errorMessage =
+        String.format("SendGrid API request failed with status %d", response.getStatusCode());
 
-    String errorCode = switch (response.getStatusCode()) {
-      case 401 -> "SENDGRID_UNAUTHORIZED";
-      case 403 -> "SENDGRID_FORBIDDEN";
-      case 429 -> "SENDGRID_RATE_LIMITED";
-      default -> "SENDGRID_REQUEST_FAILED";
-    };
+    String errorCode =
+        switch (response.getStatusCode()) {
+          case 401 -> "SENDGRID_UNAUTHORIZED";
+          case 403 -> "SENDGRID_FORBIDDEN";
+          case 429 -> "SENDGRID_RATE_LIMITED";
+          default -> "SENDGRID_REQUEST_FAILED";
+        };
 
-    ErrorCategory category = switch (response.getStatusCode()) {
-      case 401, 403 -> ErrorCategory.UNAUTHORIZED;
-      case 429 -> ErrorCategory.BUSINESS;
-      default -> ErrorCategory.TECHNICAL;
-    };
+    ErrorCategory category =
+        switch (response.getStatusCode()) {
+          case 401, 403 -> ErrorCategory.UNAUTHORIZED;
+          case 429 -> ErrorCategory.BUSINESS;
+          default -> ErrorCategory.TECHNICAL;
+        };
 
-    return Problem.of(
-        ErrorCode.of(errorCode),
-        category,
-        Severity.ERROR,
-        errorMessage);
+    return Problem.of(ErrorCode.of(errorCode), category, Severity.ERROR, errorMessage);
   }
 
   private Problem mapIOException(IOException e) {

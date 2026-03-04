@@ -76,7 +76,7 @@ if (result.isOk()) {
     FileObject file = result.getOrNull();
     InputStream content = file.content();
     FileMetadata metadata = file.metadata();
-    
+
     // Read content
     byte[] bytes = content.readAllBytes();
 }
@@ -90,15 +90,15 @@ Duration validity = Duration.ofHours(1);
 
 // For downloads
 Result<URL> getUrl = adapter.generatePresignedUrl(
-    fileId, 
-    PresignedOperation.GET, 
+    fileId,
+    PresignedOperation.GET,
     validity
 );
 
 // For uploads
 Result<URL> putUrl = adapter.generatePresignedUrl(
-    fileId, 
-    PresignedOperation.PUT, 
+    fileId,
+    PresignedOperation.PUT,
     validity
 );
 ```
@@ -113,11 +113,11 @@ Result<ListResult> result = adapter.list(bucket, prefix);
 
 if (result.isOk()) {
     ListResult listResult = result.getOrNull();
-    
+
     for (FileId fileId : listResult.files()) {
         System.out.println(fileId.toPath());
     }
-    
+
     // Pagination
     if (listResult.hasMore()) {
         String token = listResult.continuationToken();
@@ -253,12 +253,12 @@ The module includes comprehensive tests using Testcontainers and LocalStack:
 ```java
 @Testcontainers
 class S3FileStoreAdapterTest {
-  
+
   @Container
   static LocalStackContainer localstack = new LocalStackContainer(
       DockerImageName.parse("localstack/localstack:3.0")
   ).withServices(S3);
-  
+
   @Test
   void shouldUploadFile() {
     // Test implementation
@@ -314,17 +314,17 @@ AWS S3 SDK (External Service)
 
 ```java
 public class FileUploadService {
-  
+
   private final FileStorePort fileStore;
-  
+
   public FileUploadService(FileStorePort fileStore) {
     this.fileStore = fileStore;
   }
-  
+
   public Result<FileId> uploadDocument(String bucket, InputStream content, String fileName) {
     // Generate unique file ID
     FileId fileId = FileId.generate(bucket, "documents/");
-    
+
     // Set upload options
     UploadOptions options = UploadOptions.builder()
         .contentType(detectContentType(fileName))
@@ -334,12 +334,12 @@ public class FileUploadService {
         ))
         .storageClass(StorageClass.STANDARD)
         .build();
-    
+
     // Upload file
     return fileStore.upload(fileId, content, options)
         .map(UploadResult::fileId);
   }
-  
+
   private String detectContentType(String fileName) {
     return URLConnection.guessContentTypeFromName(fileName);
   }

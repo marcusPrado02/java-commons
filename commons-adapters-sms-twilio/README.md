@@ -68,7 +68,7 @@ if (result.isOk()) {
 ```java
 TwilioConfiguration config = TwilioConfiguration.forDevelopment(
     "ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
-    "your-auth-token", 
+    "your-auth-token",
     "+1234567890"
 );
 ```
@@ -123,7 +123,7 @@ Result<SMSReceipt> result = smsAdapter.send(sms);
 ```java
 List<String> recipients = List.of(
     "+1234567890",
-    "+1234567891", 
+    "+1234567891",
     "+1234567892"
 );
 
@@ -137,15 +137,15 @@ BulkSMS bulkSMS = BulkSMS.builder()
 Result<BulkSMSReceipt> result = smsAdapter.sendBulk(bulkSMS);
 if (result.isOk()) {
     BulkSMSReceipt receipt = result.getOrNull();
-    System.out.printf("Sent %d/%d messages successfully%n", 
+    System.out.printf("Sent %d/%d messages successfully%n",
         receipt.successCount(), receipt.totalMessages());
 }
 ```
 
 ### MMS (Limitations)
 
-> ⚠️ **Note**: This adapter currently doesn't support binary media content for MMS. 
-> Twilio requires media to be accessible via public URLs. For binary content, 
+> ⚠️ **Note**: This adapter currently doesn't support binary media content for MMS.
+> Twilio requires media to be accessible via public URLs. For binary content,
 > you'll need to first upload media to a public storage service.
 
 ```java
@@ -179,7 +179,7 @@ Result<Void> verificationResult = smsAdapter.verify();
 if (verificationResult.isOk()) {
     System.out.println("Twilio connection verified successfully");
 } else {
-    System.err.println("Connection verification failed: " + 
+    System.err.println("Connection verification failed: " +
         verificationResult.problemOrNull().message());
 }
 ```
@@ -191,10 +191,10 @@ if (verificationResult.isOk()) {
 ```java
 public class OTPService {
     private final SMSPort smsPort;
-    
+
     public Result<String> sendOTP(PhoneNumber phoneNumber) {
         String code = generateOTP();
-        
+
         SMS sms = SMS.builder()
             .from(config.getFromNumber())
             .to(phoneNumber)
@@ -204,7 +204,7 @@ public class OTPService {
                 .priority(SMSOptions.SMSPriority.HIGH)
                 .build())
             .build();
-            
+
         return smsPort.send(sms)
             .map(receipt -> code);  // Return OTP code if SMS sent successfully
     }
@@ -216,7 +216,7 @@ public class OTPService {
 ```java
 public class OrderNotificationService {
     private final SMSPort smsPort;
-    
+
     public void notifyOrderShipped(Order order) {
         String message = String.format(
             "Hi %s! Your order #%s has been shipped. Track: %s",
@@ -224,15 +224,15 @@ public class OrderNotificationService {
             order.getId(),
             order.getTrackingUrl()
         );
-        
+
         SMS sms = SMS.of(
             config.getFromNumber().toE164(),
             order.getCustomerPhone().toE164(),
             message
         );
-        
+
         smsPort.send(sms)
-            .onFailure(problem -> 
+            .onFailure(problem ->
                 log.error("Failed to send order notification: {}", problem.message()));
     }
 }
@@ -243,7 +243,7 @@ public class OrderNotificationService {
 ```java
 public class MarketingService {
     private final SMSPort smsPort;
-    
+
     public void sendCampaign(Campaign campaign) {
         BulkSMS bulkSMS = BulkSMS.builder()
             .from(campaign.getFromNumber())
@@ -252,12 +252,12 @@ public class MarketingService {
             .withDeliveryReceipt()
             .validityPeriod(1440)  // 24 hours
             .build();
-            
+
         Result<BulkSMSReceipt> result = smsPort.sendBulk(bulkSMS);
-        
+
         result.onSuccess(receipt -> {
             campaign.markSent(receipt.successCount(), receipt.failureCount());
-            log.info("Campaign sent: {}/{} messages delivered", 
+            log.info("Campaign sent: {}/{} messages delivered",
                 receipt.successCount(), receipt.totalMessages());
         });
     }
@@ -272,7 +272,7 @@ public class MarketingService {
 // Brazil
 SMS sms = SMS.of("+5511987654321", "+5511123456789", "Olá from Brazil!");
 
-// US/Canada  
+// US/Canada
 SMS sms = SMS.of("+15551234567", "+15559876543", "Hello from North America!");
 
 // UK
@@ -338,18 +338,18 @@ result.onFailure(problem -> {
 @RestController
 @RequestMapping("/webhooks/sms")
 public class SMSWebhookController {
-    
+
     @PostMapping("/status")
     public ResponseEntity<Void> handleStatusCallback(
             @RequestParam("MessageSid") String messageSid,
             @RequestParam("MessageStatus") String status,
             @RequestParam("To") String to) {
-        
+
         log.info("SMS {} to {} status: {}", messageSid, to, status);
-        
+
         // Update your database with delivery status
         smsStatusService.updateStatus(messageSid, status);
-        
+
         return ResponseEntity.ok().build();
     }
 }
@@ -393,7 +393,7 @@ TwilioConfiguration config = TwilioConfiguration.builder()
 public class RateLimitedSMSService {
     private final RateLimiter rateLimiter = RateLimiter.create(10.0); // 10 SMS/second
     private final SMSPort smsPort;
-    
+
     public Result<SMSReceipt> send(SMS sms) {
         if (!rateLimiter.tryAcquire()) {
             return Result.fail(Problem.of(
@@ -402,7 +402,7 @@ public class RateLimitedSMSService {
                 Severity.WARNING,
                 "SMS rate limit exceeded"));
         }
-        
+
         return smsPort.send(sms);
     }
 }
@@ -421,7 +421,7 @@ public class SMSValidator {
                 Severity.ERROR,
                 "Message exceeds maximum length"));
         }
-        
+
         // Validate phone numbers
         if (!isValidPhoneNumber(sms.to())) {
             return Result.fail(Problem.of(
@@ -430,7 +430,7 @@ public class SMSValidator {
                 Severity.ERROR,
                 "Invalid recipient phone number"));
         }
-        
+
         return Result.ok(sms);
     }
 }
@@ -448,7 +448,7 @@ For sending to multiple recipients, use `sendBulk()` instead of multiple `send()
 
 ```java
 // ❌ Inefficient
-recipients.forEach(phone -> 
+recipients.forEach(phone ->
     smsPort.send(SMS.of(from, phone, message)));
 
 // ✅ Efficient
@@ -463,7 +463,7 @@ For high-volume scenarios, consider async processing:
 ```java
 @Async
 public CompletableFuture<SMSReceipt> sendAsync(SMS sms) {
-    return CompletableFuture.supplyAsync(() -> 
+    return CompletableFuture.supplyAsync(() ->
         smsPort.send(sms).getOrThrow());
 }
 ```
@@ -479,9 +479,9 @@ void shouldSendSMSSuccessfully() {
     TwilioConfiguration config = TwilioConfiguration.forDevelopment(
         "ACtest", "token", "+1234567890");
     TwilioSMSAdapter adapter = new TwilioSMSAdapter(config);
-    
+
     SMS sms = SMS.of("+1234567890", "+0987654321", "Test message");
-    
+
     // Mock Twilio response
     // (See TwilioSMSAdapterTest for full examples)
 }
@@ -494,13 +494,13 @@ For integration tests, use Twilio's test credentials:
 ```java
 @TestConfiguration
 public class TestTwilioConfiguration {
-    
+
     @Bean
     @Primary
     public TwilioConfiguration testTwilioConfiguration() {
         return TwilioConfiguration.forDevelopment(
             "ACtest...test",     // Twilio test Account SID
-            "test_token",        // Twilio test Auth Token  
+            "test_token",        // Twilio test Auth Token
             "+15005550006"       // Twilio test number
         );
     }
@@ -546,11 +546,11 @@ logging.level.com.marcusprado02.commons.adapters.sms.twilio=DEBUG
 @Component
 public class TwilioHealthCheck implements HealthIndicator {
     private final TwilioSMSAdapter smsAdapter;
-    
+
     @Override
     public Health health() {
         Result<Void> verifyResult = smsAdapter.verify();
-        
+
         if (verifyResult.isOk()) {
             return Health.up()
                 .withDetail("provider", "Twilio")

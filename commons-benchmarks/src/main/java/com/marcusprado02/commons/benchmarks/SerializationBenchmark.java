@@ -2,16 +2,15 @@ package com.marcusprado02.commons.benchmarks;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import org.openjdk.jmh.annotations.*;
-
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import org.openjdk.jmh.annotations.*;
 
 /**
- * Benchmarks for JSON serialization/deserialization using Jackson.
- * Tests performance of different JSON processing scenarios.
+ * Benchmarks for JSON serialization/deserialization using Jackson. Tests performance of different
+ * JSON processing scenarios.
  */
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
@@ -37,18 +36,15 @@ public class SerializationBenchmark {
     simpleJson = objectMapper.writeValueAsString(simpleObject);
 
     // Complex nested object
-    complexObject = new ComplexObject(
-        "complex-id",
-        "Complex Name",
-        Instant.now(),
-        List.of("tag1", "tag2", "tag3"),
-        Map.of("key1", "value1", "key2", "value2"),
-        new NestedObject("nested-1", 100),
-        List.of(
-            new NestedObject("nested-2", 200),
-            new NestedObject("nested-3", 300)
-        )
-    );
+    complexObject =
+        new ComplexObject(
+            "complex-id",
+            "Complex Name",
+            Instant.now(),
+            List.of("tag1", "tag2", "tag3"),
+            Map.of("key1", "value1", "key2", "value2"),
+            new NestedObject("nested-1", 100),
+            List.of(new NestedObject("nested-2", 200), new NestedObject("nested-3", 300)));
     complexJson = objectMapper.writeValueAsString(complexObject);
   }
 
@@ -87,8 +83,7 @@ public class SerializationBenchmark {
       List<String> tags,
       Map<String, String> metadata,
       NestedObject nested,
-      List<NestedObject> items
-  ) {}
+      List<NestedObject> items) {}
 
   public record NestedObject(String id, int count) {}
 }

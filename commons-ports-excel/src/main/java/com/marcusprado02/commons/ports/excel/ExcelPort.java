@@ -50,7 +50,8 @@ public interface ExcelPort {
    * @param options write options
    * @return result indicating success or error
    */
-  Result<Void> writeWorkbook(ExcelWorkbook workbook, OutputStream outputStream, ExcelWriteOptions options);
+  Result<Void> writeWorkbook(
+      ExcelWorkbook workbook, OutputStream outputStream, ExcelWriteOptions options);
 
   /**
    * Creates a streaming reader for large Excel files.

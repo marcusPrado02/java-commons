@@ -46,8 +46,7 @@ public final class AzureStorageQueueAdapter<T> implements QueuePort<T> {
 
   public AzureStorageQueueAdapter(
       AzureStorageQueueConfiguration configuration, Class<T> payloadType) {
-    this.configuration =
-        Objects.requireNonNull(configuration, "configuration cannot be null");
+    this.configuration = Objects.requireNonNull(configuration, "configuration cannot be null");
     this.payloadType = Objects.requireNonNull(payloadType, "payloadType cannot be null");
     this.queueClient = createQueueClient(configuration);
     this.objectMapper = createObjectMapper();
@@ -103,7 +102,8 @@ public final class AzureStorageQueueAdapter<T> implements QueuePort<T> {
 
       logger.debug("Message sent successfully: {}", azureResult.getMessageId());
 
-      return Result.ok(new SendMessageResult(azureResult.getMessageId(), null)); // No sequence number
+      return Result.ok(
+          new SendMessageResult(azureResult.getMessageId(), null)); // No sequence number
 
     } catch (JsonProcessingException e) {
       logger.error("Failed to serialize message payload", e);
@@ -157,8 +157,7 @@ public final class AzureStorageQueueAdapter<T> implements QueuePort<T> {
       }
     }
 
-    logger.info(
-        "Batch send completed: {} successful, {} failed", successful.size(), failed.size());
+    logger.info("Batch send completed: {} successful, {} failed", successful.size(), failed.size());
 
     return Result.ok(new BatchSendResult(successful, failed));
   }

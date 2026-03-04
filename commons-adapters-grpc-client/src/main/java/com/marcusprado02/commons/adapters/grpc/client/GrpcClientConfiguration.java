@@ -1,7 +1,6 @@
 package com.marcusprado02.commons.adapters.grpc.client;
 
 import io.grpc.ClientInterceptor;
-
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
@@ -82,8 +81,7 @@ public record GrpcClientConfiguration(
 
     if (enableRetry) {
       Objects.requireNonNull(retryDelay, "Retry delay cannot be null when retry is enabled");
-      Objects.requireNonNull(
-          maxRetryDelay, "Max retry delay cannot be null when retry is enabled");
+      Objects.requireNonNull(maxRetryDelay, "Max retry delay cannot be null when retry is enabled");
 
       if (retryDelay.isNegative() || retryDelay.isZero()) {
         throw new IllegalArgumentException("Retry delay must be positive");

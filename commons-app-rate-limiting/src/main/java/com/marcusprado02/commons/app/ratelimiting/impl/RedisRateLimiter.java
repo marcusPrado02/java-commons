@@ -9,10 +9,7 @@ import io.github.bucket4j.Bucket;
 import io.github.bucket4j.BucketConfiguration;
 import io.github.bucket4j.ConsumptionProbe;
 import io.github.bucket4j.Refill;
-import io.github.bucket4j.distributed.proxy.ProxyManager;
 import io.github.bucket4j.redis.jedis.cas.JedisBasedProxyManager;
-
-import java.time.Duration;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Supplier;
 
@@ -73,7 +70,8 @@ public class RedisRateLimiter implements RateLimiter {
    * @param jedisPoolSupplier supplier for Jedis pool instances
    * @param config rate limiting configuration
    */
-  public RedisRateLimiter(Supplier<redis.clients.jedis.JedisPool> jedisPoolSupplier, RateLimitConfig config) {
+  public RedisRateLimiter(
+      Supplier<redis.clients.jedis.JedisPool> jedisPoolSupplier, RateLimitConfig config) {
     this(jedisPoolSupplier, config, "rate_limiter");
   }
 
@@ -118,24 +116,28 @@ public class RedisRateLimiter implements RateLimiter {
     long startTime = System.nanoTime();
     try {
       String redisKey = buildRedisKey(key);
-      Bucket bucket = proxyManager.builder()
-          .build(redisKey.getBytes(java.nio.charset.StandardCharsets.UTF_8), () -> bucketConfiguration);
+      Bucket bucket =
+          proxyManager
+              .builder()
+              .build(
+                  redisKey.getBytes(java.nio.charset.StandardCharsets.UTF_8),
+                  () -> bucketConfiguration);
 
       ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(tokens);
 
       RateLimitResult result;
       if (probe.isConsumed()) {
-        result = RateLimitResult.allowed(
-            tokens,
-            probe.getRemainingTokens(),
-            config.getCapacity(),
-            probe.getNanosToWaitForRefill());
+        result =
+            RateLimitResult.allowed(
+                tokens,
+                probe.getRemainingTokens(),
+                config.getCapacity(),
+                probe.getNanosToWaitForRefill());
         statsBuilder.recordAllowed();
       } else {
-        result = RateLimitResult.rejected(
-            probe.getRemainingTokens(),
-            config.getCapacity(),
-            probe.getNanosToWaitForRefill());
+        result =
+            RateLimitResult.rejected(
+                probe.getRemainingTokens(), config.getCapacity(), probe.getNanosToWaitForRefill());
         statsBuilder.recordRejected();
       }
 
@@ -157,8 +159,12 @@ public class RedisRateLimiter implements RateLimiter {
 
     try {
       String redisKey = buildRedisKey(key);
-      Bucket bucket = proxyManager.builder()
-          .build(redisKey.getBytes(java.nio.charset.StandardCharsets.UTF_8), () -> bucketConfiguration);
+      Bucket bucket =
+          proxyManager
+              .builder()
+              .build(
+                  redisKey.getBytes(java.nio.charset.StandardCharsets.UTF_8),
+                  () -> bucketConfiguration);
 
       long availableTokens = bucket.getAvailableTokens();
 
@@ -186,8 +192,12 @@ public class RedisRateLimiter implements RateLimiter {
     try {
       String redisKey = buildRedisKey(key);
       // Remove the bucket by getting it and then clearing its state
-      Bucket bucket = proxyManager.builder()
-          .build(redisKey.getBytes(java.nio.charset.StandardCharsets.UTF_8), () -> bucketConfiguration);
+      Bucket bucket =
+          proxyManager
+              .builder()
+              .build(
+                  redisKey.getBytes(java.nio.charset.StandardCharsets.UTF_8),
+                  () -> bucketConfiguration);
       // Reset by consuming all available tokens and then refilling
       long available = bucket.getAvailableTokens();
       if (available > 0) {
@@ -200,9 +210,7 @@ public class RedisRateLimiter implements RateLimiter {
 
   @Override
   public RateLimiterStats getStats() {
-    return statsBuilder
-        .activeBuckets(activeBuckets.get())
-        .build();
+    return statsBuilder.activeBuckets(activeBuckets.get()).build();
   }
 
   /**
@@ -218,19 +226,17 @@ public class RedisRateLimiter implements RateLimiter {
     return keyPrefix + ":" + key;
   }
 
-  private JedisBasedProxyManager createProxyManager(Supplier<redis.clients.jedis.JedisPool> jedisPoolSupplier) {
-    return JedisBasedProxyManager.builderFor(jedisPoolSupplier.get())
-        .build();
+  private JedisBasedProxyManager createProxyManager(
+      Supplier<redis.clients.jedis.JedisPool> jedisPoolSupplier) {
+    return JedisBasedProxyManager.builderFor(jedisPoolSupplier.get()).build();
   }
 
   private BucketConfiguration createBucketConfiguration(RateLimitConfig config) {
-    return BucketConfiguration.builder()
-        .addLimit(createBandwidth())
-        .build();
+    return BucketConfiguration.builder().addLimit(createBandwidth()).build();
   }
 
   private Bandwidth createBandwidth() {
-    return Bandwidth.classic(config.getCapacity(),
-                           Refill.greedy(config.getRefillRate(), config.getRefillPeriod()));
+    return Bandwidth.classic(
+        config.getCapacity(), Refill.greedy(config.getRefillRate(), config.getRefillPeriod()));
   }
 }

@@ -111,7 +111,7 @@ public record ExcelCell(
     public static ExcelCell number(int row, int column, Number number);
     public static ExcelCell date(int row, int column, LocalDate date);
     public static ExcelCell formula(int row, int column, String formula);
-    
+
     public String getStringValue();
     public double getNumericValue();
     public boolean getBooleanValue();
@@ -186,7 +186,7 @@ result.onSuccess(workbook -> {
     ExcelWorksheet sheet = workbook.getActiveWorksheet();
     ExcelCell cell = sheet.getCell(0, 0); // A1
     System.out.println("A1 value: " + cell.getStringValue());
-    
+
     // Process all rows
     for (int row = 0; row <= sheet.getLastRowNum(); row++) {
         List<ExcelCell> rowCells = sheet.getRow(row);
@@ -219,7 +219,7 @@ Result<Void> result = excelPort.writeWorkbook(workbook, Paths.get("sales.xlsx"),
 ```java
 // Reading large file
 Result<ExcelStreamReader> readerResult = excelPort.createStreamReader(
-    Paths.get("large-data.xlsx"), 
+    Paths.get("large-data.xlsx"),
     ExcelReadOptions.streaming()
 );
 
@@ -238,21 +238,21 @@ readerResult.onSuccess(reader -> {
 
 // Writing large file
 Result<ExcelStreamWriter> writerResult = excelPort.createStreamWriter(
-    Paths.get("output.xlsx"), 
+    Paths.get("output.xlsx"),
     ExcelWriteOptions.defaults()
 );
 
 writerResult.onSuccess(writer -> {
     writer.createWorksheet("Data");
-    
+
     // Write header
     writer.writeRow("ID", "Name", "Value", "Date");
-    
+
     // Write data rows
     for (int i = 0; i < 100000; i++) {
         writer.writeRow(i, "Item " + i, Math.random() * 1000, LocalDate.now());
     }
-    
+
     writer.setColumnWidth(1, 20.0); // Name column wider
     writer.freezePanes(1, 0); // Freeze header row
     writer.close();
@@ -263,8 +263,8 @@ writerResult.onSuccess(writer -> {
 ```java
 // Excel to CSV
 Result<String> csvResult = excelPort.toCsv(
-    workbook, 
-    "Sheet1", 
+    workbook,
+    "Sheet1",
     CsvOptions.semicolon()
 );
 
@@ -275,8 +275,8 @@ csvResult.onSuccess(csvContent -> {
 // CSV to Excel
 String csvData = Files.readString(Paths.get("input.csv"));
 Result<ExcelWorkbook> workbookResult = excelPort.fromCsv(
-    csvData, 
-    "Data", 
+    csvData,
+    "Data",
     CsvOptions.defaults()
 );
 ```
@@ -337,7 +337,7 @@ The port supports all major Excel data types:
 - **BLANK**: Empty cells
 - **STRING**: Text values
 - **NUMERIC**: Numbers, dates, and times
-- **BOOLEAN**: True/false values  
+- **BOOLEAN**: True/false values
 - **FORMULA**: Excel formulas (=SUM(A1:A10))
 - **ERROR**: Error values (#DIV/0!, #VALUE!, etc.)
 

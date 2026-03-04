@@ -5,30 +5,41 @@
  * compression algorithms including GZIP, Brotli, LZ4, ZSTD, and Snappy.
  *
  * <h2>Core Interfaces</h2>
+ *
  * <ul>
- *   <li>{@link com.marcusprado02.commons.ports.compression.CompressionPort} - Main compression interface</li>
- *   <li>{@link com.marcusprado02.commons.ports.compression.StreamingCompressionPort} - Streaming compression for large data</li>
+ *   <li>{@link com.marcusprado02.commons.ports.compression.CompressionPort} - Main compression
+ *       interface
+ *   <li>{@link com.marcusprado02.commons.ports.compression.StreamingCompressionPort} - Streaming
+ *       compression for large data
  * </ul>
  *
  * <h2>Configuration</h2>
+ *
  * <ul>
- *   <li>{@link com.marcusprado02.commons.ports.compression.CompressionOptions} - Configuration options</li>
- *   <li>{@link com.marcusprado02.commons.ports.compression.CompressionAlgorithm} - Supported algorithms</li>
+ *   <li>{@link com.marcusprado02.commons.ports.compression.CompressionOptions} - Configuration
+ *       options
+ *   <li>{@link com.marcusprado02.commons.ports.compression.CompressionAlgorithm} - Supported
+ *       algorithms
  * </ul>
  *
  * <h2>Results and Metrics</h2>
+ *
  * <ul>
- *   <li>{@link com.marcusprado02.commons.ports.compression.CompressionResult} - Operation results with metrics</li>
+ *   <li>{@link com.marcusprado02.commons.ports.compression.CompressionResult} - Operation results
+ *       with metrics
  * </ul>
  *
  * <h2>HTTP Integration</h2>
+ *
  * <ul>
- *   <li>{@link com.marcusprado02.commons.ports.compression.HttpCompression} - HTTP compression utilities</li>
+ *   <li>{@link com.marcusprado02.commons.ports.compression.HttpCompression} - HTTP compression
+ *       utilities
  * </ul>
  *
  * <h2>Usage Examples</h2>
  *
  * <h3>Basic Compression</h3>
+ *
  * <pre>{@code
  * CompressionOptions options = CompressionOptions.defaultFor(CompressionAlgorithm.GZIP);
  * Result<byte[]> result = compressionPort.compress(data, options);
@@ -40,6 +51,7 @@
  * }</pre>
  *
  * <h3>Streaming Compression</h3>
+ *
  * <pre>{@code
  * CompressionOptions options = CompressionOptions.fastFor(CompressionAlgorithm.LZ4);
  * Result<StreamingCompressor> result = streamingPort.createCompressor(output, options);
@@ -55,6 +67,7 @@
  * }</pre>
  *
  * <h3>HTTP Compression</h3>
+ *
  * <pre>{@code
  * String acceptEncoding = request.getHeader("Accept-Encoding");
  * CompressionAlgorithm algorithm = HttpCompression.selectBestAlgorithm(
@@ -72,6 +85,7 @@
  * }</pre>
  *
  * <h2>Algorithm Characteristics</h2>
+ *
  * <table border="1">
  *   <tr>
  *     <th>Algorithm</th>

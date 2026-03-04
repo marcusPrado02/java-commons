@@ -5,8 +5,8 @@ import javax.sql.DataSource;
 /**
  * Shared database tenant isolation strategy.
  *
- * <p>All tenants share the same database and schema. Isolation is achieved through application-level
- * filtering using tenant ID in queries.
+ * <p>All tenants share the same database and schema. Isolation is achieved through
+ * application-level filtering using tenant ID in queries.
  *
  * <p>This strategy provides the least isolation but is the most resource-efficient.
  *

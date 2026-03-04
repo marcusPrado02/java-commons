@@ -1,12 +1,11 @@
 package com.marcusprado02.commons.adapters.graphql.subscription;
 
-import org.reactivestreams.Publisher;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Sinks;
-
 import java.time.Duration;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Predicate;
+import org.reactivestreams.Publisher;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Sinks;
 
 /**
  * Manager for GraphQL subscriptions.
@@ -47,8 +46,7 @@ public class GraphQLSubscriptionManager<T> {
   private final Sinks.Many<T> broadcastSink;
 
   public GraphQLSubscriptionManager() {
-    this.broadcastSink =
-        Sinks.many().multicast().onBackpressureBuffer(1000, false);
+    this.broadcastSink = Sinks.many().multicast().onBackpressureBuffer(1000, false);
   }
 
   /**
@@ -135,9 +133,7 @@ public class GraphQLSubscriptionManager<T> {
     }
   }
 
-  /**
-   * Completes all sinks.
-   */
+  /** Completes all sinks. */
   public void completeAll() {
     broadcastSink.tryEmitComplete();
     sinks.values().forEach(Sinks.Many::tryEmitComplete);

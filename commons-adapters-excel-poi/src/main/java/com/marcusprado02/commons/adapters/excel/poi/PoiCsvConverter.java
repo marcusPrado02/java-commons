@@ -31,7 +31,8 @@ public final class PoiCsvConverter {
    * @return CSV content as string
    * @throws Exception if conversion fails
    */
-  public static String toCsv(ExcelWorkbook workbook, String worksheetName, CsvOptions options) throws Exception {
+  public static String toCsv(ExcelWorkbook workbook, String worksheetName, CsvOptions options)
+      throws Exception {
     // Select worksheet
     ExcelWorksheet worksheet;
     if (worksheetName != null) {
@@ -54,7 +55,7 @@ public final class PoiCsvConverter {
     CSVFormat csvFormat = createCsvFormat(options);
 
     try (StringWriter writer = new StringWriter();
-         CSVPrinter printer = new CSVPrinter(writer, csvFormat)) {
+        CSVPrinter printer = new CSVPrinter(writer, csvFormat)) {
 
       // Get worksheet range
       int maxRow = worksheet.getLastRowNum();
@@ -107,22 +108,24 @@ public final class PoiCsvConverter {
    * @return Excel workbook
    * @throws Exception if conversion fails
    */
-  public static ExcelWorkbook fromCsv(String csvContent, String worksheetName, CsvOptions options) throws Exception {
+  public static ExcelWorkbook fromCsv(String csvContent, String worksheetName, CsvOptions options)
+      throws Exception {
     CSVFormat csvFormat = createCsvFormat(options);
 
     var worksheetBuilder = ExcelWorksheet.builder(worksheetName != null ? worksheetName : "Sheet1");
 
     try (StringReader reader = new StringReader(csvContent);
-         CSVParser parser = new CSVParser(reader, csvFormat)) {
+        CSVParser parser = new CSVParser(reader, csvFormat)) {
 
       List<CSVRecord> records = parser.getRecords();
       if (records.isEmpty()) {
         return ExcelWorkbook.builder().worksheet(worksheetBuilder.build()).build();
       }
 
-      DateTimeFormatter dateFormatter = options.dateFormat() != null
-          ? DateTimeFormatter.ofPattern(options.dateFormat())
-          : DateTimeFormatter.ofPattern("yyyy-MM-dd");
+      DateTimeFormatter dateFormatter =
+          options.dateFormat() != null
+              ? DateTimeFormatter.ofPattern(options.dateFormat())
+              : DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
       int rowIndex = 0;
 
@@ -156,16 +159,11 @@ public final class PoiCsvConverter {
       }
 
       ExcelWorksheet worksheet = worksheetBuilder.build();
-      return ExcelWorkbook.builder()
-          .worksheet(worksheet)
-          .title("Imported from CSV")
-          .build();
+      return ExcelWorkbook.builder().worksheet(worksheet).title("Imported from CSV").build();
     }
   }
 
-  /**
-   * Creates a CSV format configuration from options.
-   */
+  /** Creates a CSV format configuration from options. */
   private static CSVFormat createCsvFormat(CsvOptions options) {
     return CSVFormat.DEFAULT
         .withDelimiter(options.delimiter())
@@ -176,9 +174,7 @@ public final class PoiCsvConverter {
         .withIgnoreEmptyLines(options.skipEmptyLines());
   }
 
-  /**
-   * Formats an Excel cell value for CSV output.
-   */
+  /** Formats an Excel cell value for CSV output. */
   private static String formatCellForCsv(ExcelCell cell, CsvOptions options) {
     if (cell.isEmpty()) {
       return options.nullValue();
@@ -190,14 +186,16 @@ public final class PoiCsvConverter {
       case BOOLEAN -> String.valueOf(cell.getBooleanValue());
       case NUMERIC -> {
         if (cell.value() instanceof LocalDate date) {
-          DateTimeFormatter formatter = options.dateFormat() != null
-              ? DateTimeFormatter.ofPattern(options.dateFormat())
-              : DateTimeFormatter.ofPattern("yyyy-MM-dd");
+          DateTimeFormatter formatter =
+              options.dateFormat() != null
+                  ? DateTimeFormatter.ofPattern(options.dateFormat())
+                  : DateTimeFormatter.ofPattern("yyyy-MM-dd");
           yield date.format(formatter);
         } else if (cell.value() instanceof LocalDateTime dateTime) {
-          DateTimeFormatter formatter = options.dateFormat() != null
-              ? DateTimeFormatter.ofPattern(options.dateFormat())
-              : DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+          DateTimeFormatter formatter =
+              options.dateFormat() != null
+                  ? DateTimeFormatter.ofPattern(options.dateFormat())
+                  : DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
           yield dateTime.format(formatter);
         } else {
           // Format numbers
@@ -227,10 +225,9 @@ public final class PoiCsvConverter {
     };
   }
 
-  /**
-   * Parses a CSV value into an Excel cell with appropriate type detection.
-   */
-  private static ExcelCell parseCsvValue(String value, int row, int col, CsvOptions options, DateTimeFormatter dateFormatter) {
+  /** Parses a CSV value into an Excel cell with appropriate type detection. */
+  private static ExcelCell parseCsvValue(
+      String value, int row, int col, CsvOptions options, DateTimeFormatter dateFormatter) {
     // Handle null/empty values
     if (value == null || value.equals(options.nullValue()) || value.trim().isEmpty()) {
       return ExcelCell.blank(row, col);
@@ -277,22 +274,15 @@ public final class PoiCsvConverter {
     return ExcelCell.text(row, col, value);
   }
 
-  /**
-   * Finds a cell with the specified column in a row.
-   */
+  /** Finds a cell with the specified column in a row. */
   private static ExcelCell findCellInRow(List<ExcelCell> rowCells, int column) {
     if (rowCells == null) {
       return null;
     }
-    return rowCells.stream()
-        .filter(cell -> cell.column() == column)
-        .findFirst()
-        .orElse(null);
+    return rowCells.stream().filter(cell -> cell.column() == column).findFirst().orElse(null);
   }
 
-  /**
-   * Checks if a row is empty (all cells are blank).
-   */
+  /** Checks if a row is empty (all cells are blank). */
   private static boolean isRowEmpty(List<ExcelCell> rowCells) {
     if (rowCells == null || rowCells.isEmpty()) {
       return true;
@@ -300,9 +290,7 @@ public final class PoiCsvConverter {
     return rowCells.stream().allMatch(ExcelCell::isEmpty);
   }
 
-  /**
-   * Checks if a CSV record is empty.
-   */
+  /** Checks if a CSV record is empty. */
   private static boolean isRecordEmpty(CSVRecord record) {
     for (String value : record) {
       if (value != null && !value.trim().isEmpty()) {

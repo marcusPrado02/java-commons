@@ -10,7 +10,6 @@ import io.grpc.ServerServiceDefinition;
 import io.grpc.health.v1.HealthCheckResponse;
 import io.grpc.protobuf.services.HealthStatusManager;
 import io.grpc.protobuf.services.ProtoReflectionService;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,12 +22,13 @@ import java.util.logging.Logger;
  * gRPC server wrapper with health check, reflection, and interceptor support.
  *
  * <p>Features:
+ *
  * <ul>
- *   <li>Automatic health check service</li>
- *   <li>Optional reflection service for debugging</li>
- *   <li>Configurable interceptors (logging, metrics, auth)</li>
- *   <li>Graceful shutdown with timeout</li>
- *   <li>Connection management (keep-alive, max age)</li>
+ *   <li>Automatic health check service
+ *   <li>Optional reflection service for debugging
+ *   <li>Configurable interceptors (logging, metrics, auth)
+ *   <li>Graceful shutdown with timeout
+ *   <li>Connection management (keep-alive, max age)
  * </ul>
  *
  * <p>Example usage:
@@ -63,10 +63,8 @@ public class GrpcServer {
    */
   public GrpcServer(GrpcServerConfiguration configuration) {
     this.configuration = Objects.requireNonNull(configuration, "Configuration cannot be null");
-    this.healthStatusManager = configuration.enableHealthCheck() ?
-        new HealthStatusManager() : null;
-    this.metricsInterceptor = configuration.enableMetrics() ?
-        new MetricsInterceptor() : null;
+    this.healthStatusManager = configuration.enableHealthCheck() ? new HealthStatusManager() : null;
+    this.metricsInterceptor = configuration.enableMetrics() ? new MetricsInterceptor() : null;
   }
 
   /**
@@ -96,7 +94,7 @@ public class GrpcServer {
   /**
    * Starts the gRPC server.
    *
-   * @throws IOException           if server fails to start
+   * @throws IOException if server fails to start
    * @throws IllegalStateException if server is already started
    */
   public void start() throws IOException {
@@ -108,14 +106,15 @@ public class GrpcServer {
       throw new IllegalStateException("No services registered. Add at least one service.");
     }
 
-    ServerBuilder<?> serverBuilder = ServerBuilder.forPort(configuration.port())
-        .maxInboundMessageSize(configuration.maxInboundMessageSize())
-        .maxInboundMetadataSize(configuration.maxInboundMetadataSize())
-        .keepAliveTime(configuration.keepAliveTime().toMillis(), TimeUnit.MILLISECONDS)
-        .keepAliveTimeout(configuration.keepAliveTimeout().toMillis(), TimeUnit.MILLISECONDS)
-        .maxConnectionIdle(configuration.maxConnectionIdle().toMillis(), TimeUnit.MILLISECONDS)
-        .maxConnectionAge(configuration.maxConnectionAge().toMillis(), TimeUnit.MILLISECONDS)
-        .handshakeTimeout(configuration.handshakeTimeout().toMillis(), TimeUnit.MILLISECONDS);
+    ServerBuilder<?> serverBuilder =
+        ServerBuilder.forPort(configuration.port())
+            .maxInboundMessageSize(configuration.maxInboundMessageSize())
+            .maxInboundMetadataSize(configuration.maxInboundMetadataSize())
+            .keepAliveTime(configuration.keepAliveTime().toMillis(), TimeUnit.MILLISECONDS)
+            .keepAliveTimeout(configuration.keepAliveTimeout().toMillis(), TimeUnit.MILLISECONDS)
+            .maxConnectionIdle(configuration.maxConnectionIdle().toMillis(), TimeUnit.MILLISECONDS)
+            .maxConnectionAge(configuration.maxConnectionAge().toMillis(), TimeUnit.MILLISECONDS)
+            .handshakeTimeout(configuration.handshakeTimeout().toMillis(), TimeUnit.MILLISECONDS);
 
     // Add built-in interceptors
     List<ServerInterceptor> allInterceptors = new ArrayList<>();
@@ -141,30 +140,31 @@ public class GrpcServer {
     // Add user services
     for (BindableService service : services) {
       serverBuilder.addService(service);
-      logger.log(Level.INFO, "Registered service: {0}",
+      logger.log(
+          Level.INFO,
+          "Registered service: {0}",
           service.bindService().getServiceDescriptor().getName());
 
       // Update health status for this service
       if (healthStatusManager != null) {
         healthStatusManager.setStatus(
             service.bindService().getServiceDescriptor().getName(),
-            HealthCheckResponse.ServingStatus.SERVING
-        );
+            HealthCheckResponse.ServingStatus.SERVING);
       }
     }
 
     // Add service definitions
     for (ServerServiceDefinition serviceDef : serviceDefinitions) {
       serverBuilder.addService(serviceDef);
-      logger.log(Level.INFO, "Registered service definition: {0}",
+      logger.log(
+          Level.INFO,
+          "Registered service definition: {0}",
           serviceDef.getServiceDescriptor().getName());
 
       // Update health status
       if (healthStatusManager != null) {
         healthStatusManager.setStatus(
-            serviceDef.getServiceDescriptor().getName(),
-            HealthCheckResponse.ServingStatus.SERVING
-        );
+            serviceDef.getServiceDescriptor().getName(), HealthCheckResponse.ServingStatus.SERVING);
       }
     }
 
@@ -191,15 +191,18 @@ public class GrpcServer {
     }
 
     // Add shutdown hook
-    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-      logger.info("Shutting down gRPC server via shutdown hook");
-      try {
-        GrpcServer.this.shutdown();
-      } catch (InterruptedException e) {
-        logger.log(Level.WARNING, "Interrupted during shutdown", e);
-        Thread.currentThread().interrupt();
-      }
-    }));
+    Runtime.getRuntime()
+        .addShutdownHook(
+            new Thread(
+                () -> {
+                  logger.info("Shutting down gRPC server via shutdown hook");
+                  try {
+                    GrpcServer.this.shutdown();
+                  } catch (InterruptedException e) {
+                    logger.log(Level.WARNING, "Interrupted during shutdown", e);
+                    Thread.currentThread().interrupt();
+                  }
+                }));
   }
 
   /**
@@ -278,16 +281,18 @@ public class GrpcServer {
    * Updates the health status of a specific service.
    *
    * @param serviceName service name
-   * @param serving     true for SERVING, false for NOT_SERVING
+   * @param serving true for SERVING, false for NOT_SERVING
    */
   public void setServiceHealth(String serviceName, boolean serving) {
     if (healthStatusManager != null) {
-      HealthCheckResponse.ServingStatus status = serving ?
-          HealthCheckResponse.ServingStatus.SERVING :
-          HealthCheckResponse.ServingStatus.NOT_SERVING;
+      HealthCheckResponse.ServingStatus status =
+          serving
+              ? HealthCheckResponse.ServingStatus.SERVING
+              : HealthCheckResponse.ServingStatus.NOT_SERVING;
 
       healthStatusManager.setStatus(serviceName, status);
-      logger.log(Level.INFO, "Updated health status for {0}: {1}", new Object[]{serviceName, status});
+      logger.log(
+          Level.INFO, "Updated health status for {0}: {1}", new Object[] {serviceName, status});
     }
   }
 }

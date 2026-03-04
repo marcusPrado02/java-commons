@@ -7,7 +7,6 @@ import graphql.schema.GraphQLCodeRegistry;
 import graphql.schema.GraphQLFieldDefinition;
 import graphql.schema.idl.SchemaDirectiveWiring;
 import graphql.schema.idl.SchemaDirectiveWiringEnvironment;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -56,11 +55,12 @@ public class AuthDirective implements SchemaDirectiveWiring {
         FieldCoordinates.coordinates(environment.getFieldsContainer(), field);
 
     // Get required roles from directive argument
-    var requiredRoles = (java.util.List<?>) environment.getAppliedDirective("auth").getArgument("requires").getValue();
+    var requiredRoles =
+        (java.util.List<?>)
+            environment.getAppliedDirective("auth").getArgument("requires").getValue();
 
     // Get original data fetcher
-    DataFetcher<?> originalDataFetcher =
-        codeRegistry.getDataFetcher(coordinates, field);
+    DataFetcher<?> originalDataFetcher = codeRegistry.getDataFetcher(coordinates, field);
 
     // Create wrapped data fetcher with authorization
     DataFetcher<?> authDataFetcher =
@@ -81,9 +81,7 @@ public class AuthDirective implements SchemaDirectiveWiring {
     return field;
   }
 
-  /**
-   * Authorization service interface.
-   */
+  /** Authorization service interface. */
   public interface AuthorizationService {
     /**
      * Checks if current user has any of the required roles.
@@ -94,9 +92,7 @@ public class AuthDirective implements SchemaDirectiveWiring {
     boolean hasAnyRole(java.util.List<?> roles);
   }
 
-  /**
-   * Exception thrown when user is not authorized.
-   */
+  /** Exception thrown when user is not authorized. */
   public static class UnauthorizedException extends RuntimeException {
     public UnauthorizedException(String message) {
       super(message);

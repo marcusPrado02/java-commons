@@ -14,8 +14,8 @@
   <description>gRPC server adapter with interceptors, error handling and health checks</description>
 
   <properties>
-    <grpc.version>1.60.0</grpc.version>
-    <protobuf.version>3.25.1</protobuf.version>
+    <grpc.version>1.75.0</grpc.version>
+    <protobuf.version>3.25.5</protobuf.version>
   </properties>
 
   <dependencies>

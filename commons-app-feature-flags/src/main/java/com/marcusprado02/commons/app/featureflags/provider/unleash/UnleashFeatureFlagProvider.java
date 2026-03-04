@@ -8,7 +8,6 @@ import com.marcusprado02.commons.app.featureflags.FeatureFlagValue;
 import io.getunleash.Unleash;
 import io.getunleash.UnleashContext;
 import io.getunleash.Variant;
-import java.util.Optional;
 
 /**
  * Unleash feature flag provider.

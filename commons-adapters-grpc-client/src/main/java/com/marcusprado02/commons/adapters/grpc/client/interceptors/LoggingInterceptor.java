@@ -1,7 +1,6 @@
 package com.marcusprado02.commons.adapters.grpc.client.interceptors;
 
 import io.grpc.*;
-
 import java.time.Instant;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -23,7 +22,7 @@ import java.util.logging.Logger;
  * ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 9090)
  *     .intercept(new LoggingInterceptor())
  *     .build();
-* }</pre>
+ * }</pre>
  */
 public class LoggingInterceptor implements ClientInterceptor {
 
@@ -49,8 +48,7 @@ public class LoggingInterceptor implements ClientInterceptor {
 
               @Override
               public void onClose(Status status, Metadata trailers) {
-                long durationMs =
-                    java.time.Duration.between(startTime, Instant.now()).toMillis();
+                long durationMs = java.time.Duration.between(startTime, Instant.now()).toMillis();
 
                 if (status.isOk()) {
                   logger.log(

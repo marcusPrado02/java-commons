@@ -27,8 +27,7 @@ public record SearchQuery(
     int from,
     int size,
     QueryType queryType,
-    Float minScore
-) {
+    Float minScore) {
 
   public SearchQuery {
     fields = fields == null ? List.of() : List.copyOf(fields);
@@ -102,7 +101,8 @@ public record SearchQuery(
 
   /** Sort order. */
   public enum SortOrder {
-    ASC, DESC
+    ASC,
+    DESC
   }
 
   /** Builder for SearchQuery. */
@@ -240,16 +240,7 @@ public record SearchQuery(
      * @return new SearchQuery instance
      */
     public SearchQuery build() {
-      return new SearchQuery(
-          query,
-          fields,
-          filters,
-          sorting,
-          from,
-          size,
-          queryType,
-          minScore
-      );
+      return new SearchQuery(query, fields, filters, sorting, from, size, queryType, minScore);
     }
   }
 }

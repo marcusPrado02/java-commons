@@ -1,5 +1,8 @@
 package com.marcusprado02.commons.adapters.graphql.error;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import com.marcusprado02.commons.kernel.errors.DomainException;
 import com.marcusprado02.commons.kernel.errors.ErrorCategory;
 import com.marcusprado02.commons.kernel.errors.ErrorCode;
@@ -11,15 +14,11 @@ import graphql.execution.DataFetcherExceptionHandlerParameters;
 import graphql.execution.DataFetcherExceptionHandlerResult;
 import graphql.execution.ResultPath;
 import graphql.language.SourceLocation;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 class GraphQLExceptionHandlerTest {
 
@@ -33,18 +32,13 @@ class GraphQLExceptionHandlerTest {
   @Test
   void shouldHandleDomainError() throws Exception {
     ErrorCode errorCode = new ErrorCode("USER_NOT_FOUND");
-    Problem problem = Problem.of(
-        errorCode,
-        ErrorCategory.NOT_FOUND,
-        Severity.ERROR,
-        "User not found"
-    );
+    Problem problem =
+        Problem.of(errorCode, ErrorCategory.NOT_FOUND, Severity.ERROR, "User not found");
     DomainException domainException = new DomainException(problem);
 
     DataFetcherExceptionHandlerParameters params = createParams(domainException);
 
-    CompletableFuture<DataFetcherExceptionHandlerResult> result =
-        handler.handleException(params);
+    CompletableFuture<DataFetcherExceptionHandlerResult> result = handler.handleException(params);
 
     DataFetcherExceptionHandlerResult handlerResult = result.get();
     assertNotNull(handlerResult);
@@ -68,8 +62,7 @@ class GraphQLExceptionHandlerTest {
 
     DataFetcherExceptionHandlerParameters params = createParams(exception);
 
-    CompletableFuture<DataFetcherExceptionHandlerResult> result =
-        handler.handleException(params);
+    CompletableFuture<DataFetcherExceptionHandlerResult> result = handler.handleException(params);
 
     DataFetcherExceptionHandlerResult handlerResult = result.get();
     GraphQLError error = handlerResult.getErrors().get(0);
@@ -84,8 +77,7 @@ class GraphQLExceptionHandlerTest {
 
     DataFetcherExceptionHandlerParameters params = createParams(exception);
 
-    CompletableFuture<DataFetcherExceptionHandlerResult> result =
-        handler.handleException(params);
+    CompletableFuture<DataFetcherExceptionHandlerResult> result = handler.handleException(params);
 
     DataFetcherExceptionHandlerResult handlerResult = result.get();
     GraphQLError error = handlerResult.getErrors().get(0);
@@ -100,8 +92,7 @@ class GraphQLExceptionHandlerTest {
 
     DataFetcherExceptionHandlerParameters params = createParams(exception);
 
-    CompletableFuture<DataFetcherExceptionHandlerResult> result =
-        handler.handleException(params);
+    CompletableFuture<DataFetcherExceptionHandlerResult> result = handler.handleException(params);
 
     DataFetcherExceptionHandlerResult handlerResult = result.get();
     GraphQLError error = handlerResult.getErrors().get(0);

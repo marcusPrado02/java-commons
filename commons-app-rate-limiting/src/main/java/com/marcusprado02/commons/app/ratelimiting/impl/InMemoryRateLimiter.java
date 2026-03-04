@@ -10,8 +10,6 @@ import io.github.bucket4j.BucketConfiguration;
 import io.github.bucket4j.ConsumptionProbe;
 import io.github.bucket4j.Refill;
 import io.github.bucket4j.local.LocalBucketBuilder;
-
-import java.time.Duration;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -83,17 +81,17 @@ public class InMemoryRateLimiter implements RateLimiter {
 
       RateLimitResult result;
       if (probe.isConsumed()) {
-        result = RateLimitResult.allowed(
-            tokens,
-            probe.getRemainingTokens(),
-            config.getCapacity(),
-            probe.getNanosToWaitForRefill());
+        result =
+            RateLimitResult.allowed(
+                tokens,
+                probe.getRemainingTokens(),
+                config.getCapacity(),
+                probe.getNanosToWaitForRefill());
         statsBuilder.recordAllowed();
       } else {
-        result = RateLimitResult.rejected(
-            probe.getRemainingTokens(),
-            config.getCapacity(),
-            probe.getNanosToWaitForRefill());
+        result =
+            RateLimitResult.rejected(
+                probe.getRemainingTokens(), config.getCapacity(), probe.getNanosToWaitForRefill());
         statsBuilder.recordRejected();
       }
 
@@ -135,9 +133,7 @@ public class InMemoryRateLimiter implements RateLimiter {
 
   @Override
   public RateLimiterStats getStats() {
-    return statsBuilder
-        .activeBuckets(buckets.size())
-        .build();
+    return statsBuilder.activeBuckets(buckets.size()).build();
   }
 
   /**
@@ -152,28 +148,24 @@ public class InMemoryRateLimiter implements RateLimiter {
   /**
    * Clears all buckets from memory.
    *
-   * <p>This method removes all rate limiting state. Use with caution as it effectively resets
-   * rate limiting for all keys.
+   * <p>This method removes all rate limiting state. Use with caution as it effectively resets rate
+   * limiting for all keys.
    */
   public void clearAll() {
     buckets.clear();
   }
 
   private Bucket getBucket(String key) {
-    return buckets.computeIfAbsent(key, k ->
-        new LocalBucketBuilder()
-            .addLimit(createBandwidth())
-            .build());
+    return buckets.computeIfAbsent(
+        key, k -> new LocalBucketBuilder().addLimit(createBandwidth()).build());
   }
 
   private BucketConfiguration createBucketConfiguration(RateLimitConfig config) {
-    return BucketConfiguration.builder()
-        .addLimit(createBandwidth())
-        .build();
+    return BucketConfiguration.builder().addLimit(createBandwidth()).build();
   }
 
   private Bandwidth createBandwidth() {
-    return Bandwidth.classic(config.getCapacity(),
-                           Refill.greedy(config.getRefillRate(), config.getRefillPeriod()));
+    return Bandwidth.classic(
+        config.getCapacity(), Refill.greedy(config.getRefillRate(), config.getRefillPeriod()));
   }
 }

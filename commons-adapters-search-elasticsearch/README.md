@@ -155,7 +155,7 @@ if (result.isSuccess()) {
     SearchPort.BulkIndexResult bulkResult = result.value();
     System.out.printf("Indexed %d/%d documents successfully%n",
         bulkResult.successCount(), bulkResult.totalDocuments());
-    
+
     if (!bulkResult.errors().isEmpty()) {
         System.out.println("Errors: " + bulkResult.errors());
     }
@@ -180,7 +180,7 @@ if (result.isSuccess()) {
     SearchResult searchResult = result.value();
     System.out.printf("Found %d results in %dms%n",
         searchResult.totalHits(), searchResult.tookMillis());
-    
+
     for (Document doc : searchResult.hits()) {
         System.out.printf("- %s (score: %.2f)%n",
             doc.getField("title"), doc.score());
@@ -315,7 +315,7 @@ Result<AggregationResult> result = adapter.aggregate("articles", query, category
 
 if (result.isSuccess()) {
     AggregationResult aggResult = result.value();
-    
+
     for (AggregationResult.Bucket bucket : aggResult.buckets()) {
         System.out.printf("%s: %d documents%n", bucket.key(), bucket.docCount());
     }
@@ -458,7 +458,7 @@ Mock the Elasticsearch client for unit testing:
 void shouldSearchDocuments() throws IOException {
     ElasticsearchClient mockClient = mock(ElasticsearchClient.class);
     // Configure mock behavior
-    
+
     // Test your service using the mocked client
 }
 ```
@@ -470,38 +470,38 @@ Use Testcontainers for integration testing with a real Elasticsearch instance:
 ```java
 @Testcontainers
 class ElasticsearchIntegrationTest {
-    
+
     @Container
     static ElasticsearchContainer elasticsearch = new ElasticsearchContainer(
         "docker.elastic.co/elasticsearch/elasticsearch:8.11.0"
     );
-    
+
     private ElasticsearchAdapter adapter;
-    
+
     @BeforeEach
     void setUp() {
         String host = "http://" + elasticsearch.getHttpHostAddress();
-        
+
         ElasticsearchConfiguration config = ElasticsearchConfiguration.builder()
             .serverUrl(host)
             .username("elastic")
             .password(elasticsearch.getPassword())
             .enableSsl(false)
             .build();
-        
+
         adapter = new ElasticsearchAdapter(config);
     }
-    
+
     @Test
     void shouldIndexAndSearchDocuments() {
         // Index test document
         Document doc = Document.of("test-1", Map.of("title", "Test Article"));
         adapter.index("test-index", doc);
-        
+
         // Search
         SearchQuery query = SearchQuery.of("Test");
         Result<SearchResult> result = adapter.search("test-index", query);
-        
+
         assertTrue(result.isSuccess());
         assertEquals(1, result.value().totalHits());
     }

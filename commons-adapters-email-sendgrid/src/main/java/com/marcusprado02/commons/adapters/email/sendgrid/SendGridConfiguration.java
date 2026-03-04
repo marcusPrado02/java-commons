@@ -6,11 +6,13 @@ import java.time.Duration;
  * Configuration for SendGrid email adapter.
  *
  * <p>Required configuration:
+ *
  * <ul>
  *   <li>apiKey - SendGrid API key
  * </ul>
  *
  * <p>Optional configuration:
+ *
  * <ul>
  *   <li>requestTimeout - HTTP request timeout (default: 10 seconds)
  *   <li>defaultFromEmail - Default sender email (required if not specified per email)
@@ -21,6 +23,7 @@ import java.time.Duration;
  * </ul>
  *
  * <p>Example usage:
+ *
  * <pre>{@code
  * SendGridConfiguration config = SendGridConfiguration.builder()
  *     .apiKey("SG.xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
@@ -63,17 +66,14 @@ public record SendGridConfiguration(
   }
 
   /**
-   * Creates a default configuration for local development and testing.
-   * Uses sandbox mode to prevent actual email sending.
+   * Creates a default configuration for local development and testing. Uses sandbox mode to prevent
+   * actual email sending.
    *
    * @param apiKey the SendGrid API key
    * @return a configuration suitable for testing
    */
   public static SendGridConfiguration forTesting(String apiKey) {
-    return builder()
-        .apiKey(apiKey)
-        .sandboxMode(true)
-        .build();
+    return builder().apiKey(apiKey).sandboxMode(true).build();
   }
 
   /**
@@ -84,7 +84,8 @@ public record SendGridConfiguration(
    * @param fromName the default sender name
    * @return a configuration suitable for production
    */
-  public static SendGridConfiguration forProduction(String apiKey, String fromEmail, String fromName) {
+  public static SendGridConfiguration forProduction(
+      String apiKey, String fromEmail, String fromName) {
     return builder()
         .apiKey(apiKey)
         .defaultFromEmail(fromEmail)
@@ -95,9 +96,7 @@ public record SendGridConfiguration(
         .build();
   }
 
-  /**
-   * Builder for SendGridConfiguration.
-   */
+  /** Builder for SendGridConfiguration. */
   public static class Builder {
     private String apiKey;
     private Duration requestTimeout = Duration.ofSeconds(10);
@@ -176,8 +175,7 @@ public record SendGridConfiguration(
     }
 
     /**
-     * Enables or disables sandbox mode.
-     * In sandbox mode, emails are validated but not sent.
+     * Enables or disables sandbox mode. In sandbox mode, emails are validated but not sent.
      *
      * @param enabled true to enable sandbox mode
      * @return this builder

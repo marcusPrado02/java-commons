@@ -65,10 +65,7 @@ public class SubdomainTenantResolver implements TenantResolver<HttpServletReques
       return Optional.empty();
     }
 
-    return Optional.of(TenantContext.builder()
-        .tenantId(tenantId)
-        .domain(host)
-        .build());
+    return Optional.of(TenantContext.builder().tenantId(tenantId).domain(host).build());
   }
 
   @Override

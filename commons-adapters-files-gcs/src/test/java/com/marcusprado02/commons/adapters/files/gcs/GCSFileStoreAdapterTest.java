@@ -254,7 +254,9 @@ class GCSFileStoreAdapterTest {
     // Verify destination exists with same content
     var downloadResult = adapter.download(destination);
     assertThat(downloadResult.isOk()).isTrue();
-    assertThat(new String(convertStreamToBytes(downloadResult.getOrNull().content()), StandardCharsets.UTF_8))
+    assertThat(
+            new String(
+                convertStreamToBytes(downloadResult.getOrNull().content()), StandardCharsets.UTF_8))
         .isEqualTo(content);
   }
 

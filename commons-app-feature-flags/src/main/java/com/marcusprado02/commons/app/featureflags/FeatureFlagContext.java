@@ -18,8 +18,7 @@ import java.util.Optional;
  *     .build();
  * }</pre>
  */
-public record FeatureFlagContext(
-    String userId, String sessionId, Map<String, Object> attributes) {
+public record FeatureFlagContext(String userId, String sessionId, Map<String, Object> attributes) {
 
   public FeatureFlagContext {
     attributes = attributes != null ? Map.copyOf(attributes) : Map.of();

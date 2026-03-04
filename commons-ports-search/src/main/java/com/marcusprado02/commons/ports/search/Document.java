@@ -23,12 +23,7 @@ import java.util.Objects;
  * Document simple = Document.of("id-1", Map.of("field", "value"));
  * }</pre>
  */
-public record Document(
-    String id,
-    Map<String, Object> source,
-    Float score,
-    Instant timestamp
-) {
+public record Document(String id, Map<String, Object> source, Float score, Instant timestamp) {
 
   public Document {
     Objects.requireNonNull(id, "Document ID cannot be null");

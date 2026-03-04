@@ -1,9 +1,19 @@
 package com.marcusprado02.commons.adapters.files.s3;
 
+import static org.assertj.core.api.Assertions.*;
+import static org.testcontainers.containers.localstack.LocalStackContainer.Service.S3;
+
 import com.marcusprado02.commons.kernel.result.Result;
 import com.marcusprado02.commons.ports.files.FileId;
 import com.marcusprado02.commons.ports.files.FileObject;
 import com.marcusprado02.commons.ports.files.FileStorePort;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.time.Duration;
+import java.util.List;
 import org.junit.jupiter.api.*;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -12,17 +22,6 @@ import org.testcontainers.utility.DockerImageName;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.services.s3.S3Client;
-
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.testcontainers.containers.localstack.LocalStackContainer.Service.S3;
 
 @Testcontainers
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
@@ -33,24 +32,24 @@ class S3FileStoreAdapterTest {
 
   @Container
   @SuppressWarnings("resource")
-  static LocalStackContainer localstack = new LocalStackContainer(
-      DockerImageName.parse("localstack/localstack:3.0")
-  ).withServices(S3);
+  static LocalStackContainer localstack =
+      new LocalStackContainer(DockerImageName.parse("localstack/localstack:3.0")).withServices(S3);
 
   private static S3FileStoreAdapter adapter;
   private static S3Client s3Client;
 
   @BeforeAll
   static void setUp() {
-    S3Configuration config = S3Configuration.builder()
-        .region(localstack.getRegion())
-        .endpoint(localstack.getEndpointOverride(S3))
-        .pathStyleAccessEnabled(true)
-        .build();
+    S3Configuration config =
+        S3Configuration.builder()
+            .region(localstack.getRegion())
+            .endpoint(localstack.getEndpointOverride(S3))
+            .pathStyleAccessEnabled(true)
+            .build();
 
-    StaticCredentialsProvider credentialsProvider = StaticCredentialsProvider.create(
-        AwsBasicCredentials.create(localstack.getAccessKey(), localstack.getSecretKey())
-    );
+    StaticCredentialsProvider credentialsProvider =
+        StaticCredentialsProvider.create(
+            AwsBasicCredentials.create(localstack.getAccessKey(), localstack.getSecretKey()));
 
     s3Client = S3ClientFactory.createClient(config, credentialsProvider);
     adapter = S3ClientFactory.createAdapter(config, credentialsProvider);
@@ -182,11 +181,8 @@ class S3FileStoreAdapterTest {
     Duration duration = Duration.ofMinutes(15);
 
     // When
-    Result<URL> result = adapter.generatePresignedUrl(
-        fileId,
-        FileStorePort.PresignedOperation.GET,
-        duration
-    );
+    Result<URL> result =
+        adapter.generatePresignedUrl(fileId, FileStorePort.PresignedOperation.GET, duration);
 
     // Then
     assertThat(result.isOk()).isTrue();
@@ -207,11 +203,8 @@ class S3FileStoreAdapterTest {
     Duration duration = Duration.ofMinutes(15);
 
     // When
-    Result<URL> result = adapter.generatePresignedUrl(
-        fileId,
-        FileStorePort.PresignedOperation.PUT,
-        duration
-    );
+    Result<URL> result =
+        adapter.generatePresignedUrl(fileId, FileStorePort.PresignedOperation.PUT, duration);
 
     // Then
     assertThat(result.isOk()).isTrue();
@@ -242,7 +235,8 @@ class S3FileStoreAdapterTest {
     Result<FileObject> downloadResult = adapter.download(destination);
     assertThat(downloadResult.isOk()).isTrue();
 
-    String content = new String(downloadResult.getOrNull().content().readAllBytes(), StandardCharsets.UTF_8);
+    String content =
+        new String(downloadResult.getOrNull().content().readAllBytes(), StandardCharsets.UTF_8);
     assertThat(content).isEqualTo(TEST_CONTENT);
   }
 
@@ -296,11 +290,12 @@ class S3FileStoreAdapterTest {
     FileId fileId = new FileId(BUCKET_NAME, "file-with-options.txt");
     InputStream content = new ByteArrayInputStream(TEST_CONTENT.getBytes());
 
-    FileStorePort.UploadOptions options = FileStorePort.UploadOptions.builder()
-        .contentType("text/plain")
-        .metadata(java.util.Map.of("author", "test-user", "version", "1.0"))
-        .storageClass(FileStorePort.StorageClass.STANDARD)
-        .build();
+    FileStorePort.UploadOptions options =
+        FileStorePort.UploadOptions.builder()
+            .contentType("text/plain")
+            .metadata(java.util.Map.of("author", "test-user", "version", "1.0"))
+            .storageClass(FileStorePort.StorageClass.STANDARD)
+            .build();
 
     // When
     Result<FileStorePort.UploadResult> result = adapter.upload(fileId, content, options);

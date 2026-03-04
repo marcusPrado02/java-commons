@@ -1,13 +1,11 @@
 package com.marcusprado02.commons.adapters.grpc.server.interceptors;
 
 import io.grpc.ForwardingServerCall;
-import io.grpc.ForwardingServerCallListener;
 import io.grpc.Metadata;
 import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
 import io.grpc.ServerInterceptor;
 import io.grpc.Status;
-
 import java.time.Duration;
 import java.time.Instant;
 import java.util.concurrent.ConcurrentHashMap;
@@ -18,11 +16,12 @@ import java.util.concurrent.atomic.AtomicLong;
  * Server interceptor for collecting gRPC metrics.
  *
  * <p>Collected metrics:
+ *
  * <ul>
- *   <li>Total calls per method</li>
- *   <li>Success/failure counts</li>
- *   <li>Average duration per method</li>
- *   <li>Total bytes sent/received (if enabled)</li>
+ *   <li>Total calls per method
+ *   <li>Success/failure counts
+ *   <li>Average duration per method
+ *   <li>Total bytes sent/received (if enabled)
  * </ul>
  *
  * <p>Example usage:
@@ -44,34 +43,36 @@ public class MetricsInterceptor implements ServerInterceptor {
   private final ConcurrentMap<String, MethodMetrics> metricsMap = new ConcurrentHashMap<>();
 
   @Override
-  public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(ServerCall<ReqT, RespT> call,
-                                                                 Metadata headers,
-                                                                 ServerCallHandler<ReqT, RespT> next) {
+  public <ReqT, RespT> ServerCall.Listener<ReqT> interceptCall(
+      ServerCall<ReqT, RespT> call, Metadata headers, ServerCallHandler<ReqT, RespT> next) {
     String methodName = call.getMethodDescriptor().getFullMethodName();
     Instant startTime = Instant.now();
 
     MethodMetrics metrics = metricsMap.computeIfAbsent(methodName, k -> new MethodMetrics());
     metrics.requestCount.incrementAndGet();
 
-    ServerCall.Listener<ReqT> listener = next.startCall(
-        new ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT>(call) {
-          @Override
-          public void close(Status status, Metadata trailers) {
-            long durationMs = Duration.between(startTime, Instant.now()).toMillis();
-            metrics.addDuration(durationMs);
+    ServerCall.Listener<ReqT> listener =
+        next.startCall(
+            new ForwardingServerCall.SimpleForwardingServerCall<ReqT, RespT>(call) {
+              @Override
+              public void close(Status status, Metadata trailers) {
+                long durationMs = Duration.between(startTime, Instant.now()).toMillis();
+                metrics.addDuration(durationMs);
 
-            if (status.isOk()) {
-              metrics.successCount.incrementAndGet();
-            } else {
-              metrics.failureCount.incrementAndGet();
-              metrics.failuresByStatus
-                  .computeIfAbsent(status.getCode().name(), k -> new AtomicLong())
-                  .incrementAndGet();
-            }
+                if (status.isOk()) {
+                  metrics.successCount.incrementAndGet();
+                } else {
+                  metrics.failureCount.incrementAndGet();
+                  metrics
+                      .failuresByStatus
+                      .computeIfAbsent(status.getCode().name(), k -> new AtomicLong())
+                      .incrementAndGet();
+                }
 
-            super.close(status, trailers);
-          }
-        }, headers);
+                super.close(status, trailers);
+              }
+            },
+            headers);
 
     return listener;
   }
@@ -95,16 +96,12 @@ public class MetricsInterceptor implements ServerInterceptor {
     return metricsMap;
   }
 
-  /**
-   * Resets all metrics.
-   */
+  /** Resets all metrics. */
   public void reset() {
     metricsMap.clear();
   }
 
-  /**
-   * Metrics for a single gRPC method.
-   */
+  /** Metrics for a single gRPC method. */
   public static class MethodMetrics {
     private final AtomicLong requestCount = new AtomicLong();
     private final AtomicLong successCount = new AtomicLong();

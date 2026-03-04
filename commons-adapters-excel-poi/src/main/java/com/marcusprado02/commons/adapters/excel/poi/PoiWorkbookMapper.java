@@ -1,26 +1,19 @@
 package com.marcusprado02.commons.adapters.excel.poi;
 
 import com.marcusprado02.commons.ports.excel.*;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFColor;
-import java.awt.Color;
 import java.util.*;
+import org.apache.poi.ss.usermodel.*;
 
-/**
- * Mapper class for converting between POI and Commons Excel models.
- */
+/** Mapper class for converting between POI and Commons Excel models. */
 public final class PoiWorkbookMapper {
 
   private PoiWorkbookMapper() {
     // Utility class
   }
 
-  /**
-   * Converts POI Workbook to Commons ExcelWorkbook.
-   */
+  /** Converts POI Workbook to Commons ExcelWorkbook. */
   public static ExcelWorkbook fromPoi(Workbook poiWorkbook) {
-    var builder = ExcelWorkbook.builder()
-        .activeSheetIndex(poiWorkbook.getActiveSheetIndex());
+    var builder = ExcelWorkbook.builder().activeSheetIndex(poiWorkbook.getActiveSheetIndex());
 
     // Convert document properties
     // Note: Properties access varies by POI implementation
@@ -38,9 +31,7 @@ public final class PoiWorkbookMapper {
     return builder.build();
   }
 
-  /**
-   * Converts a POI Sheet to Commons ExcelWorksheet.
-   */
+  /** Converts a POI Sheet to Commons ExcelWorksheet. */
   private static ExcelWorksheet fromPoiSheet(Sheet poiSheet) {
     var builder = ExcelWorksheet.builder(poiSheet.getSheetName());
 
@@ -84,27 +75,26 @@ public final class PoiWorkbookMapper {
     return builder.build();
   }
 
-  /**
-   * Converts a POI Cell to Commons ExcelCell.
-   */
+  /** Converts a POI Cell to Commons ExcelCell. */
   private static ExcelCell fromPoiCell(Cell poiCell) {
     int row = poiCell.getRowIndex();
     int column = poiCell.getColumnIndex();
 
     com.marcusprado02.commons.ports.excel.CellType cellType = mapPoiCellType(poiCell.getCellType());
     Object value = extractCellValue(poiCell);
-    String formula = poiCell.getCellType() == org.apache.poi.ss.usermodel.CellType.FORMULA
-        ? poiCell.getCellFormula() : null;
+    String formula =
+        poiCell.getCellType() == org.apache.poi.ss.usermodel.CellType.FORMULA
+            ? poiCell.getCellFormula()
+            : null;
 
     ExcelCellStyle style = fromPoiCellStyle(poiCell.getCellStyle());
 
     return new ExcelCell(row, column, cellType, value, formula, style);
   }
 
-  /**
-   * Maps POI CellType to Commons CellType.
-   */
-  private static com.marcusprado02.commons.ports.excel.CellType mapPoiCellType(org.apache.poi.ss.usermodel.CellType poiCellType) {
+  /** Maps POI CellType to Commons CellType. */
+  private static com.marcusprado02.commons.ports.excel.CellType mapPoiCellType(
+      org.apache.poi.ss.usermodel.CellType poiCellType) {
     return switch (poiCellType) {
       case BLANK -> com.marcusprado02.commons.ports.excel.CellType.BLANK;
       case BOOLEAN -> com.marcusprado02.commons.ports.excel.CellType.BOOLEAN;
@@ -116,33 +106,32 @@ public final class PoiWorkbookMapper {
     };
   }
 
-  /**
-   * Extracts cell value based on cell type.
-   */
+  /** Extracts cell value based on cell type. */
   private static Object extractCellValue(Cell poiCell) {
     return switch (poiCell.getCellType()) {
       case BLANK -> null;
       case BOOLEAN -> poiCell.getBooleanCellValue();
-      case NUMERIC -> DateUtil.isCellDateFormatted(poiCell)
-          ? poiCell.getDateCellValue()
-          : poiCell.getNumericCellValue();
+      case NUMERIC ->
+          DateUtil.isCellDateFormatted(poiCell)
+              ? poiCell.getDateCellValue()
+              : poiCell.getNumericCellValue();
       case STRING -> poiCell.getStringCellValue();
-      case FORMULA -> switch (poiCell.getCachedFormulaResultType()) {
-        case BOOLEAN -> poiCell.getBooleanCellValue();
-        case NUMERIC -> DateUtil.isCellDateFormatted(poiCell)
-            ? poiCell.getDateCellValue()
-            : poiCell.getNumericCellValue();
-        case STRING -> poiCell.getStringCellValue();
-        default -> poiCell.getStringCellValue();
-      };
+      case FORMULA ->
+          switch (poiCell.getCachedFormulaResultType()) {
+            case BOOLEAN -> poiCell.getBooleanCellValue();
+            case NUMERIC ->
+                DateUtil.isCellDateFormatted(poiCell)
+                    ? poiCell.getDateCellValue()
+                    : poiCell.getNumericCellValue();
+            case STRING -> poiCell.getStringCellValue();
+            default -> poiCell.getStringCellValue();
+          };
       case ERROR -> "#ERROR"; // Convert error to string representation
       default -> poiCell.toString();
     };
   }
 
-  /**
-   * Converts POI CellStyle to Commons ExcelCellStyle.
-   */
+  /** Converts POI CellStyle to Commons ExcelCellStyle. */
   private static ExcelCellStyle fromPoiCellStyle(org.apache.poi.ss.usermodel.CellStyle poiStyle) {
     if (poiStyle == null) {
       return null;
@@ -166,7 +155,8 @@ public final class PoiWorkbookMapper {
    * @param poiWorkbook target POI workbook
    * @param options write options
    */
-  public static void toPoi(ExcelWorkbook commonsWorkbook, Workbook poiWorkbook, ExcelWriteOptions options) {
+  public static void toPoi(
+      ExcelWorkbook commonsWorkbook, Workbook poiWorkbook, ExcelWriteOptions options) {
     // Set document properties
     // Note: Property setting varies by POI implementation and is skipped for compatibility
 
@@ -177,16 +167,15 @@ public final class PoiWorkbookMapper {
     }
 
     // Set active sheet
-    if (commonsWorkbook.activeSheetIndex() >= 0 &&
-        commonsWorkbook.activeSheetIndex() < poiWorkbook.getNumberOfSheets()) {
+    if (commonsWorkbook.activeSheetIndex() >= 0
+        && commonsWorkbook.activeSheetIndex() < poiWorkbook.getNumberOfSheets()) {
       poiWorkbook.setActiveSheet(commonsWorkbook.activeSheetIndex());
     }
   }
 
-  /**
-   * Converts Commons ExcelWorksheet to POI Sheet.
-   */
-  private static void toPoiSheet(ExcelWorksheet worksheet, Sheet poiSheet, Workbook workbook, ExcelWriteOptions options) {
+  /** Converts Commons ExcelWorksheet to POI Sheet. */
+  private static void toPoiSheet(
+      ExcelWorksheet worksheet, Sheet poiSheet, Workbook workbook, ExcelWriteOptions options) {
     // Create cells grouped by row for efficient processing
     Map<Integer, List<ExcelCell>> cellsByRow = new TreeMap<>();
     for (ExcelCell cell : worksheet.getAllCells()) {
@@ -249,9 +238,7 @@ public final class PoiWorkbookMapper {
     // }
   }
 
-  /**
-   * Sets POI cell value based on Commons cell.
-   */
+  /** Sets POI cell value based on Commons cell. */
   private static void setPoiCellValue(Cell poiCell, ExcelCell cell) {
     if (cell.formula() != null && !cell.formula().isEmpty()) {
       poiCell.setCellFormula(cell.formula());
@@ -280,9 +267,7 @@ public final class PoiWorkbookMapper {
     }
   }
 
-  /**
-   * Converts Commons ExcelCellStyle to POI CellStyle.
-   */
+  /** Converts Commons ExcelCellStyle to POI CellStyle. */
   private static CellStyle toPoiCellStyle(ExcelCellStyle style, Workbook workbook) {
     CellStyle poiStyle = workbook.createCellStyle();
 
@@ -323,9 +308,7 @@ public final class PoiWorkbookMapper {
     return poiStyle;
   }
 
-  /**
-   * Gets Excel column name from index (0-based).
-   */
+  /** Gets Excel column name from index (0-based). */
   private static String getColumnName(int columnIndex) {
     StringBuilder columnName = new StringBuilder();
     while (columnIndex >= 0) {

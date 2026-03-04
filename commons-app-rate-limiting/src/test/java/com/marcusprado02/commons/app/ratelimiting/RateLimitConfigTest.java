@@ -1,20 +1,20 @@
 package com.marcusprado02.commons.app.ratelimiting;
 
-import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.Duration;
-
-import static org.junit.jupiter.api.Assertions.*;
+import org.junit.jupiter.api.Test;
 
 class RateLimitConfigTest {
 
   @Test
   void testBuilderPattern() {
-    RateLimitConfig config = RateLimitConfig.builder()
-        .capacity(100)
-        .refillRate(50)
-        .refillPeriod(Duration.ofMinutes(1))
-        .build();
+    RateLimitConfig config =
+        RateLimitConfig.builder()
+            .capacity(100)
+            .refillRate(50)
+            .refillPeriod(Duration.ofMinutes(1))
+            .build();
 
     assertEquals(100, config.getCapacity());
     assertEquals(50, config.getRefillRate());
@@ -60,73 +60,85 @@ class RateLimitConfigTest {
   @Test
   void testValidation() {
     // Valid configuration should not throw
-    assertDoesNotThrow(() -> RateLimitConfig.builder()
-        .capacity(10)
-        .refillRate(5)
-        .refillPeriod(Duration.ofSeconds(1))
-        .build());
+    assertDoesNotThrow(
+        () ->
+            RateLimitConfig.builder()
+                .capacity(10)
+                .refillRate(5)
+                .refillPeriod(Duration.ofSeconds(1))
+                .build());
 
     // Invalid capacity
-    assertThrows(IllegalArgumentException.class, () ->
-        RateLimitConfig.builder()
-            .capacity(0)
-            .refillRate(5)
-            .refillPeriod(Duration.ofSeconds(1))
-            .build());
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            RateLimitConfig.builder()
+                .capacity(0)
+                .refillRate(5)
+                .refillPeriod(Duration.ofSeconds(1))
+                .build());
 
-    assertThrows(IllegalArgumentException.class, () ->
-        RateLimitConfig.builder()
-            .capacity(-1)
-            .refillRate(5)
-            .refillPeriod(Duration.ofSeconds(1))
-            .build());
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            RateLimitConfig.builder()
+                .capacity(-1)
+                .refillRate(5)
+                .refillPeriod(Duration.ofSeconds(1))
+                .build());
 
     // Invalid refill rate
-    assertThrows(IllegalArgumentException.class, () ->
-        RateLimitConfig.builder()
-            .capacity(10)
-            .refillRate(0)
-            .refillPeriod(Duration.ofSeconds(1))
-            .build());
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            RateLimitConfig.builder()
+                .capacity(10)
+                .refillRate(0)
+                .refillPeriod(Duration.ofSeconds(1))
+                .build());
 
-    assertThrows(IllegalArgumentException.class, () ->
-        RateLimitConfig.builder()
-            .capacity(10)
-            .refillRate(-1)
-            .refillPeriod(Duration.ofSeconds(1))
-            .build());
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            RateLimitConfig.builder()
+                .capacity(10)
+                .refillRate(-1)
+                .refillPeriod(Duration.ofSeconds(1))
+                .build());
 
     // Invalid refill period
-    assertThrows(IllegalArgumentException.class, () ->
-        RateLimitConfig.builder()
-            .capacity(10)
-            .refillRate(5)
-            .refillPeriod(Duration.ZERO)
-            .build());
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            RateLimitConfig.builder()
+                .capacity(10)
+                .refillRate(5)
+                .refillPeriod(Duration.ZERO)
+                .build());
 
-    assertThrows(IllegalArgumentException.class, () ->
-        RateLimitConfig.builder()
-            .capacity(10)
-            .refillRate(5)
-            .refillPeriod(Duration.ofSeconds(-1))
-            .build());
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            RateLimitConfig.builder()
+                .capacity(10)
+                .refillRate(5)
+                .refillPeriod(Duration.ofSeconds(-1))
+                .build());
 
     // Null refill period
-    assertThrows(IllegalArgumentException.class, () ->
-        RateLimitConfig.builder()
-            .capacity(10)
-            .refillRate(5)
-            .refillPeriod(null)
-            .build());
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> RateLimitConfig.builder().capacity(10).refillRate(5).refillPeriod(null).build());
   }
 
   @Test
   void testUtilityMethods() {
-    RateLimitConfig config = RateLimitConfig.builder()
-        .capacity(100)
-        .refillRate(50)
-        .refillPeriod(Duration.ofMinutes(1))
-        .build();
+    RateLimitConfig config =
+        RateLimitConfig.builder()
+            .capacity(100)
+            .refillRate(50)
+            .refillPeriod(Duration.ofMinutes(1))
+            .build();
 
     // Test rate per second calculation
     double ratePerSecond = config.getRatePerSecond();
@@ -139,23 +151,26 @@ class RateLimitConfigTest {
 
   @Test
   void testEqualsAndHashCode() {
-    RateLimitConfig config1 = RateLimitConfig.builder()
-        .capacity(100)
-        .refillRate(50)
-        .refillPeriod(Duration.ofMinutes(1))
-        .build();
+    RateLimitConfig config1 =
+        RateLimitConfig.builder()
+            .capacity(100)
+            .refillRate(50)
+            .refillPeriod(Duration.ofMinutes(1))
+            .build();
 
-    RateLimitConfig config2 = RateLimitConfig.builder()
-        .capacity(100)
-        .refillRate(50)
-        .refillPeriod(Duration.ofMinutes(1))
-        .build();
+    RateLimitConfig config2 =
+        RateLimitConfig.builder()
+            .capacity(100)
+            .refillRate(50)
+            .refillPeriod(Duration.ofMinutes(1))
+            .build();
 
-    RateLimitConfig config3 = RateLimitConfig.builder()
-        .capacity(200)
-        .refillRate(50)
-        .refillPeriod(Duration.ofMinutes(1))
-        .build();
+    RateLimitConfig config3 =
+        RateLimitConfig.builder()
+            .capacity(200)
+            .refillRate(50)
+            .refillPeriod(Duration.ofMinutes(1))
+            .build();
 
     assertEquals(config1, config2);
     assertNotEquals(config1, config3);
@@ -192,32 +207,36 @@ class RateLimitConfigTest {
   @Test
   void testEdgeCases() {
     // Very small capacity
-    RateLimitConfig smallConfig = RateLimitConfig.builder()
-        .capacity(1)
-        .refillRate(1)
-        .refillPeriod(Duration.ofSeconds(1))
-        .build();
+    RateLimitConfig smallConfig =
+        RateLimitConfig.builder()
+            .capacity(1)
+            .refillRate(1)
+            .refillPeriod(Duration.ofSeconds(1))
+            .build();
 
     assertEquals(1, smallConfig.getCapacity());
     assertEquals(1.0, smallConfig.getRatePerSecond(), 0.001);
 
     // Very large capacity
-    RateLimitConfig largeConfig = RateLimitConfig.builder()
-        .capacity(Long.MAX_VALUE)
-        .refillRate(1000000)
-        .refillPeriod(Duration.ofHours(1))
-        .build();
+    RateLimitConfig largeConfig =
+        RateLimitConfig.builder()
+            .capacity(Long.MAX_VALUE)
+            .refillRate(1000000)
+            .refillPeriod(Duration.ofHours(1))
+            .build();
 
     assertEquals(Long.MAX_VALUE, largeConfig.getCapacity());
 
     // Very small refill period
-    RateLimitConfig fastRefill = RateLimitConfig.builder()
-        .capacity(10)
-        .refillRate(10)
-        .refillPeriod(Duration.ofMillis(1))
-        .build();
+    RateLimitConfig fastRefill =
+        RateLimitConfig.builder()
+            .capacity(10)
+            .refillRate(10)
+            .refillPeriod(Duration.ofMillis(1))
+            .build();
 
     assertEquals(Duration.ofMillis(1), fastRefill.getRefillPeriod());
-    assertEquals(10000.0, fastRefill.getRatePerSecond(), 0.001); // 10 per millisecond = 10000 per second
+    assertEquals(
+        10000.0, fastRefill.getRatePerSecond(), 0.001); // 10 per millisecond = 10000 per second
   }
 }

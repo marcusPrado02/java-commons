@@ -54,7 +54,7 @@ if (result.isAllowed()) {
 ```java
 // Simple configurations
 RateLimitConfig perSecond = RateLimitConfig.perSecond(10);   // 10 req/sec
-RateLimitConfig perMinute = RateLimitConfig.perMinute(100);  // 100 req/min  
+RateLimitConfig perMinute = RateLimitConfig.perMinute(100);  // 100 req/min
 RateLimitConfig perHour = RateLimitConfig.perHour(1000);     // 1000 req/hour
 
 // Advanced configuration with burst support
@@ -67,7 +67,7 @@ RateLimitConfig advanced = RateLimitConfig.builder()
 // Custom configurations
 RateLimitConfig custom = RateLimitConfig.withBurst(
     100,                    // Rate per period
-    150,                    // Burst capacity  
+    150,                    // Burst capacity
     Duration.ofMinutes(1)   // Time period
 );
 ```
@@ -175,14 +175,14 @@ public class RateLimitingConfig {
     @Bean
     public FilterRegistrationBean<RateLimitingFilter> rateLimitFilter(
             RateLimiter rateLimiter) {
-        
+
         RateLimitingFilter filter = new RateLimitingFilter(
             rateLimiter,
             RateLimitingFilter.KeyExtractors.byIpAddress(),
             RateLimitingFilter.SkipPredicates.forPaths("/health", "/actuator/**")
         );
-        
-        FilterRegistrationBean<RateLimitingFilter> registration = 
+
+        FilterRegistrationBean<RateLimitingFilter> registration =
             new FilterRegistrationBean<>(filter);
         registration.addUrlPatterns("/api/*");
         registration.setOrder(1);
@@ -199,17 +199,17 @@ public class RateLimitExceptionHandler {
 
     @ExceptionHandler(RateLimitExceededException.class)
     public ResponseEntity<Map<String, Object>> handleRateLimit(
-            RateLimitExceededException ex, 
+            RateLimitExceededException ex,
             HttpServletResponse response) {
-        
+
         // Add standard rate limiting headers
         response.setHeader("X-RateLimit-Limit", String.valueOf(ex.getLimit()));
         response.setHeader("X-RateLimit-Remaining", String.valueOf(ex.getRemaining()));
-        
+
         if (ex.getRetryAfter() != null) {
             response.setHeader("Retry-After", String.valueOf(ex.getRetryAfter().getSeconds()));
         }
-        
+
         Map<String, Object> error = Map.of(
             "error", "Rate limit exceeded",
             "message", ex.getMessage(),
@@ -217,7 +217,7 @@ public class RateLimitExceptionHandler {
             "remaining", ex.getRemaining(),
             "utilization", String.format("%.1f%%", ex.getUtilization() * 100)
         );
-        
+
         return ResponseEntity.status(429).body(error);
     }
 }
@@ -275,12 +275,12 @@ System.out.println("Average response time: " + stats.getAverageResponseTime() + 
 
 ```java
 public class CustomKeyExtractors {
-    
+
     // Rate limit by API key
     public static Function<HttpServletRequest, String> byApiKey() {
         return request -> request.getHeader("X-API-Key");
     }
-    
+
     // Rate limit by user ID from JWT token
     public static Function<HttpServletRequest, String> byJwtUserId() {
         return request -> {
@@ -292,8 +292,8 @@ public class CustomKeyExtractors {
             return null;
         };
     }
-    
-    // Combined rate limiting (IP + User)  
+
+    // Combined rate limiting (IP + User)
     public static Function<HttpServletRequest, String> byIpAndUser() {
         return request -> {
             String ip = request.getRemoteAddr();
@@ -309,7 +309,7 @@ public class CustomKeyExtractors {
 When rate limiting is applied, the following headers are automatically added to responses:
 
 - `X-RateLimit-Limit`: The rate limit ceiling for the given key
-- `X-RateLimit-Remaining`: The number of requests remaining in the current window  
+- `X-RateLimit-Remaining`: The number of requests remaining in the current window
 - `X-RateLimit-Reset`: The time when the rate limit window resets (Unix timestamp)
 - `Retry-After`: Seconds until the client can retry (when rate limited)
 
@@ -320,7 +320,7 @@ When rate limiting is applied, the following headers are automatically added to 
 ```java
 @Service
 public class TieredRateLimiter {
-    
+
     private final Map<String, RateLimiter> tierLimiters = Map.of(
         "free", RateLimiterFactory.redis(jedisPool)
             .withConfig(RateLimitConfig.perHour(100))
@@ -332,7 +332,7 @@ public class TieredRateLimiter {
             .withConfig(RateLimitConfig.perHour(10000))
             .build()
     );
-    
+
     public RateLimitResult checkLimit(String apiKey, String userTier) {
         RateLimiter limiter = tierLimiters.get(userTier);
         return limiter != null ? limiter.tryConsume(apiKey) : RateLimitResult.allowed();
@@ -345,17 +345,17 @@ public class TieredRateLimiter {
 ```java
 @Service
 public class GracefulRateLimiter {
-    
+
     public <T> T executeWithRateLimit(String key, Supplier<T> operation, Supplier<T> fallback) {
         RateLimitResult result = rateLimiter.tryConsume(key);
-        
+
         if (result.isAllowed()) {
             return operation.get();
         } else {
             // Log rate limit hit
-            log.warn("Rate limit exceeded for key: {}, utilization: {}%", 
+            log.warn("Rate limit exceeded for key: {}, utilization: {}%",
                 key, result.getUtilization() * 100);
-            
+
             // Return cached or simplified response
             return fallback.get();
         }
@@ -368,11 +368,11 @@ public class GracefulRateLimiter {
 ```java
 @Component
 public class ResilientRateLimiter {
-    
+
     private final RateLimiter primaryLimiter;    // Redis-based
     private final RateLimiter fallbackLimiter;   // In-memory
     private final CircuitBreaker circuitBreaker;
-    
+
     public RateLimitResult tryConsume(String key) {
         return circuitBreaker.executeSupplier(() -> primaryLimiter.tryConsume(key))
             .recover(throwable -> {
@@ -442,14 +442,14 @@ public class ResilientRateLimiter {
 
 ### In-Memory vs Redis
 
-- **In-Memory**: 
+- **In-Memory**:
   - Pros: Fastest performance, no network latency
   - Cons: No shared state across instances, lost on restart
   - Use for: Single-node applications, development
 
 - **Redis**:
   - Pros: Distributed state, persistent across restarts
-  - Cons: Network latency, requires Redis infrastructure  
+  - Cons: Network latency, requires Redis infrastructure
   - Use for: Multi-node applications, production environments
 
 ### Optimization Tips

@@ -31,7 +31,7 @@ import com.marcusprado02.commons.adapters.serialization.protobuf.ProtobufSeriali
 import com.marcusprado02.commons.ports.serialization.SerializationPort;
 
 // Create a serialization adapter
-SerializationPort<PersonProtos.Person> serializer = 
+SerializationPort<PersonProtos.Person> serializer =
     ProtobufSerialization.forMessage(PersonProtos.Person.class);
 
 // Create a person object
@@ -50,7 +50,7 @@ if (result.isSuccess()) {
 }
 
 // Deserialize from bytes
-Result<PersonProtos.Person> deserializeResult = 
+Result<PersonProtos.Person> deserializeResult =
     serializer.deserialize(data, PersonProtos.Person.class);
 if (deserializeResult.isSuccess()) {
     PersonProtos.Person deserializedPerson = deserializeResult.getValue();
@@ -82,14 +82,14 @@ Schema schema = new Schema("Person", "1.0", protoDefinition, SerializationFormat
 registry.register(schema);
 
 // Create adapter with registry
-SerializationPort<PersonProtos.Person> serializer = 
+SerializationPort<PersonProtos.Person> serializer =
     ProtobufSerialization.forMessage(PersonProtos.Person.class, registry);
 ```
 
 ### Using Builder Pattern
 
 ```java
-SerializationPort<PersonProtos.Person> serializer = 
+SerializationPort<PersonProtos.Person> serializer =
     ProtobufSerialization.builder(PersonProtos.Person.class)
         .withInMemoryRegistry()
         .validateSchema(true)
@@ -106,7 +106,7 @@ SerializationOptions binaryOptions = SerializationOptions.builder()
     .build();
 
 // JSON format
-SerializationOptions jsonOptions = SerializationOptions.builder()  
+SerializationOptions jsonOptions = SerializationOptions.builder()
     .format(SerializationFormat.PROTOBUF_JSON)
     .build();
 
@@ -130,9 +130,9 @@ try (FileOutputStream fos = new FileOutputStream("person.pb")) {
     }
 }
 
-// Deserialize from stream  
+// Deserialize from stream
 try (FileInputStream fis = new FileInputStream("person.pb")) {
-    Result<PersonProtos.Person> result = 
+    Result<PersonProtos.Person> result =
         serializer.deserialize(fis, PersonProtos.Person.class);
     if (result.isSuccess()) {
         PersonProtos.Person person = result.getValue();
@@ -161,30 +161,30 @@ if (schema != null) {
 ```java
 @RestController
 public class PersonController {
-    
+
     private final SerializationPort<PersonProtos.Person> serializer;
-    
-    @PostMapping(value = "/persons", 
+
+    @PostMapping(value = "/persons",
                  consumes = "application/x-protobuf",
                  produces = "application/x-protobuf")
     public ResponseEntity<byte[]> createPerson(@RequestBody byte[] data) {
         // Deserialize incoming data
-        Result<PersonProtos.Person> deserializeResult = 
+        Result<PersonProtos.Person> deserializeResult =
             serializer.deserialize(data, PersonProtos.Person.class);
-            
+
         if (!deserializeResult.isSuccess()) {
             return ResponseEntity.badRequest().build();
         }
-        
+
         PersonProtos.Person person = deserializeResult.getValue();
-        
+
         // Process person (save to database, etc.)
         PersonProtos.Person savedPerson = processPerson(person);
-        
+
         // Serialize response
         Result<byte[]> serializeResult = serializer.serialize(savedPerson);
-        
-        return serializeResult.isSuccess() 
+
+        return serializeResult.isSuccess()
             ? ResponseEntity.ok(serializeResult.getValue())
             : ResponseEntity.internalServerError().build();
     }
@@ -210,13 +210,13 @@ message Person {
   int32 age = 4;
   repeated string phone_numbers = 5;
   Address address = 6;
-  
+
   enum Status {
     UNKNOWN = 0;
     ACTIVE = 1;
     INACTIVE = 2;
   }
-  
+
   Status status = 7;
 }
 

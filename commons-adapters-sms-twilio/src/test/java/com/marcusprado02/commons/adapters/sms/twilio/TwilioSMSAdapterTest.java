@@ -25,12 +25,13 @@ class TwilioSMSAdapterTest {
 
   @BeforeEach
   void setUp() {
-    configuration = TwilioConfiguration.builder()
-        .accountSid("ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
-        .authToken("test-auth-token")
-        .fromPhoneNumber("+1234567890")
-        .requestTimeout(Duration.ofSeconds(10))
-        .build();
+    configuration =
+        TwilioConfiguration.builder()
+            .accountSid("ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxx")
+            .authToken("test-auth-token")
+            .fromPhoneNumber("+1234567890")
+            .requestTimeout(Duration.ofSeconds(10))
+            .build();
 
     smsAdapter = new TwilioSMSAdapter(configuration);
   }
@@ -39,11 +40,8 @@ class TwilioSMSAdapterTest {
   @DisplayName("Should send SMS successfully")
   void shouldSendSMS() {
     // Given
-    SMS sms = SMS.builder()
-        .from("+1234567890")
-        .to("+0987654321")
-        .message("Test SMS message")
-        .build();
+    SMS sms =
+        SMS.builder().from("+1234567890").to("+0987654321").message("Test SMS message").build();
 
     // Mock Twilio Message
     Message mockMessage = mock(Message.class);
@@ -54,7 +52,13 @@ class TwilioSMSAdapterTest {
     try (MockedStatic<Message> mockedMessage = mockStatic(Message.class)) {
       var mockCreator = mock(MessageCreator.class);
       when(mockCreator.create()).thenReturn(mockMessage);
-      mockedMessage.when(() -> Message.creator(any(com.twilio.type.PhoneNumber.class), any(com.twilio.type.PhoneNumber.class), anyString()))
+      mockedMessage
+          .when(
+              () ->
+                  Message.creator(
+                      any(com.twilio.type.PhoneNumber.class),
+                      any(com.twilio.type.PhoneNumber.class),
+                      anyString()))
           .thenReturn(mockCreator);
 
       // When
@@ -73,11 +77,7 @@ class TwilioSMSAdapterTest {
   @DisplayName("Should handle Twilio exception during SMS send")
   void shouldHandleTwilioException() {
     // Given
-    SMS sms = SMS.builder()
-        .from("+1234567890")
-        .to("+invalid")
-        .message("Test SMS")
-        .build();
+    SMS sms = SMS.builder().from("+1234567890").to("+invalid").message("Test SMS").build();
 
     // Mock Twilio exception
     com.twilio.exception.TwilioException twilioException =
@@ -87,7 +87,13 @@ class TwilioSMSAdapterTest {
     try (MockedStatic<Message> mockedMessage = mockStatic(Message.class)) {
       var mockCreator = mock(MessageCreator.class);
       when(mockCreator.create()).thenThrow(twilioException);
-      mockedMessage.when(() -> Message.creator(any(com.twilio.type.PhoneNumber.class), any(com.twilio.type.PhoneNumber.class), anyString()))
+      mockedMessage
+          .when(
+              () ->
+                  Message.creator(
+                      any(com.twilio.type.PhoneNumber.class),
+                      any(com.twilio.type.PhoneNumber.class),
+                      anyString()))
           .thenReturn(mockCreator);
 
       // When
@@ -104,12 +110,13 @@ class TwilioSMSAdapterTest {
   @DisplayName("Should send bulk SMS successfully")
   void shouldSendBulkSMS() {
     // Given
-    BulkSMS bulkSMS = BulkSMS.builder()
-        .from("+1234567890")
-        .to("+0987654321")
-        .to("+1122334455")
-        .message("Bulk SMS test message")
-        .build();
+    BulkSMS bulkSMS =
+        BulkSMS.builder()
+            .from("+1234567890")
+            .to("+0987654321")
+            .to("+1122334455")
+            .message("Bulk SMS test message")
+            .build();
 
     // Mock successful messages
     Message mockMessage1 = mock(Message.class);
@@ -127,16 +134,22 @@ class TwilioSMSAdapterTest {
       when(mockCreator1.create()).thenReturn(mockMessage1);
       when(mockCreator2.create()).thenReturn(mockMessage2);
 
-      mockedMessage.when(() -> Message.creator(
-          eq(new com.twilio.type.PhoneNumber("+0987654321")),
-          any(com.twilio.type.PhoneNumber.class),
-          anyString()))
+      mockedMessage
+          .when(
+              () ->
+                  Message.creator(
+                      eq(new com.twilio.type.PhoneNumber("+0987654321")),
+                      any(com.twilio.type.PhoneNumber.class),
+                      anyString()))
           .thenReturn(mockCreator1);
 
-      mockedMessage.when(() -> Message.creator(
-          eq(new com.twilio.type.PhoneNumber("+1122334455")),
-          any(com.twilio.type.PhoneNumber.class),
-          anyString()))
+      mockedMessage
+          .when(
+              () ->
+                  Message.creator(
+                      eq(new com.twilio.type.PhoneNumber("+1122334455")),
+                      any(com.twilio.type.PhoneNumber.class),
+                      anyString()))
           .thenReturn(mockCreator2);
 
       // When
@@ -182,15 +195,14 @@ class TwilioSMSAdapterTest {
     com.twilio.rest.api.v2010.account.ValidationRequest mockValidation =
         mock(com.twilio.rest.api.v2010.account.ValidationRequest.class);
 
-    var mockCreator =
-        mock(com.twilio.rest.api.v2010.account.ValidationRequestCreator.class);
+    var mockCreator = mock(com.twilio.rest.api.v2010.account.ValidationRequestCreator.class);
     when(mockCreator.create()).thenReturn(mockValidation);
 
     try (MockedStatic<com.twilio.rest.api.v2010.account.ValidationRequest> mockedValidation =
         mockStatic(com.twilio.rest.api.v2010.account.ValidationRequest.class)) {
 
-      mockedValidation.when(() ->
-          com.twilio.rest.api.v2010.account.ValidationRequest.creator(any()))
+      mockedValidation
+          .when(() -> com.twilio.rest.api.v2010.account.ValidationRequest.creator(any()))
           .thenReturn(mockCreator);
 
       // When
@@ -205,12 +217,13 @@ class TwilioSMSAdapterTest {
   @DisplayName("Should handle MMS not supported with binary content")
   void shouldHandleMMSNotSupported() {
     // Given
-    MMS mms = MMS.builder()
-        .from("+1234567890")
-        .to("+0987654321")
-        .message("MMS with image")
-        .addImage("test image content".getBytes(), "jpeg")
-        .build();
+    MMS mms =
+        MMS.builder()
+            .from("+1234567890")
+            .to("+0987654321")
+            .message("MMS with image")
+            .addImage("test image content".getBytes(), "jpeg")
+            .build();
 
     // When
     Result<SMSPort.SMSReceipt> result = smsAdapter.sendMMS(mms);

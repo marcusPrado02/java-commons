@@ -46,9 +46,7 @@ public interface TenantIsolationStrategy {
    */
   void applyIsolation(String tenantId);
 
-  /**
-   * Removes tenant isolation (cleanup).
-   */
+  /** Removes tenant isolation (cleanup). */
   void removeIsolation();
 
   enum IsolationType {

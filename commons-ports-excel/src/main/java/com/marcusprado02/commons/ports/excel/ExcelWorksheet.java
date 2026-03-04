@@ -183,13 +183,14 @@ public record ExcelWorksheet(
     }
 
     public Builder cell(int row, int column, Object value) {
-      ExcelCell cell = switch (value) {
-        case null -> ExcelCell.blank(row, column);
-        case Boolean b -> ExcelCell.bool(row, column, b);
-        case Number n -> ExcelCell.number(row, column, n);
-        case String s -> ExcelCell.text(row, column, s);
-        default -> ExcelCell.text(row, column, value.toString());
-      };
+      ExcelCell cell =
+          switch (value) {
+            case null -> ExcelCell.blank(row, column);
+            case Boolean b -> ExcelCell.bool(row, column, b);
+            case Number n -> ExcelCell.number(row, column, n);
+            case String s -> ExcelCell.text(row, column, s);
+            default -> ExcelCell.text(row, column, value.toString());
+          };
       return cell(cell);
     }
 

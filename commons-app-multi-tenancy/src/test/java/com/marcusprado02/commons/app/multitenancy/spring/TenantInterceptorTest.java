@@ -8,14 +8,13 @@ import com.marcusprado02.commons.app.multitenancy.TenantContextHolder;
 import com.marcusprado02.commons.app.multitenancy.TenantResolver;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.Optional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.web.method.HandlerMethod;
-
-import java.util.Optional;
 
 class TenantInterceptorTest {
 

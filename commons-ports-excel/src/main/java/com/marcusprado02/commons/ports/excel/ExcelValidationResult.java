@@ -51,8 +51,7 @@ public record ExcelValidationResult(
    * @return validation result
    */
   public static ExcelValidationResult invalid(List<String> errors) {
-    return new ExcelValidationResult(
-        false, null, null, 0, false, false, false, List.of(), errors);
+    return new ExcelValidationResult(false, null, null, 0, false, false, false, List.of(), errors);
   }
 
   /**

@@ -4,12 +4,9 @@ import com.google.protobuf.Message;
 import com.marcusprado02.commons.ports.serialization.SchemaRegistry;
 import com.marcusprado02.commons.ports.serialization.SerializationOptions;
 import com.marcusprado02.commons.ports.serialization.SerializationPort;
-
 import java.util.Objects;
 
-/**
- * Factory class for creating Protocol Buffers serialization components.
- */
+/** Factory class for creating Protocol Buffers serialization components. */
 public final class ProtobufSerialization {
 
   private ProtobufSerialization() {
@@ -19,7 +16,7 @@ public final class ProtobufSerialization {
   /**
    * Creates a Protocol Buffers serialization adapter for the given message type.
    *
-   * @param <T>          the message type
+   * @param <T> the message type
    * @param messageClass the Protocol Buffers message class
    * @return a new serialization adapter
    */
@@ -30,28 +27,27 @@ public final class ProtobufSerialization {
   /**
    * Creates a Protocol Buffers serialization adapter with schema registry.
    *
-   * @param <T>            the message type
-   * @param messageClass   the Protocol Buffers message class
+   * @param <T> the message type
+   * @param messageClass the Protocol Buffers message class
    * @param schemaRegistry the schema registry for validation
    * @return a new serialization adapter
    */
-  public static <T extends Message> SerializationPort<T> forMessage(Class<T> messageClass,
-                                                                   SchemaRegistry schemaRegistry) {
+  public static <T extends Message> SerializationPort<T> forMessage(
+      Class<T> messageClass, SchemaRegistry schemaRegistry) {
     return new ProtobufSerializationAdapter<>(messageClass, schemaRegistry);
   }
 
   /**
    * Creates a Protocol Buffers serialization adapter with options.
    *
-   * @param <T>            the message type
-   * @param messageClass   the Protocol Buffers message class
+   * @param <T> the message type
+   * @param messageClass the Protocol Buffers message class
    * @param schemaRegistry the schema registry for validation
-   * @param options        the default serialization options
+   * @param options the default serialization options
    * @return a new serialization adapter
    */
-  public static <T extends Message> SerializationPort<T> forMessage(Class<T> messageClass,
-                                                                   SchemaRegistry schemaRegistry,
-                                                                   SerializationOptions options) {
+  public static <T extends Message> SerializationPort<T> forMessage(
+      Class<T> messageClass, SchemaRegistry schemaRegistry, SerializationOptions options) {
     return new ProtobufSerializationAdapter<>(messageClass, schemaRegistry, options);
   }
 
@@ -64,9 +60,7 @@ public final class ProtobufSerialization {
     return new InMemoryProtobufSchemaRegistry();
   }
 
-  /**
-   * Builder for creating configured Protocol Buffers serialization components.
-   */
+  /** Builder for creating configured Protocol Buffers serialization components. */
   public static class Builder<T extends Message> {
 
     private final Class<T> messageClass;
@@ -122,13 +116,14 @@ public final class ProtobufSerialization {
      * @return this builder
      */
     public Builder<T> validateSchema(boolean validate) {
-      this.options = SerializationOptions.builder()
-          .validateSchema(validate)
-          .useSchemaRegistry(options.isUseSchemaRegistry())
-          .includeMetadata(options.isIncludeMetadata())
-          .schemaVersion(options.getSchemaVersion())
-          .format(options.getFormat())
-          .build();
+      this.options =
+          SerializationOptions.builder()
+              .validateSchema(validate)
+              .useSchemaRegistry(options.isUseSchemaRegistry())
+              .includeMetadata(options.isIncludeMetadata())
+              .schemaVersion(options.getSchemaVersion())
+              .format(options.getFormat())
+              .build();
       return this;
     }
 
@@ -139,13 +134,14 @@ public final class ProtobufSerialization {
      * @return this builder
      */
     public Builder<T> useSchemaRegistry(boolean useRegistry) {
-      this.options = SerializationOptions.builder()
-          .validateSchema(options.isValidateSchema())
-          .useSchemaRegistry(useRegistry)
-          .includeMetadata(options.isIncludeMetadata())
-          .schemaVersion(options.getSchemaVersion())
-          .format(options.getFormat())
-          .build();
+      this.options =
+          SerializationOptions.builder()
+              .validateSchema(options.isValidateSchema())
+              .useSchemaRegistry(useRegistry)
+              .includeMetadata(options.isIncludeMetadata())
+              .schemaVersion(options.getSchemaVersion())
+              .format(options.getFormat())
+              .build();
       return this;
     }
 
@@ -162,7 +158,7 @@ public final class ProtobufSerialization {
   /**
    * Creates a builder for the given message type.
    *
-   * @param <T>          the message type
+   * @param <T> the message type
    * @param messageClass the Protocol Buffers message class
    * @return a new builder
    */

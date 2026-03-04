@@ -4,7 +4,6 @@ import com.marcusprado02.commons.adapters.grpc.client.interceptors.LoggingInterc
 import com.marcusprado02.commons.adapters.grpc.client.interceptors.MetricsInterceptor;
 import io.grpc.*;
 import io.grpc.stub.AbstractStub;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -131,8 +130,7 @@ public class GrpcClientFactory {
     T stub = stubFactory.create(channel);
 
     // Apply call timeout
-    stub =
-        stub.withDeadlineAfter(configuration.callTimeout().toMillis(), TimeUnit.MILLISECONDS);
+    stub = stub.withDeadlineAfter(configuration.callTimeout().toMillis(), TimeUnit.MILLISECONDS);
 
     return stub;
   }

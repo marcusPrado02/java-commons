@@ -57,8 +57,10 @@ public record TwilioConfiguration(
       throw new IllegalArgumentException("Invalid from phone number format: " + fromPhoneNumber);
     }
 
-    if (webhookUrl != null && !webhookUrl.isBlank() &&
-        !webhookUrl.startsWith("http://") && !webhookUrl.startsWith("https://")) {
+    if (webhookUrl != null
+        && !webhookUrl.isBlank()
+        && !webhookUrl.startsWith("http://")
+        && !webhookUrl.startsWith("https://")) {
       throw new IllegalArgumentException("Webhook URL must be a valid HTTP/HTTPS URL");
     }
   }
@@ -80,7 +82,8 @@ public record TwilioConfiguration(
    * @param fromPhoneNumber verified Twilio phone number
    * @return development configuration
    */
-  public static TwilioConfiguration forDevelopment(String accountSid, String authToken, String fromPhoneNumber) {
+  public static TwilioConfiguration forDevelopment(
+      String accountSid, String authToken, String fromPhoneNumber) {
     return builder()
         .accountSid(accountSid)
         .authToken(authToken)
@@ -99,8 +102,8 @@ public record TwilioConfiguration(
    * @param webhookUrl webhook URL for delivery receipts
    * @return production configuration
    */
-  public static TwilioConfiguration forProduction(String accountSid, String authToken,
-                                                  String fromPhoneNumber, String webhookUrl) {
+  public static TwilioConfiguration forProduction(
+      String accountSid, String authToken, String fromPhoneNumber, String webhookUrl) {
     return builder()
         .accountSid(accountSid)
         .authToken(authToken)

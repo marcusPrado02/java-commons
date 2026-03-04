@@ -2,10 +2,10 @@ package com.marcusprado02.commons.app.multitenancy.isolation;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import javax.sql.DataSource;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
+import javax.sql.DataSource;
 
 /**
  * Database-per-tenant isolation strategy with connection pooling.
@@ -117,9 +117,7 @@ public class DatabaseIsolationStrategy implements DataSourceProvider, TenantIsol
     }
   }
 
-  /**
-   * Closes all DataSources.
-   */
+  /** Closes all DataSources. */
   public void shutdown() {
     dataSources.values().forEach(HikariDataSource::close);
     dataSources.clear();

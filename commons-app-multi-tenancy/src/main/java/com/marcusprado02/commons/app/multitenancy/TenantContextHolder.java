@@ -67,9 +67,7 @@ public final class TenantContextHolder {
     return getContext() != null;
   }
 
-  /**
-   * Clears the tenant context for the current thread.
-   */
+  /** Clears the tenant context for the current thread. */
   public static void clear() {
     contextHolder.remove();
   }
@@ -102,7 +100,8 @@ public final class TenantContextHolder {
    * @param <T> return type
    * @return supplier result
    */
-  public static <T> T supplyWithContext(TenantContext context, java.util.function.Supplier<T> supplier) {
+  public static <T> T supplyWithContext(
+      TenantContext context, java.util.function.Supplier<T> supplier) {
     TenantContext previousContext = getContext();
     try {
       setContext(context);

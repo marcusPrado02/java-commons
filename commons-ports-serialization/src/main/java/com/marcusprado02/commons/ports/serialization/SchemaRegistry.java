@@ -1,13 +1,10 @@
 package com.marcusprado02.commons.ports.serialization;
 
 import com.marcusprado02.commons.kernel.result.Result;
-
 import java.util.List;
 import java.util.Optional;
 
-/**
- * Registry for managing serialization schemas.
- */
+/** Registry for managing serialization schemas. */
 public interface SchemaRegistry {
 
   /**
@@ -21,7 +18,7 @@ public interface SchemaRegistry {
   /**
    * Gets a schema by name and version.
    *
-   * @param name    the schema name
+   * @param name the schema name
    * @param version the schema version
    * @return the schema if found, empty otherwise
    */
@@ -70,7 +67,7 @@ public interface SchemaRegistry {
   /**
    * Deletes a schema from the registry.
    *
-   * @param name    the schema name
+   * @param name the schema name
    * @param version the schema version
    * @return success result or failure with problem details
    */
@@ -79,7 +76,7 @@ public interface SchemaRegistry {
   /**
    * Checks if a schema exists in the registry.
    *
-   * @param name    the schema name
+   * @param name the schema name
    * @param version the schema version
    * @return true if the schema exists
    */
@@ -88,7 +85,7 @@ public interface SchemaRegistry {
   /**
    * Gets schema evolution path from source to target version.
    *
-   * @param name          the schema name
+   * @param name the schema name
    * @param sourceVersion the source version
    * @param targetVersion the target version
    * @return list of schemas in evolution order, or empty if no path exists

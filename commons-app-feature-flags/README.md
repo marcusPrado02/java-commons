@@ -57,23 +57,23 @@ InMemoryFeatureFlagProvider provider = InMemoryFeatureFlagProvider.builder()
     // Simple boolean flags
     .flag("new-ui", true)
     .flag("beta-feature", false)
-    
+
     // Multi-variant flags
     .flag("max-items", 100)
     .flag("theme", "dark")
-    
+
     // User targeting
     .flagWithTargeting("premium-feature",
         context -> "premium".equals(context.getAttribute("plan").orElse(null)),
         FeatureFlagValue.of(true),
         FeatureFlagValue.of(false))
-    
+
     // Percentage rollouts
     .flagWithPercentageRollout("gradual-rollout",
         50, // 50% enabled
         FeatureFlagValue.of(true),
         FeatureFlagValue.of(false))
-    
+
     .build();
 
 // Dynamic updates

@@ -75,7 +75,8 @@ public class ITextPdfAdapter implements PdfPort {
   }
 
   @Override
-  public Result<Void> generate(com.marcusprado02.commons.ports.pdf.PdfDocument document, OutputStream output) {
+  public Result<Void> generate(
+      com.marcusprado02.commons.ports.pdf.PdfDocument document, OutputStream output) {
     try {
       log.debug("Generating PDF document: {}", document.title());
 
@@ -114,7 +115,9 @@ public class ITextPdfAdapter implements PdfPort {
 
   @Override
   public Result<Void> generateAndSign(
-      com.marcusprado02.commons.ports.pdf.PdfDocument document, com.marcusprado02.commons.ports.pdf.PdfSignature signature, OutputStream output) {
+      com.marcusprado02.commons.ports.pdf.PdfDocument document,
+      com.marcusprado02.commons.ports.pdf.PdfSignature signature,
+      OutputStream output) {
     try {
       log.debug("Generating and signing PDF document: {}", document.title());
 
@@ -197,7 +200,9 @@ public class ITextPdfAdapter implements PdfPort {
     return properties;
   }
 
-  private void setDocumentInfo(com.itextpdf.kernel.pdf.PdfDocument pdfDoc, com.marcusprado02.commons.ports.pdf.PdfDocument document) {
+  private void setDocumentInfo(
+      com.itextpdf.kernel.pdf.PdfDocument pdfDoc,
+      com.marcusprado02.commons.ports.pdf.PdfDocument document) {
     PdfDocumentInfo info = pdfDoc.getDocumentInfo();
 
     if (document.title() != null) {
@@ -231,7 +236,8 @@ public class ITextPdfAdapter implements PdfPort {
     return new Rectangle(pageSize.getWidth(), pageSize.getHeight());
   }
 
-  private void setMargins(Document doc, com.marcusprado02.commons.ports.pdf.PdfDocument.Margins margins) {
+  private void setMargins(
+      Document doc, com.marcusprado02.commons.ports.pdf.PdfDocument.Margins margins) {
     doc.setMargins(margins.top(), margins.right(), margins.bottom(), margins.left());
   }
 
@@ -355,7 +361,10 @@ public class ITextPdfAdapter implements PdfPort {
     };
   }
 
-  private void signPdf(byte[] pdfBytes, com.marcusprado02.commons.ports.pdf.PdfSignature signature, OutputStream output)
+  private void signPdf(
+      byte[] pdfBytes,
+      com.marcusprado02.commons.ports.pdf.PdfSignature signature,
+      OutputStream output)
       throws Exception {
     // Load keystore
     KeyStore keystore = KeyStore.getInstance("PKCS12");
@@ -384,9 +393,12 @@ public class ITextPdfAdapter implements PdfPort {
 
     // Set visible signature field if specified
     if (signature.signatureField() != null) {
-      com.marcusprado02.commons.ports.pdf.PdfSignature.SignatureField field = signature.signatureField();
-      Rectangle rect = new Rectangle((float)field.x(), (float)field.y(),
-                                     (float)field.width(), (float)field.height());
+      com.marcusprado02.commons.ports.pdf.PdfSignature.SignatureField field =
+          signature.signatureField();
+      Rectangle rect =
+          new Rectangle(
+              (float) field.x(), (float) field.y(),
+              (float) field.width(), (float) field.height());
       appearance.setPageRect(rect).setPageNumber(field.page());
 
       if (field.imageData() != null) {
@@ -404,6 +416,13 @@ public class ITextPdfAdapter implements PdfPort {
 
     // Sign the document
     signer.signDetached(
-        externalDigest, externalSignature, chain, null, null, null, 0, PdfSigner.CryptoStandard.CMS);
+        externalDigest,
+        externalSignature,
+        chain,
+        null,
+        null,
+        null,
+        0,
+        PdfSigner.CryptoStandard.CMS);
   }
 }

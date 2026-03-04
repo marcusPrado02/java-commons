@@ -9,14 +9,15 @@ import io.grpc.StatusRuntimeException;
  * Maps exceptions and Problems to gRPC Status codes.
  *
  * <p>Mapping strategy:
+ *
  * <ul>
- *   <li>IllegalArgumentException → INVALID_ARGUMENT</li>
- *   <li>IllegalStateException → FAILED_PRECONDITION</li>
- *   <li>NullPointerException → INVALID_ARGUMENT</li>
- *   <li>SecurityException → PERMISSION_DENIED</li>
- *   <li>UnsupportedOperationException → UNIMPLEMENTED</li>
- *   <li>Problem → based on severity and error code</li>
- *   <li>Other exceptions → INTERNAL</li>
+ *   <li>IllegalArgumentException → INVALID_ARGUMENT
+ *   <li>IllegalStateException → FAILED_PRECONDITION
+ *   <li>NullPointerException → INVALID_ARGUMENT
+ *   <li>SecurityException → PERMISSION_DENIED
+ *   <li>UnsupportedOperationException → UNIMPLEMENTED
+ *   <li>Problem → based on severity and error code
+ *   <li>Other exceptions → INTERNAL
  * </ul>
  *
  * <p>Example usage:
@@ -47,9 +48,7 @@ public class ErrorMapper {
     }
 
     Status status = mapToStatus(throwable);
-    return status.withDescription(throwable.getMessage())
-        .withCause(throwable)
-        .asRuntimeException();
+    return status.withDescription(throwable.getMessage()).withCause(throwable).asRuntimeException();
   }
 
   /**
@@ -60,8 +59,7 @@ public class ErrorMapper {
    */
   public static StatusRuntimeException toStatusRuntimeException(Problem problem) {
     Status status = mapProblemToStatus(problem);
-    return status.withDescription(problem.message())
-        .asRuntimeException();
+    return status.withDescription(problem.message()).asRuntimeException();
   }
 
   /**
@@ -93,7 +91,7 @@ public class ErrorMapper {
    */
   public static Status mapProblemToStatus(Problem problem) {
     // Map based on severity
-    if (problem. severity() == Severity.CRITICAL || problem.severity() == Severity.ERROR) {
+    if (problem.severity() == Severity.CRITICAL || problem.severity() == Severity.ERROR) {
       // Check error code for more specific mapping
       String errorCode = problem.code().value();
 
@@ -129,8 +127,9 @@ public class ErrorMapper {
         return Status.FAILED_PRECONDITION;
       }
 
-      if (errorCode.contains("LIMIT") || errorCode.contains("QUOTA") ||
-          errorCode.contains("THROTTLE")) {
+      if (errorCode.contains("LIMIT")
+          || errorCode.contains("QUOTA")
+          || errorCode.contains("THROTTLE")) {
         return Status.RESOURCE_EXHAUSTED;
       }
 
@@ -162,16 +161,14 @@ public class ErrorMapper {
     Status status = mapToStatus(throwable);
     String description = String.format("Error during %s: %s", operation, throwable.getMessage());
 
-    return status.withDescription(description)
-        .withCause(throwable)
-        .asRuntimeException();
+    return status.withDescription(description).withCause(throwable).asRuntimeException();
   }
 
   /**
    * Creates a NOT_FOUND status exception.
    *
    * @param resourceType type of resource not found
-   * @param identifier   resource identifier
+   * @param identifier resource identifier
    * @return StatusRuntimeException
    */
   public static StatusRuntimeException notFound(String resourceType, String identifier) {
@@ -183,7 +180,7 @@ public class ErrorMapper {
    * Creates an INVALID_ARGUMENT status exception.
    *
    * @param fieldName field that is invalid
-   * @param reason    reason for invalidity
+   * @param reason reason for invalidity
    * @return StatusRuntimeException
    */
   public static StatusRuntimeException invalidArgument(String fieldName, String reason) {
@@ -206,7 +203,7 @@ public class ErrorMapper {
    * Creates an ALREADY_EXISTS status exception.
    *
    * @param resourceType type of resource
-   * @param identifier   resource identifier
+   * @param identifier resource identifier
    * @return StatusRuntimeException
    */
   public static StatusRuntimeException alreadyExists(String resourceType, String identifier) {

@@ -195,12 +195,12 @@ public class MyServiceImpl extends MyServiceGrpc.MyServiceImplBase {
     public void getUser(GetUserRequest request, StreamObserver<GetUserResponse> responseObserver) {
         // Get authenticated principal
         String principal = AuthInterceptor.getPrincipal();
-        
+
         if (AuthInterceptor.isAuthenticated()) {
             // User is authenticated
             System.out.println("Authenticated user: " + principal);
         }
-        
+
         // ... handle request
     }
 }
@@ -252,7 +252,7 @@ public void getUser(GetUserRequest request, StreamObserver<GetUserResponse> resp
     try {
         User user = userRepository.findById(request.getId())
             .orElseThrow(() -> new IllegalArgumentException("User not found"));
-        
+
         responseObserver.onNext(toResponse(user));
         responseObserver.onCompleted();
     } catch (Exception e) {
@@ -276,13 +276,13 @@ public void getUser(GetUserRequest request, StreamObserver<GetUserResponse> resp
 // With Problem from commons-kernel-errors
 public void getUser(GetUserRequest request, StreamObserver<GetUserResponse> responseObserver) {
     Result<User> result = userService.findUser(request.getId());
-    
+
     if (result.isFailure()) {
         Status status = ErrorMapper.mapProblemToStatus(result.problem());
         responseObserver.onError(status.asRuntimeException());
         return;
     }
-    
+
     responseObserver.onNext(toResponse(result.get()));
     responseObserver.onCompleted();
 }
@@ -444,7 +444,7 @@ public class Application {
             try {
                 // Business logic
                 User user = findUser(request.getId());
-                
+
                 // Success response
                 responseObserver.onNext(UserResponse.newBuilder()
                     .setUser(user)
