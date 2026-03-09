@@ -19,7 +19,7 @@
   <description>Maven archetype for creating new projects using commons-platform</description>
 
   <properties>
-    <maven-archetype-plugin.version>3.2.1</maven-archetype-plugin.version>
+    <maven-archetype-plugin.version>3.4.1</maven-archetype-plugin.version>
   </properties>
 
   <build>
