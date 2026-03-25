@@ -33,4 +33,8 @@
     <!-- Package-info files -->
     <suppress checks="JavadocPackage" files="package-info\.java"/>
 
+    <!-- RFC7807 is a well-known standard abbreviation; renaming breaks the public API -->
+    <suppress checks="AbbreviationAsWordInName" files=".*RFC7807ProblemDetail\.java"/>
+    <suppress checks="AbbreviationAsWordInName" files=".*Problems\.java"/>
+
 </suppressions>

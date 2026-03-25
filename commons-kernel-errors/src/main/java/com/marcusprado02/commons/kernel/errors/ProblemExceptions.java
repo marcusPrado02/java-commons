@@ -2,6 +2,7 @@ package com.marcusprado02.commons.kernel.errors;
 
 import java.util.Objects;
 
+/** Factory that maps a {@link Problem} to the appropriate typed {@link DomainException}. */
 public final class ProblemExceptions {
 
   private ProblemExceptions() {}

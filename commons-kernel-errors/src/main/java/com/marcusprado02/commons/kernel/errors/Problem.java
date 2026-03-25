@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+/** Immutable value object representing a domain problem with a code, category and message. */
 public record Problem(
     ErrorCode code,
     ErrorCategory category,
@@ -13,6 +14,7 @@ public record Problem(
     List<ProblemDetail> details,
     Map<String, Object> meta,
     Instant timestamp) {
+  /** Compact constructor that validates required fields and normalises optional collections. */
   public Problem {
     Objects.requireNonNull(code, "code");
     Objects.requireNonNull(category, "category");

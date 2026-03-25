@@ -9,7 +9,9 @@ import java.util.Objects;
 public record ErrorCode(String value) {
   public ErrorCode {
     Objects.requireNonNull(value, "value");
-    if (value.isBlank()) throw new IllegalArgumentException("ErrorCode cannot be blank");
+    if (value.isBlank()) {
+      throw new IllegalArgumentException("ErrorCode cannot be blank");
+    }
   }
 
   public static ErrorCode of(String value) {

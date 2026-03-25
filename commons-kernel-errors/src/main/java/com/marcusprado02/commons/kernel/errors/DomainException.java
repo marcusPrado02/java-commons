@@ -1,5 +1,6 @@
 package com.marcusprado02.commons.kernel.errors;
 
+/** Base runtime exception that carries a {@link Problem} value object. */
 public class DomainException extends RuntimeException {
 
   private final Problem problem;
