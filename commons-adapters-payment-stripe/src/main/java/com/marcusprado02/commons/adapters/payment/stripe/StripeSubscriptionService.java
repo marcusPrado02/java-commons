@@ -12,6 +12,7 @@ import com.stripe.exception.StripeException;
 import com.stripe.param.SubscriptionCancelParams;
 import com.stripe.param.SubscriptionCreateParams;
 import com.stripe.param.SubscriptionListParams;
+import com.stripe.param.SubscriptionUpdateParams;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
@@ -99,12 +100,38 @@ public class StripeSubscriptionService implements SubscriptionService {
   @Override
   public Result<Subscription> updateSubscription(
       String subscriptionId, String priceId, String paymentMethodId, Map<String, String> metadata) {
-    return Result.fail(
-        Problem.of(
-            ErrorCode.of("SUBSCRIPTION.NOT_IMPLEMENTED"),
-            ErrorCategory.BUSINESS,
-            Severity.INFO,
-            "updateSubscription not yet implemented"));
+    try {
+      var subscription = com.stripe.model.Subscription.retrieve(subscriptionId);
+      var paramsBuilder = SubscriptionUpdateParams.builder();
+
+      if (priceId != null && !priceId.isBlank()) {
+        // Update the first subscription item's price
+        var itemId = subscription.getItems().getData().get(0).getId();
+        paramsBuilder.addItem(
+            SubscriptionUpdateParams.Item.builder().setId(itemId).setPrice(priceId).build());
+      }
+
+      if (paymentMethodId != null && !paymentMethodId.isBlank()) {
+        paramsBuilder.setDefaultPaymentMethod(paymentMethodId);
+      }
+
+      if (metadata != null && !metadata.isEmpty()) {
+        paramsBuilder.putAllMetadata(metadata);
+      }
+
+      var updated = subscription.update(paramsBuilder.build());
+      logger.info("Updated subscription: {}", subscriptionId);
+      return Result.ok(mapToSubscription(updated));
+
+    } catch (StripeException e) {
+      logger.error("Failed to update subscription {}: {}", subscriptionId, e.getMessage(), e);
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("SUBSCRIPTION.UPDATE_FAILED"),
+              ErrorCategory.TECHNICAL,
+              Severity.ERROR,
+              "Failed to update subscription: " + e.getMessage()));
+    }
   }
 
   @Override
@@ -131,12 +158,28 @@ public class StripeSubscriptionService implements SubscriptionService {
 
   @Override
   public Result<Subscription> resumeSubscription(String subscriptionId) {
-    return Result.fail(
-        Problem.of(
-            ErrorCode.of("SUBSCRIPTION.NOT_IMPLEMENTED"),
-            ErrorCategory.BUSINESS,
-            Severity.INFO,
-            "resumeSubscription not yet implemented"));
+    try {
+      var subscription = com.stripe.model.Subscription.retrieve(subscriptionId);
+
+      // Resume by removing the cancel_at_period_end flag
+      var params =
+          SubscriptionUpdateParams.builder()
+              .setCancelAtPeriodEnd(false)
+              .build();
+
+      var resumed = subscription.update(params);
+      logger.info("Resumed subscription: {}", subscriptionId);
+      return Result.ok(mapToSubscription(resumed));
+
+    } catch (StripeException e) {
+      logger.error("Failed to resume subscription {}: {}", subscriptionId, e.getMessage(), e);
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("SUBSCRIPTION.RESUME_FAILED"),
+              ErrorCategory.TECHNICAL,
+              Severity.WARNING,
+              "Failed to resume subscription: " + e.getMessage()));
+    }
   }
 
   private Subscription mapToSubscription(com.stripe.model.Subscription sub) {
