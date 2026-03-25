@@ -89,11 +89,10 @@
         <maven-checkstyle-plugin.version>3.3.1</maven-checkstyle-plugin.version>
         <maven-pmd-plugin.version>3.21.2</maven-pmd-plugin.version>
 
-        <!-- Static analysis: SpotBugs and Checkstyle are enabled as build gates. -->
-        <!-- PMD remains opt-in to avoid noise during incremental development.  -->
+        <!-- Static analysis: SpotBugs, Checkstyle, and PMD are all enabled as build gates. -->
         <spotbugs.skip>false</spotbugs.skip>
         <checkstyle.skip>false</checkstyle.skip>
-        <pmd.skip>true</pmd.skip>
+        <pmd.skip>false</pmd.skip>
     </properties>
 
     <build>
@@ -328,7 +327,7 @@
                         <failOnViolation>true</failOnViolation>
                         <printFailingErrors>true</printFailingErrors>
                         <rulesets>
-                            <ruleset>/rulesets/java/quickstart.xml</ruleset>
+                            <ruleset>${maven.multiModuleProjectDirectory}/pmd-ruleset.xml</ruleset>
                         </rulesets>
                         <skip>${pmd.skip}</skip>
                     </configuration>
