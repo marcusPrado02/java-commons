@@ -29,6 +29,7 @@
     <dependency>
       <groupId>com.marcusprado02.commons</groupId>
       <artifactId>commons-ports-email</artifactId>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
