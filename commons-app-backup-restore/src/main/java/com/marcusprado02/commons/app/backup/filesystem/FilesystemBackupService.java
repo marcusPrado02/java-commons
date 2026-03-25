@@ -8,6 +8,7 @@ import com.marcusprado02.commons.kernel.errors.Severity;
 import com.marcusprado02.commons.kernel.result.Result;
 import java.io.*;
 import java.nio.file.*;
+import java.util.concurrent.ForkJoinPool;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
@@ -479,25 +480,13 @@ public final class FilesystemBackupService implements BackupService, RestoreServ
       throws Exception {
     Files.createDirectories(outFile.getParent());
 
+    // Always use parallel-read path for consistency
+    var zipBytes = zipToBytes(source, config.compressionEnabled());
+
     if (config.encryptionEnabled()) {
-      var zipBytes = zipToBytes(source, config.compressionEnabled());
       encryptToFile(zipBytes, outFile, config.encryptionKey());
     } else {
-      try (var zos = new ZipOutputStream(Files.newOutputStream(outFile))) {
-        zos.setLevel(config.compressionEnabled() ? 9 : 0);
-        Files.walkFileTree(
-            source,
-            new SimpleFileVisitor<>() {
-              @Override
-              public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                  throws IOException {
-                zos.putNextEntry(new ZipEntry(source.relativize(file).toString()));
-                Files.copy(file, zos);
-                zos.closeEntry();
-                return FileVisitResult.CONTINUE;
-              }
-            });
-      }
+      Files.write(outFile, zipBytes);
     }
 
     return Files.size(outFile);
@@ -507,55 +496,76 @@ public final class FilesystemBackupService implements BackupService, RestoreServ
       List<Path> files, Path outFile, BackupConfiguration config) throws Exception {
     Files.createDirectories(outFile.getParent());
 
+    var zipBytes = selectiveZipToBytes(files, config.compressionEnabled());
+
     if (config.encryptionEnabled()) {
-      var zipBytes = selectiveZipToBytes(files, config.compressionEnabled());
       encryptToFile(zipBytes, outFile, config.encryptionKey());
     } else {
-      try (var zos = new ZipOutputStream(Files.newOutputStream(outFile))) {
-        zos.setLevel(config.compressionEnabled() ? 9 : 0);
-        for (var file : files) {
-          if (Files.isRegularFile(file)) {
-            zos.putNextEntry(new ZipEntry(sourcePath.relativize(file).toString()));
-            Files.copy(file, zos);
-            zos.closeEntry();
-          }
-        }
-      }
+      Files.write(outFile, zipBytes);
     }
 
     return Files.size(outFile);
   }
 
   private byte[] zipToBytes(Path source, boolean compress) throws IOException {
-    var baos = new ByteArrayOutputStream();
-    try (var zos = new ZipOutputStream(baos)) {
-      zos.setLevel(compress ? 9 : 0);
-      Files.walkFileTree(
-          source,
-          new SimpleFileVisitor<>() {
-            @Override
-            public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
-                throws IOException {
-              zos.putNextEntry(new ZipEntry(source.relativize(file).toString()));
-              Files.copy(file, zos);
-              zos.closeEntry();
-              return FileVisitResult.CONTINUE;
-            }
-          });
-    }
-    return baos.toByteArray();
+    // Collect all regular files first
+    var allFiles = new ArrayList<Path>();
+    Files.walkFileTree(
+        source,
+        new SimpleFileVisitor<>() {
+          @Override
+          public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+            allFiles.add(file);
+            return FileVisitResult.CONTINUE;
+          }
+        });
+    return writeZipFromPaths(allFiles, source, compress);
   }
 
   private byte[] selectiveZipToBytes(List<Path> files, boolean compress) throws IOException {
+    var regularFiles = files.stream().filter(Files::isRegularFile).toList();
+    return writeZipFromPaths(regularFiles, sourcePath, compress);
+  }
+
+  /**
+   * Reads file bytes in parallel (when there are many files), then writes the ZIP sequentially.
+   * ZipOutputStream is not thread-safe so the write phase is always sequential.
+   */
+  private byte[] writeZipFromPaths(List<Path> files, Path root, boolean compress)
+      throws IOException {
+    // Read files in parallel using ForkJoinPool — improves throughput for many small files
+    List<byte[]> fileContents;
+    try {
+      fileContents =
+          ForkJoinPool.commonPool()
+              .submit(
+                  () ->
+                      files.parallelStream()
+                          .map(
+                              file -> {
+                                try {
+                                  return Files.readAllBytes(file);
+                                } catch (IOException e) {
+                                  throw new UncheckedIOException(e);
+                                }
+                              })
+                          .toList())
+              .get();
+    } catch (Exception e) {
+      Throwable cause = e.getCause() != null ? e.getCause() : e;
+      if (cause instanceof UncheckedIOException uio) throw uio.getCause();
+      throw new IOException("Parallel file read failed: " + cause.getMessage(), cause);
+    }
+
+    // Write ZIP sequentially (ZipOutputStream is not thread-safe)
     var baos = new ByteArrayOutputStream();
     try (var zos = new ZipOutputStream(baos)) {
       zos.setLevel(compress ? 9 : 0);
-      for (var file : files) {
-        if (Files.isRegularFile(file)) {
-          zos.putNextEntry(new ZipEntry(sourcePath.relativize(file).toString()));
-          Files.copy(file, zos);
-          zos.closeEntry();
-        }
+      for (int i = 0; i < files.size(); i++) {
+        var entryName = root.relativize(files.get(i)).toString();
+        zos.putNextEntry(new ZipEntry(entryName));
+        zos.write(fileContents.get(i));
+        zos.closeEntry();
       }
     }
     return baos.toByteArray();
