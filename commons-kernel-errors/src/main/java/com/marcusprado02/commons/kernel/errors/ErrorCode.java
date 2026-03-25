@@ -7,6 +7,7 @@ import java.util.Objects;
  * "PROJECT.VALIDATION.INVALID_DATE_RANGE"
  */
 public record ErrorCode(String value) {
+  /** Validates that the error code value is non-null and non-blank. */
   public ErrorCode {
     Objects.requireNonNull(value, "value");
     if (value.isBlank()) {
