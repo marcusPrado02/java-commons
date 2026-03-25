@@ -40,6 +40,20 @@ public interface BackupService {
       String name, String parentBackupId, BackupConfiguration configuration);
 
   /**
+   * Creates a differential backup (changes since last full backup).
+   *
+   * <p>Unlike incremental backups, a differential backup always compares against a full backup,
+   * making restore simpler: only the full backup and the latest differential are needed.
+   *
+   * @param name backup name/description
+   * @param fullBackupId ID of the base full backup
+   * @param configuration backup configuration options
+   * @return backup metadata
+   */
+  Result<BackupMetadata> createDifferentialBackup(
+      String name, String fullBackupId, BackupConfiguration configuration);
+
+  /**
    * Lists all backups for the data source.
    *
    * @return list of backup metadata

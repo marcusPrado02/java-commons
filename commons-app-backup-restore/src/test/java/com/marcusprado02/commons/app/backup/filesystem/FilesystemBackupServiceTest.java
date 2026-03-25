@@ -282,4 +282,179 @@ class FilesystemBackupServiceTest {
     var metadata = result.getOrNull();
     assertThat(metadata.size()).isGreaterThan(0);
   }
+
+  @Test
+  void shouldCreateEncryptedFullBackupAndRestoreIt() throws IOException {
+    // Given
+    var config =
+        BackupConfiguration.builder()
+            .destinationPath(backupDir.toString())
+            .compressionEnabled(true)
+            .encryptionEnabled(true)
+            .encryptionKey("s3cr3t-p@ssword!")
+            .build();
+
+    var createResult = service.createFullBackup("Encrypted Backup", config);
+    assertThat(createResult.isOk()).isTrue();
+
+    var metadata = createResult.getOrNull();
+    assertThat(metadata.metadata()).containsEntry("encrypted", "true");
+    assertThat(metadata.location()).endsWith(".zip.enc");
+
+    var restoreDir = tempDir.resolve("restore-enc");
+    var restoreConfig =
+        RestoreConfiguration.builder()
+            .targetPath(restoreDir.toString())
+            .overwriteExisting(true)
+            .verifyIntegrity(false)
+            .decryptionKey("s3cr3t-p@ssword!")
+            .build();
+
+    // When
+    var restoreResult = service.restore(metadata.id(), restoreConfig);
+
+    // Then
+    assertThat(restoreResult.isOk()).isTrue();
+    assertThat(restoreResult.getOrNull().filesRestored()).isEqualTo(3);
+    assertThat(Files.readString(restoreDir.resolve("file1.txt"))).isEqualTo("Content 1");
+  }
+
+  @Test
+  void shouldFailRestoreEncryptedBackupWithoutKey() {
+    // Given
+    var config =
+        BackupConfiguration.builder()
+            .destinationPath(backupDir.toString())
+            .encryptionEnabled(true)
+            .encryptionKey("secret")
+            .build();
+    var createResult = service.createFullBackup("Encrypted Backup", config);
+    var backupId = createResult.getOrNull().id();
+
+    var restoreConfig =
+        RestoreConfiguration.builder()
+            .targetPath(tempDir.resolve("restore-no-key").toString())
+            .verifyIntegrity(false)
+            .build();
+
+    // When
+    var result = service.restore(backupId, restoreConfig);
+
+    // Then
+    assertThat(result.isFail()).isTrue();
+    assertThat(result.problemOrNull().code().value()).isEqualTo("RESTORE.ENCRYPTION_KEY_MISSING");
+  }
+
+  @Test
+  void shouldCreateDifferentialBackup() throws IOException, InterruptedException {
+    // Given
+    var config =
+        BackupConfiguration.builder()
+            .destinationPath(backupDir.toString())
+            .compressionEnabled(true)
+            .build();
+
+    var fullResult = service.createFullBackup("Full Backup", config);
+    assertThat(fullResult.isOk()).isTrue();
+    var fullId = fullResult.getOrNull().id();
+
+    Thread.sleep(10);
+    Files.writeString(sourceDir.resolve("file1.txt"), "Modified Content");
+    Files.writeString(sourceDir.resolve("file5.txt"), "New File");
+
+    // When
+    var diffResult = service.createDifferentialBackup("Diff Backup", fullId, config);
+
+    // Then
+    assertThat(diffResult.isOk()).isTrue();
+    var metadata = diffResult.getOrNull();
+    assertThat(metadata.type()).isEqualTo(BackupMetadata.BackupType.DIFFERENTIAL);
+    assertThat(metadata.parentBackupId()).hasValue(fullId);
+    assertThat(metadata.size()).isLessThan(fullResult.getOrNull().size());
+  }
+
+  @Test
+  void shouldFailDifferentialBackupWhenReferenceIsNotFull() throws IOException {
+    // Given
+    var config =
+        BackupConfiguration.builder()
+            .destinationPath(backupDir.toString())
+            .compressionEnabled(true)
+            .build();
+
+    var fullResult = service.createFullBackup("Full Backup", config);
+    var fullId = fullResult.getOrNull().id();
+    var incrResult = service.createIncrementalBackup("Incr", fullId, config);
+    var incrId = incrResult.getOrNull().id();
+
+    // When — try to use an incremental as base for differential
+    var result = service.createDifferentialBackup("Diff", incrId, config);
+
+    // Then
+    assertThat(result.isFail()).isTrue();
+    assertThat(result.problemOrNull().code().value()).isEqualTo("BACKUP.NOT_A_FULL_BACKUP");
+  }
+
+  @Test
+  void shouldRestorePointInTime() throws IOException {
+    // Given
+    var config =
+        BackupConfiguration.builder()
+            .destinationPath(backupDir.toString())
+            .compressionEnabled(true)
+            .build();
+
+    service.createFullBackup("Backup 1", config);
+    var backupTime = Instant.now().plusSeconds(1).toString();
+
+    var restoreDir = tempDir.resolve("restore-pit");
+    var restoreConfig =
+        RestoreConfiguration.builder()
+            .targetPath(restoreDir.toString())
+            .overwriteExisting(true)
+            .verifyIntegrity(false)
+            .build();
+
+    // When
+    var result = service.restorePointInTime(backupTime, restoreConfig);
+
+    // Then
+    assertThat(result.isOk()).isTrue();
+    assertThat(result.getOrNull().filesRestored()).isEqualTo(3);
+  }
+
+  @Test
+  void shouldFailPointInTimeRestoreWhenNoBackupExists() {
+    // Given
+    var restoreConfig =
+        RestoreConfiguration.builder()
+            .targetPath(tempDir.resolve("restore-pit-fail").toString())
+            .verifyIntegrity(false)
+            .build();
+
+    // When — target is in the past, before any backup was created
+    var result = service.restorePointInTime("2000-01-01T00:00:00Z", restoreConfig);
+
+    // Then
+    assertThat(result.isFail()).isTrue();
+    assertThat(result.problemOrNull().code().value())
+        .isEqualTo("RESTORE.NO_BACKUP_FOR_POINT_IN_TIME");
+  }
+
+  @Test
+  void shouldFailPointInTimeRestoreWithInvalidFormat() {
+    // Given
+    var restoreConfig =
+        RestoreConfiguration.builder()
+            .targetPath(tempDir.resolve("restore-pit-invalid").toString())
+            .verifyIntegrity(false)
+            .build();
+
+    // When
+    var result = service.restorePointInTime("not-a-date", restoreConfig);
+
+    // Then
+    assertThat(result.isFail()).isTrue();
+    assertThat(result.problemOrNull().code().value()).isEqualTo("RESTORE.INVALID_POINT_IN_TIME");
+  }
 }

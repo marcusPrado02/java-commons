@@ -6,27 +6,44 @@ import com.marcusprado02.commons.kernel.errors.ErrorCode;
 import com.marcusprado02.commons.kernel.errors.Problem;
 import com.marcusprado02.commons.kernel.errors.Severity;
 import com.marcusprado02.commons.kernel.result.Result;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
+import java.security.SecureRandom;
 import java.time.Instant;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.GCMParameterSpec;
+import javax.crypto.spec.PBEKeySpec;
+import javax.crypto.spec.SecretKeySpec;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  * Filesystem backup service implementation.
  *
- * <p>Backs up directories and files to ZIP archives with optional compression and integrity checks.
+ * <p>Backs up directories and files to ZIP archives with optional compression, AES-256-GCM
+ * encryption, and integrity checks. Supports full, incremental, and differential backup strategies.
  */
 public final class FilesystemBackupService implements BackupService, RestoreService {
 
   private static final Logger logger = LoggerFactory.getLogger(FilesystemBackupService.class);
+
+  private static final String ENCRYPTION_ALGORITHM = "AES/GCM/NoPadding";
+  private static final String KEY_ALGORITHM = "AES";
+  private static final String KEY_DERIVATION = "PBKDF2WithHmacSHA256";
+  private static final int GCM_IV_LENGTH = 12;
+  private static final int GCM_TAG_LENGTH = 128;
+  private static final int KEY_LENGTH = 256;
+  private static final int PBKDF2_ITERATIONS = 65536;
+  private static final byte[] SALT = "commons-backup-salt-v1".getBytes();
 
   private final Path sourcePath;
   private final Map<String, BackupMetadata> backups = new ConcurrentHashMap<>();
@@ -52,14 +69,12 @@ public final class FilesystemBackupService implements BackupService, RestoreServ
 
     try {
       var backupId = UUID.randomUUID().toString();
-      var backupFile = Paths.get(configuration.destinationPath(), backupId + ".zip");
+      var backupFile = resolveBackupFile(configuration.destinationPath(), backupId, configuration);
 
-      // Record all file modification times
       var modTimes = collectFileModificationTimes();
       fileModificationTimes.put(backupId, modTimes);
 
-      // Create backup
-      long size = createZipBackup(sourcePath, backupFile, configuration.compressionEnabled());
+      long size = createZipBackup(sourcePath, backupFile, configuration);
       var checksum = calculateChecksum(backupFile);
 
       var metadata =
@@ -74,14 +89,17 @@ public final class FilesystemBackupService implements BackupService, RestoreServ
               .createdAt(Instant.now())
               .completedAt(Instant.now())
               .checksum(checksum)
-              .metadata(Map.of("fileCount", String.valueOf(modTimes.size())))
+              .metadata(
+                  Map.of(
+                      "fileCount", String.valueOf(modTimes.size()),
+                      "encrypted", String.valueOf(configuration.encryptionEnabled())))
               .build();
 
       backups.put(backupId, metadata);
       logger.info("Full backup '{}' completed: {} bytes", name, size);
       return Result.ok(metadata);
 
-    } catch (IOException e) {
+    } catch (Exception e) {
       logger.error("Failed to create full backup: {}", e.getMessage(), e);
       return Result.fail(
           Problem.of(
@@ -107,75 +125,57 @@ public final class FilesystemBackupService implements BackupService, RestoreServ
               "Parent backup not found: " + parentBackupId));
     }
 
-    try {
-      var backupId = UUID.randomUUID().toString();
-      var backupFile = Paths.get(configuration.destinationPath(), backupId + ".zip");
-
-      // Get parent file modification times
-      var parentModTimes = fileModificationTimes.get(parentBackupId);
-      if (parentModTimes == null) {
-        return Result.fail(
-            Problem.of(
-                ErrorCode.of("BACKUP.NO_PARENT_METADATA"),
-                ErrorCategory.BUSINESS,
-                Severity.ERROR,
-                "Parent backup metadata not found"));
-      }
-
-      // Collect only changed files
-      var currentModTimes = collectFileModificationTimes();
-      var changedFiles =
-          currentModTimes.entrySet().stream()
-              .filter(
-                  e ->
-                      !parentModTimes.containsKey(e.getKey())
-                          || !parentModTimes.get(e.getKey()).equals(e.getValue()))
-              .map(e -> Paths.get(e.getKey()))
-              .collect(Collectors.toList());
-
-      logger.info("Found {} changed files for incremental backup", changedFiles.size());
-
-      // Create incremental backup with only changed files
-      long size =
-          createSelectiveZipBackup(changedFiles, backupFile, configuration.compressionEnabled());
-      var checksum = calculateChecksum(backupFile);
-
-      fileModificationTimes.put(backupId, currentModTimes);
-
-      var metadata =
-          BackupMetadata.builder()
-              .id(backupId)
-              .name(name)
-              .type(BackupMetadata.BackupType.INCREMENTAL)
-              .source(sourcePath.toString())
-              .location(backupFile.toString())
-              .size(size)
-              .status(BackupMetadata.BackupStatus.COMPLETED)
-              .createdAt(Instant.now())
-              .completedAt(Instant.now())
-              .parentBackupId(parentBackupId)
-              .checksum(checksum)
-              .metadata(
-                  Map.of(
-                      "fileCount",
-                      String.valueOf(changedFiles.size()),
-                      "parentBackupId",
-                      parentBackupId))
-              .build();
-
-      backups.put(backupId, metadata);
-      logger.info("Incremental backup '{}' completed: {} bytes", name, size);
-      return Result.ok(metadata);
-
-    } catch (IOException e) {
-      logger.error("Failed to create incremental backup: {}", e.getMessage(), e);
+    var parentModTimes = fileModificationTimes.get(parentBackupId);
+    if (parentModTimes == null) {
       return Result.fail(
           Problem.of(
-              ErrorCode.of("BACKUP.INCREMENTAL_BACKUP_FAILED"),
-              ErrorCategory.TECHNICAL,
+              ErrorCode.of("BACKUP.NO_PARENT_METADATA"),
+              ErrorCategory.BUSINESS,
               Severity.ERROR,
-              "Failed to create incremental backup: " + e.getMessage()));
+              "Parent backup metadata not found"));
     }
+
+    return createChangedFilesBackup(
+        name, parentBackupId, parentModTimes, BackupMetadata.BackupType.INCREMENTAL, configuration);
+  }
+
+  @Override
+  public Result<BackupMetadata> createDifferentialBackup(
+      String name, String fullBackupId, BackupConfiguration configuration) {
+    logger.info("Creating differential backup '{}' from full backup '{}'", name, fullBackupId);
+
+    var fullBackupOpt = Optional.ofNullable(backups.get(fullBackupId));
+    if (fullBackupOpt.isEmpty()) {
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("BACKUP.FULL_BACKUP_NOT_FOUND"),
+              ErrorCategory.NOT_FOUND,
+              Severity.ERROR,
+              "Full backup not found: " + fullBackupId));
+    }
+
+    var fullBackup = fullBackupOpt.get();
+    if (fullBackup.type() != BackupMetadata.BackupType.FULL) {
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("BACKUP.NOT_A_FULL_BACKUP"),
+              ErrorCategory.BUSINESS,
+              Severity.ERROR,
+              "Backup '" + fullBackupId + "' is not a full backup"));
+    }
+
+    var fullModTimes = fileModificationTimes.get(fullBackupId);
+    if (fullModTimes == null) {
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("BACKUP.NO_FULL_METADATA"),
+              ErrorCategory.BUSINESS,
+              Severity.ERROR,
+              "Full backup file-state metadata not found"));
+    }
+
+    return createChangedFilesBackup(
+        name, fullBackupId, fullModTimes, BackupMetadata.BackupType.DIFFERENTIAL, configuration);
   }
 
   @Override
@@ -268,10 +268,9 @@ public final class FilesystemBackupService implements BackupService, RestoreServ
 
     var metadata = metadataResult.getOrNull();
 
-    // Verify integrity if requested
     if (configuration.verifyIntegrity()) {
       var verifyResult = verifyBackup(backupId);
-      if (verifyResult.isFail() || !verifyResult.getOrNull()) {
+      if (verifyResult.isFail() || Boolean.FALSE.equals(verifyResult.getOrNull())) {
         return Result.fail(
             Problem.of(
                 ErrorCode.of("RESTORE.INTEGRITY_CHECK_FAILED"),
@@ -285,11 +284,27 @@ public final class FilesystemBackupService implements BackupService, RestoreServ
       var start = Instant.now();
       var targetPath = Paths.get(configuration.targetPath());
       var backupFile = Paths.get(metadata.location());
+      boolean encrypted =
+          Boolean.parseBoolean(metadata.metadata().getOrDefault("encrypted", "false"));
 
-      // Extract ZIP
-      long filesRestored = extractZip(backupFile, targetPath, configuration.overwriteExisting());
+      long filesRestored;
+      if (encrypted) {
+        if (configuration.decryptionKey() == null || configuration.decryptionKey().isBlank()) {
+          return Result.fail(
+              Problem.of(
+                  ErrorCode.of("RESTORE.ENCRYPTION_KEY_MISSING"),
+                  ErrorCategory.BUSINESS,
+                  Severity.ERROR,
+                  "Backup is encrypted but no decryption key provided"));
+        }
+        filesRestored =
+            extractEncryptedZip(backupFile, targetPath, configuration.overwriteExisting(),
+                configuration.decryptionKey());
+      } else {
+        filesRestored = extractZip(backupFile, targetPath, configuration.overwriteExisting());
+      }
+
       var duration = java.time.Duration.between(start, Instant.now());
-
       var result =
           RestoreResult.builder()
               .backupId(backupId)
@@ -304,7 +319,7 @@ public final class FilesystemBackupService implements BackupService, RestoreServ
       logger.info("Restore completed: {} files in {}", filesRestored, duration);
       return Result.ok(result);
 
-    } catch (IOException e) {
+    } catch (Exception e) {
       logger.error("Failed to restore backup: {}", e.getMessage(), e);
       return Result.fail(
           Problem.of(
@@ -318,12 +333,37 @@ public final class FilesystemBackupService implements BackupService, RestoreServ
   @Override
   public Result<RestoreResult> restorePointInTime(
       String pointInTime, RestoreConfiguration configuration) {
-    return Result.fail(
-        Problem.of(
-            ErrorCode.of("RESTORE.NOT_IMPLEMENTED"),
-            ErrorCategory.BUSINESS,
-            Severity.WARNING,
-            "Point-in-time restore not yet implemented"));
+    Instant target;
+    try {
+      target = Instant.parse(pointInTime);
+    } catch (Exception e) {
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("RESTORE.INVALID_POINT_IN_TIME"),
+              ErrorCategory.BUSINESS,
+              Severity.ERROR,
+              "Invalid point-in-time format. Use ISO-8601 (e.g. 2026-01-01T12:00:00Z)"));
+    }
+
+    // Find the most recent completed backup whose createdAt <= target
+    var candidate =
+        backups.values().stream()
+            .filter(m -> m.status() == BackupMetadata.BackupStatus.COMPLETED)
+            .filter(m -> !m.createdAt().isAfter(target))
+            .max(Comparator.comparing(BackupMetadata::createdAt));
+
+    if (candidate.isEmpty()) {
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("RESTORE.NO_BACKUP_FOR_POINT_IN_TIME"),
+              ErrorCategory.NOT_FOUND,
+              Severity.ERROR,
+              "No completed backup found on or before " + pointInTime));
+    }
+
+    logger.info(
+        "Restoring point-in-time '{}' using backup '{}'", pointInTime, candidate.get().id());
+    return restore(candidate.get().id(), configuration);
   }
 
   @Override
@@ -348,7 +388,78 @@ public final class FilesystemBackupService implements BackupService, RestoreServ
     return Result.ok(null);
   }
 
-  // Helper methods
+  // -------------------------------------------------------------------------
+  // Private helpers
+  // -------------------------------------------------------------------------
+
+  private Result<BackupMetadata> createChangedFilesBackup(
+      String name,
+      String referenceBackupId,
+      Map<String, Long> referenceModTimes,
+      BackupMetadata.BackupType type,
+      BackupConfiguration configuration) {
+
+    try {
+      var backupId = UUID.randomUUID().toString();
+      var backupFile = resolveBackupFile(configuration.destinationPath(), backupId, configuration);
+
+      var currentModTimes = collectFileModificationTimes();
+      var changedFiles =
+          currentModTimes.entrySet().stream()
+              .filter(
+                  e ->
+                      !referenceModTimes.containsKey(e.getKey())
+                          || !referenceModTimes.get(e.getKey()).equals(e.getValue()))
+              .map(e -> Paths.get(e.getKey()))
+              .collect(Collectors.toList());
+
+      logger.info("Found {} changed files for {} backup", changedFiles.size(), type);
+
+      long size = createSelectiveZipBackup(changedFiles, backupFile, configuration);
+      var checksum = calculateChecksum(backupFile);
+
+      fileModificationTimes.put(backupId, currentModTimes);
+
+      var metadata =
+          BackupMetadata.builder()
+              .id(backupId)
+              .name(name)
+              .type(type)
+              .source(sourcePath.toString())
+              .location(backupFile.toString())
+              .size(size)
+              .status(BackupMetadata.BackupStatus.COMPLETED)
+              .createdAt(Instant.now())
+              .completedAt(Instant.now())
+              .parentBackupId(referenceBackupId)
+              .checksum(checksum)
+              .metadata(
+                  Map.of(
+                      "fileCount", String.valueOf(changedFiles.size()),
+                      "referenceBackupId", referenceBackupId,
+                      "encrypted", String.valueOf(configuration.encryptionEnabled())))
+              .build();
+
+      backups.put(backupId, metadata);
+      logger.info("{} backup '{}' completed: {} bytes", type, name, size);
+      return Result.ok(metadata);
+
+    } catch (Exception e) {
+      logger.error("Failed to create {} backup: {}", type, e.getMessage(), e);
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("BACKUP." + type + "_BACKUP_FAILED"),
+              ErrorCategory.TECHNICAL,
+              Severity.ERROR,
+              "Failed to create " + type.toString().toLowerCase() + " backup: " + e.getMessage()));
+    }
+  }
+
+  private Path resolveBackupFile(
+      String destinationPath, String backupId, BackupConfiguration configuration) {
+    String extension = configuration.encryptionEnabled() ? ".zip.enc" : ".zip";
+    return Paths.get(destinationPath, backupId + extension);
+  }
 
   private Map<String, Long> collectFileModificationTimes() throws IOException {
     var modTimes = new HashMap<String, Long>();
@@ -364,48 +475,130 @@ public final class FilesystemBackupService implements BackupService, RestoreServ
     return modTimes;
   }
 
-  private long createZipBackup(Path source, Path zipFile, boolean compress) throws IOException {
-    Files.createDirectories(zipFile.getParent());
+  private long createZipBackup(Path source, Path outFile, BackupConfiguration config)
+      throws Exception {
+    Files.createDirectories(outFile.getParent());
 
-    try (var zos = new ZipOutputStream(Files.newOutputStream(zipFile))) {
+    if (config.encryptionEnabled()) {
+      var zipBytes = zipToBytes(source, config.compressionEnabled());
+      encryptToFile(zipBytes, outFile, config.encryptionKey());
+    } else {
+      try (var zos = new ZipOutputStream(Files.newOutputStream(outFile))) {
+        zos.setLevel(config.compressionEnabled() ? 9 : 0);
+        Files.walkFileTree(
+            source,
+            new SimpleFileVisitor<>() {
+              @Override
+              public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
+                  throws IOException {
+                zos.putNextEntry(new ZipEntry(source.relativize(file).toString()));
+                Files.copy(file, zos);
+                zos.closeEntry();
+                return FileVisitResult.CONTINUE;
+              }
+            });
+      }
+    }
+
+    return Files.size(outFile);
+  }
+
+  private long createSelectiveZipBackup(
+      List<Path> files, Path outFile, BackupConfiguration config) throws Exception {
+    Files.createDirectories(outFile.getParent());
+
+    if (config.encryptionEnabled()) {
+      var zipBytes = selectiveZipToBytes(files, config.compressionEnabled());
+      encryptToFile(zipBytes, outFile, config.encryptionKey());
+    } else {
+      try (var zos = new ZipOutputStream(Files.newOutputStream(outFile))) {
+        zos.setLevel(config.compressionEnabled() ? 9 : 0);
+        for (var file : files) {
+          if (Files.isRegularFile(file)) {
+            zos.putNextEntry(new ZipEntry(sourcePath.relativize(file).toString()));
+            Files.copy(file, zos);
+            zos.closeEntry();
+          }
+        }
+      }
+    }
+
+    return Files.size(outFile);
+  }
+
+  private byte[] zipToBytes(Path source, boolean compress) throws IOException {
+    var baos = new ByteArrayOutputStream();
+    try (var zos = new ZipOutputStream(baos)) {
       zos.setLevel(compress ? 9 : 0);
-
       Files.walkFileTree(
           source,
           new SimpleFileVisitor<>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs)
                 throws IOException {
-              var zipEntry = new ZipEntry(source.relativize(file).toString());
-              zos.putNextEntry(zipEntry);
+              zos.putNextEntry(new ZipEntry(source.relativize(file).toString()));
               Files.copy(file, zos);
               zos.closeEntry();
               return FileVisitResult.CONTINUE;
             }
           });
     }
-
-    return Files.size(zipFile);
+    return baos.toByteArray();
   }
 
-  private long createSelectiveZipBackup(List<Path> files, Path zipFile, boolean compress)
-      throws IOException {
-    Files.createDirectories(zipFile.getParent());
-
-    try (var zos = new ZipOutputStream(Files.newOutputStream(zipFile))) {
+  private byte[] selectiveZipToBytes(List<Path> files, boolean compress) throws IOException {
+    var baos = new ByteArrayOutputStream();
+    try (var zos = new ZipOutputStream(baos)) {
       zos.setLevel(compress ? 9 : 0);
-
       for (var file : files) {
         if (Files.isRegularFile(file)) {
-          var zipEntry = new ZipEntry(sourcePath.relativize(file).toString());
-          zos.putNextEntry(zipEntry);
+          zos.putNextEntry(new ZipEntry(sourcePath.relativize(file).toString()));
           Files.copy(file, zos);
           zos.closeEntry();
         }
       }
     }
+    return baos.toByteArray();
+  }
 
-    return Files.size(zipFile);
+  /**
+   * Encrypts {@code plaintext} with AES-256-GCM using a key derived from {@code password} via
+   * PBKDF2. Output format: [12-byte IV][ciphertext+tag].
+   */
+  private void encryptToFile(byte[] plaintext, Path outFile, String password) throws Exception {
+    var key = deriveKey(password);
+    var iv = new byte[GCM_IV_LENGTH];
+    new SecureRandom().nextBytes(iv);
+
+    var cipher = Cipher.getInstance(ENCRYPTION_ALGORITHM);
+    cipher.init(Cipher.ENCRYPT_MODE, key, new GCMParameterSpec(GCM_TAG_LENGTH, iv));
+    var ciphertext = cipher.doFinal(plaintext);
+
+    try (var out = Files.newOutputStream(outFile)) {
+      out.write(iv);
+      out.write(ciphertext);
+    }
+  }
+
+  /**
+   * Decrypts a file produced by {@link #encryptToFile}. Returns the decrypted ZIP bytes.
+   */
+  private byte[] decryptFromFile(Path encFile, String password) throws Exception {
+    var raw = Files.readAllBytes(encFile);
+    var iv = Arrays.copyOfRange(raw, 0, GCM_IV_LENGTH);
+    var ciphertext = Arrays.copyOfRange(raw, GCM_IV_LENGTH, raw.length);
+
+    var key = deriveKey(password);
+    var cipher = Cipher.getInstance(ENCRYPTION_ALGORITHM);
+    cipher.init(Cipher.DECRYPT_MODE, key, new GCMParameterSpec(GCM_TAG_LENGTH, iv));
+    return cipher.doFinal(ciphertext);
+  }
+
+  private SecretKey deriveKey(String password) throws Exception {
+    var factory = SecretKeyFactory.getInstance(KEY_DERIVATION);
+    var spec = new PBEKeySpec(password.toCharArray(), SALT, PBKDF2_ITERATIONS, KEY_LENGTH);
+    var tmp = factory.generateSecret(spec);
+    return new SecretKeySpec(tmp.getEncoded(), KEY_ALGORITHM);
   }
 
   private long extractZip(Path zipFile, Path targetDir, boolean overwrite) throws IOException {
@@ -419,7 +612,6 @@ public final class FilesystemBackupService implements BackupService, RestoreServ
             if (Files.isRegularFile(entry)) {
               var targetFile = targetDir.resolve(entry.toString().substring(1));
               Files.createDirectories(targetFile.getParent());
-
               if (overwrite || !Files.exists(targetFile)) {
                 Files.copy(entry, targetFile, StandardCopyOption.REPLACE_EXISTING);
                 count++;
@@ -431,6 +623,18 @@ public final class FilesystemBackupService implements BackupService, RestoreServ
     }
 
     return count;
+  }
+
+  private long extractEncryptedZip(
+      Path encFile, Path targetDir, boolean overwrite, String password) throws Exception {
+    var zipBytes = decryptFromFile(encFile, password);
+    var tmpZip = Files.createTempFile("commons-restore-", ".zip");
+    try {
+      Files.write(tmpZip, zipBytes);
+      return extractZip(tmpZip, targetDir, overwrite);
+    } finally {
+      Files.deleteIfExists(tmpZip);
+    }
   }
 
   private String calculateChecksum(Path file) throws IOException {
