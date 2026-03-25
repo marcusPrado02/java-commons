@@ -29,10 +29,7 @@ class ProblemsTest {
   void validation_i18n_should_use_noOp_resolver_by_default() {
     Problem p =
         Problems.validation(
-            "VALIDATION.REQUIRED_FIELD",
-            "key.required",
-            Locale.ENGLISH,
-            "default message");
+            "VALIDATION.REQUIRED_FIELD", "key.required", Locale.ENGLISH, "default message");
 
     assertEquals("default message", p.message());
   }
@@ -96,11 +93,9 @@ class ProblemsTest {
 
   @Test
   void setMessageResolver_should_affect_subsequent_i18n_creations() {
-    Problems.setMessageResolver(
-        (key, locale, defaultMsg, args) -> "RESOLVED: " + key);
+    Problems.setMessageResolver((key, locale, defaultMsg, args) -> "RESOLVED: " + key);
 
-    Problem p =
-        Problems.validation("CODE", "my.key", Locale.ENGLISH, "default");
+    Problem p = Problems.validation("CODE", "my.key", Locale.ENGLISH, "default");
 
     assertEquals("RESOLVED: my.key", p.message());
   }
@@ -114,9 +109,7 @@ class ProblemsTest {
 
   @Test
   void problem_of_should_set_timestamp() {
-    Problem p =
-        Problem.of(
-            ErrorCode.of("X"), ErrorCategory.VALIDATION, Severity.ERROR, "msg");
+    Problem p = Problem.of(ErrorCode.of("X"), ErrorCategory.VALIDATION, Severity.ERROR, "msg");
 
     assertNotNull(p.timestamp());
     assertTrue(p.details().isEmpty());
