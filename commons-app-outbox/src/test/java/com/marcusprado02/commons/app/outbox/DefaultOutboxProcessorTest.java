@@ -114,6 +114,25 @@ class DefaultOutboxProcessorTest {
   }
 
   @Test
+  void shouldProcessBatchWithExplicitBatchSize() {
+    repository.append(createMessage("msg-1", OutboxStatus.PENDING));
+    repository.append(createMessage("msg-2", OutboxStatus.PENDING));
+    repository.append(createMessage("msg-3", OutboxStatus.PENDING));
+
+    processor.processBatch(2);
+
+    assertEquals(2, publisher.publishedCount);
+  }
+
+  @Test
+  void shouldRejectNonPositiveBatchSize() {
+    org.junit.jupiter.api.Assertions.assertThrows(
+        IllegalArgumentException.class, () -> processor.processBatch(0));
+    org.junit.jupiter.api.Assertions.assertThrows(
+        IllegalArgumentException.class, () -> processor.processBatch(-1));
+  }
+
+  @Test
   void shouldHandleConcurrentProcessing() {
     OutboxMessage msg = createMessage("msg-1", OutboxStatus.PENDING);
     repository.append(msg);

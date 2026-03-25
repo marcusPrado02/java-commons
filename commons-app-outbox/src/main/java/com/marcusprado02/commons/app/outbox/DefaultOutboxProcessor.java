@@ -40,9 +40,18 @@ public final class DefaultOutboxProcessor implements OutboxProcessor {
 
   @Override
   public void processAll() {
+    processBatch(config.batchSize());
+  }
+
+  @Override
+  public void processBatch(int batchSize) {
+    if (batchSize <= 0) {
+      throw new IllegalArgumentException("batchSize must be positive");
+    }
+
     long batchStart = System.currentTimeMillis();
 
-    List<OutboxMessage> pending = repository.fetchBatch(OutboxStatus.PENDING, config.batchSize());
+    List<OutboxMessage> pending = repository.fetchBatch(OutboxStatus.PENDING, batchSize);
 
     if (pending.isEmpty()) {
       return;

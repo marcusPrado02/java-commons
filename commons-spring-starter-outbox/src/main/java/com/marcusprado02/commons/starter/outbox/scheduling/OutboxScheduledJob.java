@@ -17,7 +17,6 @@ public final class OutboxScheduledJob {
 
   @Scheduled(fixedDelayString = "#{@outboxProperties.scheduling().fixedDelay().toMillis()}")
   public void tick() {
-    // TODO: enhance OutboxProcessor interface to support batch size
-    processor.processAll();
+    processor.processBatch(props.processing().batchSize());
   }
 }
