@@ -12,14 +12,21 @@ import com.marcusprado02.commons.ports.payment.PaymentStatus;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
+import com.stripe.model.Customer;
+import com.stripe.model.PaymentMethodCollection;
+import com.stripe.param.CustomerCreateParams;
 import com.stripe.param.PaymentIntentCancelParams;
 import com.stripe.param.PaymentIntentConfirmParams;
 import com.stripe.param.PaymentIntentCreateParams;
 import com.stripe.param.PaymentIntentListParams;
+import com.stripe.param.PaymentMethodAttachParams;
+import com.stripe.param.PaymentMethodCreateParams;
+import com.stripe.param.PaymentMethodListParams;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -198,46 +205,199 @@ public class StripePaymentService implements PaymentService {
   @Override
   public Result<PaymentMethod> createPaymentMethod(
       String customerId, String type, Map<String, String> details) {
-    // To be implemented - requires more complex Stripe PaymentMethod API
-    return Result.fail(
-        Problem.of(
-            ErrorCode.of("PAYMENT.NOT_IMPLEMENTED"),
-            ErrorCategory.BUSINESS,
-            Severity.INFO,
-            "createPaymentMethod not yet implemented"));
+    try {
+      var typeEnum =
+          switch (type.toLowerCase()) {
+            case "card" -> PaymentMethodCreateParams.Type.CARD;
+            case "us_bank_account" -> PaymentMethodCreateParams.Type.US_BANK_ACCOUNT;
+            default ->
+                throw new IllegalArgumentException("Unsupported payment method type: " + type);
+          };
+
+      var paramsBuilder = PaymentMethodCreateParams.builder().setType(typeEnum);
+
+      if (typeEnum == PaymentMethodCreateParams.Type.CARD && details != null) {
+        var cardBuilder = PaymentMethodCreateParams.CardDetails.builder();
+        if (details.containsKey("number")) cardBuilder.setNumber(details.get("number"));
+        if (details.containsKey("exp_month"))
+          cardBuilder.setExpMonth(Long.parseLong(details.get("exp_month")));
+        if (details.containsKey("exp_year"))
+          cardBuilder.setExpYear(Long.parseLong(details.get("exp_year")));
+        if (details.containsKey("cvc")) cardBuilder.setCvc(details.get("cvc"));
+        paramsBuilder.setCard(cardBuilder.build());
+      }
+
+      var pm = com.stripe.model.PaymentMethod.create(paramsBuilder.build());
+
+      // Attach to customer if provided
+      if (customerId != null && !customerId.isBlank()) {
+        pm.attach(PaymentMethodAttachParams.builder().setCustomer(customerId).build());
+      }
+
+      logger.info("Created payment method: {}", pm.getId());
+      return Result.ok(mapToPaymentMethod(pm, customerId));
+
+    } catch (StripeException e) {
+      logger.error("Failed to create payment method: {}", e.getMessage(), e);
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("PAYMENT_METHOD.CREATE_FAILED"),
+              ErrorCategory.TECHNICAL,
+              Severity.ERROR,
+              "Failed to create payment method: " + e.getMessage()));
+    } catch (IllegalArgumentException e) {
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("PAYMENT_METHOD.UNSUPPORTED_TYPE"),
+              ErrorCategory.BUSINESS,
+              Severity.WARNING,
+              e.getMessage()));
+    }
   }
 
   @Override
   public Result<PaymentMethod> getPaymentMethod(String paymentMethodId) {
-    // To be implemented
-    return Result.fail(
-        Problem.of(
-            ErrorCode.of("PAYMENT.NOT_IMPLEMENTED"),
-            ErrorCategory.BUSINESS,
-            Severity.INFO,
-            "getPaymentMethod not yet implemented"));
+    try {
+      var pm = com.stripe.model.PaymentMethod.retrieve(paymentMethodId);
+      return Result.ok(mapToPaymentMethod(pm, pm.getCustomer()));
+    } catch (StripeException e) {
+      logger.error("Failed to retrieve payment method {}: {}", paymentMethodId, e.getMessage(), e);
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("PAYMENT_METHOD.NOT_FOUND"),
+              ErrorCategory.NOT_FOUND,
+              Severity.WARNING,
+              "Payment method not found: " + paymentMethodId));
+    }
   }
 
   @Override
   public Result<List<PaymentMethod>> listPaymentMethods(String customerId) {
-    // To be implemented
-    return Result.fail(
-        Problem.of(
-            ErrorCode.of("PAYMENT.NOT_IMPLEMENTED"),
-            ErrorCategory.BUSINESS,
-            Severity.INFO,
-            "listPaymentMethods not yet implemented"));
+    try {
+      var params =
+          PaymentMethodListParams.builder()
+              .setCustomer(customerId)
+              .setType(PaymentMethodListParams.Type.CARD)
+              .build();
+
+      PaymentMethodCollection collection = com.stripe.model.PaymentMethod.list(params);
+      var methods =
+          collection.getData().stream()
+              .map(pm -> mapToPaymentMethod(pm, customerId))
+              .collect(Collectors.toList());
+
+      return Result.ok(methods);
+
+    } catch (StripeException e) {
+      logger.error(
+          "Failed to list payment methods for customer {}: {}", customerId, e.getMessage(), e);
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("PAYMENT_METHOD.LIST_FAILED"),
+              ErrorCategory.TECHNICAL,
+              Severity.WARNING,
+              "Failed to list payment methods: " + e.getMessage()));
+    }
   }
 
   @Override
   public Result<Void> deletePaymentMethod(String paymentMethodId) {
-    // To be implemented
-    return Result.fail(
-        Problem.of(
-            ErrorCode.of("PAYMENT.NOT_IMPLEMENTED"),
-            ErrorCategory.BUSINESS,
-            Severity.INFO,
-            "deletePaymentMethod not yet implemented"));
+    try {
+      var pm = com.stripe.model.PaymentMethod.retrieve(paymentMethodId);
+      pm.detach();
+      logger.info("Detached payment method: {}", paymentMethodId);
+      return Result.ok(null);
+    } catch (StripeException e) {
+      logger.error("Failed to delete payment method {}: {}", paymentMethodId, e.getMessage(), e);
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("PAYMENT_METHOD.DELETE_FAILED"),
+              ErrorCategory.TECHNICAL,
+              Severity.WARNING,
+              "Failed to delete payment method: " + e.getMessage()));
+    }
+  }
+
+  /**
+   * Creates a Stripe Customer and returns the customer ID.
+   *
+   * @param email customer email address
+   * @param name customer display name
+   * @param metadata additional key-value metadata
+   * @return Stripe customer ID
+   */
+  public Result<String> createCustomer(
+      String email, String name, Map<String, String> metadata) {
+    try {
+      var paramsBuilder = CustomerCreateParams.builder();
+      if (email != null) paramsBuilder.setEmail(email);
+      if (name != null) paramsBuilder.setName(name);
+      if (metadata != null && !metadata.isEmpty()) paramsBuilder.putAllMetadata(metadata);
+
+      var customer = Customer.create(paramsBuilder.build());
+      logger.info("Created Stripe customer: {}", customer.getId());
+      return Result.ok(customer.getId());
+
+    } catch (StripeException e) {
+      logger.error("Failed to create customer: {}", e.getMessage(), e);
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("CUSTOMER.CREATE_FAILED"),
+              ErrorCategory.TECHNICAL,
+              Severity.ERROR,
+              "Failed to create customer: " + e.getMessage()));
+    }
+  }
+
+  /**
+   * Retrieves a Stripe Customer by ID.
+   *
+   * @param customerId Stripe customer ID
+   * @return customer data as key-value map
+   */
+  public Result<Map<String, String>> getCustomer(String customerId) {
+    try {
+      var customer = Customer.retrieve(customerId);
+      var data =
+          Map.of(
+              "id", customer.getId(),
+              "email", customer.getEmail() != null ? customer.getEmail() : "",
+              "name", customer.getName() != null ? customer.getName() : "",
+              "created", String.valueOf(customer.getCreated()));
+      return Result.ok(data);
+
+    } catch (StripeException e) {
+      logger.error("Failed to retrieve customer {}: {}", customerId, e.getMessage(), e);
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("CUSTOMER.NOT_FOUND"),
+              ErrorCategory.NOT_FOUND,
+              Severity.WARNING,
+              "Customer not found: " + customerId));
+    }
+  }
+
+  /**
+   * Deletes a Stripe Customer.
+   *
+   * @param customerId Stripe customer ID
+   * @return void result
+   */
+  public Result<Void> deleteCustomer(String customerId) {
+    try {
+      var customer = Customer.retrieve(customerId);
+      customer.delete();
+      logger.info("Deleted Stripe customer: {}", customerId);
+      return Result.ok(null);
+    } catch (StripeException e) {
+      logger.error("Failed to delete customer {}: {}", customerId, e.getMessage(), e);
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("CUSTOMER.DELETE_FAILED"),
+              ErrorCategory.TECHNICAL,
+              Severity.ERROR,
+              "Failed to delete customer: " + e.getMessage()));
+    }
   }
 
   private Payment mapToPayment(PaymentIntent intent) {
@@ -254,6 +414,22 @@ public class StripePaymentService implements PaymentService {
         .metadata(intent.getMetadata() != null ? intent.getMetadata() : Map.of())
         .error(
             intent.getLastPaymentError() != null ? intent.getLastPaymentError().getMessage() : null)
+        .build();
+  }
+
+  private PaymentMethod mapToPaymentMethod(
+      com.stripe.model.PaymentMethod pm, String customerId) {
+    var card = pm.getCard();
+    return PaymentMethod.builder()
+        .id(pm.getId())
+        .type(pm.getType())
+        .customerId(customerId)
+        .last4(card != null ? card.getLast4() : "")
+        .brand(card != null ? card.getBrand() : null)
+        .expiryMonth(card != null ? card.getExpMonth().intValue() : null)
+        .expiryYear(card != null ? card.getExpYear().intValue() : null)
+        .createdAt(Instant.ofEpochSecond(pm.getCreated()))
+        .metadata(pm.getMetadata() != null ? pm.getMetadata() : Map.of())
         .build();
   }
 
