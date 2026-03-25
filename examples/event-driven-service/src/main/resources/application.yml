@@ -1,0 +1,31 @@
+spring:
+  application:
+    name: event-driven-service
+
+  datasource:
+    url: jdbc:h2:mem:eventsdb;DB_CLOSE_DELAY=-1
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: false
+
+  # Kafka (configure for your broker; defaults work with embedded Kafka in tests)
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.apache.kafka.common.serialization.ByteArraySerializer
+    consumer:
+      group-id: event-driven-service
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.ByteArrayDeserializer
+
+logging:
+  level:
+    com.example.events: DEBUG
+    com.marcusprado02.commons: INFO
