@@ -7,6 +7,9 @@ import com.sendgrid.*;
 import com.sendgrid.helpers.mail.Mail;
 import com.sendgrid.helpers.mail.objects.*;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -104,12 +107,95 @@ public class SendGridEmailAdapter implements EmailPort, AutoCloseable {
 
   @Override
   public Result<EmailReceipt> sendWithTemplate(TemplateEmailRequest templateRequest) {
-    return Result.fail(
-        Problem.of(
-            ErrorCode.of("SENDGRID_TEMPLATE_NOT_SUPPORTED"),
-            ErrorCategory.TECHNICAL,
-            Severity.ERROR,
-            "SendGrid template emails not yet implemented"));
+    try {
+      var from = new com.sendgrid.helpers.mail.objects.Email(templateRequest.from().value());
+      var mail = new Mail();
+      mail.setFrom(from);
+      mail.setSubject(templateRequest.subject().value());
+
+      // SendGrid Dynamic Template: templateName is the template ID (e.g. "d-abc123...")
+      mail.setTemplateId(templateRequest.templateName());
+
+      var personalization = new Personalization();
+
+      // Primary recipients
+      for (var to : templateRequest.to()) {
+        personalization.addTo(new com.sendgrid.helpers.mail.objects.Email(to.value()));
+      }
+
+      // CC
+      for (var cc : templateRequest.cc()) {
+        personalization.addCc(new com.sendgrid.helpers.mail.objects.Email(cc.value()));
+      }
+
+      // BCC
+      for (var bcc : templateRequest.bcc()) {
+        personalization.addBcc(new com.sendgrid.helpers.mail.objects.Email(bcc.value()));
+      }
+
+      // Dynamic template data
+      for (Map.Entry<String, Object> entry : templateRequest.variables().entrySet()) {
+        personalization.addDynamicTemplateData(entry.getKey(), entry.getValue());
+      }
+
+      mail.addPersonalization(personalization);
+
+      // Reply-To
+      if (templateRequest.replyTo() != null) {
+        mail.setReplyTo(
+            new com.sendgrid.helpers.mail.objects.Email(templateRequest.replyTo().value()));
+      }
+
+      if (configuration.sandboxMode()) {
+        Setting sandboxSetting = new Setting();
+        sandboxSetting.setEnable(true);
+        mail.getMailSettings().setSandboxMode(sandboxSetting);
+      }
+
+      Request request = new Request();
+      request.setMethod(Method.POST);
+      request.setEndpoint("mail/send");
+      request.setBody(mail.build());
+
+      Response response = sendGrid.api(request);
+
+      if (isSuccessResponse(response)) {
+        String messageId = "sendgrid-template-" + System.currentTimeMillis();
+        return Result.ok(EmailReceipt.of(messageId));
+      } else {
+        return Result.fail(createSendGridProblem(response));
+      }
+
+    } catch (IOException e) {
+      return Result.fail(mapIOException(e));
+    } catch (Exception e) {
+      return Result.fail(
+          Problem.of(
+              ErrorCode.of("SENDGRID_TEMPLATE_SEND_ERROR"),
+              ErrorCategory.TECHNICAL,
+              Severity.ERROR,
+              "Failed to send template email via SendGrid: " + e.getMessage()));
+    }
+  }
+
+  /**
+   * Sends multiple emails in a batch using SendGrid's Batch API approach.
+   *
+   * <p>Each email is sent as a separate API call. For high-volume use cases consider using SendGrid
+   * Marketing Campaigns API instead.
+   *
+   * @param emails list of emails to send
+   * @return list of results, one per email in the same order
+   */
+  public List<Result<EmailReceipt>> sendBatch(List<com.marcusprado02.commons.ports.email.Email> emails) {
+    if (emails == null || emails.isEmpty()) {
+      return List.of();
+    }
+    var results = new ArrayList<Result<EmailReceipt>>(emails.size());
+    for (var email : emails) {
+      results.add(send(email));
+    }
+    return results;
   }
 
   @Override

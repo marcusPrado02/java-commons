@@ -89,24 +89,64 @@ class SendGridEmailAdapterTest {
   }
 
   @Test
-  @DisplayName("Should fail template send (not implemented)")
-  void shouldFailTemplateSend() {
+  @DisplayName("Should build template request and invoke sendWithTemplate")
+  void shouldInvokeTemplateSend() {
     // Given
     TemplateEmailRequest templateRequest =
         TemplateEmailRequest.builder()
-            .templateName("welcome")
+            .templateName("d-abc123def456")
             .from("sender@example.com")
             .to("recipient@example.com")
             .subject("Welcome")
             .variable("name", "John")
+            .variable("activationLink", "https://example.com/activate")
             .build();
 
-    // When
+    // When - will fail without a real API key, but the result must be a Result (not exception)
     Result<EmailPort.EmailReceipt> result = emailAdapter.sendWithTemplate(templateRequest);
 
-    // Then
-    assertThat(result.isFail()).isTrue();
-    assertThat(result.problemOrNull()).isNotNull();
-    assertThat(result.problemOrNull().code().value()).contains("TEMPLATE_NOT_SUPPORTED");
+    // Then - structural: returns a Result (ok or fail), never throws
+    assertThat(result).isNotNull();
+  }
+
+  @Test
+  @DisplayName("Should send batch emails and return a result per email")
+  void shouldSendBatch() {
+    // Given
+    var emails =
+        java.util.List.of(
+            com.marcusprado02.commons.ports.email.Email.builder()
+                .from("sender@example.com")
+                .to("user1@example.com")
+                .subject("Batch 1")
+                .textContent("Message 1")
+                .build(),
+            com.marcusprado02.commons.ports.email.Email.builder()
+                .from("sender@example.com")
+                .to("user2@example.com")
+                .subject("Batch 2")
+                .textContent("Message 2")
+                .build());
+
+    // When
+    var results = emailAdapter.sendBatch(emails);
+
+    // Then - one result per email, none null
+    assertThat(results).hasSize(2);
+    assertThat(results).doesNotContainNull();
+  }
+
+  @Test
+  @DisplayName("Should return empty list for empty batch")
+  void shouldReturnEmptyForEmptyBatch() {
+    var results = emailAdapter.sendBatch(java.util.List.of());
+    assertThat(results).isEmpty();
+  }
+
+  @Test
+  @DisplayName("Should return empty list for null batch")
+  void shouldReturnEmptyForNullBatch() {
+    var results = emailAdapter.sendBatch(null);
+    assertThat(results).isEmpty();
   }
 }
