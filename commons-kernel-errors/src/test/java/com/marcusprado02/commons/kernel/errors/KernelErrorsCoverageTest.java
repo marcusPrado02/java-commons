@@ -9,11 +9,6 @@ import java.util.Locale;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 
-/**
- * Coverage tests for commons-kernel-errors utility classes: ProblemBuilder, ErrorContext,
- * ErrorEnvelope, ProblemDetail, RFC7807ProblemDetail, ProblemThrower, DomainException hierarchy,
- * and StandardErrorCodes.
- */
 class KernelErrorsCoverageTest {
 
   // ---- ProblemDetail ----

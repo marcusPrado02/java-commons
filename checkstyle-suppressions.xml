@@ -9,9 +9,13 @@
         Suppress less critical checks in specific contexts
     -->
 
-    <!-- Test classes: relax javadoc requirements -->
+    <!-- Test classes: Spotless (GJF) already enforces formatting.
+         Suppress style/javadoc checks that add friction without value in tests. -->
     <suppress checks="MissingJavadocType|MissingJavadocMethod" files=".*Test\.java"/>
     <suppress checks="MissingJavadocType|MissingJavadocMethod" files=".*/src/test/.*"/>
+    <!-- Suppress remaining google_checks.xml rules for test sources:
+         Javadoc content/style, import ordering, magic numbers, design checks -->
+    <suppress checks="Javadoc.*|SummaryJavadoc|JavadocParagraph|JavadocStyle|JavadocTagContinuationIndentation|RequireEmptyLineBeforeBlockTagGroup|AtclauseOrder|NonEmptyAtclauseDescription|JavadocVariable|JavadocMethod|JavadocContentLocation|InvalidJavadocPosition|DesignForExtension|HideUtilityClassConstructor|VisibilityModifier|MagicNumber" files=".*/src/test/.*"/>
 
     <!-- Generated code -->
     <suppress checks="." files=".*/target/generated-sources/.*"/>
