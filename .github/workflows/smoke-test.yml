@@ -1,0 +1,193 @@
+name: Post-Release Smoke Test
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Released version to smoke-test (e.g. 0.1.0)"
+        required: true
+        type: string
+  # Also triggered automatically by the release workflow via workflow_call
+  workflow_call:
+    inputs:
+      version:
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  packages: read
+
+jobs:
+  smoke-test:
+    name: Smoke Test v${{ inputs.version }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Configure GitHub Packages authentication
+        run: |
+          mkdir -p ~/.m2
+          cat > ~/.m2/settings.xml << 'EOF'
+          <settings>
+            <servers>
+              <server>
+                <id>github</id>
+                <username>${{ github.actor }}</username>
+                <password>${{ secrets.GITHUB_TOKEN }}</password>
+              </server>
+            </servers>
+          </settings>
+          EOF
+
+      - name: Create smoke-test project
+        run: |
+          mkdir -p /tmp/smoke-test/src/test/java/smoke
+          cat > /tmp/smoke-test/pom.xml << EOF
+          <?xml version="1.0" encoding="UTF-8"?>
+          <project xmlns="http://maven.apache.org/POM/4.0.0"
+                   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+            <modelVersion>4.0.0</modelVersion>
+            <groupId>com.marcusprado02.smoke</groupId>
+            <artifactId>smoke-test</artifactId>
+            <version>1.0-SNAPSHOT</version>
+
+            <repositories>
+              <repository>
+                <id>github</id>
+                <url>https://maven.pkg.github.com/marcusPrado02/java-commons</url>
+              </repository>
+            </repositories>
+
+            <dependencyManagement>
+              <dependencies>
+                <dependency>
+                  <groupId>com.marcusprado02.commons</groupId>
+                  <artifactId>commons-bom</artifactId>
+                  <version>${{ inputs.version }}</version>
+                  <type>pom</type>
+                  <scope>import</scope>
+                </dependency>
+              </dependencies>
+            </dependencyManagement>
+
+            <dependencies>
+              <dependency>
+                <groupId>com.marcusprado02.commons</groupId>
+                <artifactId>commons-kernel-result</artifactId>
+              </dependency>
+              <dependency>
+                <groupId>com.marcusprado02.commons</groupId>
+                <artifactId>commons-kernel-errors</artifactId>
+              </dependency>
+              <dependency>
+                <groupId>com.marcusprado02.commons</groupId>
+                <artifactId>commons-kernel-core</artifactId>
+              </dependency>
+              <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter</artifactId>
+                <version>5.10.2</version>
+                <scope>test</scope>
+              </dependency>
+            </dependencies>
+
+            <build>
+              <plugins>
+                <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-compiler-plugin</artifactId>
+                  <version>3.11.0</version>
+                  <configuration><release>21</release></configuration>
+                </plugin>
+                <plugin>
+                  <groupId>org.apache.maven.plugins</groupId>
+                  <artifactId>maven-surefire-plugin</artifactId>
+                  <version>3.2.5</version>
+                </plugin>
+              </plugins>
+            </build>
+          </project>
+          EOF
+
+      - name: Write smoke test
+        run: |
+          cat > /tmp/smoke-test/src/test/java/smoke/SmokeTest.java << 'EOF'
+          package smoke;
+
+          import com.marcusprado02.commons.kernel.errors.*;
+          import com.marcusprado02.commons.kernel.result.Result;
+          import org.junit.jupiter.api.Test;
+          import static org.junit.jupiter.api.Assertions.*;
+
+          /** Validates that core commons-platform artifacts can be resolved and imported. */
+          class SmokeTest {
+
+              @Test
+              void result_ok_can_be_created_and_mapped() {
+                  var result = Result.<String>ok("hello")
+                      .map(String::toUpperCase)
+                      .map(s -> s + "!");
+                  assertTrue(result.isOk());
+                  assertEquals("HELLO!", result.getOrNull());
+              }
+
+              @Test
+              void result_fail_short_circuits_map() {
+                  var problem = Problem.of(
+                      ErrorCode.of("SMOKE.ERROR"),
+                      ErrorCategory.TECHNICAL,
+                      Severity.ERROR,
+                      "smoke test failure");
+
+                  var result = Result.<String>fail(problem)
+                      .map(String::toUpperCase);
+
+                  assertTrue(result.isFail());
+                  assertEquals("SMOKE.ERROR", result.problemOrNull().code().value());
+              }
+
+              @Test
+              void error_code_equality_by_value() {
+                  var a = ErrorCode.of("FOO.BAR");
+                  var b = ErrorCode.of("FOO.BAR");
+                  assertEquals(a, b);
+              }
+
+              @Test
+              void result_flatMap_chains() {
+                  var result = Result.ok(42)
+                      .flatMap(n -> n > 0
+                          ? Result.ok("positive")
+                          : Result.fail(Problem.of(
+                              ErrorCode.of("NEG"), ErrorCategory.TECHNICAL, Severity.ERROR, "neg")));
+                  assertTrue(result.isOk());
+                  assertEquals("positive", result.getOrNull());
+              }
+          }
+          EOF
+
+      - name: Run smoke tests
+        working-directory: /tmp/smoke-test
+        run: mvn -B test --settings ~/.m2/settings.xml
+
+      - name: Report success
+        if: success()
+        run: |
+          echo "### Smoke Test PASSED for v${{ inputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All core modules resolved from GitHub Packages and tests passed." >> $GITHUB_STEP_SUMMARY
+
+      - name: Report failure
+        if: failure()
+        run: |
+          echo "### Smoke Test FAILED for v${{ inputs.version }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Failed to resolve artifacts or tests did not pass." >> $GITHUB_STEP_SUMMARY
+          echo "Check workflow logs for details." >> $GITHUB_STEP_SUMMARY
