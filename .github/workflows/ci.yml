@@ -149,9 +149,8 @@ jobs:
         run: |
           ./mvnw -B org.owasp:dependency-check-maven:10.0.4:aggregate \
             -Dformat=ALL \
-            -DfailBuildOnCVSS=7 \
+            -DfailBuildOnCVSS=9 \
             -DsuppressionFile=dependency-check-suppressions.xml
-        continue-on-error: true
 
       - name: Upload Dependency-Check report
         if: always()

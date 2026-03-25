@@ -38,7 +38,8 @@ jobs:
         continue-on-error: true
         run: |
           # Run JApiCmp on each module that has a released version
-          ./mvnw -B japicmp:cmp || echo "COMPATIBILITY_ISSUES=true" >> $GITHUB_OUTPUT
+          # japicmp.skip=false activates the check (disabled by default outside release profile)
+          ./mvnw -B japicmp:cmp -Djapicmp.skip=false || echo "COMPATIBILITY_ISSUES=true" >> $GITHUB_OUTPUT
 
       - name: Upload JApiCmp reports
         if: always()
