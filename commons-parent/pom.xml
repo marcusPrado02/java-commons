@@ -75,10 +75,12 @@
         <jacoco.version>0.8.11</jacoco.version>
 
         <!-- JaCoCo coverage thresholds -->
-        <jacoco.line.coverage>0.80</jacoco.line.coverage>
-        <jacoco.branch.coverage>0.75</jacoco.branch.coverage>
-        <!-- Set to false to enable strict coverage checking -->
-        <jacoco.check.skip>true</jacoco.check.skip>
+        <!-- Baseline: 60% line / 55% branch (enforced). Target: 80% / 75%. -->
+        <!-- Increase gradually as coverage improves across all modules.    -->
+        <jacoco.line.coverage>0.60</jacoco.line.coverage>
+        <jacoco.branch.coverage>0.55</jacoco.branch.coverage>
+        <!-- Coverage enforcement is ENABLED. Set to true only to temporarily skip. -->
+        <jacoco.check.skip>false</jacoco.check.skip>
 
         <!-- Static analysis tools -->
         <spotbugs.version>4.8.3</spotbugs.version>
@@ -87,9 +89,10 @@
         <maven-checkstyle-plugin.version>3.3.1</maven-checkstyle-plugin.version>
         <maven-pmd-plugin.version>3.21.2</maven-pmd-plugin.version>
 
-        <!-- Static analysis control (set to false to enable strict checking) -->
-        <spotbugs.skip>true</spotbugs.skip>
-        <checkstyle.skip>true</checkstyle.skip>
+        <!-- Static analysis: SpotBugs and Checkstyle are enabled as build gates. -->
+        <!-- PMD remains opt-in to avoid noise during incremental development.  -->
+        <spotbugs.skip>false</spotbugs.skip>
+        <checkstyle.skip>false</checkstyle.skip>
         <pmd.skip>true</pmd.skip>
     </properties>
 
