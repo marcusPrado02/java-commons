@@ -3,6 +3,7 @@ package ${package}.adapters.web;
 import ${package}.application.ExampleService;
 import ${package}.domain.ExampleAggregate;
 import com.marcusprado02.commons.kernel.result.Result;
+import java.util.List;
 import java.util.UUID;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +28,25 @@ public class ExampleController {
 
     return result.isOk()
         ? ResponseEntity.ok(new ExampleResponse(result.getOrNull()))
-        : ResponseEntity.badRequest().body(result.getErrorOrNull());
+        : ResponseEntity.badRequest().body(result.problemOrNull());
+  }
+
+  @GetMapping("/{id}")
+  public ResponseEntity<?> getById(@PathVariable UUID id) {
+    Result<ExampleAggregate> result = exampleService.getExample(id);
+
+    return result.isOk()
+        ? ResponseEntity.ok(new ExampleResponse(result.getOrNull()))
+        : ResponseEntity.notFound().build();
+  }
+
+  @GetMapping
+  public ResponseEntity<List<ExampleResponse>> listAll() {
+    return exampleService.listExamples().getOrElse(List.of()).stream()
+        .map(ExampleResponse::new)
+        .collect(java.util.stream.Collectors.collectingAndThen(
+            java.util.stream.Collectors.toList(),
+            ResponseEntity::ok));
   }
 
   @PutMapping("/{id}")
@@ -37,7 +56,16 @@ public class ExampleController {
 
     return result.isOk()
         ? ResponseEntity.ok(new ExampleResponse(result.getOrNull()))
-        : ResponseEntity.badRequest().body(result.getErrorOrNull());
+        : ResponseEntity.badRequest().body(result.problemOrNull());
+  }
+
+  @DeleteMapping("/{id}")
+  public ResponseEntity<?> delete(@PathVariable UUID id) {
+    Result<Void> result = exampleService.deleteExample(id);
+
+    return result.isOk()
+        ? ResponseEntity.noContent().build()
+        : ResponseEntity.notFound().build();
   }
 
   public record CreateExampleRequest(String name, String description) {}

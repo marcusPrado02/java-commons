@@ -40,6 +40,16 @@
       <artifactId>commons-adapters-persistence-inmemory</artifactId>
       <version>${project.version}</version>
     </dependency>
+    <dependency>
+      <groupId>com.marcusprado02.commons</groupId>
+      <artifactId>commons-app-rate-limiting</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.marcusprado02.commons</groupId>
+      <artifactId>commons-app-domain-events</artifactId>
+      <version>${project.version}</version>
+    </dependency>
 
     <!-- JMH -->
     <dependency>

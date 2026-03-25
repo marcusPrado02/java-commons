@@ -144,6 +144,112 @@ class DefaultOutboxProcessorTest {
     assertFalse(marked2);
   }
 
+  @Test
+  void shouldNotRepublishAlreadyPublishedMessage() {
+    OutboxMessage msg = createMessage("msg-published", OutboxStatus.PUBLISHED);
+    repository.append(msg);
+
+    processor.processAll();
+
+    // fetchBatch only fetches PENDING, so PUBLISHED messages are never touched
+    assertEquals(0, publisher.publishedCount);
+    assertEquals(0, metrics.publishedCount);
+    assertEquals(0, metrics.failedCount);
+
+    Optional<OutboxMessage> result = repository.findById(msg.id());
+    assertTrue(result.isPresent());
+    assertEquals(OutboxStatus.PUBLISHED, result.get().status());
+  }
+
+  @Test
+  void shouldRetryFailedMessageAfterReset() {
+    // Simulate a previously failed message that has been reset to PENDING (e.g. via a retry job)
+    OutboxMessage msg =
+        new OutboxMessage(
+            new OutboxMessageId("msg-retry"),
+            "Order",
+            "order-retry",
+            "OrderCreated",
+            "orders.created",
+            new OutboxPayload("application/json", new byte[0]),
+            Map.of(),
+            Instant.now(),
+            OutboxStatus.PENDING,
+            2); // already attempted twice before
+    repository.append(msg);
+
+    processor.processAll();
+
+    assertEquals(1, publisher.publishedCount);
+    assertEquals(1, metrics.publishedCount);
+    assertEquals(0, metrics.failedCount);
+
+    Optional<OutboxMessage> result = repository.findById(msg.id());
+    assertTrue(result.isPresent());
+    assertEquals(OutboxStatus.PUBLISHED, result.get().status());
+  }
+
+  @Test
+  void shouldHandleMixedSuccessAndFailureInBatch() {
+    // Use a publisher that fails only on the second publish call
+    publisher =
+        new TestOutboundPublisher() {
+          @Override
+          public void publish(String topic, byte[] body, Map<String, String> headers) {
+            if (publishedCount == 1) {
+              throw new RuntimeException("Simulated failure for second message");
+            }
+            publishedCount++;
+          }
+        };
+    processor = new DefaultOutboxProcessor(repository, publisher, OutboxProcessorConfig.defaults(), metrics);
+
+    repository.append(createMessage("msg-ok-1", OutboxStatus.PENDING));
+    repository.append(createMessage("msg-fail", OutboxStatus.PENDING));
+    repository.append(createMessage("msg-ok-2", OutboxStatus.PENDING));
+
+    processor.processAll();
+
+    // One message failed, two succeeded
+    assertEquals(2, publisher.publishedCount);
+    assertEquals(2, metrics.publishedCount);
+    assertEquals(1, metrics.failedCount);
+  }
+
+  @Test
+  void shouldNotProcessDeadMessages() {
+    OutboxMessage deadMsg = createMessage("msg-dead", OutboxStatus.DEAD);
+    OutboxMessage liveMsg = createMessage("msg-live", OutboxStatus.PENDING);
+    repository.append(deadMsg);
+    repository.append(liveMsg);
+
+    processor.processAll();
+
+    // Only the live PENDING message should be processed
+    assertEquals(1, publisher.publishedCount);
+    assertEquals(1, metrics.publishedCount);
+    assertEquals(0, metrics.failedCount);
+
+    Optional<OutboxMessage> dead = repository.findById(deadMsg.id());
+    assertTrue(dead.isPresent());
+    assertEquals(OutboxStatus.DEAD, dead.get().status());
+
+    Optional<OutboxMessage> live = repository.findById(liveMsg.id());
+    assertTrue(live.isPresent());
+    assertEquals(OutboxStatus.PUBLISHED, live.get().status());
+  }
+
+  @Test
+  void shouldCompleteGracefullyOnEmptyRepository() {
+    // Repository is empty — processAll should finish without errors
+    processor.processAll();
+
+    assertEquals(0, publisher.publishedCount);
+    assertEquals(0, metrics.publishedCount);
+    assertEquals(0, metrics.failedCount);
+    assertEquals(0, metrics.deadCount);
+  }
+
   private OutboxMessage createMessage(String id, OutboxStatus status) {
     return new OutboxMessage(
         new OutboxMessageId(id),

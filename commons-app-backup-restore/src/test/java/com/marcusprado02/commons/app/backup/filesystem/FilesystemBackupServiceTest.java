@@ -6,8 +6,12 @@ import com.marcusprado02.commons.app.backup.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.PosixFilePermission;
+import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.api.io.TempDir;
 
 class FilesystemBackupServiceTest {
@@ -439,6 +443,94 @@ class FilesystemBackupServiceTest {
     assertThat(result.isFail()).isTrue();
     assertThat(result.problemOrNull().code().value())
         .isEqualTo("RESTORE.NO_BACKUP_FOR_POINT_IN_TIME");
+  }
+
+  // -----------------------------------------------------------------------
+  // Large file tests (#17)
+  // -----------------------------------------------------------------------
+
+  @Test
+  void shouldBackupAndRestoreLargeFile() throws IOException {
+    // Create a 2 MB file in the source directory
+    byte[] twoMb = new byte[2 * 1024 * 1024];
+    for (int i = 0; i < twoMb.length; i++) {
+      twoMb[i] = (byte) (i % 127);
+    }
+    Files.write(sourceDir.resolve("large-file.bin"), twoMb);
+
+    var config =
+        BackupConfiguration.builder()
+            .destinationPath(backupDir.toString())
+            .compressionEnabled(true)
+            .build();
+
+    // Backup should succeed and include the large file
+    var backupResult = service.createFullBackup("Large File Backup", config);
+    assertThat(backupResult.isOk()).isTrue();
+    var backupId = backupResult.getOrNull().id();
+    assertThat(backupResult.getOrNull().size()).isGreaterThan(0);
+
+    // Restore should recover the large file with identical content
+    var restoreDir = tempDir.resolve("restore-large");
+    var restoreConfig =
+        RestoreConfiguration.builder()
+            .targetPath(restoreDir.toString())
+            .overwriteExisting(true)
+            .verifyIntegrity(true)
+            .build();
+
+    var restoreResult = service.restore(backupId, restoreConfig);
+    assertThat(restoreResult.isOk()).isTrue();
+    assertThat(restoreResult.getOrNull().filesRestored()).isEqualTo(4); // 3 original + large file
+
+    byte[] restored = Files.readAllBytes(restoreDir.resolve("large-file.bin"));
+    assertThat(restored).isEqualTo(twoMb);
+  }
+
+  @Test
+  void shouldHandleBackupOfEmptyDirectory() throws IOException {
+    var emptySourceDir = tempDir.resolve("empty-source");
+    Files.createDirectories(emptySourceDir);
+
+    var emptyService = FilesystemBackupService.forSource(emptySourceDir);
+    var config =
+        BackupConfiguration.builder()
+            .destinationPath(backupDir.toString())
+            .compressionEnabled(false)
+            .build();
+
+    var result = emptyService.createFullBackup("Empty Dir Backup", config);
+
+    assertThat(result.isOk()).isTrue();
+    var metadata = result.getOrNull();
+    assertThat(metadata.status()).isEqualTo(BackupMetadata.BackupStatus.COMPLETED);
+  }
+
+  @Test
+  @DisabledOnOs(OS.WINDOWS)
+  void shouldHandlePartialFailureDueToUnreadableFile() throws IOException {
+    // Create an unreadable file (Unix only)
+    Path secretFile = sourceDir.resolve("secret.txt");
+    Files.writeString(secretFile, "sensitive data");
+    Files.setPosixFilePermissions(secretFile, Set.of()); // no read permission
+
+    var config =
+        BackupConfiguration.builder()
+            .destinationPath(backupDir.toString())
+            .compressionEnabled(false)
+            .build();
+
+    // The backup may succeed (skipping the unreadable file) or fail gracefully
+    // Either outcome is acceptable — what must NOT happen is an unhandled exception
+    var result = service.createFullBackup("Partial Backup", config);
+    assertThat(result).isNotNull(); // result is always returned, never a thrown exception
+
+    // Restore permissions to allow JUnit to clean up the @TempDir
+    Files.setPosixFilePermissions(
+        secretFile,
+        Set.of(
+            PosixFilePermission.OWNER_READ,
+            PosixFilePermission.OWNER_WRITE));
   }
 
   @Test

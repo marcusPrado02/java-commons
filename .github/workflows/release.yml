@@ -16,6 +16,8 @@ on:
 permissions:
   contents: write
   packages: write
+  pages: write
+  id-token: write
 
 jobs:
   release:
@@ -152,3 +154,19 @@ jobs:
         run: ./mvnw -B deploy -DskipTests -P release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate aggregated Javadoc
+        run: ./mvnw -B javadoc:aggregate -DskipTests -Dmaven.javadoc.failOnError=false
+        env:
+          MAVEN_OPTS: -Xmx2g
+
+      - name: Upload Javadoc artifact for GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: target/site/apidocs
+
+      - name: Deploy Javadoc to GitHub Pages
+        uses: actions/deploy-pages@v4
+        id: deploy-pages
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}

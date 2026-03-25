@@ -14,7 +14,6 @@ import jakarta.persistence.EntityManagerFactory;
 import java.util.Map;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -77,28 +76,71 @@ class PersistencePostgreTest {
   }
 
   @Test
-  @Disabled(
-      "TODO: Implementar filtro real por SearchCriteria no PageableJpaRepository - veja InMemoryPageableRepository também")
-  void shouldPaginateResults() {
+  void shouldFilterBySearchCriteria() {
     var repo = JpaRepositoryFactory.createRepository(MyEntity.class, Long.class, em);
 
-    // Persist some data
     em.getTransaction().begin();
-    repo.save(new MyEntity(null, "A"));
-    repo.save(new MyEntity(null, "B"));
-    repo.save(new MyEntity(null, "C"));
+    repo.save(new MyEntity(null, "John"));
+    repo.save(new MyEntity(null, "Johnny"));
+    repo.save(new MyEntity(null, "Jane"));
+    repo.save(new MyEntity(null, "Bob"));
     em.getTransaction().commit();
 
-    // Query page 0, size 2
-    var pageReq = new PageRequest(0, 2);
-
+    // LIKE "Jo%" matches only "John" and "Johnny"
+    var pageReq = new PageRequest(0, 10);
     SearchCriteria criteria =
         SearchCriteria.of(SearchFilter.of("name", FilterOperator.LIKE, "Jo%"));
 
     PageResult<MyEntity> result =
         ((PageableRepository<MyEntity, Long>) repo).findAll(pageReq, criteria);
 
+    assertEquals(2, result.totalElements());
     assertEquals(2, result.content().size());
-    assertTrue(result.totalElements() >= 3);
+    assertTrue(
+        result.content().stream().allMatch(e -> e.name().startsWith("Jo")),
+        "All returned entities should have names starting with 'Jo'");
+  }
+
+  @Test
+  void shouldPaginateFilteredResults() {
+    var repo = JpaRepositoryFactory.createRepository(MyEntity.class, Long.class, em);
+
+    em.getTransaction().begin();
+    repo.save(new MyEntity(null, "Page-Alpha"));
+    repo.save(new MyEntity(null, "Page-Beta"));
+    repo.save(new MyEntity(null, "Page-Gamma"));
+    repo.save(new MyEntity(null, "Other"));
+    em.getTransaction().commit();
+
+    // LIKE "Page-%" should match 3 entities; page 0, size 2 returns first 2
+    SearchCriteria criteria =
+        SearchCriteria.of(SearchFilter.of("name", FilterOperator.LIKE, "Page-%"));
+
+    PageResult<MyEntity> page0 =
+        ((PageableRepository<MyEntity, Long>) repo).findAll(new PageRequest(0, 2), criteria);
+    PageResult<MyEntity> page1 =
+        ((PageableRepository<MyEntity, Long>) repo).findAll(new PageRequest(1, 2), criteria);
+
+    assertEquals(3, page0.totalElements());
+    assertEquals(2, page0.content().size());
+    assertEquals(1, page1.content().size());
+  }
+
+  @Test
+  void shouldFilterByExactMatch() {
+    var repo = JpaRepositoryFactory.createRepository(MyEntity.class, Long.class, em);
+
+    em.getTransaction().begin();
+    repo.save(new MyEntity(null, "ExactMatch"));
+    repo.save(new MyEntity(null, "NoMatch"));
+    em.getTransaction().commit();
+
+    SearchCriteria criteria =
+        SearchCriteria.of(SearchFilter.of("name", FilterOperator.EQ, "ExactMatch"));
+    PageResult<MyEntity> result =
+        ((PageableRepository<MyEntity, Long>) repo).findAll(new PageRequest(0, 10), criteria);
+
+    assertEquals(1, result.totalElements());
+    assertEquals("ExactMatch", result.content().get(0).name());
   }
 }

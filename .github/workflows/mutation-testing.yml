@@ -1,0 +1,113 @@
+name: Mutation Testing (Pitest)
+
+on:
+  # Run weekly on the main branch (mutation testing is slow and resource-intensive)
+  schedule:
+    - cron: "0 3 * * 1"  # Every Monday at 03:00 UTC
+  # Allow manual trigger for on-demand analysis
+  workflow_dispatch:
+    inputs:
+      modules:
+        description: "Comma-separated list of modules to test (empty = all)"
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+  pull-requests: write
+  checks: write
+
+jobs:
+  mutation-test:
+    name: Pitest Mutation Testing
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: maven
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Determine modules to test
+        id: modules
+        run: |
+          INPUT="${{ inputs.modules }}"
+          if [ -z "$INPUT" ]; then
+            # Default: run on the high-value kernel and app modules
+            MODULES="commons-kernel-result,commons-kernel-errors,commons-app-outbox,commons-app-rate-limiting,commons-app-domain-events"
+          else
+            MODULES="$INPUT"
+          fi
+          echo "modules=$MODULES" >> $GITHUB_OUTPUT
+          echo "Running Pitest on: $MODULES"
+
+      - name: Run Pitest mutation tests
+        run: |
+          ./mvnw -B test-compile org.pitest:pitest-maven:1.15.3:mutationCoverage \
+            -pl "${{ steps.modules.outputs.modules }}" \
+            -Dpit.targetClasses='com.marcusprado02.commons.*' \
+            -Dpit.targetTests='com.marcusprado02.commons.*' \
+            -Dpit.outputFormats='HTML,XML' \
+            -Dpit.mutators='DEFAULTS' \
+            -Dpit.threads=4 \
+            -Dpit.timeoutFactor=2.0 \
+            -Dpit.failWhenNoMutations=false \
+            -Dpit.mutationThreshold=60 \
+            -Dpit.coverageThreshold=70
+        env:
+          MAVEN_OPTS: -Xmx4g
+
+      - name: Upload Pitest reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: pitest-reports
+          path: "**/target/pit-reports/"
+          retention-days: 30
+
+      - name: Generate mutation score summary
+        if: always()
+        run: |
+          echo "### Mutation Testing Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Modules tested:** ${{ steps.modules.outputs.modules }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+
+          # Extract scores from XML reports
+          TOTAL_MUTATIONS=0
+          KILLED_MUTATIONS=0
+
+          for report in $(find . -name "mutations.xml" 2>/dev/null); do
+            MODULE=$(echo "$report" | sed 's|.*target/pit-reports/||' | cut -d'/' -f1)
+            if [ -f "$report" ]; then
+              MUTATIONS=$(grep -c '<mutation ' "$report" 2>/dev/null || echo 0)
+              KILLED=$(grep -c 'status="KILLED"' "$report" 2>/dev/null || echo 0)
+              TOTAL_MUTATIONS=$((TOTAL_MUTATIONS + MUTATIONS))
+              KILLED_MUTATIONS=$((KILLED_MUTATIONS + KILLED))
+
+              if [ "$MUTATIONS" -gt 0 ]; then
+                SCORE=$((100 * KILLED / MUTATIONS))
+                echo "- **${MODULE}**: ${KILLED}/${MUTATIONS} killed (${SCORE}%)" >> $GITHUB_STEP_SUMMARY
+              fi
+            fi
+          done
+
+          if [ "$TOTAL_MUTATIONS" -gt 0 ]; then
+            TOTAL_SCORE=$((100 * KILLED_MUTATIONS / TOTAL_MUTATIONS))
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Overall: ${KILLED_MUTATIONS}/${TOTAL_MUTATIONS} mutations killed (${TOTAL_SCORE}%)**" >> $GITHUB_STEP_SUMMARY
+          fi
