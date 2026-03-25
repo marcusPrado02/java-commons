@@ -10,6 +10,10 @@
 
   <artifactId>commons-ports-http</artifactId>
 
+  <properties>
+    <wiremock.version>3.3.1</wiremock.version>
+  </properties>
+
   <dependencies>
     <dependency>
       <groupId>com.marcusprado02.commons</groupId>
@@ -27,6 +31,32 @@
       <groupId>io.projectreactor</groupId>
       <artifactId>reactor-core</artifactId>
     </dependency>
+
+    <!-- Contract test base — published as test-jar for adapter modules to extend -->
+    <dependency>
+      <groupId>org.wiremock</groupId>
+      <artifactId>wiremock-standalone</artifactId>
+      <version>${wiremock.version}</version>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <!-- Produce a test-jar so adapter modules can inherit the abstract contract test -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>test-jar</id>
+            <goals>
+              <goal>test-jar</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
 
 </project>

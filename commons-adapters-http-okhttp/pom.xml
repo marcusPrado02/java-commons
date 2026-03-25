@@ -47,6 +47,15 @@
       <version>${wiremock.version}</version>
       <scope>test</scope>
     </dependency>
+
+    <!-- Port contract test base — abstract suite all HttpClientPort adapters must pass -->
+    <dependency>
+      <groupId>com.marcusprado02.commons</groupId>
+      <artifactId>commons-ports-http</artifactId>
+      <version>${project.version}</version>
+      <classifier>tests</classifier>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
 </project>
