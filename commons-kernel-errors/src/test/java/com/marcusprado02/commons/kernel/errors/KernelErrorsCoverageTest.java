@@ -97,8 +97,7 @@ class KernelErrorsCoverageTest {
   @Test
   void problemBuilder_details_list() {
     List<ProblemDetail> list = List.of(ProblemDetail.of("f1", "m1"), ProblemDetail.of("f2", "m2"));
-    Problem p =
-        ProblemBuilder.validation("V.CODE", "fail").details(list).build();
+    Problem p = ProblemBuilder.validation("V.CODE", "fail").details(list).build();
     assertEquals(2, p.details().size());
   }
 
@@ -117,8 +116,7 @@ class KernelErrorsCoverageTest {
   void problemBuilder_throwAs_throws_specific_exception() {
     assertThrows(
         ValidationException.class,
-        () ->
-            ProblemBuilder.validation("V.ERR", "bad").throwAs(ValidationException::new));
+        () -> ProblemBuilder.validation("V.ERR", "bad").throwAs(ValidationException::new));
   }
 
   @Test
@@ -192,8 +190,7 @@ class KernelErrorsCoverageTest {
   @Test
   void errorContext_wrapProblem_creates_envelope_with_correlation() {
     Problem p = Problems.business("B.ERR", "error");
-    ErrorEnvelope env =
-        ErrorContext.builder().correlationId("corr-99").wrapProblem(p);
+    ErrorEnvelope env = ErrorContext.builder().correlationId("corr-99").wrapProblem(p);
     assertEquals(p, env.problem());
     assertEquals("corr-99", env.correlationId());
     assertEquals("corr-99", env.context().get("correlationId"));
@@ -266,8 +263,7 @@ class KernelErrorsCoverageTest {
 
   @Test
   void rfc7807_null_extensions_defaults_to_empty_map() {
-    RFC7807ProblemDetail d =
-        new RFC7807ProblemDetail(null, null, null, null, null, null);
+    RFC7807ProblemDetail d = new RFC7807ProblemDetail(null, null, null, null, null, null);
     assertNotNull(d.extensions());
     assertTrue(d.extensions().isEmpty());
   }
@@ -299,16 +295,26 @@ class KernelErrorsCoverageTest {
 
   @Test
   void all_exception_types_are_mapped() {
-    assertInstanceOf(BusinessException.class, ProblemExceptions.from(
-        Problem.of(ErrorCode.of("B"), ErrorCategory.BUSINESS, Severity.ERROR, "m")));
-    assertInstanceOf(ConflictException.class, ProblemExceptions.from(
-        Problem.of(ErrorCode.of("C"), ErrorCategory.CONFLICT, Severity.ERROR, "m")));
-    assertInstanceOf(UnauthorizedException.class, ProblemExceptions.from(
-        Problem.of(ErrorCode.of("U"), ErrorCategory.UNAUTHORIZED, Severity.ERROR, "m")));
-    assertInstanceOf(ForbiddenException.class, ProblemExceptions.from(
-        Problem.of(ErrorCode.of("F"), ErrorCategory.FORBIDDEN, Severity.ERROR, "m")));
-    assertInstanceOf(TechnicalException.class, ProblemExceptions.from(
-        Problem.of(ErrorCode.of("T"), ErrorCategory.TECHNICAL, Severity.CRITICAL, "m")));
+    assertInstanceOf(
+        BusinessException.class,
+        ProblemExceptions.from(
+            Problem.of(ErrorCode.of("B"), ErrorCategory.BUSINESS, Severity.ERROR, "m")));
+    assertInstanceOf(
+        ConflictException.class,
+        ProblemExceptions.from(
+            Problem.of(ErrorCode.of("C"), ErrorCategory.CONFLICT, Severity.ERROR, "m")));
+    assertInstanceOf(
+        UnauthorizedException.class,
+        ProblemExceptions.from(
+            Problem.of(ErrorCode.of("U"), ErrorCategory.UNAUTHORIZED, Severity.ERROR, "m")));
+    assertInstanceOf(
+        ForbiddenException.class,
+        ProblemExceptions.from(
+            Problem.of(ErrorCode.of("F"), ErrorCategory.FORBIDDEN, Severity.ERROR, "m")));
+    assertInstanceOf(
+        TechnicalException.class,
+        ProblemExceptions.from(
+            Problem.of(ErrorCode.of("T"), ErrorCategory.TECHNICAL, Severity.CRITICAL, "m")));
   }
 
   // ---- StandardErrorCodes ----
