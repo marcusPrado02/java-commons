@@ -133,6 +133,108 @@ C4Component
     Rel(entity, database, "Salva em")
 ```
 
+## Nível 3: Component Diagram - Result & Errors Kernel
+
+**Tipos de retorno**: Componentes de `commons-kernel-result` e `commons-kernel-errors`.
+
+```mermaid
+C4Component
+    title Component Diagram - commons-kernel-result / commons-kernel-errors
+
+    Component(result, "Result<T>", "Interface/Record", "Tipo de retorno Railway-oriented.<br/>ok(T) / fail(Problem)")
+    Component(asyncResult, "AsyncResult<T>", "Class", "Wrappers assíncronos:<br/>mapAsync, flatMapAsync, toFuture")
+    Component(validationResult, "ValidationResult", "Class", "Agrega múltiplos erros;<br/>builder acumulativo")
+    Component(option, "Option<T>", "Interface", "Alternativa type-safe ao Optional")
+    Component(either, "Either<L,R>", "Interface", "Tipo soma para dois valores")
+    Component(results, "Results", "Utility", "orThrow(), catchingDomain()")
+    Component(resultCollectors, "ResultCollectors", "Utility", "Collectors para Stream<Result<T>>")
+
+    Component(problem, "Problem", "Record", "Erro estruturado: code + category + message")
+    Component(errorCode, "ErrorCode", "Value Object", "Código imutável (e.g. NOT_FOUND.ENTITY)")
+    Component(problems, "Problems", "Factory", "Métodos de fábrica: notFound, validation, business")
+    Component(standardCodes, "StandardErrorCodes", "Constants", "Códigos padrão da plataforma")
+    Component(errorContext, "ErrorContext", "Builder", "Contexto rico: stack, breadcrumbs, i18n")
+    Component(domainEx, "DomainException", "Exception hierarchy", "ValidationException, NotFoundException...")
+
+    Rel(result, problem, "Transporta")
+    Rel(asyncResult, result, "Envolve")
+    Rel(validationResult, problem, "Agrega")
+    Rel(results, result, "Processa")
+    Rel(resultCollectors, result, "Coleta streams de")
+
+    Rel(problems, problem, "Cria")
+    Rel(problems, standardCodes, "Usa constantes de")
+    Rel(problem, errorCode, "Contém")
+    Rel(errorContext, problem, "Enriquece")
+    Rel(domainEx, problem, "Carrega")
+```
+
+## Nível 3: Component Diagram - Outbox Pattern
+
+**Transactional Outbox**: Componentes de `commons-app-outbox` e `commons-spring-starter-outbox`.
+
+```mermaid
+C4Component
+    title Component Diagram - commons-app-outbox
+
+    Component(processor, "DefaultOutboxProcessor", "Application Service", "Polling loop: busca PENDING,<br/>publica, atualiza status")
+    Component(processorPort, "OutboxProcessor", "Interface (Port)", "processAll() / processBatch(int)")
+    Component(publisher, "OutboundPublisher", "Interface (Port)", "publish(topic, body, headers)")
+    Component(repoPort, "OutboxRepositoryPort", "Interface (Port)", "fetchBatch, markProcessing,<br/>markPublished, markFailed, markDead")
+    Component(message, "OutboxMessage", "Record (Domain)", "ID, aggregateType, topic,<br/>payload, status, attempts")
+    Component(messageId, "OutboxMessageId", "Value Object", "Identidade imutável da mensagem")
+    Component(status, "OutboxStatus", "Enum", "PENDING → PROCESSING →<br/>PUBLISHED | FAILED | DEAD")
+    Component(config, "OutboxProcessorConfig", "Value Object", "batchSize, maxAttempts,<br/>backoffMultiplier, retentionPeriod")
+    Component(metrics, "OutboxMetrics", "Interface", "recordPublished, recordFailed,<br/>recordDead, recordLatency")
+    Component(jpaRepo, "JpaOutboxRepositoryAdapter", "JPA Adapter", "Implementa port com Hibernate<br/>+ lock otimista")
+    Component(starter, "OutboxAutoConfiguration", "Spring Boot Starter", "Auto-wiring de processor,<br/>scheduler, jpa adapter")
+
+    Rel(starter, processor, "Cria bean de")
+    Rel(processor, processorPort, "Implementa")
+    Rel(processor, repoPort, "Usa")
+    Rel(processor, publisher, "Delega publish a")
+    Rel(processor, metrics, "Reporta para")
+    Rel(processor, config, "Configurado por")
+    Rel(processor, message, "Processa")
+    Rel(message, messageId, "Identificado por")
+    Rel(message, status, "Tem")
+    Rel(jpaRepo, repoPort, "Implementa")
+```
+
+## Nível 3: Component Diagram - JPA Adapter
+
+**Persistência concreta**: Componentes de `commons-adapters-persistence-jpa`.
+
+```mermaid
+C4Component
+    title Component Diagram - commons-adapters-persistence-jpa
+
+    Component(factory, "JpaRepositoryFactory", "Factory", "Cria repositórios concretos<br/>a partir de EntityManager")
+    Component(baseRepo, "BaseGenericRepository", "Abstract Class", "CRUD: save, findById,<br/>findAll, delete, count")
+    Component(pageableRepo, "PageableJpaRepository", "Class", "findAll(PageRequest, SearchCriteria)<br/>search(PageRequest, Spec, Sort)")
+    Component(specBuilder, "SpecificationBuilder", "Class", "Converte SearchCriteria em<br/>JPA Predicate")
+    Component(jpaQueries, "JpaQueries", "Utility", "Helpers de query JPQL")
+    Component(outboxAdapter, "JpaOutboxRepositoryAdapter", "Adapter", "Implementa OutboxRepositoryPort<br/>com JPA + lock otimista")
+    Component(idempAdapter, "JpaIdempotencyStoreAdapter", "Adapter", "Implementa IdempotencyStore<br/>com JPA")
+    Component(outboxEntity, "OutboxMessageEntity", "JPA Entity", "@Entity para OutboxMessage")
+    Component(mapper, "OutboxJpaMapper", "Mapper", "Domain ↔ JPA Entity")
+    Component(txSupport, "Transactional", "Utility", "Wrappers de transação JPA")
+
+    ComponentDb(db, "RDBMS", "PostgreSQL / MySQL / H2")
+
+    Rel(factory, baseRepo, "Instancia")
+    Rel(factory, pageableRepo, "Instancia")
+    Rel(pageableRepo, baseRepo, "Estende")
+    Rel(pageableRepo, specBuilder, "Usa para filtros")
+    Rel(pageableRepo, jpaQueries, "Usa")
+    Rel(outboxAdapter, outboxEntity, "Persiste")
+    Rel(outboxAdapter, mapper, "Usa")
+    Rel(mapper, outboxEntity, "Converte de/para")
+    Rel(baseRepo, db, "Persiste em")
+    Rel(outboxAdapter, db, "Persiste em")
+    Rel(idempAdapter, db, "Persiste em")
+```
+
 ## Diagrama de Dependências entre Módulos
 
 ```mermaid

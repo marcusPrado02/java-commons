@@ -370,6 +370,7 @@ git push origin --delete backup-before-v2
 
 Detailed migration guides for each major version:
 
+- [v0.1.x to v1.0](migrations/v0.1.x-to-v1.0.md) *(current — em desenvolvimento)*
 - [v0 to v1](migrations/v0-to-v1.md)
 - [v1 to v2](migrations/v1-to-v2.md)
 - [v2 to v3](migrations/v2-to-v3.md) *(when available)*
