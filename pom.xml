@@ -106,6 +106,7 @@
 
     <module>commons-adapters-email-smtp</module>
     <module>commons-adapters-email-sendgrid</module>
+    <module>commons-adapters-email-ses</module>
 
     <module>commons-adapters-sms-twilio</module>
     <module>commons-adapters-sms-aws-sns</module>
