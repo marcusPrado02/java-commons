@@ -2,6 +2,7 @@ package com.marcusprado02.commons.kernel.result;
 
 import com.marcusprado02.commons.kernel.errors.Problem;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
@@ -133,6 +134,64 @@ public sealed interface Result<T> permits Result.Ok, Result.Fail {
     Objects.requireNonNull(action);
     if (isFail()) action.accept(problemOrNull());
     return this;
+  }
+
+  // ==== Async ====
+
+  /**
+   * Maps this Result asynchronously.
+   *
+   * <p>If this is Ok, applies {@code fn} on the common fork-join pool and wraps the outcome.
+   * If this is Fail, returns an immediately-completed future with the same failure.
+   *
+   * @param fn async mapping function
+   * @param <U> result type
+   * @return future that completes with the mapped Result
+   */
+  default <U> CompletableFuture<Result<U>> mapAsync(Function<T, U> fn) {
+    Objects.requireNonNull(fn);
+    if (isFail()) {
+      return CompletableFuture.completedFuture(Result.fail(problemOrNull()));
+    }
+    return CompletableFuture.supplyAsync(() -> Result.ok(fn.apply(getOrNull())));
+  }
+
+  /**
+   * Chains this Result with an async operation that itself returns a {@code Result}.
+   *
+   * <p>If this is Ok, applies {@code fn} on the common fork-join pool. The function must return a
+   * {@code CompletableFuture<Result<U>>}, allowing full async pipelines:
+   *
+   * <pre>{@code
+   * Result.ok(userId)
+   *     .flatMapAsync(id -> userRepository.findByIdAsync(id))
+   *     .thenCompose(r -> r.flatMapAsync(user -> orderRepository.findByUserAsync(user)));
+   * }</pre>
+   *
+   * @param fn async flat-mapping function returning a future of Result
+   * @param <U> result type
+   * @return future that completes with the chained Result
+   */
+  default <U> CompletableFuture<Result<U>> flatMapAsync(
+      Function<T, CompletableFuture<Result<U>>> fn) {
+    Objects.requireNonNull(fn);
+    if (isFail()) {
+      return CompletableFuture.completedFuture(Result.fail(problemOrNull()));
+    }
+    return CompletableFuture.supplyAsync(() -> fn.apply(getOrNull()))
+        .thenCompose(future -> future);
+  }
+
+  /**
+   * Wraps this Result in a completed {@link CompletableFuture}.
+   *
+   * <p>Useful when an API requires a {@code CompletableFuture<Result<T>>} but the value is
+   * already available.
+   *
+   * @return immediately-completed future containing this Result
+   */
+  default CompletableFuture<Result<T>> toFuture() {
+    return CompletableFuture.completedFuture(this);
   }
 
   // ==== Transformations ====
