@@ -28,8 +28,12 @@ public abstract class UuidIdentifier implements Identifier<UUID> {
 
   @Override
   public final boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     UuidIdentifier that = (UuidIdentifier) o;
     return value.equals(that.value);
   }

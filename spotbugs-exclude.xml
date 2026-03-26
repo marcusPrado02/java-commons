@@ -56,4 +56,10 @@
         </Or>
     </Match>
 
+    <!-- CompositeValueObject uses reflection for equals/hashCode; doPrivileged not needed here -->
+    <Match>
+        <Bug pattern="DP_DO_INSIDE_DO_PRIVILEGED"/>
+        <Class name="com.marcusprado02.commons.kernel.ddd.vo.CompositeValueObject"/>
+    </Match>
+
 </FindBugsFilter>

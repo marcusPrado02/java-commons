@@ -33,9 +33,9 @@ import java.util.Optional;
  * }</pre>
  *
  * @param <T> the aggregate root type
- * @param <ID> the aggregate identity type
+ * @param <I> the aggregate identity type
  */
-public interface Repository<T, ID> {
+public interface Repository<T, I> {
 
   /**
    * Saves an aggregate (insert or update).
@@ -51,7 +51,7 @@ public interface Repository<T, ID> {
    * @param id the aggregate identifier
    * @return an Optional containing the aggregate if found
    */
-  Optional<T> findById(ID id);
+  Optional<T> findById(I id);
 
   /**
    * Checks if an aggregate exists by its identifier.
@@ -59,7 +59,7 @@ public interface Repository<T, ID> {
    * @param id the aggregate identifier
    * @return true if the aggregate exists
    */
-  boolean existsById(ID id);
+  boolean existsById(I id);
 
   /**
    * Deletes an aggregate.
@@ -73,5 +73,5 @@ public interface Repository<T, ID> {
    *
    * @param id the aggregate identifier
    */
-  void deleteById(ID id);
+  void deleteById(I id);
 }

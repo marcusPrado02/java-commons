@@ -18,37 +18,41 @@ import java.util.function.Function;
  *
  * <p>Usage:
  *
- * <pre>
- *     public class Order extends AggregateRoot<OrderId> {
- *         public Order(OrderId id, TenantId tenantId, AuditStamp created) {
- *             super(id, tenantId, created);
- *         }
+ * <pre>{@code
+ * public class Order extends AggregateRoot<OrderId> {
+ *     public Order(OrderId id, TenantId tenantId, AuditStamp created) {
+ *         super(id, tenantId, created);
  *     }
- * </pre>
+ * }
+ * }</pre>
  *
- * @param <ID> Type of the aggregate root identifier.
+ * @param <I> Type of the aggregate root identifier.
  * @see Entity
  * @see DomainEvent
  * @see AggregateSnapshot
  */
-public abstract class AggregateRoot<ID> extends Entity<ID> implements DomainEventRecorder {
+public abstract class AggregateRoot<I> extends Entity<I> implements DomainEventRecorder {
 
   private final List<DomainEvent> events = DomainEventRecorder.newBuffer();
 
-  protected AggregateRoot(ID id, TenantId tenantId, AuditStamp created) {
+  protected AggregateRoot(I id, TenantId tenantId, AuditStamp created) {
     super(id, tenantId, created);
   }
 
   /**
    * Common pattern to record a state change with an associated domain event.
    *
-   * <p>- updates the entity state via the provided mutation - touches the entity to update
-   * audit/version - creates and registers a domain event using the provided factory
+   * <p>Updates the entity state via the provided mutation, touches the entity to update
+   * audit/version, and creates and registers a domain event using the provided factory.
+   *
+   * @param updated the audit stamp for the change
+   * @param stateMutation the mutation to apply
+   * @param eventFactory factory to produce the domain event from the resulting snapshot
    */
   protected final void recordChange(
       AuditStamp updated,
       Runnable stateMutation,
-      Function<AggregateSnapshot<ID>, DomainEvent> eventFactory) {
+      Function<AggregateSnapshot<I>, DomainEvent> eventFactory) {
     Objects.requireNonNull(updated, "updated");
     Objects.requireNonNull(stateMutation, "stateMutation");
     Objects.requireNonNull(eventFactory, "eventFactory");
@@ -60,11 +64,17 @@ public abstract class AggregateRoot<ID> extends Entity<ID> implements DomainEven
     events.add(event);
   }
 
-  /** Soft delete with event recording. */
+  /**
+   * Soft delete with event recording.
+   *
+   * @param deleted the deletion stamp
+   * @param updated the audit stamp for the update
+   * @param eventFactory factory to produce the domain event from the resulting snapshot
+   */
   protected final void recordSoftDelete(
       DeletionStamp deleted,
       AuditStamp updated,
-      Function<AggregateSnapshot<ID>, DomainEvent> eventFactory) {
+      Function<AggregateSnapshot<I>, DomainEvent> eventFactory) {
     Objects.requireNonNull(deleted, "deleted");
     Objects.requireNonNull(updated, "updated");
     Objects.requireNonNull(eventFactory, "eventFactory");
@@ -74,9 +84,14 @@ public abstract class AggregateRoot<ID> extends Entity<ID> implements DomainEven
     events.add(event);
   }
 
-  /** Restore with event recording. */
+  /**
+   * Restore with event recording.
+   *
+   * @param updated the audit stamp for the restore
+   * @param eventFactory factory to produce the domain event from the resulting snapshot
+   */
   protected final void recordRestore(
-      AuditStamp updated, Function<AggregateSnapshot<ID>, DomainEvent> eventFactory) {
+      AuditStamp updated, Function<AggregateSnapshot<I>, DomainEvent> eventFactory) {
     Objects.requireNonNull(updated, "updated");
     Objects.requireNonNull(eventFactory, "eventFactory");
 
@@ -85,18 +100,35 @@ public abstract class AggregateRoot<ID> extends Entity<ID> implements DomainEven
     events.add(event);
   }
 
+  /**
+   * Pulls and clears all pending domain events.
+   *
+   * @return immutable copy of pending events; the buffer is cleared
+   */
   public final List<DomainEvent> pullDomainEvents() {
-    if (events.isEmpty()) return List.of();
+    if (events.isEmpty()) {
+      return List.of();
+    }
     List<DomainEvent> copy = List.copyOf(events);
     events.clear();
     return copy;
   }
 
+  /**
+   * Returns a read-only view of pending domain events without clearing the buffer.
+   *
+   * @return unmodifiable view of pending events
+   */
   public final List<DomainEvent> peekDomainEvents() {
     return Collections.unmodifiableList(events);
   }
 
-  protected final AggregateSnapshot<ID> snapshot() {
+  /**
+   * Returns a snapshot of the current aggregate state.
+   *
+   * @return aggregate snapshot
+   */
+  protected final AggregateSnapshot<I> snapshot() {
     return new AggregateSnapshot<>(id(), getClass().getSimpleName(), tenantId(), version().value());
   }
 

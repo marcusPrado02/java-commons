@@ -11,9 +11,12 @@ import java.util.Objects;
  */
 public record TenantId(String value) {
 
+  /** Validates the tenant ID value. */
   public TenantId {
     Objects.requireNonNull(value, "value");
-    if (value.isBlank()) throw new IllegalArgumentException("TenantId cannot be blank");
+    if (value.isBlank()) {
+      throw new IllegalArgumentException("TenantId cannot be blank");
+    }
   }
 
   public static TenantId of(String value) {

@@ -16,9 +16,9 @@ import java.util.List;
  * }</pre>
  *
  * @param <T> the aggregate root type
- * @param <ID> the aggregate identity type
+ * @param <I> the aggregate identity type
  */
-public interface PageableRepository<T, ID> extends Repository<T, ID> {
+public interface PageableRepository<T, I> extends Repository<T, I> {
 
   /**
    * Finds all aggregates with pagination.
@@ -43,10 +43,12 @@ public interface PageableRepository<T, ID> extends Repository<T, ID> {
    * @param sortBy optional sort field
    */
   record Pageable(int page, int size, String sortBy) {
+    /** Creates a pageable without sorting. */
     public static Pageable of(int page, int size) {
       return new Pageable(page, size, null);
     }
 
+    /** Creates a pageable with a sort field. */
     public static Pageable of(int page, int size, String sortBy) {
       return new Pageable(page, size, sortBy);
     }
@@ -62,14 +64,17 @@ public interface PageableRepository<T, ID> extends Repository<T, ID> {
    * @param size the page size
    */
   record Page<T>(List<T> content, long totalElements, int totalPages, int page, int size) {
+    /** Returns true if there is a next page. */
     public boolean hasNext() {
       return page < totalPages - 1;
     }
 
+    /** Returns true if there is a previous page. */
     public boolean hasPrevious() {
       return page > 0;
     }
 
+    /** Returns true if this page has no content. */
     public boolean isEmpty() {
       return content.isEmpty();
     }

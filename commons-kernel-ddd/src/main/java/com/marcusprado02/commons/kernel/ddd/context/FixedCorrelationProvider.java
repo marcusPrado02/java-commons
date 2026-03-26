@@ -2,6 +2,7 @@ package com.marcusprado02.commons.kernel.ddd.context;
 
 import java.util.Objects;
 
+/** CorrelationProvider backed by fixed correlation and causation ID strings. */
 public final class FixedCorrelationProvider implements CorrelationProvider {
 
   private final String correlationId;
@@ -28,7 +29,9 @@ public final class FixedCorrelationProvider implements CorrelationProvider {
 
   private static String requireNonBlank(String value, String name) {
     Objects.requireNonNull(value, name);
-    if (value.isBlank()) throw new IllegalArgumentException(name + " cannot be blank");
+    if (value.isBlank()) {
+      throw new IllegalArgumentException(name + " cannot be blank");
+    }
     return value;
   }
 }

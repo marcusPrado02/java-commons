@@ -11,9 +11,12 @@ import java.util.Objects;
  * @param value the identifier value
  */
 public record ActorId(String value) {
+  /** Validates the actor ID value. */
   public ActorId {
     Objects.requireNonNull(value, "value");
-    if (value.isBlank()) throw new IllegalArgumentException("ActorId cannot be blank");
+    if (value.isBlank()) {
+      throw new IllegalArgumentException("ActorId cannot be blank");
+    }
   }
 
   public static ActorId of(String value) {

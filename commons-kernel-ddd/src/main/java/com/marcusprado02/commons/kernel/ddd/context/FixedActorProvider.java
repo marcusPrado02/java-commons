@@ -3,6 +3,7 @@ package com.marcusprado02.commons.kernel.ddd.context;
 import com.marcusprado02.commons.kernel.ddd.audit.ActorId;
 import java.util.Objects;
 
+/** ActorProvider that always returns a fixed actor. */
 public final class FixedActorProvider implements ActorProvider {
 
   private final ActorId actor;

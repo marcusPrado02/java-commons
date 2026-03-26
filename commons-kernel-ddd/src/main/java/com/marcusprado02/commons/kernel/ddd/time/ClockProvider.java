@@ -3,6 +3,7 @@ package com.marcusprado02.commons.kernel.ddd.time;
 import java.time.Clock;
 import java.time.Instant;
 
+/** Abstraction over the system clock; allows deterministic testing via fixed instants. */
 public interface ClockProvider {
 
   Instant now();

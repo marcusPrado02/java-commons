@@ -40,8 +40,12 @@ public abstract class SingleValueObject<T> implements ValueObject {
 
   @Override
   public final boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null || getClass() != obj.getClass()) return false;
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
     SingleValueObject<?> that = (SingleValueObject<?>) obj;
     return Objects.equals(value, that.value);
   }
