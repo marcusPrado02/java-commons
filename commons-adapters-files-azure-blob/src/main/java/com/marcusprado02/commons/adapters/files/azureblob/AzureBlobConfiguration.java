@@ -11,6 +11,7 @@ public record AzureBlobConfiguration(
     int maxRetries,
     long timeoutSeconds) {
 
+  /** Validates fields on construction. */
   public AzureBlobConfiguration {
     if (authenticationType == null) {
       throw new IllegalArgumentException("authenticationType must not be null");
@@ -83,18 +84,21 @@ public record AzureBlobConfiguration(
       return this;
     }
 
+    /** Executes the connectionString operation. */
     public Builder connectionString(String connectionString) {
       this.connectionString = connectionString;
       this.authenticationType = AuthenticationType.CONNECTION_STRING;
       return this;
     }
 
+    /** Executes the sasToken operation. */
     public Builder sasToken(String sasToken) {
       this.sasToken = sasToken;
       this.authenticationType = AuthenticationType.SAS_TOKEN;
       return this;
     }
 
+    /** Executes the useManagedIdentity operation. */
     public Builder useManagedIdentity(boolean useManagedIdentity) {
       this.useManagedIdentity = useManagedIdentity;
       if (useManagedIdentity) {
@@ -113,6 +117,7 @@ public record AzureBlobConfiguration(
       return this;
     }
 
+    /** Executes the build operation. */
     public AzureBlobConfiguration build() {
       return new AzureBlobConfiguration(
           endpoint,

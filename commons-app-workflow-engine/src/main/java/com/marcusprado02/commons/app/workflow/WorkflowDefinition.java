@@ -25,6 +25,7 @@ public record WorkflowDefinition(
     List<Transition> transitions,
     Optional<Duration> timeout) {
 
+  /** Validates and normalises fields on construction. */
   public WorkflowDefinition {
     states = states == null ? List.of() : List.copyOf(states);
     transitions = transitions == null ? List.of() : List.copyOf(transitions);
@@ -47,6 +48,7 @@ public record WorkflowDefinition(
       Optional<String> compensation,
       Optional<Duration> timeout) {
 
+    /** Normalises optional fields on construction. */
     public State {
       action = action == null ? Optional.empty() : action;
       compensation = compensation == null ? Optional.empty() : compensation;
@@ -67,6 +69,7 @@ public record WorkflowDefinition(
       return new Builder();
     }
 
+    /** Builder for {@link State}. */
     public static class Builder {
       private String name;
       private StateType type = StateType.TASK;
@@ -123,6 +126,7 @@ public record WorkflowDefinition(
       return new Builder();
     }
 
+    /** Builder for {@link Transition}. */
     public static class Builder {
       private String from;
       private String to;

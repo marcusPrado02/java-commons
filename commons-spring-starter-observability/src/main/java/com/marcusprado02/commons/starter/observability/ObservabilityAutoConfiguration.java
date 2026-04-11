@@ -9,6 +9,11 @@ import org.springframework.context.annotation.Bean;
 @AutoConfiguration
 public class ObservabilityAutoConfiguration {
 
+  /**
+   * Registers the {@link CorrelationIdFilter} with order 0.
+   *
+   * @return the filter registration bean
+   */
   @Bean
   public FilterRegistrationBean<CorrelationIdFilter> correlationIdFilter() {
     FilterRegistrationBean<CorrelationIdFilter> bean = new FilterRegistrationBean<>();
@@ -17,6 +22,11 @@ public class ObservabilityAutoConfiguration {
     return bean;
   }
 
+  /**
+   * Registers the {@link RequestContextFilter} with order 1.
+   *
+   * @return the filter registration bean
+   */
   @Bean
   public FilterRegistrationBean<RequestContextFilter> requestContextFilter() {
     FilterRegistrationBean<RequestContextFilter> bean = new FilterRegistrationBean<>();

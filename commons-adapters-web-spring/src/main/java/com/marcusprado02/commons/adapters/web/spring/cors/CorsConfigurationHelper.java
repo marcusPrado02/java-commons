@@ -99,6 +99,7 @@ public final class CorsConfigurationHelper {
     return new Builder();
   }
 
+  /** Builder for {@link CorsConfigurationHelper}. */
   public static final class Builder {
     private String[] allowedOrigins;
     private String[] allowedOriginPatterns;

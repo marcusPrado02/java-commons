@@ -43,9 +43,10 @@ public record GrpcServerConfiguration(
   private static final Duration DEFAULT_MAX_CONNECTION_AGE = Duration.ofHours(1);
   private static final Duration DEFAULT_HANDSHAKE_TIMEOUT = Duration.ofSeconds(20);
 
+  /** Validates gRPC server configuration fields and applies defaults for null durations. */
   public GrpcServerConfiguration {
-    if (port < 1 || port > 65535) {
-      throw new IllegalArgumentException("Port must be between 1 and 65535");
+    if (port < 0 || port > 65535) {
+      throw new IllegalArgumentException("Port must be between 0 and 65535");
     }
 
     if (maxInboundMessageSize <= 0) {

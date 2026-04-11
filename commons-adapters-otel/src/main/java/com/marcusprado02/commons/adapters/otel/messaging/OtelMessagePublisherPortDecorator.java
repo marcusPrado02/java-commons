@@ -33,6 +33,7 @@ public final class OtelMessagePublisherPortDecorator implements MessagePublisher
   private final Tracer tracer;
   private final TextMapPropagator propagator;
 
+  /** Creates a new OtelMessagePublisherPortDecorator instance. */
   public OtelMessagePublisherPortDecorator(
       MessagePublisherPort delegate, String instrumentationName) {
     this.delegate = Objects.requireNonNull(delegate, "delegate must not be null");

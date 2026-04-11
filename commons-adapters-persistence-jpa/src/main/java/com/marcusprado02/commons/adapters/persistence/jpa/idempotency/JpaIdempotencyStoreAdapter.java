@@ -12,6 +12,10 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * JPA-backed implementation of {@link
+ * com.marcusprado02.commons.app.idempotency.port.IdempotencyStorePort}.
+ */
 public final class JpaIdempotencyStoreAdapter implements IdempotencyStorePort {
 
   private final EntityManager em;

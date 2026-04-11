@@ -40,6 +40,14 @@ public class WebhookDeliveryService {
   private final RetryPolicy retryPolicy;
   private final WebhookPayloadSerializer payloadSerializer;
 
+  /**
+   * Creates a service with a default {@link JsonPayloadSerializer}.
+   *
+   * @param webhookRepository repository for webhook registrations
+   * @param deliveryRepository repository for delivery records
+   * @param httpClient HTTP client for sending webhook requests
+   * @param retryPolicy policy governing retry behaviour on delivery failure
+   */
   public WebhookDeliveryService(
       WebhookRepository webhookRepository,
       WebhookDeliveryRepository deliveryRepository,
@@ -53,6 +61,15 @@ public class WebhookDeliveryService {
         new JsonPayloadSerializer());
   }
 
+  /**
+   * Creates a service with an explicit payload serializer.
+   *
+   * @param webhookRepository repository for webhook registrations
+   * @param deliveryRepository repository for delivery records
+   * @param httpClient HTTP client for sending webhook requests
+   * @param retryPolicy policy governing retry behaviour on delivery failure
+   * @param payloadSerializer serializer used to convert event payloads to the request body
+   */
   public WebhookDeliveryService(
       WebhookRepository webhookRepository,
       WebhookDeliveryRepository deliveryRepository,

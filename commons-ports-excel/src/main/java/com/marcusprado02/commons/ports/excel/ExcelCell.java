@@ -20,10 +20,17 @@ import java.time.LocalDateTime;
 public record ExcelCell(
     int row, int column, CellType cellType, Object value, String formula, ExcelCellStyle style) {
 
+  /** Validates cell coordinates and type. */
   public ExcelCell {
-    if (row < 0) throw new IllegalArgumentException("Row must be >= 0");
-    if (column < 0) throw new IllegalArgumentException("Column must be >= 0");
-    if (cellType == null) throw new IllegalArgumentException("CellType cannot be null");
+    if (row < 0) {
+      throw new IllegalArgumentException("Row must be >= 0");
+    }
+    if (column < 0) {
+      throw new IllegalArgumentException("Column must be >= 0");
+    }
+    if (cellType == null) {
+      throw new IllegalArgumentException("CellType cannot be null");
+    }
   }
 
   /**
@@ -171,8 +178,7 @@ public record ExcelCell(
   public String getStringValue() {
     return switch (cellType) {
       case BLANK, ERROR -> "";
-      case STRING -> value != null ? value.toString() : "";
-      case NUMERIC, BOOLEAN -> value != null ? value.toString() : "";
+      case STRING, NUMERIC, BOOLEAN -> value != null ? value.toString() : "";
       case FORMULA -> formula != null ? "=" + formula : "";
     };
   }

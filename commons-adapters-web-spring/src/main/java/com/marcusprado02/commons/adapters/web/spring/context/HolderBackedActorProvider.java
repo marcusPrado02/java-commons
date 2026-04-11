@@ -3,6 +3,10 @@ package com.marcusprado02.commons.adapters.web.spring.context;
 import com.marcusprado02.commons.kernel.ddd.audit.ActorId;
 import com.marcusprado02.commons.kernel.ddd.context.ActorProvider;
 
+/**
+ * {@link com.marcusprado02.commons.kernel.ddd.context.ActorProvider} backed by {@link
+ * SpringRequestContextHolder}.
+ */
 public final class HolderBackedActorProvider implements ActorProvider {
 
   @Override

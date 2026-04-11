@@ -7,12 +7,20 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+/** Immutable HTTP response carrying a typed body, status code, and headers. */
 public final class HttpResponse<T> {
 
   private final int statusCode;
   private final Map<String, List<String>> headers;
   private final T body;
 
+  /**
+   * Creates an HTTP response.
+   *
+   * @param statusCode HTTP status code
+   * @param headers response headers
+   * @param body response body, may be null
+   */
   public HttpResponse(int statusCode, Map<String, List<String>> headers, T body) {
     this.statusCode = statusCode;
     this.headers =

@@ -14,6 +14,7 @@ import java.util.Objects;
 public record AzureStorageQueueConfiguration(
     String connectionString, String queueName, Duration requestTimeout, int maxBatchSize) {
 
+  /** Validates fields on construction. */
   public AzureStorageQueueConfiguration {
     Objects.requireNonNull(connectionString, "connectionString cannot be null");
     Objects.requireNonNull(queueName, "queueName cannot be null");
@@ -38,7 +39,8 @@ public record AzureStorageQueueConfiguration(
     return builder()
         .connectionString(
             "DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;"
-                + "AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;"
+                + "AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ"
+                + "6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;"
                 + "QueueEndpoint=http://127.0.0.1:10001/devstoreaccount1;")
         .queueName(queueName);
   }

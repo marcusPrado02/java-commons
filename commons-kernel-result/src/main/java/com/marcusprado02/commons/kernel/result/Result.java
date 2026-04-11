@@ -8,6 +8,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
+/** Represents the outcome of an operation: either {@link Ok} with a value or {@link Fail}. */
 public sealed interface Result<T> permits Result.Ok, Result.Fail {
 
   boolean isOk();
@@ -40,15 +41,33 @@ public sealed interface Result<T> permits Result.Ok, Result.Fail {
 
   // ==== Mapping ====
 
+  /**
+   * Transforms the success value using the given function.
+   *
+   * @param fn mapping function
+   * @param <U> target type
+   * @return mapped Ok, or this Fail unchanged
+   */
   default <U> Result<U> map(Function<T, U> fn) {
     Objects.requireNonNull(fn);
-    if (isOk()) return Result.ok(fn.apply(getOrNull()));
+    if (isOk()) {
+      return Result.ok(fn.apply(getOrNull()));
+    }
     return Result.fail(problemOrNull());
   }
 
+  /**
+   * Chains this Result with a function that returns another Result.
+   *
+   * @param fn flat-mapping function
+   * @param <U> target type
+   * @return the chained Result, or this Fail unchanged
+   */
   default <U> Result<U> flatMap(Function<T, Result<U>> fn) {
     Objects.requireNonNull(fn);
-    if (isOk()) return Objects.requireNonNull(fn.apply(getOrNull()));
+    if (isOk()) {
+      return Objects.requireNonNull(fn.apply(getOrNull()));
+    }
     return Result.fail(problemOrNull());
   }
 
@@ -60,7 +79,9 @@ public sealed interface Result<T> permits Result.Ok, Result.Fail {
    */
   default Result<T> mapError(Function<Problem, Problem> fn) {
     Objects.requireNonNull(fn);
-    if (isFail()) return Result.fail(fn.apply(problemOrNull()));
+    if (isFail()) {
+      return Result.fail(fn.apply(problemOrNull()));
+    }
     return this;
   }
 
@@ -94,19 +115,23 @@ public sealed interface Result<T> permits Result.Ok, Result.Fail {
    */
   default Result<T> recover(Function<Problem, T> fn) {
     Objects.requireNonNull(fn);
-    if (isFail()) return Result.ok(fn.apply(problemOrNull()));
+    if (isFail()) {
+      return Result.ok(fn.apply(problemOrNull()));
+    }
     return this;
   }
 
   /**
    * Recovers from a failure by applying a function that returns a Result.
    *
-   * @param fn recovery function (Problem → Result<T>)
+   * @param fn recovery function (Problem → {@code Result<T>})
    * @return recovered Result if this was Fail, otherwise returns this
    */
   default Result<T> recoverWith(Function<Problem, Result<T>> fn) {
     Objects.requireNonNull(fn);
-    if (isFail()) return Objects.requireNonNull(fn.apply(problemOrNull()));
+    if (isFail()) {
+      return Objects.requireNonNull(fn.apply(problemOrNull()));
+    }
     return this;
   }
 
@@ -120,7 +145,9 @@ public sealed interface Result<T> permits Result.Ok, Result.Fail {
    */
   default Result<T> peek(Consumer<T> action) {
     Objects.requireNonNull(action);
-    if (isOk()) action.accept(getOrNull());
+    if (isOk()) {
+      action.accept(getOrNull());
+    }
     return this;
   }
 
@@ -132,7 +159,9 @@ public sealed interface Result<T> permits Result.Ok, Result.Fail {
    */
   default Result<T> peekError(Consumer<Problem> action) {
     Objects.requireNonNull(action);
-    if (isFail()) action.accept(problemOrNull());
+    if (isFail()) {
+      action.accept(problemOrNull());
+    }
     return this;
   }
 
@@ -141,8 +170,8 @@ public sealed interface Result<T> permits Result.Ok, Result.Fail {
   /**
    * Maps this Result asynchronously.
    *
-   * <p>If this is Ok, applies {@code fn} on the common fork-join pool and wraps the outcome.
-   * If this is Fail, returns an immediately-completed future with the same failure.
+   * <p>If this is Ok, applies {@code fn} on the common fork-join pool and wraps the outcome. If
+   * this is Fail, returns an immediately-completed future with the same failure.
    *
    * @param fn async mapping function
    * @param <U> result type
@@ -178,15 +207,14 @@ public sealed interface Result<T> permits Result.Ok, Result.Fail {
     if (isFail()) {
       return CompletableFuture.completedFuture(Result.fail(problemOrNull()));
     }
-    return CompletableFuture.supplyAsync(() -> fn.apply(getOrNull()))
-        .thenCompose(future -> future);
+    return CompletableFuture.supplyAsync(() -> fn.apply(getOrNull())).thenCompose(future -> future);
   }
 
   /**
    * Wraps this Result in a completed {@link CompletableFuture}.
    *
-   * <p>Useful when an API requires a {@code CompletableFuture<Result<T>>} but the value is
-   * already available.
+   * <p>Useful when an API requires a {@code CompletableFuture<Result<T>>} but the value is already
+   * available.
    *
    * @return immediately-completed future containing this Result
    */
@@ -226,6 +254,7 @@ public sealed interface Result<T> permits Result.Ok, Result.Fail {
     return this;
   }
 
+  /** Successful variant of {@link Result} holding the computed value. */
   record Ok<T>(T value) implements Result<T> {
     @Override
     public boolean isOk() {
@@ -243,6 +272,7 @@ public sealed interface Result<T> permits Result.Ok, Result.Fail {
     }
   }
 
+  /** Failed variant of {@link Result} holding the associated {@link Problem}. */
   record Fail<T>(Problem problem) implements Result<T> {
     @Override
     public boolean isOk() {

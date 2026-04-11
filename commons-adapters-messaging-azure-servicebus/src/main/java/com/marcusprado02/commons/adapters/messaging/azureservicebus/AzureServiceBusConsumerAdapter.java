@@ -21,6 +21,7 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** AzureServiceBusConsumerAdapter implementation. */
 public final class AzureServiceBusConsumerAdapter implements MessageConsumerPort, AutoCloseable {
 
   private static final Logger log = LoggerFactory.getLogger(AzureServiceBusConsumerAdapter.class);
@@ -178,6 +179,7 @@ public final class AzureServiceBusConsumerAdapter implements MessageConsumerPort
 
   private record SubscriptionKey(TopicName topic, ConsumerGroup group) {}
 
+  /** Builder implementation. */
   public static final class Builder {
     private String connectionString;
     private String fullyQualifiedNamespace;
@@ -190,12 +192,14 @@ public final class AzureServiceBusConsumerAdapter implements MessageConsumerPort
       return this;
     }
 
+    /** Executes the fullyQualifiedNamespace operation. */
     public Builder fullyQualifiedNamespace(String fullyQualifiedNamespace) {
       this.fullyQualifiedNamespace = fullyQualifiedNamespace;
       this.useManagedIdentity = true;
       return this;
     }
 
+    /** Executes the build operation. */
     public AzureServiceBusConsumerAdapter build() {
       ServiceBusClientBuilder clientBuilder = new ServiceBusClientBuilder();
 

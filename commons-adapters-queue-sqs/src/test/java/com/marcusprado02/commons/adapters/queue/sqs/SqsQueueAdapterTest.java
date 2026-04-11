@@ -14,6 +14,8 @@ import org.testcontainers.containers.localstack.LocalStackContainer.Service;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.CreateQueueRequest;
@@ -34,11 +36,16 @@ class SqsQueueAdapterTest {
 
   @BeforeEach
   void setUp() {
+    StaticCredentialsProvider credentials =
+        StaticCredentialsProvider.create(
+            AwsBasicCredentials.create(localStack.getAccessKey(), localStack.getSecretKey()));
+
     // Create queue
     try (SqsClient sqsClient =
         SqsClient.builder()
             .region(Region.of(localStack.getRegion()))
             .endpointOverride(localStack.getEndpointOverride(Service.SQS))
+            .credentialsProvider(credentials)
             .build()) {
 
       CreateQueueRequest createRequest =
@@ -56,7 +63,7 @@ class SqsQueueAdapterTest {
             .endpoint(localStack.getEndpointOverride(Service.SQS))
             .build();
 
-    adapter = new SqsQueueAdapter<>(configuration, TestMessage.class);
+    adapter = new SqsQueueAdapter<>(configuration, TestMessage.class, credentials);
   }
 
   @AfterEach

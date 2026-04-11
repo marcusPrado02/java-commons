@@ -7,6 +7,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
+/** Utility for building structured log entries as key-value maps. */
 public final class StructuredLog {
   private StructuredLog() {}
 
@@ -30,6 +31,7 @@ public final class StructuredLog {
     return builder().level("ERROR").message(message).error(error).build();
   }
 
+  /** Builder for structured log entry maps. */
   public static final class Builder {
     private final Clock clock;
 
@@ -60,6 +62,13 @@ public final class StructuredLog {
       return this;
     }
 
+    /**
+     * Adds a single custom field to the log entry.
+     *
+     * @param key field key (null or blank keys are ignored)
+     * @param value field value (null values are ignored)
+     * @return this builder
+     */
     public Builder field(String key, Object value) {
       if (key != null && !key.isBlank() && value != null) {
         fields.put(key, value);
@@ -67,6 +76,12 @@ public final class StructuredLog {
       return this;
     }
 
+    /**
+     * Adds multiple custom fields to the log entry.
+     *
+     * @param fields map of key-value pairs to add
+     * @return this builder
+     */
     public Builder fields(Map<String, ?> fields) {
       if (fields != null && !fields.isEmpty()) {
         fields.forEach((k, v) -> field(k, v));
@@ -84,6 +99,11 @@ public final class StructuredLog {
       return this;
     }
 
+    /**
+     * Builds an immutable structured log entry map.
+     *
+     * @return unmodifiable map representing the log entry
+     */
     public Map<String, Object> build() {
       Instant now = clock.instant();
 
@@ -123,6 +143,12 @@ public final class StructuredLog {
     }
   }
 
+  /**
+   * Formats a structured log map as a key=value string.
+   *
+   * @param fields the log fields to format
+   * @return space-separated key=value string
+   */
   public static String formatKeyValue(Map<String, ?> fields) {
     if (fields == null || fields.isEmpty()) {
       return "";

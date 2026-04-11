@@ -4,11 +4,18 @@ import com.marcusprado02.commons.platform.context.RequestContextSnapshot;
 import com.marcusprado02.commons.platform.http.ContextHeaderWriter;
 import com.marcusprado02.commons.platform.http.StandardHeaders;
 
+/**
+ * {@link com.marcusprado02.commons.platform.http.ContextHeaderWriter} that writes context headers
+ * to HTTP responses via a {@link
+ * com.marcusprado02.commons.platform.http.ContextHeaderWriter.HeaderSink}.
+ */
 public final class SpringContextHeaderWriter implements ContextHeaderWriter {
 
   @Override
   public void write(RequestContextSnapshot ctx, HeaderSink sink) {
-    if (ctx == null) return;
+    if (ctx == null) {
+      return;
+    }
 
     setIfNotBlank(sink, StandardHeaders.CORRELATION_ID, ctx.correlationId());
     setIfNotBlank(sink, StandardHeaders.CAUSATION_ID, ctx.causationId());

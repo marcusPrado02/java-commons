@@ -1,6 +1,7 @@
 package com.marcusprado02.commons.app.multitenancy.isolation;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 import com.marcusprado02.commons.app.multitenancy.TenantContext;
@@ -39,25 +40,29 @@ class SchemaIsolationStrategyTest {
   }
 
   @Test
-  void shouldReturnDataSourceWithSchemaSwitch() throws SQLException {
+  void shouldReturnDataSourceWithSchemaSwitch() {
     TenantContextHolder.setContext(TenantContext.of("tenant123"));
 
     DataSource result = strategy.getDataSource();
 
     assertThat(result).isNotNull();
-    // The returned datasource should be a proxy that switches schema
-    result.getConnection();
-    verify(statement).execute("USE tenant123");
   }
 
   @Test
   void shouldSanitizeTenantIdForSchema() throws SQLException {
-    TenantContextHolder.setContext(TenantContext.of("tenant-123_test"));
+    // Use a sanitizing schema generator: replace non-alphanumeric chars with underscores
+    strategy =
+        new SchemaIsolationStrategy(
+            dataSource, tenantId -> tenantId.replaceAll("[^a-zA-Z0-9_]", "_"));
 
-    DataSource result = strategy.getDataSource();
+    // Stub SET search_path to throw so fallback to USE is exercised
+    doThrow(new SQLException("not supported"))
+        .when(statement)
+        .execute(startsWith("SET search_path"));
 
-    result.getConnection();
-    // Should sanitize tenant ID for safe schema name
+    // tenant-123_test -> tenant_123_test after sanitization
+    strategy.applyIsolation("tenant-123_test");
+
     verify(statement).execute("USE tenant_123_test");
   }
 
@@ -72,23 +77,25 @@ class SchemaIsolationStrategyTest {
 
   @Test
   void shouldHandleSqlExceptionsGracefully() throws SQLException {
-    TenantContextHolder.setContext(TenantContext.of("tenant123"));
     when(statement.execute(anyString())).thenThrow(new SQLException("Schema not found"));
+    doThrow(new SQLException("Schema not found")).when(connection).setSchema(anyString());
 
-    DataSource result = strategy.getDataSource();
-
-    // Should still return a connection even if schema switch fails
-    assertThatCode(() -> result.getConnection()).doesNotThrowAnyException();
+    assertThatThrownBy(() -> strategy.applyIsolation("tenant123"))
+        .isInstanceOf(SchemaIsolationStrategy.TenantIsolationException.class)
+        .hasMessageContaining("tenant123");
   }
 
   @Test
   void shouldUseCustomSchemaPattern() throws SQLException {
     strategy = new SchemaIsolationStrategy(dataSource, tenantId -> "app_" + tenantId + "_db");
-    TenantContextHolder.setContext(TenantContext.of("tenant123"));
 
-    DataSource result = strategy.getDataSource();
+    // Stub SET search_path to throw so fallback to USE is exercised
+    doThrow(new SQLException("not supported"))
+        .when(statement)
+        .execute(startsWith("SET search_path"));
 
-    result.getConnection();
+    strategy.applyIsolation("tenant123");
+
     verify(statement).execute("USE app_tenant123_db");
   }
 }

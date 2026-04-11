@@ -83,9 +83,8 @@ class GrpcServerConfigurationTest {
   }
 
   @Test
-  void shouldFailWhenPortTooLow() {
-    assertThrows(
-        IllegalArgumentException.class, () -> GrpcServerConfiguration.builder().port(0).build());
+  void shouldAllowPortZeroForRandomAssignment() {
+    assertDoesNotThrow(() -> GrpcServerConfiguration.builder().port(0).build());
   }
 
   @Test

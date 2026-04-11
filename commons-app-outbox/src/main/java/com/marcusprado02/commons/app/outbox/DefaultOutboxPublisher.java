@@ -1,6 +1,9 @@
 package com.marcusprado02.commons.app.outbox;
 
-import com.marcusprado02.commons.app.outbox.model.*;
+import com.marcusprado02.commons.app.outbox.model.OutboxMessage;
+import com.marcusprado02.commons.app.outbox.model.OutboxMessageId;
+import com.marcusprado02.commons.app.outbox.model.OutboxPayload;
+import com.marcusprado02.commons.app.outbox.model.OutboxStatus;
 import com.marcusprado02.commons.app.outbox.port.OutboxRepositoryPort;
 import com.marcusprado02.commons.kernel.ddd.entity.AggregateRoot;
 import com.marcusprado02.commons.kernel.ddd.event.DomainEvent;
@@ -12,6 +15,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 
+/** DefaultOutboxPublisher implementation. */
 public final class DefaultOutboxPublisher implements OutboxPublisher {
 
   private final OutboxRepositoryPort repository;
@@ -19,6 +23,7 @@ public final class DefaultOutboxPublisher implements OutboxPublisher {
   private final OutboxMetadataEnricher enricher;
   private final ClockProvider clock;
 
+  /** Creates a new DefaultOutboxPublisher instance. */
   public DefaultOutboxPublisher(
       OutboxRepositoryPort repository,
       OutboxSerializer serializer,

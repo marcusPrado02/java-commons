@@ -49,6 +49,7 @@ public interface TenantIsolationStrategy {
   /** Removes tenant isolation (cleanup). */
   void removeIsolation();
 
+  /** Defines the available tenant data isolation strategies. */
   enum IsolationType {
     /** Each tenant has a separate database. */
     DATABASE_PER_TENANT,

@@ -9,6 +9,7 @@ import java.util.Objects;
  */
 public record SecretKey(String value) {
 
+  /** Validates that the secret key value is non-null and non-blank. */
   public SecretKey {
     Objects.requireNonNull(value, "Secret key cannot be null");
     if (value.isBlank()) {

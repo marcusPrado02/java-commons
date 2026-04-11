@@ -36,6 +36,7 @@ import java.util.Objects;
 public record HealthCheck(
     Type type, String endpoint, Duration interval, Duration timeout, Duration deregisterAfter) {
 
+  /** Validates health check configuration. */
   public HealthCheck {
     Objects.requireNonNull(type, "type cannot be null");
     Objects.requireNonNull(interval, "interval cannot be null");

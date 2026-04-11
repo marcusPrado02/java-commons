@@ -19,6 +19,7 @@ public record SmtpConfiguration(
     int connectionTimeout,
     int writeTimeout) {
 
+  /** Validates fields on construction. */
   public SmtpConfiguration {
     Objects.requireNonNull(host, "host must not be null");
     if (host.trim().isEmpty()) {
@@ -142,6 +143,7 @@ public record SmtpConfiguration(
       return this;
     }
 
+    /** Executes the build operation. */
     public SmtpConfiguration build() {
       return new SmtpConfiguration(
           host,

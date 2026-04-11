@@ -28,6 +28,7 @@ import java.util.Objects;
 public record TemplateResult(
     String templateName, String content, String contentType, Charset charset) {
 
+  /** Validates template result fields are non-null on construction. */
   public TemplateResult {
     Objects.requireNonNull(templateName, "Template name cannot be null");
     Objects.requireNonNull(content, "Content cannot be null");

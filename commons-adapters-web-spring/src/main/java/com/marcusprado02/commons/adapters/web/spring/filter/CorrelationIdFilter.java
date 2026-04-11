@@ -13,6 +13,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import org.slf4j.MDC;
 
+/**
+ * Servlet filter that extracts or generates a correlation ID and stores it in MDC and request
+ * attributes.
+ */
 public final class CorrelationIdFilter implements Filter {
 
   public static final String REQUEST_ATTRIBUTE = "commons.correlation_id";

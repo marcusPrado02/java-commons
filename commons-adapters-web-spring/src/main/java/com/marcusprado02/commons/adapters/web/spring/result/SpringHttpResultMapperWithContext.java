@@ -7,6 +7,10 @@ import com.marcusprado02.commons.kernel.errors.Problem;
 import com.marcusprado02.commons.kernel.result.Result;
 import java.util.Map;
 
+/**
+ * Maps {@link com.marcusprado02.commons.kernel.result.Result} values to context-enriched HTTP
+ * response objects.
+ */
 public final class SpringHttpResultMapperWithContext implements HttpResultMapperWithContext {
 
   @Override
@@ -26,6 +30,7 @@ public final class SpringHttpResultMapperWithContext implements HttpResultMapper
   }
 
   @Override
+  @SuppressWarnings("checkstyle:indentation")
   public HttpResultResponseWithContext mapProblem(
       Problem problem, String correlationId, String tenantId, String actorId) {
 

@@ -8,10 +8,12 @@ import io.opentelemetry.context.Scope;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+/** OtelTracerFacade implementation. */
 public final class OtelTracerFacade implements TracerFacade {
 
   private final Tracer tracer;
 
+  /** Creates a new OtelTracerFacade instance. */
   public OtelTracerFacade(String instrumentationName) {
     String name =
         (instrumentationName == null || instrumentationName.isBlank())

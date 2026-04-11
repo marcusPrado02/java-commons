@@ -24,7 +24,8 @@ import org.slf4j.LoggerFactory;
  * <p><strong>Note:</strong> Set logging level to DEBUG for this class to see logs:
  *
  * <pre>
- * logging.level.com.marcusprado02.commons.adapters.web.jaxrs.filter.RequestResponseLoggingFilter=DEBUG
+ * logging.level.com.marcusprado02.commons.adapters.web.jaxrs.filter
+ * .RequestResponseLoggingFilter=DEBUG
  * </pre>
  */
 @Provider

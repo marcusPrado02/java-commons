@@ -14,6 +14,10 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+/**
+ * JPA-backed implementation of {@link
+ * com.marcusprado02.commons.app.outbox.port.OutboxRepositoryPort}.
+ */
 public final class JpaOutboxRepositoryAdapter implements OutboxRepositoryPort {
 
   private final EntityManager em;

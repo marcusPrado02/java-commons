@@ -47,6 +47,7 @@ public final class ChunkProcessingResult {
     return hasMoreItems;
   }
 
+  /** Builder for {@link ChunkProcessingResult}. */
   public static final class Builder {
     private int itemsRead = 0;
     private int itemsProcessed = 0;

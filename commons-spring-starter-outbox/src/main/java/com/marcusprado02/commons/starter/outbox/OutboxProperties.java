@@ -7,6 +7,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public record OutboxProperties(
     Processing processing, Scheduling scheduling, Retry retry, Health health) {
 
+  /** Validates and applies defaults for {@link OutboxProperties}. */
   public OutboxProperties {
     if (processing == null) {
       processing = new Processing(100, false);
@@ -23,6 +24,7 @@ public record OutboxProperties(
   }
 
   public record Processing(int batchSize, boolean useCircuitBreaker) {
+    /** Validates and applies defaults for {@link Processing}. */
     public Processing {
       if (batchSize <= 0) {
         batchSize = 100;
@@ -31,6 +33,7 @@ public record OutboxProperties(
   }
 
   public record Scheduling(boolean enabled, Duration fixedDelay) {
+    /** Validates and applies defaults for {@link Scheduling}. */
     public Scheduling {
       if (fixedDelay == null || fixedDelay.isNegative() || fixedDelay.isZero()) {
         fixedDelay = Duration.ofSeconds(2);
@@ -40,6 +43,7 @@ public record OutboxProperties(
 
   public record Retry(
       int maxAttempts, Duration initialBackoff, Duration maxBackoff, double backoffMultiplier) {
+    /** Validates and applies defaults for {@link Retry}. */
     public Retry {
       if (maxAttempts <= 0) {
         maxAttempts = 5;
@@ -57,6 +61,7 @@ public record OutboxProperties(
   }
 
   public record Health(boolean enabled, long warningThreshold, long errorThreshold) {
+    /** Validates and applies defaults for {@link Health}. */
     public Health {
       if (warningThreshold <= 0) {
         warningThreshold = 1000;

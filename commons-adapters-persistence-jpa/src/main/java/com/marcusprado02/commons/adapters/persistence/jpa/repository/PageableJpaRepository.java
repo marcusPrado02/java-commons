@@ -16,15 +16,19 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
 import java.util.List;
 
-public class PageableJpaRepository<E, ID> extends BaseGenericRepository<E, ID>
-    implements PageableRepository<E, ID> {
+/**
+ * JPA-backed implementation of {@link
+ * com.marcusprado02.commons.ports.persistence.contract.PageableRepository}.
+ */
+public class PageableJpaRepository<E, I> extends BaseGenericRepository<E, I>
+    implements PageableRepository<E, I> {
 
-  public PageableJpaRepository(Class<E> entityClass, Class<ID> idClass) {
+  public PageableJpaRepository(Class<E> entityClass, Class<I> idClass) {
     super(entityClass, idClass);
   }
 
-  /** Inject the EntityManager and return this repository instance */
-  public PageableJpaRepository<E, ID> withEntityManager(EntityManager em) {
+  /** Injects the EntityManager and returns this repository instance. */
+  public PageableJpaRepository<E, I> withEntityManager(EntityManager em) {
     this.entityManager = em;
     return this;
   }
@@ -40,7 +44,7 @@ public class PageableJpaRepository<E, ID> extends BaseGenericRepository<E, ID>
     countQuery
         .select(cb.count(countRoot))
         .where(specification.toPredicate(countRoot, countQuery, cb));
-    long total = entityManager.createQuery(countQuery).getSingleResult();
+    final long total = entityManager.createQuery(countQuery).getSingleResult();
 
     // select
     CriteriaQuery<E> selectQuery = cb.createQuery(getEntityClass());
@@ -76,7 +80,7 @@ public class PageableJpaRepository<E, ID> extends BaseGenericRepository<E, ID>
     if (spec != null) {
       countQuery.where(spec.toPredicate(countRoot, countQuery, cb));
     }
-    long total = entityManager.createQuery(countQuery).getSingleResult();
+    final long total = entityManager.createQuery(countQuery).getSingleResult();
 
     // -- SELECT
     var selectQuery = cb.createQuery(getEntityClass());

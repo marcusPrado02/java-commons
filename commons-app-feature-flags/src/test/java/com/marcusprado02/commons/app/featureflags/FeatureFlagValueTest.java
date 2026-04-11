@@ -57,7 +57,7 @@ class FeatureFlagValueTest {
   @Test
   void shouldHandleJsonValue() throws Exception {
     ObjectMapper mapper = new ObjectMapper();
-    JsonNode json = mapper.readTree("{\"key\":\"value\"}");
+    JsonNode json = mapper.readTree("\"value\"");
 
     FeatureFlagValue value = FeatureFlagValue.of(json);
 

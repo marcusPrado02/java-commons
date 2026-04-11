@@ -63,6 +63,7 @@ public final class ValidationViolation {
     return String.format("%s [%s]: %s (value=%s, code=%s)", severity, field, message, value, code);
   }
 
+  /** Builder for {@link ValidationViolation}. */
   public static final class Builder {
     private String field;
     private Object value;

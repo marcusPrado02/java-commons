@@ -1,6 +1,11 @@
 package com.marcusprado02.commons.ports.excel;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 /**
  * Represents an Excel worksheet with cells, formatting, and metadata.
@@ -27,6 +32,7 @@ public record ExcelWorksheet(
     boolean autoFilter,
     String printArea) {
 
+  /** Validates worksheet fields and creates defensive copies. */
   public ExcelWorksheet {
     if (name == null || name.trim().isEmpty()) {
       throw new IllegalArgumentException("Worksheet name cannot be null or empty");
@@ -55,7 +61,7 @@ public record ExcelWorksheet(
    * @return cell or null if not found
    */
   public ExcelCell getCell(String address) {
-    return cells.get(address.toUpperCase());
+    return cells.get(address.toUpperCase(Locale.ROOT));
   }
 
   /**
@@ -170,20 +176,28 @@ public record ExcelWorksheet(
       this.name = name;
     }
 
+    /**
+     * Adds a cell to the worksheet.
+     *
+     * @param cell the cell to add
+     * @return this builder
+     */
     public Builder cell(ExcelCell cell) {
       this.cells.put(cell.getAddress(), cell);
       return this;
     }
 
-    public Builder cells(Collection<ExcelCell> cells) {
-      for (ExcelCell cell : cells) {
-        this.cells.put(cell.getAddress(), cell);
-      }
-      return this;
-    }
-
+    /**
+     * Adds a cell with a value, inferring the cell type from the value.
+     *
+     * @param row 0-based row index
+     * @param column 0-based column index
+     * @param value the cell value
+     * @return this builder
+     */
+    @SuppressWarnings("checkstyle:indentation")
     public Builder cell(int row, int column, Object value) {
-      ExcelCell cell =
+      var cell =
           switch (value) {
             case null -> ExcelCell.blank(row, column);
             case Boolean b -> ExcelCell.bool(row, column, b);
@@ -194,16 +208,44 @@ public record ExcelWorksheet(
       return cell(cell);
     }
 
+    /**
+     * Adds multiple cells to the worksheet.
+     *
+     * @param cells collection of cells to add
+     * @return this builder
+     */
+    public Builder cells(Collection<ExcelCell> cells) {
+      for (ExcelCell cell : cells) {
+        this.cells.put(cell.getAddress(), cell);
+      }
+      return this;
+    }
+
+    /**
+     * Sets the width of a column.
+     *
+     * @param column 0-based column index
+     * @param width column width
+     * @return this builder
+     */
     public Builder columnWidth(int column, double width) {
       this.columnWidths.put(column, width);
       return this;
     }
 
+    /**
+     * Sets the height of a row.
+     *
+     * @param row 0-based row index
+     * @param height row height
+     * @return this builder
+     */
     public Builder rowHeight(int row, double height) {
       this.rowHeights.put(row, height);
       return this;
     }
 
+    /** Executes the freezePanes operation. */
     public Builder freezePanes(int rows, int columns) {
       this.frozenRows = rows;
       this.frozenColumns = columns;

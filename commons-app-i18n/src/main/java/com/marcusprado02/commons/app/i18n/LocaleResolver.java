@@ -13,7 +13,8 @@ import java.util.Locale;
  *
  * <pre>{@code
  * // Accept-Language header resolver
- * LocaleResolver headerResolver = request -> parseAcceptLanguage(request.getHeader("Accept-Language"));
+ * LocaleResolver headerResolver =
+ *     request -> parseAcceptLanguage(request.getHeader("Accept-Language"));
  *
  * // Cookie-based resolver
  * LocaleResolver cookieResolver = request -> parseCookie(request.getCookie("locale"));

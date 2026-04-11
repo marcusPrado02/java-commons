@@ -22,6 +22,7 @@ public sealed interface ApiEnvelopeWithContext
 
   Map<String, Object> meta();
 
+  /** Success data. */
   record Success<T>(
       T data,
       String correlationId,
@@ -40,6 +41,7 @@ public sealed interface ApiEnvelopeWithContext
     }
   }
 
+  /** Failure data. */
   record Failure(
       Object error,
       String correlationId,

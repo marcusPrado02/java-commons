@@ -23,5 +23,6 @@ public record BatchDeleteResult(List<String> successful, List<BatchFailure> fail
     return !failed.isEmpty();
   }
 
+  /** Describes a single failed message in a batch delete operation. */
   public record BatchFailure(String id, String code, String message) {}
 }

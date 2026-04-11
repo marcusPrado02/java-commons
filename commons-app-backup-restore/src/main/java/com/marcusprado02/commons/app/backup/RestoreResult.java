@@ -28,6 +28,7 @@ public record RestoreResult(
     Map<String, String> metadata,
     Optional<String> error) {
 
+  /** Validates and normalises fields on construction. */
   public RestoreResult {
     Objects.requireNonNull(backupId, "backupId");
     Objects.requireNonNull(targetPath, "targetPath");
@@ -45,6 +46,7 @@ public record RestoreResult(
     return new Builder();
   }
 
+  /** Builder for {@link RestoreResult}. */
   public static class Builder {
     private String backupId;
     private String targetPath;
@@ -95,6 +97,7 @@ public record RestoreResult(
       return this;
     }
 
+    /** Builds and returns a new {@link RestoreResult}. @return the constructed instance */
     public RestoreResult build() {
       return new RestoreResult(
           backupId,

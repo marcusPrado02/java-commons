@@ -21,6 +21,7 @@ public record PhoneNumber(String value, String countryCode, String nationalNumbe
   private static final Pattern E164_PATTERN = Pattern.compile("^\\+[1-9]\\d{1,14}$");
   private static final Pattern PHONE_DIGITS_PATTERN = Pattern.compile("[^\\d+]");
 
+  /** Validates and normalizes phone number to E.164 format. */
   public PhoneNumber {
     Objects.requireNonNull(value, "phone number value cannot be null");
 

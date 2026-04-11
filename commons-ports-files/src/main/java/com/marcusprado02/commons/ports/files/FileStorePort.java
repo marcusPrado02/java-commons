@@ -103,6 +103,7 @@ public interface FileStorePort {
 
   /** Represents upload operation result. */
   record UploadResult(FileId fileId, String etag, Long contentLength) {
+    /** Validates upload result fields. */
     public UploadResult {
       Objects.requireNonNull(fileId, "fileId must not be null");
       Objects.requireNonNull(etag, "etag must not be null");
@@ -140,6 +141,7 @@ public interface FileStorePort {
       return new Builder();
     }
 
+    /** Builder for {@link UploadOptions}. */
     public static class Builder {
       private String contentType = "application/octet-stream";
       private java.util.Map<String, String> metadata = java.util.Map.of();

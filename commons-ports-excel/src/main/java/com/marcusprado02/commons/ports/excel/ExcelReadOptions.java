@@ -25,9 +25,14 @@ public record ExcelReadOptions(
     boolean skipBlankRows,
     String dateFormat) {
 
+  /** Validates Excel read options. */
   public ExcelReadOptions {
-    if (maxRows < 0) throw new IllegalArgumentException("Max rows must be >= 0");
-    if (maxColumns < 0) throw new IllegalArgumentException("Max columns must be >= 0");
+    if (maxRows < 0) {
+      throw new IllegalArgumentException("Max rows must be >= 0");
+    }
+    if (maxColumns < 0) {
+      throw new IllegalArgumentException("Max columns must be >= 0");
+    }
   }
 
   /** Creates default read options. */
@@ -112,6 +117,11 @@ public record ExcelReadOptions(
       return this;
     }
 
+    /**
+     * Builds the ExcelReadOptions instance.
+     *
+     * @return configured ExcelReadOptions
+     */
     public ExcelReadOptions build() {
       return new ExcelReadOptions(
           readAllSheets,

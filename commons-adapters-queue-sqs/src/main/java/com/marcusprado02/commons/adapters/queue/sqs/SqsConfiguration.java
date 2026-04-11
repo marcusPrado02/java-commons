@@ -14,6 +14,7 @@ public record SqsConfiguration(
     int maxBatchSize,
     boolean fifoQueue) {
 
+  /** Validates fields on construction. */
   public SqsConfiguration {
     Objects.requireNonNull(queueUrl, "queueUrl cannot be null");
     Objects.requireNonNull(region, "region cannot be null");

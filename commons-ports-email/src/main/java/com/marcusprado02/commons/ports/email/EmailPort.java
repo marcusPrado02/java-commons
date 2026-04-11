@@ -66,12 +66,19 @@ public interface EmailPort {
 
   /** Receipt returned after successful email send. */
   record EmailReceipt(String messageId) {
+    /** Validates the message ID. */
     public EmailReceipt {
       if (messageId == null || messageId.isBlank()) {
         throw new IllegalArgumentException("messageId must not be null or blank");
       }
     }
 
+    /**
+     * Creates an EmailReceipt with the given message ID.
+     *
+     * @param messageId the message ID
+     * @return new EmailReceipt
+     */
     public static EmailReceipt of(String messageId) {
       return new EmailReceipt(messageId);
     }

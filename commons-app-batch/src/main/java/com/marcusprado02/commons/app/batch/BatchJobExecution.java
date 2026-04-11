@@ -55,6 +55,11 @@ public final class BatchJobExecution<O> {
     return endTime;
   }
 
+  /**
+   * Returns the elapsed duration of this job execution.
+   *
+   * @return duration from start to end time, or from start to now if still running
+   */
   public Duration getDuration() {
     if (endTime == null) {
       return Duration.between(startTime, Instant.now());
@@ -94,6 +99,7 @@ public final class BatchJobExecution<O> {
     return status == BatchJobStatus.FAILED;
   }
 
+  /** Builder for {@link BatchJobExecution}. */
   public static final class Builder<O> {
     private String executionId;
     private BatchJobStatus status = BatchJobStatus.STARTING;

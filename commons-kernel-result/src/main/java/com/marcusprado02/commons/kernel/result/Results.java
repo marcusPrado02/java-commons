@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+/** Utility methods for converting and unwrapping {@link Result} values. */
 public final class Results {
 
   private Results() {}
@@ -28,7 +29,9 @@ public final class Results {
    */
   public static <T> T orThrow(Result<T> result) {
     Objects.requireNonNull(result, "result");
-    if (result.isOk()) return result.getOrNull();
+    if (result.isOk()) {
+      return result.getOrNull();
+    }
     throw ProblemExceptions.from(result.problemOrNull());
   }
 
@@ -40,7 +43,9 @@ public final class Results {
       Result<T> result, Function<Problem, X> exceptionFactory) {
     Objects.requireNonNull(result, "result");
     Objects.requireNonNull(exceptionFactory, "exceptionFactory");
-    if (result.isOk()) return result.getOrNull();
+    if (result.isOk()) {
+      return result.getOrNull();
+    }
     throw exceptionFactory.apply(result.problemOrNull());
   }
 

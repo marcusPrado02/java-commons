@@ -7,10 +7,12 @@ import com.azure.security.keyvault.secrets.SecretClient;
 import com.azure.security.keyvault.secrets.SecretClientBuilder;
 import java.util.Objects;
 
+/** AzureKeyVaultClients implementation. */
 public final class AzureKeyVaultClients {
 
   private AzureKeyVaultClients() {}
 
+  /** Executes the secretClient operation. */
   public static SecretClient secretClient(String vaultUrl) {
     Objects.requireNonNull(vaultUrl, "vaultUrl cannot be null");
 
@@ -20,6 +22,7 @@ public final class AzureKeyVaultClients {
         .buildClient();
   }
 
+  /** Executes the certificateClient operation. */
   public static CertificateClient certificateClient(String vaultUrl) {
     Objects.requireNonNull(vaultUrl, "vaultUrl cannot be null");
 

@@ -4,12 +4,12 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
 import com.marcusprado02.commons.archunit.support.ArchTestSupport;
 import com.marcusprado02.commons.kernel.ddd.id.Identifier;
-import com.tngtech.archunit.junit.ArchTest;
+import org.junit.jupiter.api.Test;
 
 class IdentifierRulesArchTest {
 
-  @ArchTest
-  static void ids_should_implement_identifier_interface() {
+  @Test
+  void ids_should_implement_identifier_interface() {
     classes()
         .that()
         .haveSimpleNameEndingWith("Id")

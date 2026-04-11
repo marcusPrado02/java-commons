@@ -49,8 +49,7 @@ class ValidationResultTest {
 
   @Test
   void invalid_with_empty_list_should_throw() {
-    assertThrows(
-        IllegalArgumentException.class, () -> ValidationResult.invalid(List.of()));
+    assertThrows(IllegalArgumentException.class, () -> ValidationResult.invalid(List.of()));
   }
 
   // ---- of(Result) ----
@@ -145,9 +144,10 @@ class ValidationResultTest {
     ValidationResult<String> base = ValidationResult.valid("hello");
     ValidationResult<String> result =
         base.andThen(
-            s -> s.length() > 3
-                ? ValidationResult.valid(s.toUpperCase())
-                : ValidationResult.invalid(problem("TOO_SHORT")));
+            s ->
+                s.length() > 3
+                    ? ValidationResult.valid(s.toUpperCase())
+                    : ValidationResult.invalid(problem("TOO_SHORT")));
     assertTrue(result.isValid());
     assertEquals("HELLO", result.getValue());
   }
@@ -156,8 +156,7 @@ class ValidationResultTest {
   void andThen_on_invalid_should_preserve_original_errors() {
     Problem p = problem("EXISTING");
     ValidationResult<String> base = ValidationResult.invalid(p);
-    ValidationResult<String> result =
-        base.andThen(s -> ValidationResult.valid(s.toUpperCase()));
+    ValidationResult<String> result = base.andThen(s -> ValidationResult.valid(s.toUpperCase()));
     assertTrue(result.isInvalid());
     assertEquals(1, result.getProblems().size());
     assertEquals(p, result.getProblems().get(0));
@@ -169,10 +168,7 @@ class ValidationResultTest {
   void builder_with_all_ok_results_should_produce_valid() {
     Problem p = problem("ERR");
     ValidationResult<String> vr =
-        ValidationResult.builder()
-            .add(Result.ok("a"))
-            .add(Result.ok("b"))
-            .build("final value");
+        ValidationResult.builder().add(Result.ok("a")).add(Result.ok("b")).build("final value");
     assertTrue(vr.isValid());
     assertEquals("final value", vr.getValue());
   }

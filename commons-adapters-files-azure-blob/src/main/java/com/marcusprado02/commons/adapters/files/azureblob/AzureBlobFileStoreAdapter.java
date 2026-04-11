@@ -5,7 +5,14 @@ import com.azure.core.util.Context;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
-import com.azure.storage.blob.models.*;
+import com.azure.storage.blob.models.AccessTier;
+import com.azure.storage.blob.models.BlobErrorCode;
+import com.azure.storage.blob.models.BlobHttpHeaders;
+import com.azure.storage.blob.models.BlobItem;
+import com.azure.storage.blob.models.BlobProperties;
+import com.azure.storage.blob.models.BlobStorageException;
+import com.azure.storage.blob.models.BlockBlobItem;
+import com.azure.storage.blob.models.ListBlobsOptions;
 import com.azure.storage.blob.options.BlobParallelUploadOptions;
 import com.azure.storage.blob.sas.BlobSasPermission;
 import com.azure.storage.blob.sas.BlobServiceSasSignatureValues;
@@ -42,6 +49,7 @@ public class AzureBlobFileStoreAdapter implements FileStorePort {
   private final BlobServiceClient blobServiceClient;
   private final AzureBlobConfiguration configuration;
 
+  /** Creates a new AzureBlobFileStoreAdapter instance. */
   public AzureBlobFileStoreAdapter(
       BlobServiceClient blobServiceClient, AzureBlobConfiguration configuration) {
     this.blobServiceClient =
@@ -55,7 +63,7 @@ public class AzureBlobFileStoreAdapter implements FileStorePort {
       log.debug("Uploading blob: {}", fileId);
 
       BlobContainerClient containerClient = getContainerClient(fileId.bucket());
-      BlobClient blobClient = containerClient.getBlobClient(fileId.key());
+      final BlobClient blobClient = containerClient.getBlobClient(fileId.key());
 
       byte[] bytes = content.readAllBytes();
 
@@ -377,6 +385,7 @@ public class AzureBlobFileStoreAdapter implements FileStorePort {
       switch (operation) {
         case GET -> permissions.setReadPermission(true);
         case PUT -> permissions.setWritePermission(true).setCreatePermission(true);
+        default -> throw new AssertionError("Unexpected operation: " + operation);
       }
 
       OffsetDateTime expiryTime = OffsetDateTime.now().plus(duration);
@@ -451,6 +460,7 @@ public class AzureBlobFileStoreAdapter implements FileStorePort {
     return blobServiceClient.getBlobContainerClient(containerName);
   }
 
+  @SuppressWarnings("checkstyle:indentation")
   private AccessTier mapAccessTier(StorageClass storageClass) {
     return switch (storageClass) {
       case STANDARD -> AccessTier.HOT;

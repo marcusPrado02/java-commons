@@ -135,9 +135,9 @@ public abstract class CachePortContract<K, V> {
   void shouldClearAll() {
     // Given
     K key1 = createTestKey();
-    K key2 = createAnotherTestKey();
+    final K key2 = createAnotherTestKey();
     V value1 = createTestValue();
-    V value2 = createAnotherTestValue();
+    final V value2 = createAnotherTestValue();
     cache.put(key1, value1);
     cache.put(key2, value2);
 
@@ -170,9 +170,9 @@ public abstract class CachePortContract<K, V> {
   void shouldReturnAllKeys() {
     // Given
     K key1 = createTestKey();
-    K key2 = createAnotherTestKey();
+    final K key2 = createAnotherTestKey();
     V value1 = createTestValue();
-    V value2 = createAnotherTestValue();
+    final V value2 = createAnotherTestValue();
     cache.put(key1, value1);
     cache.put(key2, value2);
 
@@ -189,9 +189,9 @@ public abstract class CachePortContract<K, V> {
   void shouldReturnCorrectSize() {
     // Given
     K key1 = createTestKey();
-    K key2 = createAnotherTestKey();
+    final K key2 = createAnotherTestKey();
     V value1 = createTestValue();
-    V value2 = createAnotherTestValue();
+    final V value2 = createAnotherTestValue();
 
     // When/Then
     assertThat(cache.size()).isZero();

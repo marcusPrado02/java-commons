@@ -4,13 +4,27 @@ import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.ElasticsearchException;
 import co.elastic.clients.elasticsearch._types.FieldValue;
 import co.elastic.clients.elasticsearch._types.SortOrder;
-import co.elastic.clients.elasticsearch._types.aggregations.*;
-import co.elastic.clients.elasticsearch._types.query_dsl.*;
-import co.elastic.clients.elasticsearch.core.*;
+import co.elastic.clients.elasticsearch._types.aggregations.StringTermsAggregate;
+import co.elastic.clients.elasticsearch._types.query_dsl.Query;
+import co.elastic.clients.elasticsearch.core.BulkOperation;
+import co.elastic.clients.elasticsearch.core.BulkRequest;
+import co.elastic.clients.elasticsearch.core.BulkResponse;
+import co.elastic.clients.elasticsearch.core.BulkResponseItem;
+import co.elastic.clients.elasticsearch.core.DeleteRequest;
+import co.elastic.clients.elasticsearch.core.GetRequest;
+import co.elastic.clients.elasticsearch.core.GetResponse;
+import co.elastic.clients.elasticsearch.core.Hit;
+import co.elastic.clients.elasticsearch.core.IndexRequest;
+import co.elastic.clients.elasticsearch.core.IndexResponse;
+import co.elastic.clients.elasticsearch.core.SearchRequest;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import co.elastic.clients.elasticsearch.core.UpdateRequest;
 import co.elastic.clients.elasticsearch.core.bulk.BulkOperation;
 import co.elastic.clients.elasticsearch.core.bulk.BulkResponseItem;
 import co.elastic.clients.elasticsearch.core.search.Hit;
-import co.elastic.clients.elasticsearch.indices.*;
+import co.elastic.clients.elasticsearch.indices.CreateIndexRequest;
+import co.elastic.clients.elasticsearch.indices.DeleteIndexRequest;
+import co.elastic.clients.elasticsearch.indices.RefreshRequest;
 import co.elastic.clients.json.jackson.JacksonJsonpMapper;
 import co.elastic.clients.transport.rest_client.RestClientTransport;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -19,10 +33,18 @@ import com.marcusprado02.commons.kernel.errors.ErrorCode;
 import com.marcusprado02.commons.kernel.errors.Problem;
 import com.marcusprado02.commons.kernel.errors.Severity;
 import com.marcusprado02.commons.kernel.result.Result;
-import com.marcusprado02.commons.ports.search.*;
+import com.marcusprado02.commons.ports.search.AggregationResult;
+import com.marcusprado02.commons.ports.search.Document;
+import com.marcusprado02.commons.ports.search.SearchPort;
+import com.marcusprado02.commons.ports.search.SearchQuery;
+import com.marcusprado02.commons.ports.search.SearchResult;
 import java.io.IOException;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -426,6 +448,7 @@ public class ElasticsearchAdapter implements SearchPort {
     return new ElasticsearchClient(transport);
   }
 
+  @SuppressWarnings("checkstyle:indentation")
   private Query buildQuery(SearchQuery query) {
     // Handle match-all query
     if ("*".equals(query.query()) || query.query() == null || query.query().isBlank()) {
@@ -480,6 +503,7 @@ public class ElasticsearchAdapter implements SearchPort {
     };
   }
 
+  @SuppressWarnings("checkstyle:indentation")
   private Map<String, co.elastic.clients.elasticsearch._types.aggregations.Aggregation>
       buildAggregations(List<com.marcusprado02.commons.ports.search.Aggregation> aggregations) {
     Map<String, co.elastic.clients.elasticsearch._types.aggregations.Aggregation> result =

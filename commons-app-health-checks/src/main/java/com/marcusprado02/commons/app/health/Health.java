@@ -99,6 +99,7 @@ public final class Health {
     return String.format("Health{status=%s, details=%s}", status, details);
   }
 
+  /** Builder for {@link Health}. */
   public static final class Builder {
     private final HealthStatus status;
     private final Map<String, Object> details = new LinkedHashMap<>();

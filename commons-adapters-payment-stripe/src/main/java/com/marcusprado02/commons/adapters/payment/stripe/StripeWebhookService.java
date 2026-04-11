@@ -14,7 +14,6 @@ import com.stripe.model.StripeObject;
 import com.stripe.net.Webhook;
 import java.time.Instant;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -139,11 +138,7 @@ public final class StripeWebhookService implements PaymentWebhookService {
     String paymentId = extractPaymentId(event);
 
     return new WebhookEvent(
-        event.getId(),
-        event.getType(),
-        paymentId,
-        data,
-        Instant.ofEpochSecond(event.getCreated()));
+        event.getId(), event.getType(), paymentId, data, Instant.ofEpochSecond(event.getCreated()));
   }
 
   private String extractPaymentId(Event event) {

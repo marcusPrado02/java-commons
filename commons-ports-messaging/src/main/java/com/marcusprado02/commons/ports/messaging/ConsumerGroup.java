@@ -2,6 +2,7 @@ package com.marcusprado02.commons.ports.messaging;
 
 import java.util.Objects;
 
+/** Identifies a group of consumers sharing a subscription. */
 public final class ConsumerGroup {
 
   private final String value;

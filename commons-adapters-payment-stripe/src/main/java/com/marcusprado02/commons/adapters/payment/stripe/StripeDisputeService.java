@@ -20,8 +20,7 @@ import org.slf4j.LoggerFactory;
 /**
  * Stripe implementation for dispute management.
  *
- * <p>Supports retrieving, listing, responding to, and closing Stripe disputes
- * (chargebacks).
+ * <p>Supports retrieving, listing, responding to, and closing Stripe disputes (chargebacks).
  *
  * <p>Usage:
  *
@@ -46,6 +45,12 @@ public final class StripeDisputeService {
     Stripe.apiKey = apiKey;
   }
 
+  /**
+   * Creates a new StripeDisputeService instance.
+   *
+   * @param apiKey Stripe API key
+   * @return new StripeDisputeService instance
+   */
   public static StripeDisputeService create(String apiKey) {
     return new StripeDisputeService(apiKey);
   }
@@ -110,6 +115,7 @@ public final class StripeDisputeService {
    *
    * <p>The {@code evidence} map accepts any of the Stripe evidence fields documented at
    * https://stripe.com/docs/api/disputes/update. Common fields:
+   *
    * <ul>
    *   <li>{@code product_description}
    *   <li>{@code customer_email_address}
@@ -145,8 +151,7 @@ public final class StripeDisputeService {
               evidenceBuilder.setRefundPolicyDisclosure(entry.getValue());
           case "service_date" -> evidenceBuilder.setServiceDate(entry.getValue());
           case "service_documentation" -> evidenceBuilder.setServiceDocumentation(entry.getValue());
-          default ->
-              logger.debug("Ignoring unknown evidence field: {}", entry.getKey());
+          default -> logger.debug("Ignoring unknown evidence field: {}", entry.getKey());
         }
       }
 

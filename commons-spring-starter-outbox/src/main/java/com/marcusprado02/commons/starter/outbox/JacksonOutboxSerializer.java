@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.marcusprado02.commons.app.outbox.OutboxSerializer;
 import java.util.Objects;
 
+/** Jackson-based implementation of {@link OutboxSerializer} for JSON serialization. */
 public final class JacksonOutboxSerializer implements OutboxSerializer {
 
   private final ObjectMapper mapper;

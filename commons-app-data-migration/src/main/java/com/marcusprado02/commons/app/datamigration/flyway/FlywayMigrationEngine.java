@@ -313,6 +313,7 @@ public class FlywayMigrationEngine implements MigrationEngine {
       return this;
     }
 
+    /** Builds and returns a configured {@link FlywayMigrationEngine}. */
     public FlywayMigrationEngine build() {
       Objects.requireNonNull(dataSource, "dataSource is required");
 

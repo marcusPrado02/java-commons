@@ -67,6 +67,7 @@ public sealed interface FeatureFlagValue {
     return new JsonValue(value);
   }
 
+  /** A feature flag value backed by a {@code boolean}. */
   record BooleanValue(boolean value) implements FeatureFlagValue {
     @Override
     public Object rawValue() {
@@ -104,6 +105,7 @@ public sealed interface FeatureFlagValue {
     }
   }
 
+  /** A feature flag value backed by a {@link String}. */
   record StringValue(String value) implements FeatureFlagValue {
     public StringValue {
       Objects.requireNonNull(value, "value");
@@ -145,6 +147,7 @@ public sealed interface FeatureFlagValue {
     }
   }
 
+  /** A feature flag value backed by an {@code int}. */
   record IntValue(int value) implements FeatureFlagValue {
     @Override
     public Object rawValue() {
@@ -182,6 +185,7 @@ public sealed interface FeatureFlagValue {
     }
   }
 
+  /** A feature flag value backed by a {@code long}. */
   record LongValue(long value) implements FeatureFlagValue {
     @Override
     public Object rawValue() {
@@ -219,6 +223,7 @@ public sealed interface FeatureFlagValue {
     }
   }
 
+  /** A feature flag value backed by a {@code double}. */
   record DoubleValue(double value) implements FeatureFlagValue {
     @Override
     public Object rawValue() {
@@ -256,6 +261,7 @@ public sealed interface FeatureFlagValue {
     }
   }
 
+  /** A feature flag value backed by a {@link JsonNode}. */
   record JsonValue(JsonNode value) implements FeatureFlagValue {
     public JsonValue {
       Objects.requireNonNull(value, "value");

@@ -9,6 +9,7 @@ import java.util.Objects;
  */
 public record EmailSubject(String value) {
 
+  /** Validates and normalizes the email subject. */
   public EmailSubject {
     Objects.requireNonNull(value, "subject must not be null");
     String trimmed = value.trim();

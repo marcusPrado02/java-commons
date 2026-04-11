@@ -55,9 +55,10 @@ public record BatchPrediction(
     if (duration.isZero()) {
       return 0.0;
     }
-    return totalCount / duration.toSeconds();
+    return (double) totalCount / duration.toSeconds();
   }
 
+  /** Builder for {@link BatchPrediction}. */
   public static class Builder {
     private List<Prediction> predictions = List.of();
     private int totalCount;
@@ -66,12 +67,24 @@ public record BatchPrediction(
     private Instant completedAt = Instant.now();
     private Map<String, String> metadata = Map.of();
 
+    /**
+     * Sets the list of predictions.
+     *
+     * @param predictions list of individual predictions
+     * @return this builder
+     */
     public Builder predictions(List<Prediction> predictions) {
       this.predictions = predictions != null ? predictions : List.of();
       this.totalCount = this.predictions.size();
       return this;
     }
 
+    /**
+     * Adds a single prediction to the batch.
+     *
+     * @param prediction the prediction to add
+     * @return this builder
+     */
     public Builder prediction(Prediction prediction) {
       if (this.predictions.isEmpty()) {
         this.predictions = new java.util.ArrayList<>();
@@ -94,6 +107,12 @@ public record BatchPrediction(
       return this;
     }
 
+    /**
+     * Sets when the batch prediction completed, also computing duration if startedAt is set.
+     *
+     * @param completedAt completion timestamp
+     * @return this builder
+     */
     public Builder completedAt(Instant completedAt) {
       this.completedAt = completedAt;
       if (startedAt != null && completedAt != null) {
@@ -107,6 +126,13 @@ public record BatchPrediction(
       return this;
     }
 
+    /**
+     * Adds a single metadata entry.
+     *
+     * @param key metadata key
+     * @param value metadata value
+     * @return this builder
+     */
     public Builder metadata(String key, String value) {
       if (this.metadata.isEmpty()) {
         this.metadata = new java.util.HashMap<>();
@@ -118,6 +144,11 @@ public record BatchPrediction(
       return this;
     }
 
+    /**
+     * Builds the BatchPrediction instance.
+     *
+     * @return configured BatchPrediction
+     */
     public BatchPrediction build() {
       if (startedAt != null && completedAt != null && duration.isZero()) {
         duration = Duration.between(startedAt, completedAt);

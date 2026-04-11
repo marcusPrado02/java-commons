@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+/** Represents an optional value: either {@link Some} with a value or {@link None} without one. */
 public sealed interface Option<T> permits Option.Some, Option.None {
 
   boolean isPresent();
@@ -40,6 +41,7 @@ public sealed interface Option<T> permits Option.Some, Option.None {
     return isPresent() ? Option.ofNullable(fn.apply(get())) : Option.none();
   }
 
+  /** Some variant of {@link Option} holding a non-null value. */
   record Some<T>(T value) implements Option<T> {
     @Override
     public boolean isPresent() {
@@ -52,6 +54,7 @@ public sealed interface Option<T> permits Option.Some, Option.None {
     }
   }
 
+  /** None variant of {@link Option} representing the absence of a value. */
   final class None<T> implements Option<T> {
     @Override
     public boolean isPresent() {

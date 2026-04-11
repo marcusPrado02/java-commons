@@ -69,6 +69,18 @@ public class RateLimitConfig {
   }
 
   /**
+   * Creates a rate limit configuration with explicit capacity and refill rate.
+   *
+   * @param capacity maximum number of tokens
+   * @param refillRate tokens added per period
+   * @param period time period
+   * @return rate limit configuration
+   */
+  public static RateLimitConfig of(long capacity, long refillRate, Duration period) {
+    return builder().capacity(capacity).refillRate(refillRate).refillPeriod(period).build();
+  }
+
+  /**
    * Creates a rate limit configuration with burst capacity.
    *
    * @param requestsPerPeriod steady rate of requests per period
@@ -83,18 +95,6 @@ public class RateLimitConfig {
         .refillRate(requestsPerPeriod)
         .refillPeriod(period)
         .build();
-  }
-
-  /**
-   * Creates a rate limit configuration with explicit capacity and refill rate.
-   *
-   * @param capacity maximum number of tokens
-   * @param refillRate tokens added per period
-   * @param period time period
-   * @return rate limit configuration
-   */
-  public static RateLimitConfig of(long capacity, long refillRate, Duration period) {
-    return builder().capacity(capacity).refillRate(refillRate).refillPeriod(period).build();
   }
 
   /**
@@ -175,8 +175,12 @@ public class RateLimitConfig {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     RateLimitConfig that = (RateLimitConfig) o;
     return capacity == that.capacity
         && refillRate == that.refillRate

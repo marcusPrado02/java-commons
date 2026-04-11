@@ -217,7 +217,8 @@ public final class SolidRules {
                 "constructs UnsupportedOperationException",
                 call -> call.getTargetOwner().isAssignableTo(UnsupportedOperationException.class)))
         .as(
-            "LSP: Domain subtypes must not narrow contracts by throwing UnsupportedOperationException");
+            "LSP: Domain subtypes must not narrow contracts by throwing"
+                + " UnsupportedOperationException");
   }
 
   // -------------------------------------------------------------------------

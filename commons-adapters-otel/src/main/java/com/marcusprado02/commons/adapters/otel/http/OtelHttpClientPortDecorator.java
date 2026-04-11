@@ -40,6 +40,7 @@ public final class OtelHttpClientPortDecorator implements HttpClientPort {
   private final Tracer tracer;
   private final TextMapPropagator propagator;
 
+  /** Creates a new OtelHttpClientPortDecorator instance. */
   public OtelHttpClientPortDecorator(HttpClientPort delegate, String instrumentationName) {
     this.delegate = Objects.requireNonNull(delegate, "delegate must not be null");
 

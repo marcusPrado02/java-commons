@@ -23,16 +23,16 @@ import java.util.Objects;
  * </pre>
  *
  * @param <E> Entity type
- * @param <ID> Entity ID type
+ * @param <I> Entity ID type
  */
-public class GenericSearchController<E, ID> {
+public class GenericSearchController<E, I> {
 
   private static final int DEFAULT_PAGE = 0;
   private static final int DEFAULT_SIZE = 20;
   private static final int MAX_SIZE = 100;
 
   private final String basePath;
-  private final PageableRepository<E, ID> repository;
+  private final PageableRepository<E, I> repository;
 
   /**
    * Creates a new GenericSearchController.
@@ -40,7 +40,7 @@ public class GenericSearchController<E, ID> {
    * @param basePath the base path for this controller
    * @param repository the repository to use for searches
    */
-  public GenericSearchController(String basePath, PageableRepository<E, ID> repository) {
+  public GenericSearchController(String basePath, PageableRepository<E, I> repository) {
     this.basePath = Objects.requireNonNull(basePath, "basePath cannot be null");
     this.repository = Objects.requireNonNull(repository, "repository cannot be null");
   }

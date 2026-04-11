@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+/** In-memory implementation of {@link IdempotencyStorePort} for testing and simple deployments. */
 public final class InMemoryIdempotencyStore implements IdempotencyStorePort {
 
   private static final Duration DEFAULT_TTL = Duration.ofMinutes(5);

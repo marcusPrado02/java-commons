@@ -40,12 +40,24 @@ public class ProblemExceptionHandler {
     this.mapper = mapper;
   }
 
+  /**
+   * Handles domain exceptions.
+   *
+   * @param ex the domain exception
+   * @return the HTTP problem response
+   */
   @ExceptionHandler(DomainException.class)
   public ResponseEntity<HttpProblemResponse> handle(DomainException ex) {
     var response = mapper.map(ex.problem());
     return ResponseEntity.status(response.status()).body(response);
   }
 
+  /**
+   * Handles bean validation errors.
+   *
+   * @param ex the validation exception
+   * @return the HTTP problem response
+   */
   @ExceptionHandler(MethodArgumentNotValidException.class)
   public ResponseEntity<HttpProblemResponse> handle(MethodArgumentNotValidException ex) {
     Map<String, Object> details = new HashMap<>();
@@ -68,6 +80,12 @@ public class ProblemExceptionHandler {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
   }
 
+  /**
+   * Handles malformed request body errors.
+   *
+   * @param ex the exception
+   * @return the HTTP problem response
+   */
   @ExceptionHandler(HttpMessageNotReadableException.class)
   public ResponseEntity<HttpProblemResponse> handle(HttpMessageNotReadableException ex) {
     var response =
@@ -77,6 +95,12 @@ public class ProblemExceptionHandler {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
   }
 
+  /**
+   * Handles unsupported HTTP method errors.
+   *
+   * @param ex the exception
+   * @return the HTTP problem response
+   */
   @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
   public ResponseEntity<HttpProblemResponse> handle(HttpRequestMethodNotSupportedException ex) {
     Map<String, Object> details = new HashMap<>();
@@ -95,6 +119,12 @@ public class ProblemExceptionHandler {
     return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED).body(response);
   }
 
+  /**
+   * Handles resource not found errors.
+   *
+   * @param ex the exception
+   * @return the HTTP problem response
+   */
   @ExceptionHandler(NoResourceFoundException.class)
   public ResponseEntity<HttpProblemResponse> handle(NoResourceFoundException ex) {
     var response =
@@ -103,6 +133,12 @@ public class ProblemExceptionHandler {
     return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
   }
 
+  /**
+   * Handles illegal argument errors.
+   *
+   * @param ex the exception
+   * @return the HTTP problem response
+   */
   @ExceptionHandler(IllegalArgumentException.class)
   public ResponseEntity<HttpProblemResponse> handle(IllegalArgumentException ex) {
     var response =
@@ -111,6 +147,12 @@ public class ProblemExceptionHandler {
     return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
   }
 
+  /**
+   * Handles all unexpected errors.
+   *
+   * @param ex the exception
+   * @return the HTTP problem response
+   */
   @ExceptionHandler(Exception.class)
   public ResponseEntity<HttpProblemResponse> handle(Exception ex) {
     log.error("Unhandled exception", ex);

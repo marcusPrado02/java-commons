@@ -37,6 +37,12 @@ public class AzureSecretsAutoConfiguration {
 
   private static final Logger log = LoggerFactory.getLogger(AzureSecretsAutoConfiguration.class);
 
+  /**
+   * Creates the Azure Key Vault {@link SecretClient} from the configured properties.
+   *
+   * @param properties the secrets configuration properties
+   * @return the Azure secret client
+   */
   @Bean
   @ConditionalOnMissingBean
   public SecretClient secretClient(SecretsProperties properties) {
@@ -58,6 +64,12 @@ public class AzureSecretsAutoConfiguration {
     return client;
   }
 
+  /**
+   * Creates the Azure Key Vault-backed {@link SecretStorePort} bean.
+   *
+   * @param client the Azure Key Vault secret client
+   * @return the secret store port
+   */
   @Bean
   @ConditionalOnMissingBean(SecretStorePort.class)
   @ConditionalOnProperty(prefix = "commons.secrets", name = "type", havingValue = "azure")

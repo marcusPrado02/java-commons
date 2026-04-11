@@ -132,6 +132,7 @@ public final class WebhookDelivery {
     return status == WebhookDeliveryStatus.FAILED && nextRetryAt != null;
   }
 
+  /** Builder for {@link WebhookDelivery}. */
   public static final class Builder {
     private String id;
     private String webhookId;

@@ -43,6 +43,7 @@ public record Refund(
     return new Builder();
   }
 
+  /** Builder for {@link Refund}. */
   public static class Builder {
     private String id;
     private String paymentId;

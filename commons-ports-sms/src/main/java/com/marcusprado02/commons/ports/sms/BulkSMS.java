@@ -10,6 +10,7 @@ import java.util.Objects;
  */
 public record BulkSMS(PhoneNumber from, List<PhoneNumber> to, String message, SMSOptions options) {
 
+  /** Validates bulk SMS fields and creates defensive copies. */
   public BulkSMS {
     Objects.requireNonNull(from, "from phone number must not be null");
     Objects.requireNonNull(to, "to phone numbers must not be null");

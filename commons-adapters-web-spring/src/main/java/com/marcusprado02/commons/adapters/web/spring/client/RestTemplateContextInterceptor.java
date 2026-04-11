@@ -2,8 +2,14 @@ package com.marcusprado02.commons.adapters.web.spring.client;
 
 import java.io.IOException;
 import org.springframework.http.HttpRequest;
-import org.springframework.http.client.*;
+import org.springframework.http.client.ClientHttpRequestExecution;
+import org.springframework.http.client.ClientHttpRequestInterceptor;
+import org.springframework.http.client.ClientHttpResponse;
 
+/**
+ * {@link org.springframework.http.client.ClientHttpRequestInterceptor} that propagates context
+ * headers to outbound REST requests.
+ */
 public final class RestTemplateContextInterceptor implements ClientHttpRequestInterceptor {
 
   @Override

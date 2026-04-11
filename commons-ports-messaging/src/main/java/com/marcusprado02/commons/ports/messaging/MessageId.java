@@ -3,6 +3,7 @@ package com.marcusprado02.commons.ports.messaging;
 import java.util.Objects;
 import java.util.UUID;
 
+/** Unique identifier for a message. */
 public final class MessageId {
 
   private final String value;

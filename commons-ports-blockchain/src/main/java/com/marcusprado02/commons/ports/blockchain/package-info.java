@@ -90,8 +90,8 @@
  *
  * <h2>Error Handling</h2>
  *
- * All operations return {@code Result<T>} which can be either successful or contain an error. Use
- * the Result API to handle errors gracefully:
+ * <p>All operations return {@code Result<T>} which can be either successful or contain an error.
+ * Use the Result API to handle errors gracefully:
  *
  * <pre>{@code
  * var result = client.getBalance(address);

@@ -87,6 +87,7 @@ public final class ValidationContext {
     return attributes;
   }
 
+  /** Builder for {@link ValidationContext}. */
   public static final class Builder {
     private final Map<String, Object> attributes = new HashMap<>();
 

@@ -15,16 +15,17 @@ import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class RabbitMQPublisherAdapter implements MessagePublisherPort, AutoCloseable {
+/** RabbitMqPublisherAdapter implementation. */
+public final class RabbitMqPublisherAdapter implements MessagePublisherPort, AutoCloseable {
 
-  private static final Logger log = LoggerFactory.getLogger(RabbitMQPublisherAdapter.class);
+  private static final Logger log = LoggerFactory.getLogger(RabbitMqPublisherAdapter.class);
 
   private final Connection connection;
   private final Channel channel;
   private final String exchange;
   private final boolean confirmEnabled;
 
-  private RabbitMQPublisherAdapter(
+  private RabbitMqPublisherAdapter(
       Connection connection, Channel channel, String exchange, boolean confirmEnabled) {
     this.connection = Objects.requireNonNull(connection, "connection must not be null");
     this.channel = Objects.requireNonNull(channel, "channel must not be null");
@@ -90,6 +91,7 @@ public final class RabbitMQPublisherAdapter implements MessagePublisherPort, Aut
     }
   }
 
+  /** Builder implementation. */
   public static final class Builder {
     private String host = "localhost";
     private int port = 5672;
@@ -136,7 +138,8 @@ public final class RabbitMQPublisherAdapter implements MessagePublisherPort, Aut
       return this;
     }
 
-    public RabbitMQPublisherAdapter build() {
+    /** Executes the build operation. */
+    public RabbitMqPublisherAdapter build() {
       try {
         ConnectionFactory factory = new ConnectionFactory();
         factory.setHost(host);
@@ -154,7 +157,7 @@ public final class RabbitMQPublisherAdapter implements MessagePublisherPort, Aut
           channel.confirmSelect();
         }
 
-        return new RabbitMQPublisherAdapter(connection, channel, exchange, confirmEnabled);
+        return new RabbitMqPublisherAdapter(connection, channel, exchange, confirmEnabled);
       } catch (IOException ex) {
         throw new RuntimeException("Failed to create RabbitMQ publisher", ex);
       } catch (TimeoutException ex) {

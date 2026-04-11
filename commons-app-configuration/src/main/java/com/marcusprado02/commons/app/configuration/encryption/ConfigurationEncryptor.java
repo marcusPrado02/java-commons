@@ -47,7 +47,9 @@ public interface ConfigurationEncryptor {
    * @return the decrypted value if encrypted, otherwise the original value
    */
   default String decryptIfNeeded(String value) {
-    if (value == null) return null;
+    if (value == null) {
+      return null;
+    }
     if (isEncrypted(value)) {
       try {
         return decrypt(value);

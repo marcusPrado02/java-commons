@@ -4,8 +4,6 @@ import static org.assertj.core.api.Assertions.*;
 
 import com.marcusprado02.commons.ports.search.*;
 import java.time.Duration;
-import java.util.List;
-import java.util.Map;
 import org.junit.jupiter.api.Test;
 
 class OpenSearchAdapterTest {
@@ -69,8 +67,7 @@ class OpenSearchAdapterTest {
 
   @Test
   void shouldRejectEmptyUrlList() {
-    assertThatThrownBy(
-            () -> OpenSearchConfiguration.builder().build())
+    assertThatThrownBy(() -> OpenSearchConfiguration.builder().build())
         .isInstanceOf(IllegalArgumentException.class)
         .hasMessageContaining("At least one URL must be provided");
   }

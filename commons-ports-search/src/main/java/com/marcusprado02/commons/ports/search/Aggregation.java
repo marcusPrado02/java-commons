@@ -120,25 +120,25 @@ public record Aggregation(String name, AggregationType type, String field, Integ
 
   /** Aggregation types. */
   public enum AggregationType {
-    /** Group by field values (bucket aggregation) */
+    /** Group by field values (bucket aggregation). */
     TERMS,
-    /** Date histogram (bucket aggregation) */
+    /** Date histogram (bucket aggregation). */
     DATE_HISTOGRAM,
-    /** Numeric ranges (bucket aggregation) */
+    /** Numeric ranges (bucket aggregation). */
     RANGE,
-    /** Average metric */
+    /** Average metric. */
     AVG,
-    /** Sum metric */
+    /** Sum metric. */
     SUM,
-    /** Minimum value */
+    /** Minimum value. */
     MIN,
-    /** Maximum value */
+    /** Maximum value. */
     MAX,
-    /** Count of documents */
+    /** Count of documents. */
     COUNT,
-    /** Unique value count */
+    /** Unique value count. */
     CARDINALITY,
-    /** Statistics (min, max, avg, sum) */
+    /** Statistics (min, max, avg, sum). */
     STATS
   }
 

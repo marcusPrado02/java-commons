@@ -12,6 +12,7 @@ public record IdempotencyProperties(Duration defaultTtl, Web web, Aop aop) {
       DuplicateRequestStrategy onDuplicate,
       ResultRefStrategy resultRefStrategy) {
 
+    /** Validates and applies defaults for {@link Web} configuration. */
     public Web {
       if (headerName == null || headerName.isBlank()) {
         headerName = "Idempotency-Key";
@@ -31,6 +32,7 @@ public record IdempotencyProperties(Duration defaultTtl, Web web, Aop aop) {
     }
   }
 
+  /** Validates and applies defaults for {@link IdempotencyProperties}. */
   public IdempotencyProperties {
     if (defaultTtl == null) {
       defaultTtl = Duration.ofMinutes(5);

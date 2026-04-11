@@ -5,12 +5,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
+/** HTTP response with a streaming {@link java.io.InputStream} body; must be closed after use. */
 public final class HttpStreamingResponse implements AutoCloseable {
 
   private final int statusCode;
   private final Map<String, List<String>> headers;
   private final InputStream body;
 
+  /**
+   * Creates a streaming HTTP response.
+   *
+   * @param statusCode HTTP status code
+   * @param headers response headers
+   * @param body response body stream
+   */
   public HttpStreamingResponse(
       int statusCode, Map<String, List<String>> headers, InputStream body) {
     this.statusCode = statusCode;

@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.Objects;
 
+/** Constant names and utility methods for application metrics. */
 public final class Metrics {
   private Metrics() {}
 

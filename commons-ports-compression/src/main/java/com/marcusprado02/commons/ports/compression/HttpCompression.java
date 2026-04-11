@@ -164,25 +164,24 @@ public final class HttpCompression {
    * @param fast true for fast compression (lower CPU), false for better ratio
    * @return compression options optimized for HTTP
    */
+  @SuppressWarnings("checkstyle:indentation")
   public static CompressionOptions createHttpOptions(CompressionAlgorithm algorithm, boolean fast) {
-    CompressionOptions.Builder builder =
-        CompressionOptions.builder(algorithm).bufferSize(8192); // Smaller buffer for HTTP streams
-
     if (fast) {
       return CompressionOptions.fastFor(algorithm);
-    } else {
-      // Balanced compression for HTTP (not maximum to avoid high CPU usage)
-      int defaultLevel =
-          switch (algorithm) {
-            case GZIP, DEFLATE -> 6;
-            case BROTLI -> 4;
-            case LZ4 -> 1;
-            case SNAPPY -> 1;
-            case ZSTD -> 3;
-          };
-      builder.level(defaultLevel);
     }
 
+    // Balanced compression for HTTP (not maximum to avoid high CPU usage)
+    int defaultLevel =
+        switch (algorithm) {
+          case GZIP, DEFLATE -> 6;
+          case BROTLI -> 4;
+          case LZ4 -> 1;
+          case SNAPPY -> 1;
+          case ZSTD -> 3;
+        };
+    CompressionOptions.Builder builder =
+        CompressionOptions.builder(algorithm).bufferSize(8192); // Smaller buffer for HTTP streams
+    builder.level(defaultLevel);
     return builder.build();
   }
 
@@ -196,12 +195,12 @@ public final class HttpCompression {
     String algorithmName = encoding;
 
     // Check for quality value (e.g., "gzip;q=0.8")
-    int qIndex = encoding.indexOf(";q=");
-    if (qIndex > 0) {
-      algorithmName = encoding.substring(0, qIndex).trim();
-      String qValue = encoding.substring(qIndex + 3).trim();
+    int qualityIndex = encoding.indexOf(";q=");
+    if (qualityIndex > 0) {
+      algorithmName = encoding.substring(0, qualityIndex).trim();
+      String qualityValue = encoding.substring(qualityIndex + 3).trim();
       try {
-        quality = Double.parseDouble(qValue);
+        quality = Double.parseDouble(qualityValue);
         if (quality < 0 || quality > 1) {
           quality = 1.0; // Invalid quality, use default
         }

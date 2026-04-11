@@ -34,6 +34,7 @@ public record BlockchainTransaction(
     Optional<Instant> timestamp,
     TransactionStatus status) {
 
+  /** Validates blockchain transaction fields. */
   public BlockchainTransaction {
     to = to == null ? Optional.empty() : to;
     blockNumber = blockNumber == null ? Optional.empty() : blockNumber;
@@ -159,6 +160,11 @@ public record BlockchainTransaction(
       return this;
     }
 
+    /**
+     * Builds the BlockchainTransaction instance.
+     *
+     * @return configured BlockchainTransaction
+     */
     public BlockchainTransaction build() {
       return new BlockchainTransaction(
           hash,

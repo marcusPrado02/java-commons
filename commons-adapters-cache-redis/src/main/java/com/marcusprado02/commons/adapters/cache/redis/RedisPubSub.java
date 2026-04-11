@@ -48,6 +48,7 @@ public class RedisPubSub<K, V> {
   private final RedisMessageListenerContainer listenerContainer;
   private final String channelName;
 
+  /** Creates a new RedisPubSub instance. */
   public RedisPubSub(
       RedisTemplate<K, V> redisTemplate,
       RedisMessageListenerContainer listenerContainer,

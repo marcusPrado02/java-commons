@@ -3,19 +3,39 @@ package com.marcusprado02.commons.adapters.pdf.itext;
 import com.itextpdf.io.image.ImageDataFactory;
 import com.itextpdf.kernel.colors.DeviceRgb;
 import com.itextpdf.kernel.geom.Rectangle;
-import com.itextpdf.kernel.pdf.*;
+import com.itextpdf.kernel.pdf.EncryptionConstants;
+import com.itextpdf.kernel.pdf.PdfDocumentInfo;
+import com.itextpdf.kernel.pdf.PdfReader;
+import com.itextpdf.kernel.pdf.PdfVersion;
+import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.WriterProperties;
 import com.itextpdf.layout.Document;
-import com.itextpdf.layout.element.*;
+import com.itextpdf.layout.element.AreaBreak;
+import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.element.Text;
 import com.itextpdf.layout.properties.HorizontalAlignment;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.UnitValue;
 import com.itextpdf.layout.properties.VerticalAlignment;
-import com.itextpdf.signatures.*;
+import com.itextpdf.signatures.BouncyCastleDigest;
+import com.itextpdf.signatures.DigestAlgorithms;
+import com.itextpdf.signatures.IExternalDigest;
+import com.itextpdf.signatures.IExternalSignature;
+import com.itextpdf.signatures.PdfSignatureAppearance;
+import com.itextpdf.signatures.PdfSigner;
+import com.itextpdf.signatures.PrivateKeySignature;
+import com.itextpdf.signatures.StampingProperties;
+import com.marcusprado02.commons.kernel.errors.ErrorCategory;
 import com.marcusprado02.commons.kernel.errors.ErrorCode;
 import com.marcusprado02.commons.kernel.errors.Problem;
 import com.marcusprado02.commons.kernel.errors.Severity;
 import com.marcusprado02.commons.kernel.result.Result;
-import com.marcusprado02.commons.ports.pdf.*;
+import com.marcusprado02.commons.ports.pdf.PageSize;
+import com.marcusprado02.commons.ports.pdf.PdfElement;
+import com.marcusprado02.commons.ports.pdf.PdfPort;
+import com.marcusprado02.commons.ports.pdf.PdfSignature;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
 import java.security.KeyStore;
@@ -47,9 +67,9 @@ import org.slf4j.LoggerFactory;
  *
  * @since 0.1.0
  */
-public class ITextPdfAdapter implements PdfPort {
+public class ItextPdfAdapter implements PdfPort {
 
-  private static final Logger log = LoggerFactory.getLogger(ITextPdfAdapter.class);
+  private static final Logger log = LoggerFactory.getLogger(ItextPdfAdapter.class);
   private static final String ERROR_CODE_PDF_GENERATION = "PDF_GENERATION_ERROR";
   private static final String ERROR_CODE_PDF_SIGNING = "PDF_SIGNING_ERROR";
 
@@ -58,20 +78,20 @@ public class ITextPdfAdapter implements PdfPort {
     java.security.Security.addProvider(new BouncyCastleProvider());
   }
 
-  private final ITextConfiguration configuration;
+  private final ItextConfiguration configuration;
 
   /**
    * Creates a new adapter with the specified configuration.
    *
    * @param configuration iText configuration
    */
-  public ITextPdfAdapter(ITextConfiguration configuration) {
+  public ItextPdfAdapter(ItextConfiguration configuration) {
     this.configuration = configuration;
   }
 
   /** Creates a new adapter with default configuration. */
-  public ITextPdfAdapter() {
-    this(ITextConfiguration.defaultConfig());
+  public ItextPdfAdapter() {
+    this(ItextConfiguration.defaultConfig());
   }
 
   @Override
@@ -107,7 +127,7 @@ public class ITextPdfAdapter implements PdfPort {
       return Result.fail(
           Problem.of(
               ErrorCode.of(ERROR_CODE_PDF_GENERATION),
-              com.marcusprado02.commons.kernel.errors.ErrorCategory.TECHNICAL,
+              ErrorCategory.TECHNICAL,
               Severity.ERROR,
               "Failed to generate PDF document: " + e.getMessage()));
     }
@@ -116,7 +136,7 @@ public class ITextPdfAdapter implements PdfPort {
   @Override
   public Result<Void> generateAndSign(
       com.marcusprado02.commons.ports.pdf.PdfDocument document,
-      com.marcusprado02.commons.ports.pdf.PdfSignature signature,
+      PdfSignature signature,
       OutputStream output) {
     try {
       log.debug("Generating and signing PDF document: {}", document.title());
@@ -141,7 +161,7 @@ public class ITextPdfAdapter implements PdfPort {
       return Result.fail(
           Problem.of(
               ErrorCode.of(ERROR_CODE_PDF_SIGNING),
-              com.marcusprado02.commons.kernel.errors.ErrorCategory.TECHNICAL,
+              ErrorCategory.TECHNICAL,
               Severity.ERROR,
               "Failed to sign PDF document: " + e.getMessage()));
     }
@@ -157,6 +177,7 @@ public class ITextPdfAdapter implements PdfPort {
     return configuration.pdfVersion();
   }
 
+  @SuppressWarnings("checkstyle:indentation")
   private WriterProperties createWriterProperties() {
     WriterProperties properties = new WriterProperties();
 
@@ -167,6 +188,7 @@ public class ITextPdfAdapter implements PdfPort {
       case "1.6" -> properties.setPdfVersion(PdfVersion.PDF_1_6);
       case "1.7" -> properties.setPdfVersion(PdfVersion.PDF_1_7);
       case "2.0" -> properties.setPdfVersion(PdfVersion.PDF_2_0);
+      default -> throw new AssertionError("Unexpected PDF version: " + configuration.pdfVersion());
     }
 
     // Set compression
@@ -232,7 +254,7 @@ public class ITextPdfAdapter implements PdfPort {
     }
   }
 
-  private Rectangle toITextRectangle(PageSize pageSize) {
+  private Rectangle toItextRectangle(PageSize pageSize) {
     return new Rectangle(pageSize.getWidth(), pageSize.getHeight());
   }
 
@@ -241,6 +263,7 @@ public class ITextPdfAdapter implements PdfPort {
     doc.setMargins(margins.top(), margins.right(), margins.bottom(), margins.left());
   }
 
+  @SuppressWarnings("checkstyle:indentation")
   private void renderElement(Document doc, PdfElement element) {
     switch (element) {
       case PdfElement.Text text -> renderText(doc, text);
@@ -253,53 +276,53 @@ public class ITextPdfAdapter implements PdfPort {
   }
 
   private void renderText(Document doc, PdfElement.Text text) {
-    Text iTextText = new Text(text.content()).setFontSize(text.fontSize());
+    Text itextText = new Text(text.content()).setFontSize(text.fontSize());
 
     if (text.bold()) {
-      iTextText.setBold();
+      itextText.setBold();
     }
     if (text.italic()) {
-      iTextText.setItalic();
+      itextText.setItalic();
     }
     if (text.color() != null) {
       java.awt.Color awtColor = text.color();
-      iTextText.setFontColor(
+      itextText.setFontColor(
           new DeviceRgb(awtColor.getRed(), awtColor.getGreen(), awtColor.getBlue()));
     }
 
-    doc.add(new Paragraph().add(iTextText));
+    doc.add(new Paragraph().add(itextText));
   }
 
   private void renderParagraph(Document doc, PdfElement.Paragraph paragraph) {
-    Paragraph iTextParagraph =
+    Paragraph itextParagraph =
         new Paragraph(paragraph.content())
             .setFontSize(paragraph.fontSize())
             .setMultipliedLeading(paragraph.leading());
 
-    iTextParagraph.setTextAlignment(toITextAlignment(paragraph.alignment()));
+    itextParagraph.setTextAlignment(toItextAlignment(paragraph.alignment()));
 
-    doc.add(iTextParagraph);
+    doc.add(itextParagraph);
   }
 
   private void renderImage(Document doc, PdfElement.Image image) {
     try {
       byte[] imageBytes = image.imageData().readAllBytes();
-      com.itextpdf.layout.element.Image iTextImage =
+      com.itextpdf.layout.element.Image itextImage =
           new com.itextpdf.layout.element.Image(ImageDataFactory.create(imageBytes));
 
       if (image.width() != null && image.height() != null) {
-        iTextImage.scaleToFit(image.width(), image.height());
+        itextImage.scaleToFit(image.width(), image.height());
       } else if (image.width() != null) {
-        iTextImage.setWidth(UnitValue.createPointValue(image.width()));
-        iTextImage.setAutoScale(true);
+        itextImage.setWidth(UnitValue.createPointValue(image.width()));
+        itextImage.setAutoScale(true);
       } else if (image.height() != null) {
-        iTextImage.setHeight(UnitValue.createPointValue(image.height()));
-        iTextImage.setAutoScale(true);
+        itextImage.setHeight(UnitValue.createPointValue(image.height()));
+        itextImage.setAutoScale(true);
       }
 
-      iTextImage.setHorizontalAlignment(toITextHorizontalAlignment(image.alignment()));
+      itextImage.setHorizontalAlignment(toItextHorizontalAlignment(image.alignment()));
 
-      doc.add(iTextImage);
+      doc.add(itextImage);
     } catch (Exception e) {
       log.warn("Failed to render image: {}", e.getMessage());
     }
@@ -308,11 +331,11 @@ public class ITextPdfAdapter implements PdfPort {
   private void renderTable(Document doc, PdfElement.Table table) {
     int columnCount = table.headers() != null ? table.headers().size() : table.rows().get(0).size();
 
-    Table iTextTable = new Table(UnitValue.createPercentArray(columnCount)).useAllAvailableWidth();
+    Table itextTable = new Table(UnitValue.createPercentArray(columnCount)).useAllAvailableWidth();
 
     // Set column widths if specified
     if (table.columnWidths() != null && table.columnWidths().length == columnCount) {
-      iTextTable = new Table(table.columnWidths()).useAllAvailableWidth();
+      itextTable = new Table(table.columnWidths()).useAllAvailableWidth();
     }
 
     // Add headers if present
@@ -328,7 +351,7 @@ public class ITextPdfAdapter implements PdfPort {
                 .setBackgroundColor(bgColor)
                 .setTextAlignment(TextAlignment.CENTER)
                 .setVerticalAlignment(VerticalAlignment.MIDDLE);
-        iTextTable.addHeaderCell(cell);
+        itextTable.addHeaderCell(cell);
       }
     }
 
@@ -336,14 +359,15 @@ public class ITextPdfAdapter implements PdfPort {
     for (var row : table.rows()) {
       for (String cellData : row) {
         Cell cell = new Cell().add(new Paragraph(cellData));
-        iTextTable.addCell(cell);
+        itextTable.addCell(cell);
       }
     }
 
-    doc.add(iTextTable);
+    doc.add(itextTable);
   }
 
-  private TextAlignment toITextAlignment(PdfElement.Alignment alignment) {
+  @SuppressWarnings("checkstyle:indentation")
+  private TextAlignment toItextAlignment(PdfElement.Alignment alignment) {
     return switch (alignment) {
       case LEFT -> TextAlignment.LEFT;
       case CENTER -> TextAlignment.CENTER;
@@ -352,7 +376,8 @@ public class ITextPdfAdapter implements PdfPort {
     };
   }
 
-  private HorizontalAlignment toITextHorizontalAlignment(PdfElement.Alignment alignment) {
+  @SuppressWarnings("checkstyle:indentation")
+  private HorizontalAlignment toItextHorizontalAlignment(PdfElement.Alignment alignment) {
     return switch (alignment) {
       case LEFT -> HorizontalAlignment.LEFT;
       case CENTER -> HorizontalAlignment.CENTER;
@@ -361,20 +386,17 @@ public class ITextPdfAdapter implements PdfPort {
     };
   }
 
-  private void signPdf(
-      byte[] pdfBytes,
-      com.marcusprado02.commons.ports.pdf.PdfSignature signature,
-      OutputStream output)
+  private void signPdf(byte[] pdfBytes, PdfSignature signature, OutputStream output)
       throws Exception {
     // Load keystore
     KeyStore keystore = KeyStore.getInstance("PKCS12");
     keystore.load(signature.keystoreData(), signature.keystorePassword().toCharArray());
 
     // Get private key and certificate chain
-    PrivateKey privateKey =
+    final PrivateKey privateKey =
         (PrivateKey)
             keystore.getKey(signature.keyAlias(), signature.keystorePassword().toCharArray());
-    Certificate[] chain = keystore.getCertificateChain(signature.keyAlias());
+    final Certificate[] chain = keystore.getCertificateChain(signature.keyAlias());
 
     // Create PdfReader from bytes
     PdfReader reader = new PdfReader(new java.io.ByteArrayInputStream(pdfBytes));
@@ -393,8 +415,7 @@ public class ITextPdfAdapter implements PdfPort {
 
     // Set visible signature field if specified
     if (signature.signatureField() != null) {
-      com.marcusprado02.commons.ports.pdf.PdfSignature.SignatureField field =
-          signature.signatureField();
+      PdfSignature.SignatureField field = signature.signatureField();
       Rectangle rect =
           new Rectangle(
               (float) field.x(), (float) field.y(),

@@ -2,11 +2,19 @@ package com.marcusprado02.commons.adapters.excel.poi;
 
 import com.marcusprado02.commons.kernel.errors.Problems;
 import com.marcusprado02.commons.kernel.result.Result;
-import com.marcusprado02.commons.ports.excel.*;
+import com.marcusprado02.commons.ports.excel.ExcelCell;
+import com.marcusprado02.commons.ports.excel.ExcelReadOptions;
+import com.marcusprado02.commons.ports.excel.ExcelStreamReader;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.*;
-import org.apache.poi.ss.usermodel.*;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 
 /**
  * Streaming reader implementation using Apache POI for memory-efficient Excel file processing.
@@ -222,81 +230,5 @@ public class PoiStreamReader implements ExcelStreamReader {
     currentSheet = null;
     rowIterator = null;
     worksheetNames = null;
-  }
-}
-
-/** Helper class for mapping POI cells to Commons cells. */
-final class PoiCellMapper {
-
-  private PoiCellMapper() {
-    // Utility class
-  }
-
-  /** Converts a POI Cell to Commons ExcelCell with simplified style mapping for streaming. */
-  public static ExcelCell fromPoi(Cell poiCell) {
-    int row = poiCell.getRowIndex();
-    int column = poiCell.getColumnIndex();
-
-    com.marcusprado02.commons.ports.excel.CellType cellType = mapCellType(poiCell.getCellType());
-    Object value = extractCellValue(poiCell);
-    String formula =
-        poiCell.getCellType() == org.apache.poi.ss.usermodel.CellType.FORMULA
-            ? poiCell.getCellFormula()
-            : null;
-
-    // For streaming, we skip detailed style mapping to improve performance
-    ExcelCellStyle style = null;
-
-    return new ExcelCell(row, column, cellType, value, formula, style);
-  }
-
-  private static com.marcusprado02.commons.ports.excel.CellType mapCellType(
-      org.apache.poi.ss.usermodel.CellType poiCellType) {
-    return switch (poiCellType) {
-      case BLANK -> com.marcusprado02.commons.ports.excel.CellType.BLANK;
-      case BOOLEAN -> com.marcusprado02.commons.ports.excel.CellType.BOOLEAN;
-      case NUMERIC -> com.marcusprado02.commons.ports.excel.CellType.NUMERIC;
-      case STRING -> com.marcusprado02.commons.ports.excel.CellType.STRING;
-      case FORMULA -> com.marcusprado02.commons.ports.excel.CellType.FORMULA;
-      case ERROR -> com.marcusprado02.commons.ports.excel.CellType.ERROR;
-      default -> com.marcusprado02.commons.ports.excel.CellType.STRING;
-    };
-  }
-
-  private static Object extractCellValue(Cell poiCell) {
-    return switch (poiCell.getCellType()) {
-      case BLANK -> null;
-      case BOOLEAN -> poiCell.getBooleanCellValue();
-      case NUMERIC -> {
-        if (DateUtil.isCellDateFormatted(poiCell)) {
-          Date date = poiCell.getDateCellValue();
-          yield date.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
-        } else {
-          yield poiCell.getNumericCellValue();
-        }
-      }
-      case STRING -> poiCell.getStringCellValue();
-      case FORMULA -> {
-        try {
-          yield switch (poiCell.getCachedFormulaResultType()) {
-            case BOOLEAN -> poiCell.getBooleanCellValue();
-            case NUMERIC -> {
-              if (DateUtil.isCellDateFormatted(poiCell)) {
-                Date date = poiCell.getDateCellValue();
-                yield date.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
-              } else {
-                yield poiCell.getNumericCellValue();
-              }
-            }
-            case STRING -> poiCell.getStringCellValue();
-            default -> null;
-          };
-        } catch (Exception e) {
-          yield null;
-        }
-      }
-      case ERROR -> "#ERROR";
-      default -> poiCell.toString();
-    };
   }
 }

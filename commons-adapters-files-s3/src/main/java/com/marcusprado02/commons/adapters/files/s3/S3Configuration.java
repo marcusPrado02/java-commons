@@ -11,6 +11,7 @@ public record S3Configuration(
     long multipartThresholdBytes,
     int multipartChunkSizeBytes) {
 
+  /** Validates fields on construction. */
   public S3Configuration {
     Objects.requireNonNull(region, "region must not be null");
     if (multipartThresholdBytes <= 0) {
@@ -79,6 +80,7 @@ public record S3Configuration(
       return this;
     }
 
+    /** Executes the build operation. */
     public S3Configuration build() {
       return new S3Configuration(
           region,

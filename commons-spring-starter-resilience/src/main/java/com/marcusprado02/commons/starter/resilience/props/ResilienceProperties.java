@@ -24,6 +24,11 @@ public class ResilienceProperties {
     return aop;
   }
 
+  /**
+   * Converts these properties to a {@link ResiliencePolicySet}.
+   *
+   * @return the resilience policy set
+   */
   public ResiliencePolicySet toPolicySet() {
     return new ResiliencePolicySet(
         defaults.retry.toPolicy(),

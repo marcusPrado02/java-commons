@@ -4,10 +4,12 @@ import com.marcusprado02.commons.platform.context.RequestContextSnapshot;
 import com.marcusprado02.commons.platform.http.StandardHeaders;
 import io.opentelemetry.api.baggage.Baggage;
 
+/** BaggageBinder implementation. */
 public final class BaggageBinder {
 
   private BaggageBinder() {}
 
+  /** Executes the bind operation. */
   public static Baggage bind(RequestContextSnapshot ctx) {
     if (ctx == null) {
       return Baggage.current();

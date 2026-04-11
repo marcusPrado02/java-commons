@@ -6,10 +6,18 @@ import com.marcusprado02.commons.kernel.errors.ErrorCode;
 import com.marcusprado02.commons.kernel.errors.Problem;
 import com.marcusprado02.commons.kernel.errors.Severity;
 import com.marcusprado02.commons.kernel.result.Result;
-import com.marcusprado02.commons.ports.search.*;
+import com.marcusprado02.commons.ports.search.AggregationResult;
+import com.marcusprado02.commons.ports.search.Document;
+import com.marcusprado02.commons.ports.search.SearchPort;
+import com.marcusprado02.commons.ports.search.SearchQuery;
+import com.marcusprado02.commons.ports.search.SearchResult;
 import java.io.IOException;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import org.apache.http.HttpHost;
 import org.apache.http.auth.AuthScope;
@@ -25,11 +33,28 @@ import org.opensearch.client.opensearch._types.SortOrder;
 import org.opensearch.client.opensearch._types.aggregations.Aggregate;
 import org.opensearch.client.opensearch._types.aggregations.StringTermsAggregate;
 import org.opensearch.client.opensearch._types.query_dsl.Query;
-import org.opensearch.client.opensearch.core.*;
+import org.opensearch.client.opensearch.core.BulkOperation;
+import org.opensearch.client.opensearch.core.BulkRequest;
+import org.opensearch.client.opensearch.core.BulkResponse;
+import org.opensearch.client.opensearch.core.BulkResponseItem;
+import org.opensearch.client.opensearch.core.DeleteRequest;
+import org.opensearch.client.opensearch.core.ExistsRequest;
+import org.opensearch.client.opensearch.core.GetRequest;
+import org.opensearch.client.opensearch.core.GetResponse;
+import org.opensearch.client.opensearch.core.Hit;
+import org.opensearch.client.opensearch.core.IndexRequest;
+import org.opensearch.client.opensearch.core.IndexResponse;
+import org.opensearch.client.opensearch.core.SearchRequest;
+import org.opensearch.client.opensearch.core.SearchResponse;
+import org.opensearch.client.opensearch.core.SearchResult;
+import org.opensearch.client.opensearch.core.UpdateRequest;
 import org.opensearch.client.opensearch.core.bulk.BulkOperation;
 import org.opensearch.client.opensearch.core.bulk.BulkResponseItem;
 import org.opensearch.client.opensearch.core.search.Hit;
-import org.opensearch.client.opensearch.indices.*;
+import org.opensearch.client.opensearch.indices.CreateIndexRequest;
+import org.opensearch.client.opensearch.indices.DeleteIndexRequest;
+import org.opensearch.client.opensearch.indices.ExistsRequest;
+import org.opensearch.client.opensearch.indices.RefreshRequest;
 import org.opensearch.client.transport.rest_client.RestClientTransport;
 
 /**
@@ -85,7 +110,8 @@ public class OpenSearchAdapter implements SearchPort {
       return Result.fail(mapOpenSearchException(e, "indexing document"));
     } catch (IOException e) {
       return Result.fail(
-          createProblem("OPENSEARCH.INDEX_IO_ERROR", "I/O error during indexing: " + e.getMessage()));
+          createProblem(
+              "OPENSEARCH.INDEX_IO_ERROR", "I/O error during indexing: " + e.getMessage()));
     }
   }
 
@@ -105,8 +131,7 @@ public class OpenSearchAdapter implements SearchPort {
                   doc ->
                       BulkOperation.of(
                           b ->
-                              b.index(
-                                  idx -> idx.index(index).id(doc.id()).document(doc.source()))))
+                              b.index(idx -> idx.index(index).id(doc.id()).document(doc.source()))))
               .collect(Collectors.toList());
 
       BulkRequest request = BulkRequest.of(b -> b.index(index).operations(operations));
@@ -177,9 +202,7 @@ public class OpenSearchAdapter implements SearchPort {
       SearchResponse<Map> response = client.search(requestBuilder.build(), Map.class);
 
       List<Document> hits =
-          response.hits().hits().stream()
-              .map(this::mapHitToDocument)
-              .collect(Collectors.toList());
+          response.hits().hits().stream().map(this::mapHitToDocument).collect(Collectors.toList());
 
       SearchResult result =
           new SearchResult(
@@ -194,7 +217,8 @@ public class OpenSearchAdapter implements SearchPort {
       return Result.fail(mapOpenSearchException(e, "searching documents"));
     } catch (IOException e) {
       return Result.fail(
-          createProblem("OPENSEARCH.SEARCH_IO_ERROR", "I/O error during search: " + e.getMessage()));
+          createProblem(
+              "OPENSEARCH.SEARCH_IO_ERROR", "I/O error during search: " + e.getMessage()));
     }
   }
 
@@ -352,8 +376,7 @@ public class OpenSearchAdapter implements SearchPort {
           buildAggregations(aggregations);
 
       SearchRequest request =
-          SearchRequest.of(
-              s -> s.index(index).query(osQuery).size(0).aggregations(osAggs));
+          SearchRequest.of(s -> s.index(index).query(osQuery).size(0).aggregations(osAggs));
 
       SearchResponse<Map> response = client.search(request, Map.class);
 
@@ -372,8 +395,7 @@ public class OpenSearchAdapter implements SearchPort {
     } catch (IOException e) {
       return Result.fail(
           createProblem(
-              "OPENSEARCH.AGGREGATE_IO_ERROR",
-              "I/O error during aggregation: " + e.getMessage()));
+              "OPENSEARCH.AGGREGATE_IO_ERROR", "I/O error during aggregation: " + e.getMessage()));
     }
   }
 
@@ -400,8 +422,7 @@ public class OpenSearchAdapter implements SearchPort {
     if (config.hasBasicAuth()) {
       var credentialsProvider = new BasicCredentialsProvider();
       credentialsProvider.setCredentials(
-          AuthScope.ANY,
-          new UsernamePasswordCredentials(config.username(), config.password()));
+          AuthScope.ANY, new UsernamePasswordCredentials(config.username(), config.password()));
       builder.setHttpClientConfigCallback(
           b -> b.setDefaultCredentialsProvider(credentialsProvider));
     }
@@ -414,6 +435,7 @@ public class OpenSearchAdapter implements SearchPort {
     return builder.build();
   }
 
+  @SuppressWarnings("checkstyle:indentation")
   private Query buildQuery(SearchQuery query) {
     if ("*".equals(query.query()) || query.query() == null || query.query().isBlank()) {
       return Query.of(q -> q.matchAll(m -> m));
@@ -466,6 +488,7 @@ public class OpenSearchAdapter implements SearchPort {
     };
   }
 
+  @SuppressWarnings("checkstyle:indentation")
   private Map<String, org.opensearch.client.opensearch._types.aggregations.Aggregation>
       buildAggregations(List<com.marcusprado02.commons.ports.search.Aggregation> aggregations) {
 

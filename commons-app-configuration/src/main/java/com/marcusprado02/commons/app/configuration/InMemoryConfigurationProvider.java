@@ -2,8 +2,17 @@ package com.marcusprado02.commons.app.configuration;
 
 import com.marcusprado02.commons.kernel.result.Result;
 import java.time.Duration;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 /**
@@ -42,10 +51,16 @@ public class InMemoryConfigurationProvider implements DynamicConfiguration {
   private ScheduledExecutorService refreshExecutor;
   private Duration refreshInterval;
 
+  /** Creates an in-memory configuration provider with the default name. */
   public InMemoryConfigurationProvider() {
     this("in-memory");
   }
 
+  /**
+   * Creates an in-memory configuration provider with the given name.
+   *
+   * @param providerName the provider name
+   */
   public InMemoryConfigurationProvider(String providerName) {
     this.providerName = providerName;
     this.properties = new ConcurrentHashMap<>();

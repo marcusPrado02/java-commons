@@ -89,7 +89,7 @@ public final class ThymeleafTemplateRenderer implements TemplateRenderer {
     private TemplateMode templateMode = TemplateMode.HTML;
     private String characterEncoding = "UTF-8";
     private boolean cacheable = true;
-    private Long cacheableTTLMs = null;
+    private Long cacheableTtlMs = null;
 
     private Builder() {}
 
@@ -151,11 +151,11 @@ public final class ThymeleafTemplateRenderer implements TemplateRenderer {
     /**
      * Sets cache TTL in milliseconds.
      *
-     * @param cacheableTTLMs the cache TTL
+     * @param cacheableTtlMs the cache TTL
      * @return this builder
      */
-    public Builder cacheableTTLMs(Long cacheableTTLMs) {
-      this.cacheableTTLMs = cacheableTTLMs;
+    public Builder cacheableTtlMs(Long cacheableTtlMs) {
+      this.cacheableTtlMs = cacheableTtlMs;
       return this;
     }
 
@@ -178,8 +178,8 @@ public final class ThymeleafTemplateRenderer implements TemplateRenderer {
       resolver.setTemplateMode(templateMode);
       resolver.setCharacterEncoding(characterEncoding);
       resolver.setCacheable(cacheable);
-      if (cacheableTTLMs != null) {
-        resolver.setCacheTTLMs(cacheableTTLMs);
+      if (cacheableTtlMs != null) {
+        resolver.setCacheTTLMs(cacheableTtlMs);
       }
       return resolver;
     }

@@ -15,14 +15,23 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.sesv2.SesV2Client;
-import software.amazon.awssdk.services.sesv2.model.*;
+import software.amazon.awssdk.services.sesv2.model.Body;
+import software.amazon.awssdk.services.sesv2.model.Content;
+import software.amazon.awssdk.services.sesv2.model.Destination;
+import software.amazon.awssdk.services.sesv2.model.EmailContent;
+import software.amazon.awssdk.services.sesv2.model.EmailTemplateContent;
+import software.amazon.awssdk.services.sesv2.model.ListEmailIdentitiesRequest;
+import software.amazon.awssdk.services.sesv2.model.Message;
+import software.amazon.awssdk.services.sesv2.model.SendEmailRequest;
+import software.amazon.awssdk.services.sesv2.model.SesV2Exception;
+import software.amazon.awssdk.services.sesv2.model.Template;
 
 /**
  * AWS SES v2 adapter for {@link EmailPort}.
  *
- * <p>Supports HTML and plain text emails, multiple recipients, CC/BCC, reply-to, and SES
- * Template rendering. Credentials are resolved via the AWS Default Credential Provider Chain
- * (environment variables, IAM roles, etc.).
+ * <p>Supports HTML and plain text emails, multiple recipients, CC/BCC, reply-to, and SES Template
+ * rendering. Credentials are resolved via the AWS Default Credential Provider Chain (environment
+ * variables, IAM roles, etc.).
  *
  * <p>Usage:
  *
@@ -108,7 +117,9 @@ public final class SesEmailAdapter implements EmailPort, AutoCloseable {
       var templateDataBuilder = new StringBuilder("{");
       boolean first = true;
       for (Map.Entry<String, Object> entry : templateRequest.variables().entrySet()) {
-        if (!first) templateDataBuilder.append(",");
+        if (!first) {
+          templateDataBuilder.append(",");
+        }
         templateDataBuilder
             .append("\"")
             .append(entry.getKey())
@@ -138,10 +149,11 @@ public final class SesEmailAdapter implements EmailPort, AutoCloseable {
               .destination(destination)
               .content(
                   EmailContent.builder()
-                      .template(Template.builder()
-                          .templateName(templateRequest.templateName())
-                          .templateData(templateDataBuilder.toString())
-                          .build())
+                      .template(
+                          Template.builder()
+                              .templateName(templateRequest.templateName())
+                              .templateData(templateDataBuilder.toString())
+                              .build())
                       .build());
 
       if (templateRequest.replyTo() != null) {
@@ -204,10 +216,12 @@ public final class SesEmailAdapter implements EmailPort, AutoCloseable {
     var bodyBuilder = Body.builder();
     var content = email.content();
     if (content.hasHtml()) {
-      bodyBuilder.html(Content.builder().data(content.htmlContent().get()).charset("UTF-8").build());
+      bodyBuilder.html(
+          Content.builder().data(content.htmlContent().get()).charset("UTF-8").build());
     }
     if (content.hasText()) {
-      bodyBuilder.text(Content.builder().data(content.textContent().get()).charset("UTF-8").build());
+      bodyBuilder.text(
+          Content.builder().data(content.textContent().get()).charset("UTF-8").build());
     }
 
     var message =
@@ -230,10 +244,13 @@ public final class SesEmailAdapter implements EmailPort, AutoCloseable {
   }
 
   private List<String> toStringList(List<EmailAddress> addresses) {
-    if (addresses == null) return List.of();
+    if (addresses == null) {
+      return List.of();
+    }
     return addresses.stream().map(EmailAddress::value).toList();
   }
 
+  @SuppressWarnings("checkstyle:indentation")
   private Problem mapSesException(SesV2Exception e) {
     String code =
         switch (e.statusCode()) {
@@ -253,6 +270,9 @@ public final class SesEmailAdapter implements EmailPort, AutoCloseable {
         };
 
     return Problem.of(
-        ErrorCode.of(code), category, Severity.ERROR, "SES error: " + e.awsErrorDetails().errorMessage());
+        ErrorCode.of(code),
+        category,
+        Severity.ERROR,
+        "SES error: " + e.awsErrorDetails().errorMessage());
   }
 }

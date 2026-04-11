@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+/** Immutable collection of key-value headers attached to a message. */
 public final class MessageHeaders {
 
   private final Map<String, String> headers;
@@ -60,11 +61,19 @@ public final class MessageHeaders {
     return headers.toString();
   }
 
+  /** Builder for {@link MessageHeaders}. */
   public static final class Builder {
     private final Map<String, String> headers = new LinkedHashMap<>();
 
     private Builder() {}
 
+    /**
+     * Adds a header entry.
+     *
+     * @param key header key
+     * @param value header value
+     * @return this builder
+     */
     public Builder header(String key, String value) {
       Objects.requireNonNull(key, "key must not be null");
       Objects.requireNonNull(value, "value must not be null");
@@ -72,6 +81,12 @@ public final class MessageHeaders {
       return this;
     }
 
+    /**
+     * Adds all entries from the given map.
+     *
+     * @param headers headers to add
+     * @return this builder
+     */
     public Builder headers(Map<String, String> headers) {
       Objects.requireNonNull(headers, "headers must not be null");
       this.headers.putAll(headers);

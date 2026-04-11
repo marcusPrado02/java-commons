@@ -91,6 +91,7 @@ public final class Webhook {
     return events.contains(event) || events.contains("*");
   }
 
+  /** Builder for {@link Webhook}. */
   public static final class Builder {
     private String id;
     private URI url;

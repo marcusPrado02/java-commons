@@ -227,15 +227,6 @@ public final class BaggageManager {
   }
 
   /**
-   * Gets the current baggage context.
-   *
-   * @return the current baggage
-   */
-  public static Baggage current() {
-    return Baggage.current();
-  }
-
-  /**
    * Creates a new context with the given baggage.
    *
    * @param baggage the baggage to set
@@ -244,6 +235,15 @@ public final class BaggageManager {
   public static Context withBaggage(Baggage baggage) {
     Objects.requireNonNull(baggage, "baggage must not be null");
     return Context.current().with(baggage);
+  }
+
+  /**
+   * Gets the current baggage context.
+   *
+   * @return the current baggage
+   */
+  public static Baggage current() {
+    return Baggage.current();
   }
 
   /**

@@ -121,7 +121,8 @@ public final class EventDrivenRules {
         .resideInAnyPackage(DOMAIN_PACKAGE, KERNEL_PACKAGE)
         .allowEmptyShould(true)
         .as(
-            "EDA: Integration Events must not reside in domain/kernel (they cross context boundaries)");
+            "EDA: Integration Events must not reside in domain/kernel"
+                + " (they cross context boundaries)");
   }
 
   // -------------------------------------------------------------------------

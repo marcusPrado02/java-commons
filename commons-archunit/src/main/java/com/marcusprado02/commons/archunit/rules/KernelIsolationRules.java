@@ -33,7 +33,8 @@ public final class KernelIsolationRules {
               "jakarta.persistence..", // JPA annotations for entities
               "..kernel..")
           .because(
-              "Kernel modules must be framework-agnostic and only depend on JDK (and JPA annotations)");
+              "Kernel modules must be framework-agnostic and only depend on JDK"
+                  + " (and JPA annotations)");
 
   /** Kernel should not depend on Ports, Adapters, or Application layers. */
   public static final ArchRule KERNEL_SHOULD_NOT_DEPEND_ON_OUTER_LAYERS =

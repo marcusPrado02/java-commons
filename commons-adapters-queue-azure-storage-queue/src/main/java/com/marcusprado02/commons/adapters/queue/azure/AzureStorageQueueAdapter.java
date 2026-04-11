@@ -23,7 +23,11 @@ import com.marcusprado02.commons.ports.queue.SendMessageResult;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,6 +48,7 @@ public final class AzureStorageQueueAdapter<T> implements QueuePort<T> {
   private final ObjectMapper objectMapper;
   private final Class<T> payloadType;
 
+  /** Creates a new AzureStorageQueueAdapter instance. */
   public AzureStorageQueueAdapter(
       AzureStorageQueueConfiguration configuration, Class<T> payloadType) {
     this.configuration = Objects.requireNonNull(configuration, "configuration cannot be null");

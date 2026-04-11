@@ -1,5 +1,7 @@
 package com.marcusprado02.commons.kernel.ddd.audit;
 
+import com.marcusprado02.commons.kernel.ddd.id.Identifier;
+import java.io.Serial;
 import java.util.Objects;
 
 /**
@@ -10,7 +12,9 @@ import java.util.Objects;
  *
  * @param value the identifier value
  */
-public record ActorId(String value) {
+public record ActorId(String value) implements Identifier<String> {
+  @Serial private static final long serialVersionUID = 1L;
+
   /** Validates the actor ID value. */
   public ActorId {
     Objects.requireNonNull(value, "value");

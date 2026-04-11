@@ -41,7 +41,7 @@ class PathTenantResolverTest {
   @Test
   void shouldReturnEmptyWhenPatternDoesNotMatch() {
     PathTenantResolver resolver = new PathTenantResolver();
-    when(request.getRequestURI()).thenReturn("/api/users"); // No tenant in path
+    when(request.getRequestURI()).thenReturn("/api"); // Single segment — no trailing slash+segment
 
     var result = resolver.resolve(request);
 

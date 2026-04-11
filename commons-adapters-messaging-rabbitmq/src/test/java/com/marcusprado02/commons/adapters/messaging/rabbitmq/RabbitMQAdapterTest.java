@@ -1,8 +1,10 @@
 package com.marcusprado02.commons.adapters.messaging.rabbitmq;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.awaitility.Awaitility.await;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.marcusprado02.commons.ports.messaging.ConsumerGroup;
 import com.marcusprado02.commons.ports.messaging.MessageEnvelope;
 import com.marcusprado02.commons.ports.messaging.MessageHeaders;
@@ -25,8 +27,8 @@ class RabbitMQAdapterTest {
   private static final RabbitMQContainer rabbitMQ =
       new RabbitMQContainer(DockerImageName.parse("rabbitmq:3.13-alpine"));
 
-  private RabbitMQPublisherAdapter publisher;
-  private RabbitMQConsumerAdapter consumer;
+  private RabbitMqPublisherAdapter publisher;
+  private RabbitMqConsumerAdapter consumer;
   private JacksonMessageSerializer<TestMessage> serializer;
 
   @BeforeEach
@@ -35,7 +37,7 @@ class RabbitMQAdapterTest {
     int port = rabbitMQ.getAmqpPort();
 
     publisher =
-        RabbitMQPublisherAdapter.builder()
+        RabbitMqPublisherAdapter.builder()
             .host(host)
             .port(port)
             .username("guest")
@@ -43,7 +45,7 @@ class RabbitMQAdapterTest {
             .build();
 
     consumer =
-        RabbitMQConsumerAdapter.builder()
+        RabbitMqConsumerAdapter.builder()
             .host(host)
             .port(port)
             .username("guest")
@@ -152,6 +154,87 @@ class RabbitMQAdapterTest {
               assertThat(received).hasSize(1);
               assertThat(received.get(0).partitionKey()).hasValue("user-123");
             });
+  }
+
+  @Test
+  void duplicate_subscribe_throws() {
+    TopicName topic = TopicName.of("test-dup");
+    ConsumerGroup group = ConsumerGroup.of("dup-group");
+
+    consumer.subscribe(topic, group, TestMessage.class, serializer, msg -> {});
+    assertThatThrownBy(
+            () -> consumer.subscribe(topic, group, TestMessage.class, serializer, msg -> {}))
+        .isInstanceOf(IllegalStateException.class);
+  }
+
+  @Test
+  void unsubscribe_active_subscription_closes_connection() {
+    TopicName topic = TopicName.of("test-unsub-active");
+    ConsumerGroup group = ConsumerGroup.of("unsub-active-group");
+
+    consumer.subscribe(topic, group, TestMessage.class, serializer, msg -> {});
+    consumer.start();
+
+    // Give consumer time to establish connection
+    await().atMost(Duration.ofSeconds(2)).pollDelay(Duration.ofMillis(300)).until(() -> true);
+
+    // unsubscribe should close the connection (entry != null, conn != null)
+    consumer.unsubscribe(topic, group);
+  }
+
+  @Test
+  void unsubscribe_before_start_removes_subscription() {
+    TopicName topic = TopicName.of("test-unsub-before-start");
+    ConsumerGroup group = ConsumerGroup.of("unsub-before-group");
+
+    consumer.subscribe(topic, group, TestMessage.class, serializer, msg -> {});
+    // unsubscribe before start: entry != null, conn == null
+    consumer.unsubscribe(topic, group);
+  }
+
+  @Test
+  void unsubscribe_nonexistent_subscription_is_noop() {
+    TopicName topic = TopicName.of("test-unsub-missing");
+    ConsumerGroup group = ConsumerGroup.of("unsub-missing-group");
+    // entry == null: should not throw
+    consumer.unsubscribe(topic, group);
+  }
+
+  @Test
+  void publisher_without_confirms_publishes_message() {
+    String host = rabbitMQ.getHost();
+    int port = rabbitMQ.getAmqpPort();
+
+    RabbitMqPublisherAdapter noConfirmPublisher =
+        RabbitMqPublisherAdapter.builder()
+            .host(host)
+            .port(port)
+            .username("guest")
+            .password("guest")
+            .confirmEnabled(false)
+            .build();
+
+    TopicName topic = TopicName.of("test-no-confirm");
+    MessageEnvelope<TestMessage> envelope =
+        MessageEnvelope.<TestMessage>builder()
+            .topic(topic)
+            .payload(new TestMessage("no-confirm"))
+            .build();
+
+    try {
+      noConfirmPublisher.publish(envelope, serializer);
+    } finally {
+      noConfirmPublisher.close();
+    }
+  }
+
+  @Test
+  void serializer_with_custom_object_mapper() {
+    JacksonMessageSerializer<TestMessage> customSerializer =
+        new JacksonMessageSerializer<>(new ObjectMapper());
+    byte[] bytes = customSerializer.serialize(new TestMessage("hello"));
+    TestMessage result = customSerializer.deserialize(bytes, TestMessage.class);
+    assertThat(result.message()).isEqualTo("hello");
   }
 
   public record TestMessage(String message) {}

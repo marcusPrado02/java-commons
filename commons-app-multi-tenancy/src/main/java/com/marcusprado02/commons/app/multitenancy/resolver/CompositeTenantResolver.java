@@ -55,6 +55,7 @@ public class CompositeTenantResolver<T> implements TenantResolver<T> {
     return new Builder<>();
   }
 
+  /** Builder for {@link CompositeTenantResolver}. */
   public static class Builder<T> {
     private final java.util.List<TenantResolver<T>> resolvers = new java.util.ArrayList<>();
 

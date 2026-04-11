@@ -4,8 +4,15 @@ import jakarta.persistence.criteria.Predicate;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Builds a {@link Specification} from a {@link SearchCriteria}. */
 public class SpecificationBuilder<T> {
 
+  /**
+   * Builds a Specification from the given search criteria.
+   *
+   * @param criteria search criteria
+   * @return Specification matching the criteria
+   */
   public Specification<T> build(SearchCriteria criteria) {
     return (root, query, builder) -> {
       List<Predicate> predicates = new ArrayList<>();
@@ -26,6 +33,7 @@ public class SpecificationBuilder<T> {
             String[] values = filter.value().split(",");
             predicates.add(root.get(filter.field()).in((Object[]) values));
           }
+          default -> throw new IllegalArgumentException("Unknown operator: " + filter.operator());
         }
       }
 

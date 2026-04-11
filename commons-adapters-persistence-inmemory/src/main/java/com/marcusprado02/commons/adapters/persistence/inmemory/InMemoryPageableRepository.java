@@ -15,18 +15,28 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/** Implementação em memória de PageableRepository<E, ID>. */
-public class InMemoryPageableRepository<E, ID> extends BaseInMemoryRepository<E, ID>
-    implements PageableRepository<E, ID> {
+/**
+ * In-memory implementation of {@code PageableRepository} using entity type {@code E} and ID type
+ * {@code I}.
+ *
+ * @param <E> the entity type
+ * @param <I> the ID type
+ */
+public class InMemoryPageableRepository<E, I> extends BaseInMemoryRepository<E, I>
+    implements PageableRepository<E, I> {
 
-  public InMemoryPageableRepository(IdExtractor<E, ID> idExtractor) {
+  /**
+   * Creates a new pageable repository with the given ID extractor.
+   *
+   * @param idExtractor the strategy to extract the ID from an entity
+   */
+  public InMemoryPageableRepository(IdExtractor<E, I> idExtractor) {
     super(idExtractor);
   }
 
   @Override
   public PageResult<E> findAll(PageRequest pageRequest, Specification<E> specification) {
-    // Specification não é adequado para in-memory sem JPA
-    // Retorna todos os dados sem filtro (pode ser melhorado com um SpecificationAdapter)
+    // Specification is not suitable for in-memory without JPA; fall back to unfiltered findAll
     return findAll(pageRequest);
   }
 
@@ -34,7 +44,6 @@ public class InMemoryPageableRepository<E, ID> extends BaseInMemoryRepository<E,
   public PageResult<E> findAll(PageRequest pageRequest, SearchCriteria criteria) {
     List<E> all = new ArrayList<>(storage.values());
 
-    // Aplicar filtros
     List<E> filtered =
         all.stream()
             .filter(entity -> matchesCriteria(entity, criteria))
@@ -43,18 +52,23 @@ public class InMemoryPageableRepository<E, ID> extends BaseInMemoryRepository<E,
     return paginate(filtered, pageRequest);
   }
 
-  @Override
-  public PageResult<E> search(PageRequest pageRequest, Specification<E> spec, Sort sort) {
-    // Specification não é adequado para in-memory sem JPA
-    // Implementação simplificada: apenas ordenação
-    List<E> all = new ArrayList<>(storage.values());
-    List<E> sorted = applySorting(all, sort);
-    return paginate(sorted, pageRequest);
-  }
-
+  /**
+   * Returns a page of all entities without filtering.
+   *
+   * @param pageRequest the page request
+   * @return a page result containing entities for the requested page
+   */
   public PageResult<E> findAll(PageRequest pageRequest) {
     List<E> all = new ArrayList<>(storage.values());
     return paginate(all, pageRequest);
+  }
+
+  @Override
+  public PageResult<E> search(PageRequest pageRequest, Specification<E> spec, Sort sort) {
+    // Specification is not suitable for in-memory without JPA; apply sorting only
+    List<E> all = new ArrayList<>(storage.values());
+    List<E> sorted = applySorting(all, sort);
+    return paginate(sorted, pageRequest);
   }
 
   private boolean matchesCriteria(E entity, SearchCriteria criteria) {
@@ -198,9 +212,15 @@ public class InMemoryPageableRepository<E, ID> extends BaseInMemoryRepository<E,
         Object v1 = getFieldValue(e1, order.field());
         Object v2 = getFieldValue(e2, order.field());
 
-        if (v1 == null && v2 == null) return 0;
-        if (v1 == null) return order.direction() == Order.Direction.ASC ? -1 : 1;
-        if (v2 == null) return order.direction() == Order.Direction.ASC ? 1 : -1;
+        if (v1 == null && v2 == null) {
+          return 0;
+        }
+        if (v1 == null) {
+          return order.direction() == Order.Direction.ASC ? -1 : 1;
+        }
+        if (v2 == null) {
+          return order.direction() == Order.Direction.ASC ? 1 : -1;
+        }
 
         int comparison = 0;
         if (v1 instanceof Comparable comparable1 && v2 instanceof Comparable comparable2) {

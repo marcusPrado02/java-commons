@@ -8,6 +8,7 @@ import jakarta.servlet.ServletRequest;
 import jakarta.servlet.ServletResponse;
 import java.io.IOException;
 
+/** Servlet filter that ensures the request context is cleared after each request. */
 public final class RequestContextFilter implements Filter {
 
   @Override

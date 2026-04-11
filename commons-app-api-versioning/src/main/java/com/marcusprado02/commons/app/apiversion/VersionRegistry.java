@@ -85,6 +85,7 @@ public final class VersionRegistry {
     deprecations.put(deprecationInfo.getVersion(), deprecationInfo);
   }
 
+  /** Builder for {@link VersionRegistry}. */
   public static final class Builder {
     private ApiVersion defaultVersion;
     private ApiVersion latestVersion;

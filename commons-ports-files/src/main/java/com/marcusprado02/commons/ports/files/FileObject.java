@@ -9,6 +9,7 @@ import java.util.Objects;
 /** Represents a file object with its metadata and content. */
 public record FileObject(FileId id, InputStream content, FileMetadata metadata) {
 
+  /** Validates file object fields. */
   public FileObject {
     Objects.requireNonNull(id, "id must not be null");
     Objects.requireNonNull(content, "content must not be null");
@@ -23,6 +24,7 @@ public record FileObject(FileId id, InputStream content, FileMetadata metadata) 
       String etag,
       Map<String, String> customMetadata) {
 
+    /** Validates file metadata fields and creates defensive copies. */
     public FileMetadata {
       Objects.requireNonNull(contentType, "contentType must not be null");
       Objects.requireNonNull(contentLength, "contentLength must not be null");
@@ -33,6 +35,7 @@ public record FileObject(FileId id, InputStream content, FileMetadata metadata) 
       return new Builder();
     }
 
+    /** Builder for {@link FileMetadata}. */
     public static class Builder {
       private String contentType = "application/octet-stream";
       private Long contentLength = 0L;

@@ -13,6 +13,7 @@ import java.util.Optional;
  */
 public record EmailContent(Optional<String> htmlContent, Optional<String> textContent) {
 
+  /** Validates email content. */
   public EmailContent {
     Objects.requireNonNull(htmlContent, "htmlContent must not be null");
     Objects.requireNonNull(textContent, "textContent must not be null");

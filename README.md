@@ -1,10 +1,20 @@
-# Commons Platform
+# java-commons
 
-Supreme shared commons platform for high-quality Java microservices.
+Biblioteca modular de commons para serviços Java 21+ com arquitetura hexagonal.
 
-## Quick Start (5 minutes)
+## Estrutura
 
-### 1. Add the BOM to your project
+| Grupo | Descrição |
+|-------|-----------|
+| `commons-kernel-*` | Domínio puro — sem dependências de framework |
+| `commons-app-*` | Casos de uso e orquestração de aplicação |
+| `commons-ports-*` | Interfaces hexagonais (ports) |
+| `commons-adapters-*` | Implementações de infraestrutura |
+| `commons-spring-starter-*` | Auto-configuração Spring Boot |
+
+## Começando
+
+### 1. Importe o BOM
 
 ```xml
 <dependencyManagement>
@@ -20,17 +30,14 @@ Supreme shared commons platform for high-quality Java microservices.
 </dependencyManagement>
 ```
 
-### 2. Add the modules you need
+### 2. Adicione os módulos necessários
 
 ```xml
 <dependencies>
-  <!-- Functional error handling (no exceptions) -->
   <dependency>
     <groupId>com.marcusprado02.commons</groupId>
     <artifactId>commons-kernel-result</artifactId>
   </dependency>
-
-  <!-- Rich error model (Problem, ErrorCode, Severity) -->
   <dependency>
     <groupId>com.marcusprado02.commons</groupId>
     <artifactId>commons-kernel-errors</artifactId>
@@ -38,69 +45,31 @@ Supreme shared commons platform for high-quality Java microservices.
 </dependencies>
 ```
 
-### 3. Use Result<T> for error handling
+### 3. Use `Result<T>` para tratamento de erros
 
 ```java
-import com.marcusprado02.commons.kernel.result.Result;
-import com.marcusprado02.commons.kernel.errors.*;
-
-public class UserService {
-
-    public Result<User> findById(String id) {
-        return userRepository.findById(id)
-            .map(Result::ok)
-            .orElseGet(() -> Result.fail(
-                Problem.of(
-                    ErrorCode.of("USER.NOT_FOUND"),
-                    ErrorCategory.NOT_FOUND,
-                    Severity.WARNING,
-                    "User not found: " + id)));
-    }
+public Result<User> findById(String id) {
+    return userRepository.findById(id)
+        .map(Result::ok)
+        .orElseGet(() -> Result.fail(
+            Problem.of(
+                ErrorCode.of("USER.NOT_FOUND"),
+                ErrorCategory.NOT_FOUND,
+                Severity.WARNING,
+                "User not found: " + id)));
 }
-
-// Consume without exceptions
-userService.findById("42")
-    .peek(user -> System.out.println("Found: " + user.name()))
-    .peekFail(problem -> System.err.println("Error: " + problem.message()))
-    .map(User::email)
-    .getOrElse("unknown@example.com");
-
-// Async pipeline
-userService.findById("42")
-    .mapAsync(user -> loadProfileAsync(user.id()))
-    .thenCompose(r -> r.flatMapAsync(profile -> enrichAsync(profile)));
 ```
 
-### 4. Optionally add a Spring Boot Starter
+## Build
 
-```xml
-<!-- Auto-configures outbox, idempotency, caching, secrets -->
-<dependency>
-  <groupId>com.marcusprado02.commons</groupId>
-  <artifactId>commons-spring-starter-outbox</artifactId>
-</dependency>
+Requer Java 21+ e Maven 3.9+.
+
+```bash
+./mvnw verify
 ```
 
-See [docs/guides/quick-start.md](docs/guides/quick-start.md) for the full guide.
+## Requisitos
 
----
-
-## Goals
-- Clean Architecture / Hexagonal
-- DDD-first
-- Framework-agnostic core
-- Optional adapters and Spring Boot starters
-- Strong governance (architecture rules, quality gates)
-
-## GroupId
-com.marcusprado02.commons
-
-## Java
 - Java 21+
-
-## Structure
-- `commons-kernel-*` → domain-safe, framework-free
-- `commons-app-*` → application layer helpers
-- `commons-ports-*` → hexagonal ports
-- `commons-adapters-*` → infrastructure implementations
-- `commons-spring-starter-*` → productivity starters
+- Maven 3.9+
+- Docker (para testes de integração com Testcontainers)

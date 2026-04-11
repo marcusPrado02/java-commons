@@ -2,7 +2,10 @@ package com.marcusprado02.commons.adapters.excel.poi;
 
 import com.marcusprado02.commons.kernel.errors.Problems;
 import com.marcusprado02.commons.kernel.result.Result;
-import com.marcusprado02.commons.ports.excel.*;
+import com.marcusprado02.commons.ports.excel.ExcelCell;
+import com.marcusprado02.commons.ports.excel.ExcelCellStyle;
+import com.marcusprado02.commons.ports.excel.ExcelStreamWriter;
+import com.marcusprado02.commons.ports.excel.ExcelWriteOptions;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.time.LocalDate;
@@ -12,7 +15,18 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.DataFormat;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.FormulaError;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 
 /**
@@ -49,6 +63,7 @@ public class PoiStreamWriter implements ExcelStreamWriter {
   }
 
   /** Initializes the writer by creating the workbook. */
+  @SuppressWarnings("checkstyle:indentation")
   private void initialize() throws IOException {
     try {
       // Use streaming workbook for XLSX to minimize memory usage
@@ -311,6 +326,7 @@ public class PoiStreamWriter implements ExcelStreamWriter {
   }
 
   /** Sets the value of a POI cell based on the Commons cell data. */
+  @SuppressWarnings("checkstyle:indentation")
   private void setCellValue(Cell poiCell, ExcelCell cell) {
     switch (cell.cellType()) {
       case BLANK -> poiCell.setBlank();
@@ -348,6 +364,7 @@ public class PoiStreamWriter implements ExcelStreamWriter {
         }
       }
       case ERROR -> poiCell.setCellErrorValue(FormulaError.VALUE.getCode());
+      default -> throw new AssertionError("Unexpected cell type: " + cell.cellType());
     }
   }
 
@@ -409,6 +426,7 @@ public class PoiStreamWriter implements ExcelStreamWriter {
     return poiStyle;
   }
 
+  @SuppressWarnings("checkstyle:indentation")
   private HorizontalAlignment mapHorizontalAlignment(ExcelCellStyle.HorizontalAlignment alignment) {
     return switch (alignment) {
       case LEFT -> HorizontalAlignment.LEFT;
@@ -419,6 +437,7 @@ public class PoiStreamWriter implements ExcelStreamWriter {
     };
   }
 
+  @SuppressWarnings("checkstyle:indentation")
   private VerticalAlignment mapVerticalAlignment(ExcelCellStyle.VerticalAlignment alignment) {
     return switch (alignment) {
       case TOP -> VerticalAlignment.TOP;
@@ -428,6 +447,7 @@ public class PoiStreamWriter implements ExcelStreamWriter {
     };
   }
 
+  @SuppressWarnings("checkstyle:indentation")
   private BorderStyle mapBorderStyle(ExcelCellStyle.BorderStyle borderStyle) {
     return switch (borderStyle) {
       case NONE -> BorderStyle.NONE;

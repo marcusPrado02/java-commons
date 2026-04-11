@@ -201,8 +201,8 @@ public class ThymeleafTemplateAdapter implements TemplatePort {
       resolver.setTemplateMode(configuration.getTemplateMode());
       resolver.setCharacterEncoding(configuration.getCharset().name());
       resolver.setCacheable(configuration.isCacheable());
-      if (configuration.getCacheableTTLMs() != null) {
-        resolver.setCacheTTLMs(configuration.getCacheableTTLMs());
+      if (configuration.getCacheableTtlMs() != null) {
+        resolver.setCacheTTLMs(configuration.getCacheableTtlMs());
       }
       return resolver;
 
@@ -213,8 +213,8 @@ public class ThymeleafTemplateAdapter implements TemplatePort {
       resolver.setTemplateMode(configuration.getTemplateMode());
       resolver.setCharacterEncoding(configuration.getCharset().name());
       resolver.setCacheable(configuration.isCacheable());
-      if (configuration.getCacheableTTLMs() != null) {
-        resolver.setCacheTTLMs(configuration.getCacheableTTLMs());
+      if (configuration.getCacheableTtlMs() != null) {
+        resolver.setCacheTTLMs(configuration.getCacheableTtlMs());
       }
       return resolver;
 
@@ -226,8 +226,8 @@ public class ThymeleafTemplateAdapter implements TemplatePort {
       resolver.setTemplateMode(configuration.getTemplateMode());
       resolver.setCharacterEncoding(configuration.getCharset().name());
       resolver.setCacheable(configuration.isCacheable());
-      if (configuration.getCacheableTTLMs() != null) {
-        resolver.setCacheTTLMs(configuration.getCacheableTTLMs());
+      if (configuration.getCacheableTtlMs() != null) {
+        resolver.setCacheTTLMs(configuration.getCacheableTtlMs());
       }
       return resolver;
     }

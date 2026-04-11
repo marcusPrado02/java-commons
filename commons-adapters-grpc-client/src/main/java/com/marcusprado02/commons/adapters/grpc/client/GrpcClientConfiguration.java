@@ -46,6 +46,7 @@ public record GrpcClientConfiguration(
     List<ClientInterceptor> interceptors,
     String userAgent) {
 
+  /** Validates gRPC client configuration fields and creates defensive copies of mutable values. */
   public GrpcClientConfiguration {
     Objects.requireNonNull(host, "Host cannot be null");
     if (host.isBlank()) {
@@ -75,11 +76,11 @@ public record GrpcClientConfiguration(
       throw new IllegalArgumentException("Max inbound metadata size must be positive");
     }
 
-    if (maxRetries < 0) {
-      throw new IllegalArgumentException("Max retries cannot be negative");
-    }
-
     if (enableRetry) {
+      if (maxRetries <= 0) {
+        throw new IllegalArgumentException("Max retries must be positive when retry is enabled");
+      }
+
       Objects.requireNonNull(retryDelay, "Retry delay cannot be null when retry is enabled");
       Objects.requireNonNull(maxRetryDelay, "Max retry delay cannot be null when retry is enabled");
 
@@ -90,6 +91,8 @@ public record GrpcClientConfiguration(
       if (maxRetryDelay.isNegative() || maxRetryDelay.isZero()) {
         throw new IllegalArgumentException("Max retry delay must be positive");
       }
+    } else if (maxRetries < 0) {
+      throw new IllegalArgumentException("Max retries cannot be negative");
     }
 
     if (enableCircuitBreaker) {
@@ -194,7 +197,7 @@ public record GrpcClientConfiguration(
     private Duration retryDelay = Duration.ofMillis(100);
     private Duration maxRetryDelay = Duration.ofSeconds(5);
     private boolean enableCircuitBreaker = false;
-    private int circuitBreakerFailureThreshold = 5;
+    private int circuitBreakerFailureThreshold = 0;
     private Duration circuitBreakerWaitDuration = Duration.ofSeconds(60);
     private List<ClientInterceptor> interceptors = new ArrayList<>();
     private String userAgent = "commons-grpc-client/0.1.0";

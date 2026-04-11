@@ -79,7 +79,9 @@ public class AesConfigurationEncryptor implements ConfigurationEncryptor {
 
   @Override
   public String encrypt(String plainText) throws EncryptionException {
-    if (plainText == null) return null;
+    if (plainText == null) {
+      return null;
+    }
 
     try {
       // Generate random IV
@@ -109,7 +111,9 @@ public class AesConfigurationEncryptor implements ConfigurationEncryptor {
 
   @Override
   public String decrypt(String encryptedText) throws EncryptionException {
-    if (encryptedText == null) return null;
+    if (encryptedText == null) {
+      return null;
+    }
     if (!isEncrypted(encryptedText)) {
       throw new EncryptionException("Value is not encrypted (missing {cipher} prefix)");
     }

@@ -23,8 +23,8 @@ import org.junit.jupiter.api.Test;
 /**
  * Abstract contract test for {@link HttpClientPort}.
  *
- * <p>Every concrete {@code HttpClientPort} adapter must extend this class and implement
- * {@link #createAdapter()} to obtain a fresh adapter instance. All tests defined here assert the
+ * <p>Every concrete {@code HttpClientPort} adapter must extend this class and implement {@link
+ * #createAdapter()} to obtain a fresh adapter instance. All tests defined here assert the
  * behavioural contract that <em>all</em> adapters must honour, regardless of the underlying HTTP
  * library.
  *
@@ -42,9 +42,9 @@ public abstract class HttpClientPortContractTest {
   protected WireMockServer server;
 
   /**
-   * Factory method: subclasses return a fully configured adapter under test.
-   * The adapter must not apply any interceptors or special configuration unless
-   * the individual contract scenario requires it.
+   * Factory method: subclasses return a fully configured adapter under test. The adapter must not
+   * apply any interceptors or special configuration unless the individual contract scenario
+   * requires it.
    */
   protected abstract HttpClientPort createAdapter();
 
@@ -70,9 +70,7 @@ public abstract class HttpClientPortContractTest {
   @Test
   void get_returns_200_with_body() {
     server.stubFor(
-        get(urlEqualTo("/hello"))
-            .willReturn(
-                aResponse().withStatus(200).withBody("hello")));
+        get(urlEqualTo("/hello")).willReturn(aResponse().withStatus(200).withBody("hello")));
 
     HttpRequest request = HttpRequest.builder().method(HttpMethod.GET).uri(uri("/hello")).build();
     HttpResponse<byte[]> response = createAdapter().execute(request);
@@ -85,11 +83,9 @@ public abstract class HttpClientPortContractTest {
   @Test
   void get_passes_through_404_without_throwing() {
     server.stubFor(
-        get(urlEqualTo("/missing"))
-            .willReturn(aResponse().withStatus(404).withBody("not found")));
+        get(urlEqualTo("/missing")).willReturn(aResponse().withStatus(404).withBody("not found")));
 
-    HttpRequest request =
-        HttpRequest.builder().method(HttpMethod.GET).uri(uri("/missing")).build();
+    HttpRequest request = HttpRequest.builder().method(HttpMethod.GET).uri(uri("/missing")).build();
     HttpResponse<byte[]> response = createAdapter().execute(request);
 
     assertEquals(404, response.statusCode());
@@ -99,8 +95,7 @@ public abstract class HttpClientPortContractTest {
   @Test
   void get_passes_through_500_without_throwing() {
     server.stubFor(
-        get(urlEqualTo("/error"))
-            .willReturn(aResponse().withStatus(500).withBody("server error")));
+        get(urlEqualTo("/error")).willReturn(aResponse().withStatus(500).withBody("server error")));
 
     HttpRequest request = HttpRequest.builder().method(HttpMethod.GET).uri(uri("/error")).build();
     HttpResponse<byte[]> response = createAdapter().execute(request);
@@ -111,8 +106,7 @@ public abstract class HttpClientPortContractTest {
 
   @Test
   void get_returns_empty_body_on_204() {
-    server.stubFor(
-        get(urlEqualTo("/no-content")).willReturn(aResponse().withStatus(204)));
+    server.stubFor(get(urlEqualTo("/no-content")).willReturn(aResponse().withStatus(204)));
 
     HttpRequest request =
         HttpRequest.builder().method(HttpMethod.GET).uri(uri("/no-content")).build();
@@ -188,10 +182,7 @@ public abstract class HttpClientPortContractTest {
     server.stubFor(
         get(urlEqualTo("/with-headers"))
             .willReturn(
-                aResponse()
-                    .withStatus(200)
-                    .withHeader("X-Custom", "value1")
-                    .withBody("ok")));
+                aResponse().withStatus(200).withHeader("X-Custom", "value1").withBody("ok")));
 
     HttpRequest request =
         HttpRequest.builder().method(HttpMethod.GET).uri(uri("/with-headers")).build();
@@ -249,8 +240,7 @@ public abstract class HttpClientPortContractTest {
 
   @Test
   void delete_returns_204() {
-    server.stubFor(
-        delete(urlEqualTo("/users/1")).willReturn(aResponse().withStatus(204)));
+    server.stubFor(delete(urlEqualTo("/users/1")).willReturn(aResponse().withStatus(204)));
 
     HttpRequest request =
         HttpRequest.builder().method(HttpMethod.DELETE).uri(uri("/users/1")).build();
@@ -266,8 +256,7 @@ public abstract class HttpClientPortContractTest {
   @Test
   void body_mapper_converts_bytes_to_string() {
     server.stubFor(
-        get(urlEqualTo("/text"))
-            .willReturn(aResponse().withStatus(200).withBody("hello mapper")));
+        get(urlEqualTo("/text")).willReturn(aResponse().withStatus(200).withBody("hello mapper")));
 
     HttpRequest request = HttpRequest.builder().method(HttpMethod.GET).uri(uri("/text")).build();
 

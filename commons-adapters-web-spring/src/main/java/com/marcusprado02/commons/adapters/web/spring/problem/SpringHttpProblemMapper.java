@@ -2,12 +2,16 @@ package com.marcusprado02.commons.adapters.web.spring.problem;
 
 import com.marcusprado02.commons.adapters.web.problem.HttpProblemMapper;
 import com.marcusprado02.commons.adapters.web.problem.HttpProblemResponse;
-import com.marcusprado02.commons.kernel.errors.*;
+import com.marcusprado02.commons.kernel.errors.Problem;
 import java.util.Map;
 
+/**
+ * Maps {@link com.marcusprado02.commons.kernel.errors.Problem} instances to HTTP problem responses.
+ */
 public final class SpringHttpProblemMapper implements HttpProblemMapper {
 
   @Override
+  @SuppressWarnings("checkstyle:indentation")
   public HttpProblemResponse map(Problem problem) {
     int status =
         switch (problem.category()) {

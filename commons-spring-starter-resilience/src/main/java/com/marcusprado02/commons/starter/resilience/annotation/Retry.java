@@ -5,9 +5,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/** Configures retry resilience for the annotated method. */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Retry {
+  /** Maximum number of attempts; -1 uses the configured default. */
   int maxAttempts() default -1;
 
   /** ISO-8601 duration, e.g. PT0.2S */

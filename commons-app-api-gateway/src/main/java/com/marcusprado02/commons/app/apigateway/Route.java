@@ -120,6 +120,12 @@ public record Route(String id, String pathPattern, String method, String targetU
       return this;
     }
 
+    /**
+     * Builds and returns a configured {@link Route}.
+     *
+     * @return the new route
+     * @throws IllegalArgumentException if required fields are missing
+     */
     public Route build() {
       if (id == null) {
         throw new IllegalArgumentException("Route id is required");

@@ -21,6 +21,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** Stripe implementation of SubscriptionService. */
 public class StripeSubscriptionService implements SubscriptionService {
   private static final Logger logger = LoggerFactory.getLogger(StripeSubscriptionService.class);
 
@@ -28,6 +29,12 @@ public class StripeSubscriptionService implements SubscriptionService {
     Stripe.apiKey = apiKey;
   }
 
+  /**
+   * Creates a new StripeSubscriptionService instance.
+   *
+   * @param apiKey Stripe API key
+   * @return new StripeSubscriptionService instance
+   */
   public static StripeSubscriptionService create(String apiKey) {
     return new StripeSubscriptionService(apiKey);
   }
@@ -162,10 +169,7 @@ public class StripeSubscriptionService implements SubscriptionService {
       var subscription = com.stripe.model.Subscription.retrieve(subscriptionId);
 
       // Resume by removing the cancel_at_period_end flag
-      var params =
-          SubscriptionUpdateParams.builder()
-              .setCancelAtPeriodEnd(false)
-              .build();
+      var params = SubscriptionUpdateParams.builder().setCancelAtPeriodEnd(false).build();
 
       var resumed = subscription.update(params);
       logger.info("Resumed subscription: {}", subscriptionId);

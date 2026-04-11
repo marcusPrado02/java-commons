@@ -1,6 +1,9 @@
 package com.marcusprado02.commons.app.configuration.validation;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Iterator;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 /**
  * Metadata for configuration properties.

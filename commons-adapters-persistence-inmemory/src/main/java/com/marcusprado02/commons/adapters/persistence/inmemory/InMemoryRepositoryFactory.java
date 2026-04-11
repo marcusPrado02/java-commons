@@ -1,19 +1,32 @@
 package com.marcusprado02.commons.adapters.persistence.inmemory;
 
-/** Fábrica de repositórios em memória. */
+/** Factory for creating in-memory repository instances. */
 public final class InMemoryRepositoryFactory {
 
   private InMemoryRepositoryFactory() {}
 
-  /** Cria um Repository em memória. */
-  public static <E, ID> BaseInMemoryRepository<E, ID> createRepository(
-      IdExtractor<E, ID> extractor) {
+  /**
+   * Creates an in-memory {@code Repository}.
+   *
+   * @param <E> the entity type
+   * @param <I> the ID type
+   * @param extractor the strategy to extract the ID from an entity
+   * @return a new {@code BaseInMemoryRepository}
+   */
+  public static <E, I> BaseInMemoryRepository<E, I> createRepository(IdExtractor<E, I> extractor) {
     return new BaseInMemoryRepository<>(extractor);
   }
 
-  /** Cria um PageableRepository em memória. */
-  public static <E, ID> InMemoryPageableRepository<E, ID> createPageableRepository(
-      IdExtractor<E, ID> extractor) {
+  /**
+   * Creates an in-memory {@code PageableRepository}.
+   *
+   * @param <E> the entity type
+   * @param <I> the ID type
+   * @param extractor the strategy to extract the ID from an entity
+   * @return a new {@code InMemoryPageableRepository}
+   */
+  public static <E, I> InMemoryPageableRepository<E, I> createPageableRepository(
+      IdExtractor<E, I> extractor) {
     return new InMemoryPageableRepository<>(extractor);
   }
 }

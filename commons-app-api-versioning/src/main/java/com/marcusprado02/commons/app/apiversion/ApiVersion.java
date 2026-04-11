@@ -68,7 +68,7 @@ public final class ApiVersion implements Comparable<ApiVersion> {
   public static ApiVersion parse(String version) {
     Objects.requireNonNull(version, "version cannot be null");
 
-    String normalized = version.trim().toLowerCase();
+    String normalized = version.trim().toLowerCase(java.util.Locale.ROOT);
     if (normalized.startsWith("v")) {
       normalized = normalized.substring(1);
     }
@@ -157,8 +157,12 @@ public final class ApiVersion implements Comparable<ApiVersion> {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     ApiVersion that = (ApiVersion) o;
     return major == that.major && minor == that.minor;
   }

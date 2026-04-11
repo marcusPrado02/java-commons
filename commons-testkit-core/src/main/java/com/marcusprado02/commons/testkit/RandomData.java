@@ -1,5 +1,6 @@
 package com.marcusprado02.commons.testkit;
 
+import java.util.Locale;
 import java.util.Random;
 import java.util.UUID;
 
@@ -67,7 +68,7 @@ public final class RandomData {
 
   /** Generates a random email address. */
   public static String randomEmail() {
-    return randomString(8).toLowerCase() + "@test.com";
+    return randomString(8).toLowerCase(Locale.ROOT) + "@test.com";
   }
 
   /** Generates a random UUID string. */

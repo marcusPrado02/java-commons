@@ -23,6 +23,7 @@ public record PoiConfiguration(
     boolean readOnlyMode,
     boolean strictParsing) {
 
+  /** Validates {@link PoiConfiguration} fields. */
   public PoiConfiguration {
     if (streamingRowAccessWindow <= 0) {
       throw new IllegalArgumentException("Streaming row access window must be > 0");
@@ -127,6 +128,11 @@ public record PoiConfiguration(
       return this;
     }
 
+    /**
+     * Builds the {@link PoiConfiguration}.
+     *
+     * @return the configuration
+     */
     public PoiConfiguration build() {
       return new PoiConfiguration(
           enableFormulasEvaluation,

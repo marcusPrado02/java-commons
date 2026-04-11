@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
+/** Result of a single health check evaluation. */
 public record HealthCheckResult(
     String name,
     HealthCheckType type,
@@ -13,6 +14,7 @@ public record HealthCheckResult(
     Map<String, Object> details,
     Instant checkedAt) {
 
+  /** Validates health check result fields and creates defensive copies. */
   public HealthCheckResult {
     Objects.requireNonNull(name, "name must not be null");
     Objects.requireNonNull(type, "type must not be null");

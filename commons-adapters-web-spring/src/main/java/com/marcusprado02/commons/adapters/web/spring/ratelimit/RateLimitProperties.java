@@ -77,11 +77,11 @@ public class RateLimitProperties {
   }
 
   public enum KeyType {
-    /** Rate limit by client IP address */
+    /** Rate limit by client IP address. */
     IP_ADDRESS,
-    /** Rate limit by authenticated user (requires security context) */
+    /** Rate limit by authenticated user (requires security context). */
     USER,
-    /** Rate limit by API key from custom header */
+    /** Rate limit by API key from custom header. */
     API_KEY
   }
 }

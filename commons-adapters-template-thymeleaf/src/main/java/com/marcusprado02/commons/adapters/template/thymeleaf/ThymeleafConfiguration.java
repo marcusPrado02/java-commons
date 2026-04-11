@@ -18,7 +18,7 @@ import org.thymeleaf.templatemode.TemplateMode;
  *     .templateSuffix(".html")
  *     .templateMode(TemplateMode.HTML)
  *     .cacheable(true)
- *     .cacheableTTLMs(3600000L) // 1 hour
+ *     .cacheableTtlMs(3600000L) // 1 hour
  *     .charset(StandardCharsets.UTF_8)
  *     .build();
  *
@@ -31,7 +31,7 @@ public class ThymeleafConfiguration {
   private final String templateSuffix;
   private final TemplateMode templateMode;
   private final boolean cacheable;
-  private final Long cacheableTTLMs;
+  private final Long cacheableTtlMs;
   private final Charset charset;
 
   private ThymeleafConfiguration(Builder builder) {
@@ -39,7 +39,7 @@ public class ThymeleafConfiguration {
     this.templateSuffix = builder.templateSuffix;
     this.templateMode = builder.templateMode;
     this.cacheable = builder.cacheable;
-    this.cacheableTTLMs = builder.cacheableTTLMs;
+    this.cacheableTtlMs = builder.cacheableTtlMs;
     this.charset = builder.charset;
   }
 
@@ -63,8 +63,8 @@ public class ThymeleafConfiguration {
     return cacheable;
   }
 
-  public Long getCacheableTTLMs() {
-    return cacheableTTLMs;
+  public Long getCacheableTtlMs() {
+    return cacheableTtlMs;
   }
 
   public Charset getCharset() {
@@ -77,7 +77,7 @@ public class ThymeleafConfiguration {
     private String templateSuffix = ".html";
     private TemplateMode templateMode = TemplateMode.HTML;
     private boolean cacheable = true;
-    private Long cacheableTTLMs = 3600000L; // 1 hour
+    private Long cacheableTtlMs = 3600000L; // 1 hour
     private Charset charset = StandardCharsets.UTF_8;
 
     /**
@@ -154,11 +154,11 @@ public class ThymeleafConfiguration {
      *
      * <p>Default: 3600000 (1 hour)
      *
-     * @param cacheableTTLMs cache TTL in milliseconds, null for infinite
+     * @param cacheableTtlMs cache TTL in milliseconds, null for infinite
      * @return this builder
      */
-    public Builder cacheableTTLMs(Long cacheableTTLMs) {
-      this.cacheableTTLMs = cacheableTTLMs;
+    public Builder cacheableTtlMs(Long cacheableTtlMs) {
+      this.cacheableTtlMs = cacheableTtlMs;
       return this;
     }
 

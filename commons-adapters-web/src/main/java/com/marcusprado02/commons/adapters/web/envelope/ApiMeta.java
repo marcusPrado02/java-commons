@@ -3,6 +3,7 @@ package com.marcusprado02.commons.adapters.web.envelope;
 import java.time.Instant;
 import java.util.Map;
 
+/** ApiMeta data. */
 public record ApiMeta(
     String correlationId,
     String causationId,

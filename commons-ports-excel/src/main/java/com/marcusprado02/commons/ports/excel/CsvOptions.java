@@ -120,6 +120,11 @@ public record CsvOptions(
       return this;
     }
 
+    /**
+     * Builds the CsvOptions instance.
+     *
+     * @return configured CsvOptions
+     */
     public CsvOptions build() {
       return new CsvOptions(
           delimiter,

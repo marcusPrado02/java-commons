@@ -14,31 +14,31 @@ public final class Fixtures {
 
   // =========== Time Fixtures ===========
 
-  /** Default test timestamp: 2024-01-01T00:00:00Z */
+  /** Default test timestamp: 2024-01-01T00:00:00Z. */
   public static final Instant DEFAULT_INSTANT = Instant.parse("2024-01-01T00:00:00Z");
 
-  /** Default test clock provider (fixed at DEFAULT_INSTANT) */
+  /** Default test clock provider (fixed at DEFAULT_INSTANT). */
   public static final ClockProvider DEFAULT_CLOCK = TestClock.fixed(DEFAULT_INSTANT);
 
   // =========== Identifiers ===========
 
-  /** Default test tenant ID */
+  /** Default test tenant ID. */
   public static final String DEFAULT_TENANT_ID = "test-tenant";
 
-  /** Default test correlation ID */
+  /** Default test correlation ID. */
   public static final String DEFAULT_CORRELATION_ID = "test-correlation-id";
 
-  /** Default test actor/user ID */
+  /** Default test actor/user ID. */
   public static final String DEFAULT_ACTOR_ID = "test-user";
 
   // =========== Factory Methods ===========
 
-  /** Creates a clock provider at a specific instant */
+  /** Creates a clock provider at a specific instant. */
   public static ClockProvider clockAt(Instant instant) {
     return TestClock.fixed(instant);
   }
 
-  /** Creates a clock provider at a specific date/time */
+  /** Creates a clock provider at a specific date/time. */
   public static ClockProvider clockAt(int year, int month, int day, int hour, int minute) {
     return TestClock.fixedAt(year, month, day, hour, minute);
   }

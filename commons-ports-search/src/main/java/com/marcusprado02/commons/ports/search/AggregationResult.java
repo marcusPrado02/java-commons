@@ -25,6 +25,7 @@ import java.util.Objects;
  */
 public record AggregationResult(String name, List<Bucket> buckets, Map<String, Double> metrics) {
 
+  /** Validates aggregation result fields and creates defensive copies. */
   public AggregationResult {
     Objects.requireNonNull(name, "Aggregation name cannot be null");
     buckets = buckets == null ? List.of() : List.copyOf(buckets);
@@ -77,6 +78,7 @@ public record AggregationResult(String name, List<Bucket> buckets, Map<String, D
    * @param subAggregations sub-aggregation results
    */
   public record Bucket(String key, long docCount, Map<String, AggregationResult> subAggregations) {
+    /** Validates bucket fields and creates defensive copies. */
     public Bucket {
       Objects.requireNonNull(key, "Bucket key cannot be null");
       subAggregations = subAggregations == null ? Map.of() : Map.copyOf(subAggregations);

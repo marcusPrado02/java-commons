@@ -5,6 +5,7 @@ import com.marcusprado02.commons.app.idempotency.model.IdempotencyRecord;
 import java.time.Duration;
 import java.util.Optional;
 
+/** Port for persisting and retrieving idempotency records. */
 public interface IdempotencyStorePort {
 
   Optional<IdempotencyRecord> find(IdempotencyKey key);

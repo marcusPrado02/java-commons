@@ -12,7 +12,7 @@ import java.util.Map;
  * Implementations should handle: - Full and partial refunds - Refund retrieval and listing - Refund
  * status tracking
  *
- * <p>All methods return Result<T> for consistent error handling.
+ * <p>All methods return {@code Result<T>} for consistent error handling.
  */
 public interface RefundService {
 

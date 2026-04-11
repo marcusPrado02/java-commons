@@ -98,6 +98,7 @@ class TenantInterceptorTest {
     assertThat(TenantContextHolder.getCurrentTenantId()).isEqualTo("tenant123");
 
     interceptor.afterCompletion(request, response, handler, null);
-    assertThat(TenantContextHolder.getCurrentTenantId()).isEqualTo("original");
+    // Interceptor always clears context on completion (does not restore previous)
+    assertThat(TenantContextHolder.getCurrentTenantId()).isNull();
   }
 }

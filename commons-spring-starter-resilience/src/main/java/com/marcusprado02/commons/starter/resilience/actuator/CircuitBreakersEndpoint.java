@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.boot.actuate.endpoint.annotation.Endpoint;
 import org.springframework.boot.actuate.endpoint.annotation.ReadOperation;
 
+/** Actuator endpoint exposing circuit breaker status information. */
 @Endpoint(id = "commonsCircuitBreakers")
 public final class CircuitBreakersEndpoint {
 
@@ -15,6 +16,11 @@ public final class CircuitBreakersEndpoint {
     this.resilienceExecutor = resilienceExecutor;
   }
 
+  /**
+   * Returns the status of all known circuit breakers.
+   *
+   * @return list of circuit breaker status snapshots
+   */
   @ReadOperation
   public List<Resilience4jExecutor.CircuitBreakerStatus> circuitBreakers() {
     if (resilienceExecutor instanceof Resilience4jExecutor resilience4jExecutor) {

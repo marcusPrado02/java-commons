@@ -37,6 +37,7 @@ public record BackupMetadata(
     Map<String, String> metadata,
     Optional<String> error) {
 
+  /** Validates and normalises fields on construction. */
   public BackupMetadata {
     Objects.requireNonNull(id, "id");
     Objects.requireNonNull(name, "name");
@@ -93,6 +94,7 @@ public record BackupMetadata(
     return new Builder();
   }
 
+  /** Builder for {@link BackupMetadata}. */
   public static class Builder {
     private String id;
     private String name;
@@ -173,6 +175,7 @@ public record BackupMetadata(
       return this;
     }
 
+    /** Builds and returns a new {@link BackupMetadata}. @return the constructed instance */
     public BackupMetadata build() {
       return new BackupMetadata(
           id,

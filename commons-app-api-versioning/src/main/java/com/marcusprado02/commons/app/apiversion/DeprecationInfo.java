@@ -79,6 +79,7 @@ public final class DeprecationInfo {
     return sunsetDate.isBefore(threshold);
   }
 
+  /** Builder for {@link DeprecationInfo}. */
   public static final class Builder {
     private final ApiVersion version;
     private LocalDate deprecatedOn;

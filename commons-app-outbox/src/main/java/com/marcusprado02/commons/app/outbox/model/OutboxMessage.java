@@ -3,6 +3,7 @@ package com.marcusprado02.commons.app.outbox.model;
 import java.time.Instant;
 import java.util.Map;
 
+/** OutboxMessage data. */
 public record OutboxMessage(
     OutboxMessageId id,
     String aggregateType,
@@ -16,6 +17,7 @@ public record OutboxMessage(
     int attempts,
     int priority) {
 
+  /** Creates a new OutboxMessage instance. */
   public OutboxMessage(
       OutboxMessageId id,
       String aggregateType,

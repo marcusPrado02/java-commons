@@ -75,12 +75,12 @@ public final class TestClock {
     return Clock.fixed(instant, ZoneId.of("UTC"));
   }
 
-  /** Default test instant: 2024-01-01T00:00:00Z */
+  /** Returns the default test instant: 2024-01-01T00:00:00Z. */
   public static Instant defaultInstant() {
     return Instant.parse("2024-01-01T00:00:00Z");
   }
 
-  /** Default test ClockProvider: fixed at 2024-01-01T00:00:00Z */
+  /** Returns the default test ClockProvider: fixed at 2024-01-01T00:00:00Z. */
   public static ClockProvider defaultClockProvider() {
     return fixed(defaultInstant());
   }

@@ -34,6 +34,7 @@ public record PaymentMethod(
     return new Builder();
   }
 
+  /** Builder for {@link PaymentMethod}. */
   public static class Builder {
     private String id;
     private String type;
@@ -96,6 +97,11 @@ public record PaymentMethod(
       return this;
     }
 
+    /**
+     * Builds the PaymentMethod instance.
+     *
+     * @return configured PaymentMethod
+     */
     public PaymentMethod build() {
       return new PaymentMethod(
           id,

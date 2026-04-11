@@ -5,20 +5,21 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import java.util.Optional;
 
-public abstract class BaseGenericRepository<E, ID> implements Repository<E, ID> {
+/** Base JPA repository providing common CRUD operations. */
+public abstract class BaseGenericRepository<E, I> implements Repository<E, I> {
 
   @PersistenceContext protected EntityManager entityManager;
 
   private final Class<E> entityClass;
-  private final Class<ID> idClass;
+  private final Class<I> idClass;
 
-  protected BaseGenericRepository(Class<E> entityClass, Class<ID> idClass) {
+  protected BaseGenericRepository(Class<E> entityClass, Class<I> idClass) {
     this.entityClass = entityClass;
     this.idClass = idClass;
   }
 
   @Override
-  public Optional<E> findById(ID id) {
+  public Optional<E> findById(I id) {
     return Optional.ofNullable(entityManager.find(entityClass, id));
   }
 
@@ -33,7 +34,7 @@ public abstract class BaseGenericRepository<E, ID> implements Repository<E, ID> 
   }
 
   @Override
-  public void deleteById(ID id) {
+  public void deleteById(I id) {
     findById(id).ifPresent(entityManager::remove);
   }
 

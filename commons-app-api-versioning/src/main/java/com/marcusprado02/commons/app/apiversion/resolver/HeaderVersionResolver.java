@@ -31,6 +31,12 @@ public class HeaderVersionResolver<T> implements VersionResolver<T> {
   private final String headerName;
   private final HeaderExtractor<T> headerExtractor;
 
+  /**
+   * Creates a resolver that reads the API version from a request header.
+   *
+   * @param headerName the HTTP header name to inspect
+   * @param headerExtractor strategy to read the header value from the request
+   */
   public HeaderVersionResolver(String headerName, HeaderExtractor<T> headerExtractor) {
     this.headerName = Objects.requireNonNull(headerName, "headerName cannot be null");
     this.headerExtractor =
@@ -51,6 +57,7 @@ public class HeaderVersionResolver<T> implements VersionResolver<T> {
     }
   }
 
+  /** Extracts a named header value from a request of type {@code T}. */
   @FunctionalInterface
   public interface HeaderExtractor<T> {
     String extractHeader(T request, String headerName);

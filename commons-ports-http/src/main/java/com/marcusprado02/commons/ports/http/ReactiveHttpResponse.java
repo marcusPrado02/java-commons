@@ -7,12 +7,20 @@ import java.util.Objects;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+/** Reactive HTTP response with a streaming byte-array body as a {@link Flux}. */
 public final class ReactiveHttpResponse {
 
   private final int statusCode;
   private final Map<String, List<String>> headers;
   private final Flux<byte[]> body;
 
+  /**
+   * Creates a reactive HTTP response.
+   *
+   * @param statusCode HTTP status code
+   * @param headers response headers
+   * @param body streaming byte-array body
+   */
   public ReactiveHttpResponse(
       int statusCode, Map<String, List<String>> headers, Flux<byte[]> body) {
     this.statusCode = statusCode;

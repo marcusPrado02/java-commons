@@ -13,7 +13,7 @@ import com.tngtech.archunit.lang.ConditionEvents;
 import com.tngtech.archunit.lang.SimpleConditionEvent;
 
 /**
- * ArchUnit rules for:
+ * ArchUnit rules for Separation of Concerns, Composition over Inheritance, and Law of Demeter.
  *
  * <ul>
  *   <li>Separation of Concerns (SoC)
@@ -74,7 +74,8 @@ public final class SocCompositionDemeterRules {
             "org.hibernate..",
             "com.fasterxml.jackson..")
         .as(
-            "SoC: Domain/kernel must not contain HTTP, persistence, or messaging framework concerns");
+            "SoC: Domain/kernel must not contain HTTP, persistence, or messaging"
+                + " framework concerns");
   }
 
   /**
@@ -156,7 +157,8 @@ public final class SocCompositionDemeterRules {
                         && !javaClass.getModifiers().contains(JavaModifier.ABSTRACT)
                         && javaClass.getSimpleName().endsWith("Adapter")))
         .as(
-            "Composition over Inheritance: Adapter classes should not extend other concrete Adapters");
+            "Composition over Inheritance: Adapter classes should not extend other"
+                + " concrete Adapters");
   }
 
   /**
@@ -172,6 +174,7 @@ public final class SocCompositionDemeterRules {
         .resideInAnyPackage(DOMAIN_PACKAGE, KERNEL_PACKAGE)
         .and()
         .areNotInterfaces()
+        // CPD-OFF - same inheritance depth condition as DryKissYagniRules
         .should(
             new ArchCondition<JavaClass>("have inheritance depth ≤ " + MAX_INHERITANCE_DEPTH) {
               @Override
@@ -181,7 +184,9 @@ public final class SocCompositionDemeterRules {
                 java.util.Optional<? extends JavaType> optSuper = current.getSuperclass();
                 while (optSuper.isPresent()) {
                   JavaType superType = optSuper.get();
-                  if (superType.getName().equals("java.lang.Object")) break;
+                  if (superType.getName().equals("java.lang.Object")) {
+                    break;
+                  }
                   depth++;
                   current = superType.toErasure();
                   optSuper = current.getSuperclass();
@@ -199,6 +204,7 @@ public final class SocCompositionDemeterRules {
                 }
               }
             })
+        // CPD-ON
         .as(
             "Composition over Inheritance: Domain class inheritance depth must not exceed "
                 + MAX_INHERITANCE_DEPTH);
@@ -281,7 +287,9 @@ public final class SocCompositionDemeterRules {
                     item.getMethods().stream()
                         .filter(m -> m.getModifiers().contains(JavaModifier.PUBLIC))
                         .count();
-                if (total == 0) return;
+                if (total == 0) {
+                  return;
+                }
                 long getters =
                     item.getMethods().stream()
                         .filter(m -> m.getModifiers().contains(JavaModifier.PUBLIC))

@@ -13,6 +13,7 @@ import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** AzureServiceBusPublisherAdapter implementation. */
 public final class AzureServiceBusPublisherAdapter implements MessagePublisherPort, AutoCloseable {
 
   private static final Logger log = LoggerFactory.getLogger(AzureServiceBusPublisherAdapter.class);
@@ -86,6 +87,7 @@ public final class AzureServiceBusPublisherAdapter implements MessagePublisherPo
     senders.clear();
   }
 
+  /** Builder implementation. */
   public static final class Builder {
     private String connectionString;
     private String fullyQualifiedNamespace;
@@ -98,12 +100,14 @@ public final class AzureServiceBusPublisherAdapter implements MessagePublisherPo
       return this;
     }
 
+    /** Executes the fullyQualifiedNamespace operation. */
     public Builder fullyQualifiedNamespace(String fullyQualifiedNamespace) {
       this.fullyQualifiedNamespace = fullyQualifiedNamespace;
       this.useManagedIdentity = true;
       return this;
     }
 
+    /** Executes the build operation. */
     public AzureServiceBusPublisherAdapter build() {
       ServiceBusClientBuilder clientBuilder = new ServiceBusClientBuilder();
 

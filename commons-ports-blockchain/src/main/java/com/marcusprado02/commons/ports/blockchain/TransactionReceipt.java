@@ -114,6 +114,11 @@ public record TransactionReceipt(
       return this;
     }
 
+    /**
+     * Builds the TransactionReceipt instance.
+     *
+     * @return configured TransactionReceipt
+     */
     public TransactionReceipt build() {
       return new TransactionReceipt(
           transactionHash,

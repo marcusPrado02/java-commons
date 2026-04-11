@@ -2,7 +2,10 @@ package com.marcusprado02.commons.adapters.grpc.client;
 
 import com.marcusprado02.commons.adapters.grpc.client.interceptors.LoggingInterceptor;
 import com.marcusprado02.commons.adapters.grpc.client.interceptors.MetricsInterceptor;
-import io.grpc.*;
+import io.grpc.Channel;
+import io.grpc.ClientInterceptor;
+import io.grpc.ManagedChannel;
+import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.AbstractStub;
 import java.util.ArrayList;
 import java.util.List;

@@ -48,6 +48,7 @@ public record FeatureFlagContext(String userId, String sessionId, Map<String, Ob
     return Optional.ofNullable(attributes.get(key));
   }
 
+  /** Builder for {@link FeatureFlagContext}. */
   public static class Builder {
     private String userId;
     private String sessionId;
@@ -68,6 +69,13 @@ public record FeatureFlagContext(String userId, String sessionId, Map<String, Ob
       return this;
     }
 
+    /**
+     * Adds a single custom attribute.
+     *
+     * @param key attribute name
+     * @param value attribute value
+     * @return this builder
+     */
     public Builder attribute(String key, Object value) {
       this.attributes = new java.util.HashMap<>(attributes);
       this.attributes.put(key, value);

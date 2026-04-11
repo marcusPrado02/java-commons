@@ -3,7 +3,6 @@ package com.marcusprado02.commons.app.backup.s3;
 import com.marcusprado02.commons.app.backup.BackupConfiguration;
 import com.marcusprado02.commons.app.backup.BackupMetadata;
 import com.marcusprado02.commons.app.backup.BackupMetadata.BackupStatus;
-import com.marcusprado02.commons.app.backup.BackupMetadata.BackupType;
 import com.marcusprado02.commons.app.backup.BackupService;
 import com.marcusprado02.commons.kernel.errors.ErrorCategory;
 import com.marcusprado02.commons.kernel.errors.ErrorCode;
@@ -17,21 +16,26 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.*;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.model.S3Object;
 
 /**
  * S3-backed backup service that stores backups as objects in an AWS S3 bucket.
  *
- * <p>This service first delegates to a local {@link BackupService} (e.g., {@code FilesystemBackupService}
- * or {@code DatabaseBackupService}) to produce a local backup file, then uploads the result to S3.
- * The local staging file is deleted after a successful upload.
+ * <p>This service first delegates to a local {@link BackupService} (e.g., {@code
+ * FilesystemBackupService} or {@code DatabaseBackupService}) to produce a local backup file, then
+ * uploads the result to S3. The local staging file is deleted after a successful upload.
  *
  * <p>Required configuration options (via {@link BackupConfiguration#options()}):
  *
@@ -89,9 +93,7 @@ public class S3BackupService implements BackupService {
 
   @Override
   public Result<BackupMetadata> createFullBackup(String name, BackupConfiguration config) {
-    return localDelegate
-        .createFullBackup(name, config)
-        .flatMap(meta -> uploadToS3(meta, config));
+    return localDelegate.createFullBackup(name, config).flatMap(meta -> uploadToS3(meta, config));
   }
 
   @Override
@@ -207,8 +209,9 @@ public class S3BackupService implements BackupService {
 
     try {
       var s3Location = parseS3Location(meta.location());
-      var response = s3.headObject(
-          HeadObjectRequest.builder().bucket(s3Location[0]).key(s3Location[1]).build());
+      var response =
+          s3.headObject(
+              HeadObjectRequest.builder().bucket(s3Location[0]).key(s3Location[1]).build());
 
       // Verify checksum via ETag if available
       boolean valid = response.contentLength() > 0;
@@ -321,8 +324,8 @@ public class S3BackupService implements BackupService {
     String path = s3Uri.substring("s3://".length());
     int slash = path.indexOf('/');
     if (slash < 0) {
-      return new String[]{path, ""};
+      return new String[] {path, ""};
     }
-    return new String[]{path.substring(0, slash), path.substring(slash + 1)};
+    return new String[] {path.substring(0, slash), path.substring(slash + 1)};
   }
 }

@@ -1,5 +1,7 @@
 package com.marcusprado02.commons.kernel.ddd.tenant;
 
+import com.marcusprado02.commons.kernel.ddd.id.Identifier;
+import java.io.Serial;
 import java.util.Objects;
 
 /**
@@ -9,7 +11,8 @@ import java.util.Objects;
  *
  * @param value the identifier value
  */
-public record TenantId(String value) {
+public record TenantId(String value) implements Identifier<String> {
+  @Serial private static final long serialVersionUID = 1L;
 
   /** Validates the tenant ID value. */
   public TenantId {

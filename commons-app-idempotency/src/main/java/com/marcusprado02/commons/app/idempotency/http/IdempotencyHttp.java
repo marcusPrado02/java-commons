@@ -12,6 +12,12 @@ public final class IdempotencyHttp {
 
   private IdempotencyHttp() {}
 
+  /**
+   * Resolves an idempotency key from a raw header value string.
+   *
+   * @param headerValue the raw header value
+   * @return an Optional containing the key, or empty if absent or blank
+   */
   public static Optional<IdempotencyKey> resolveFromHeaderValue(String headerValue) {
     if (headerValue == null) {
       return Optional.empty();
@@ -25,6 +31,12 @@ public final class IdempotencyHttp {
     return Optional.of(new IdempotencyKey(trimmed));
   }
 
+  /**
+   * Resolves an idempotency key using a header provider function.
+   *
+   * @param headerProvider function to look up header values by name
+   * @return an Optional containing the key, or empty if the header is absent or blank
+   */
   public static Optional<IdempotencyKey> resolveFromHeaders(
       Function<String, Optional<String>> headerProvider) {
     Objects.requireNonNull(headerProvider, "headerProvider must not be null");

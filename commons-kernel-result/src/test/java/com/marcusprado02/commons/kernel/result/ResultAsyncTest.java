@@ -7,7 +7,6 @@ import com.marcusprado02.commons.kernel.errors.ErrorCode;
 import com.marcusprado02.commons.kernel.errors.Problem;
 import com.marcusprado02.commons.kernel.errors.Severity;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ExecutionException;
 import org.junit.jupiter.api.Test;
 
 class ResultAsyncTest {
@@ -19,8 +18,7 @@ class ResultAsyncTest {
   void mapAsync_shouldApplyFunctionOnOkResult() throws Exception {
     Result<Integer> result = Result.ok(5);
 
-    CompletableFuture<Result<String>> future =
-        result.mapAsync(n -> "value-" + n);
+    CompletableFuture<Result<String>> future = result.mapAsync(n -> "value-" + n);
 
     Result<String> mapped = future.get();
     assertThat(mapped.isOk()).isTrue();
@@ -43,8 +41,7 @@ class ResultAsyncTest {
     Result<Integer> result = Result.ok(3);
 
     CompletableFuture<Result<String>> future =
-        result.flatMapAsync(
-            n -> CompletableFuture.completedFuture(Result.ok("async-" + n)));
+        result.flatMapAsync(n -> CompletableFuture.completedFuture(Result.ok("async-" + n)));
 
     Result<String> chained = future.get();
     assertThat(chained.isOk()).isTrue();
@@ -56,8 +53,7 @@ class ResultAsyncTest {
     Result<Integer> result = Result.ok(3);
 
     CompletableFuture<Result<String>> future =
-        result.flatMapAsync(
-            n -> CompletableFuture.completedFuture(Result.fail(PROBLEM)));
+        result.flatMapAsync(n -> CompletableFuture.completedFuture(Result.fail(PROBLEM)));
 
     Result<String> chained = future.get();
     assertThat(chained.isFail()).isTrue();
@@ -107,8 +103,10 @@ class ResultAsyncTest {
     CompletableFuture<Result<String>> pipeline =
         Result.ok(42)
             .flatMapAsync(id -> CompletableFuture.completedFuture(Result.ok("user-" + id)))
-            .thenCompose(r -> r.flatMapAsync(
-                user -> CompletableFuture.completedFuture(Result.ok("order-for-" + user))));
+            .thenCompose(
+                r ->
+                    r.flatMapAsync(
+                        user -> CompletableFuture.completedFuture(Result.ok("order-for-" + user))));
 
     Result<String> finalResult = pipeline.get();
     assertThat(finalResult.isOk()).isTrue();

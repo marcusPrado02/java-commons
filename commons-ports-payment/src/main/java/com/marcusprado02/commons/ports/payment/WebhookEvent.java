@@ -14,12 +14,9 @@ import java.util.Objects;
  * @param occurredAt timestamp when the event occurred
  */
 public record WebhookEvent(
-    String id,
-    String type,
-    String paymentId,
-    Map<String, String> data,
-    Instant occurredAt) {
+    String id, String type, String paymentId, Map<String, String> data, Instant occurredAt) {
 
+  /** Validates webhook event fields and creates defensive copies. */
   public WebhookEvent {
     Objects.requireNonNull(id, "id");
     Objects.requireNonNull(type, "type");

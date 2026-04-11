@@ -52,6 +52,12 @@ public final class NotificationTarget {
     return new NotificationTarget(null, topic, null, TargetType.TOPIC);
   }
 
+  /**
+   * Creates a multi-device notification target.
+   *
+   * @param deviceTokens set of device push tokens
+   * @return multi-device notification target
+   */
   public static NotificationTarget devices(Set<String> deviceTokens) {
     Objects.requireNonNull(deviceTokens, "deviceTokens cannot be null");
     if (deviceTokens.isEmpty()) {
@@ -88,6 +94,7 @@ public final class NotificationTarget {
     return type == TargetType.MULTI_DEVICE;
   }
 
+  /** Classifies the type of a notification target. */
   public enum TargetType {
     DEVICE,
     TOPIC,

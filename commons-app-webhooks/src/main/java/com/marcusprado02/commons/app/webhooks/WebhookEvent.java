@@ -60,6 +60,7 @@ public final class WebhookEvent {
     return idempotencyKey;
   }
 
+  /** Builder for {@link WebhookEvent}. */
   public static final class Builder {
     private String id;
     private String type;

@@ -10,6 +10,8 @@ import jakarta.persistence.criteria.Root;
 public interface Specification<T> {
 
   /**
+   * Creates a predicate for filtering entities.
+   *
    * @param root raiz da query
    * @param query a CriteriaQuery
    * @param builder o CriteriaBuilder

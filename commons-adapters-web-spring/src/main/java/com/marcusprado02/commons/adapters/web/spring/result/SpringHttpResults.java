@@ -4,6 +4,10 @@ import com.marcusprado02.commons.adapters.web.result.HttpResults;
 import com.marcusprado02.commons.kernel.result.Result;
 import org.springframework.http.ResponseEntity;
 
+/**
+ * Utility for converting {@link com.marcusprado02.commons.kernel.result.Result} to {@link
+ * org.springframework.http.ResponseEntity}.
+ */
 public final class SpringHttpResults {
 
   private SpringHttpResults() {}

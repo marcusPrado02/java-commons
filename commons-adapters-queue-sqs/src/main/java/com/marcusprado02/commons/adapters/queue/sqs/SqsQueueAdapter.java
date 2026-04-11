@@ -8,18 +8,50 @@ import com.marcusprado02.commons.kernel.errors.ErrorCode;
 import com.marcusprado02.commons.kernel.errors.Problem;
 import com.marcusprado02.commons.kernel.errors.Severity;
 import com.marcusprado02.commons.kernel.result.Result;
-import com.marcusprado02.commons.ports.queue.*;
+import com.marcusprado02.commons.ports.queue.BatchDeleteResult;
+import com.marcusprado02.commons.ports.queue.BatchSendResult;
+import com.marcusprado02.commons.ports.queue.QueueAttributes;
+import com.marcusprado02.commons.ports.queue.QueueMessage;
+import com.marcusprado02.commons.ports.queue.QueuePort;
+import com.marcusprado02.commons.ports.queue.ReceivedMessage;
+import com.marcusprado02.commons.ports.queue.SendMessageResult;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.SqsClientBuilder;
-import software.amazon.awssdk.services.sqs.model.*;
+import software.amazon.awssdk.services.sqs.model.ChangeMessageVisibilityRequest;
+import software.amazon.awssdk.services.sqs.model.DeleteMessageBatchRequest;
+import software.amazon.awssdk.services.sqs.model.DeleteMessageBatchRequestEntry;
+import software.amazon.awssdk.services.sqs.model.DeleteMessageBatchResponse;
+import software.amazon.awssdk.services.sqs.model.DeleteMessageBatchResultEntry;
+import software.amazon.awssdk.services.sqs.model.DeleteMessageRequest;
+import software.amazon.awssdk.services.sqs.model.GetQueueAttributesRequest;
+import software.amazon.awssdk.services.sqs.model.GetQueueAttributesResponse;
+import software.amazon.awssdk.services.sqs.model.Message;
+import software.amazon.awssdk.services.sqs.model.MessageAttributeValue;
+import software.amazon.awssdk.services.sqs.model.MessageSystemAttributeName;
+import software.amazon.awssdk.services.sqs.model.PurgeQueueRequest;
+import software.amazon.awssdk.services.sqs.model.QueueAttributeName;
+import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
+import software.amazon.awssdk.services.sqs.model.ReceiveMessageResponse;
+import software.amazon.awssdk.services.sqs.model.SendMessageBatchRequest;
+import software.amazon.awssdk.services.sqs.model.SendMessageBatchRequestEntry;
+import software.amazon.awssdk.services.sqs.model.SendMessageBatchResponse;
+import software.amazon.awssdk.services.sqs.model.SendMessageRequest;
+import software.amazon.awssdk.services.sqs.model.SendMessageResponse;
+import software.amazon.awssdk.services.sqs.model.SqsException;
 
 /**
  * AWS SQS adapter for QueuePort.
@@ -35,18 +67,31 @@ public final class SqsQueueAdapter<T> implements QueuePort<T> {
   private final ObjectMapper objectMapper;
   private final Class<T> payloadType;
 
+  /** Creates a new SqsQueueAdapter instance. */
   public SqsQueueAdapter(SqsConfiguration configuration, Class<T> payloadType) {
+    this(configuration, payloadType, null);
+  }
+
+  /** Creates a new SqsQueueAdapter instance with explicit credentials (e.g. for LocalStack). */
+  public SqsQueueAdapter(
+      SqsConfiguration configuration,
+      Class<T> payloadType,
+      AwsCredentialsProvider credentialsProvider) {
     this.configuration = Objects.requireNonNull(configuration, "configuration cannot be null");
     this.payloadType = Objects.requireNonNull(payloadType, "payloadType cannot be null");
-    this.sqsClient = createSqsClient(configuration);
+    this.sqsClient = createSqsClient(configuration, credentialsProvider);
     this.objectMapper = createObjectMapper();
   }
 
-  private SqsClient createSqsClient(SqsConfiguration config) {
+  private SqsClient createSqsClient(SqsConfiguration config, AwsCredentialsProvider credentials) {
     SqsClientBuilder builder = SqsClient.builder().region(config.region());
 
     if (config.endpoint() != null) {
       builder.endpointOverride(config.endpoint());
+    }
+
+    if (credentials != null) {
+      builder.credentialsProvider(credentials);
     }
 
     builder.overrideConfiguration(

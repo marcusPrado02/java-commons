@@ -35,7 +35,7 @@ public final class WebhookSignature {
    *
    * @param payload the payload to sign
    * @param secret the secret key
-   * @return the signature in format "sha256=<hex>"
+   * @return the signature in format {@code sha256=<hex>}
    */
   public static String generate(String payload, String secret) {
     try {
@@ -77,12 +77,12 @@ public final class WebhookSignature {
       return false;
     }
 
-    byte[] aBytes = a.getBytes(StandardCharsets.UTF_8);
-    byte[] bBytes = b.getBytes(StandardCharsets.UTF_8);
+    byte[] first = a.getBytes(StandardCharsets.UTF_8);
+    byte[] second = b.getBytes(StandardCharsets.UTF_8);
 
     int result = 0;
-    for (int i = 0; i < aBytes.length; i++) {
-      result |= aBytes[i] ^ bBytes[i];
+    for (int i = 0; i < first.length; i++) {
+      result |= first[i] ^ second[i];
     }
     return result == 0;
   }
@@ -95,6 +95,7 @@ public final class WebhookSignature {
     return sb.toString();
   }
 
+  /** Thrown when HMAC signature generation fails due to an unsupported algorithm or key. */
   public static class WebhookSignatureException extends RuntimeException {
     public WebhookSignatureException(String message, Throwable cause) {
       super(message, cause);

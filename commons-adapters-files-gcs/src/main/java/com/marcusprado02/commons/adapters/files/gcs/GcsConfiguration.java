@@ -11,25 +11,25 @@ import java.util.Objects;
  * Configuration for GCS Storage client. Supports multiple authentication methods: - Service Account
  * JSON file - Application Default Credentials (ADC) - Custom credentials
  */
-public record GCSConfiguration(
+public record GcsConfiguration(
     String projectId,
     AuthenticationType authenticationType,
     String serviceAccountPath,
     Credentials customCredentials,
     String endpoint) {
 
-  public GCSConfiguration {
+  public GcsConfiguration {
     Objects.requireNonNull(projectId, "projectId must not be null");
     Objects.requireNonNull(authenticationType, "authenticationType must not be null");
   }
 
   /** Authentication type for GCS. */
   public enum AuthenticationType {
-    /** Service Account JSON file */
+    /** Service Account JSON file. */
     SERVICE_ACCOUNT,
-    /** Application Default Credentials (from environment) */
+    /** Application Default Credentials (from environment). */
     APPLICATION_DEFAULT,
-    /** Custom credentials provided programmatically */
+    /** Custom credentials provided programmatically. */
     CUSTOM
   }
 
@@ -40,8 +40,8 @@ public record GCSConfiguration(
    * @param serviceAccountPath path to service account JSON file
    * @return configuration
    */
-  public static GCSConfiguration withServiceAccount(String projectId, String serviceAccountPath) {
-    return new GCSConfiguration(
+  public static GcsConfiguration withServiceAccount(String projectId, String serviceAccountPath) {
+    return new GcsConfiguration(
         projectId, AuthenticationType.SERVICE_ACCOUNT, serviceAccountPath, null, null);
   }
 
@@ -53,8 +53,8 @@ public record GCSConfiguration(
    * @param projectId GCP project ID
    * @return configuration
    */
-  public static GCSConfiguration withApplicationDefault(String projectId) {
-    return new GCSConfiguration(
+  public static GcsConfiguration withApplicationDefault(String projectId) {
+    return new GcsConfiguration(
         projectId, AuthenticationType.APPLICATION_DEFAULT, null, null, null);
   }
 
@@ -65,8 +65,8 @@ public record GCSConfiguration(
    * @param credentials custom credentials
    * @return configuration
    */
-  public static GCSConfiguration withCustomCredentials(String projectId, Credentials credentials) {
-    return new GCSConfiguration(projectId, AuthenticationType.CUSTOM, null, credentials, null);
+  public static GcsConfiguration withCustomCredentials(String projectId, Credentials credentials) {
+    return new GcsConfiguration(projectId, AuthenticationType.CUSTOM, null, credentials, null);
   }
 
   /**
@@ -76,11 +76,11 @@ public record GCSConfiguration(
    * @param endpoint fake-gcs-server endpoint
    * @return configuration
    */
-  public static GCSConfiguration forTesting(String projectId, String endpoint) {
+  public static GcsConfiguration forTesting(String projectId, String endpoint) {
     try {
       // For testing, create no-op credentials
       var credentials = GoogleCredentials.create(null);
-      return new GCSConfiguration(
+      return new GcsConfiguration(
           projectId, AuthenticationType.CUSTOM, null, credentials, endpoint);
     } catch (Exception e) {
       throw new RuntimeException("Failed to create testing configuration", e);
@@ -122,7 +122,7 @@ public record GCSConfiguration(
     return endpoint != null && !endpoint.isBlank();
   }
 
-  /** Builder for GCSConfiguration. */
+  /** Builder for GcsConfiguration. */
   public static class Builder {
     private String projectId;
     private AuthenticationType authenticationType = AuthenticationType.APPLICATION_DEFAULT;
@@ -135,6 +135,7 @@ public record GCSConfiguration(
       return this;
     }
 
+    /** Executes the serviceAccount operation. */
     public Builder serviceAccount(String path) {
       this.authenticationType = AuthenticationType.SERVICE_ACCOUNT;
       this.serviceAccountPath = path;
@@ -146,6 +147,7 @@ public record GCSConfiguration(
       return this;
     }
 
+    /** Executes the customCredentials operation. */
     public Builder customCredentials(Credentials credentials) {
       this.authenticationType = AuthenticationType.CUSTOM;
       this.customCredentials = credentials;
@@ -157,8 +159,8 @@ public record GCSConfiguration(
       return this;
     }
 
-    public GCSConfiguration build() {
-      return new GCSConfiguration(
+    public GcsConfiguration build() {
+      return new GcsConfiguration(
           projectId, authenticationType, serviceAccountPath, customCredentials, endpoint);
     }
   }

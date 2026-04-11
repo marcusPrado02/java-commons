@@ -30,6 +30,7 @@ public record ElasticsearchConfiguration(
     boolean enableSsl,
     boolean verifySslCertificates) {
 
+  /** Validates fields on construction. */
   public ElasticsearchConfiguration {
     Objects.requireNonNull(serverUrls, "Server URLs cannot be null");
     Objects.requireNonNull(connectionTimeout, "Connection timeout cannot be null");

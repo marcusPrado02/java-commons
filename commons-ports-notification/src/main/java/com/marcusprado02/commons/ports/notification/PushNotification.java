@@ -51,6 +51,7 @@ public record PushNotification(
     return !data.isEmpty();
   }
 
+  /** Builder for {@link PushNotification}. */
   public static class Builder {
     private String title;
     private String body;

@@ -31,6 +31,7 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** KafkaConsumerAdapter implementation. */
 public final class KafkaConsumerAdapter implements MessageConsumerPort, AutoCloseable {
 
   private static final Logger log = LoggerFactory.getLogger(KafkaConsumerAdapter.class);
@@ -226,6 +227,7 @@ public final class KafkaConsumerAdapter implements MessageConsumerPort, AutoClos
     }
   }
 
+  /** Builder implementation. */
   public static final class Builder {
     private String bootstrapServers;
     private final Map<String, Object> consumerProperties = new HashMap<>();
@@ -248,6 +250,7 @@ public final class KafkaConsumerAdapter implements MessageConsumerPort, AutoClos
       return this;
     }
 
+    /** Executes the build operation. */
     public KafkaConsumerAdapter build() {
       Objects.requireNonNull(bootstrapServers, "bootstrapServers must not be null");
       Objects.requireNonNull(pollTimeout, "pollTimeout must not be null");

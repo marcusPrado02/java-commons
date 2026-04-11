@@ -1,11 +1,20 @@
 package com.marcusprado02.commons.adapters.email.sendgrid;
 
-import com.marcusprado02.commons.kernel.errors.*;
+import com.marcusprado02.commons.kernel.errors.ErrorCategory;
+import com.marcusprado02.commons.kernel.errors.ErrorCode;
+import com.marcusprado02.commons.kernel.errors.Problem;
+import com.marcusprado02.commons.kernel.errors.Severity;
 import com.marcusprado02.commons.kernel.result.Result;
-import com.marcusprado02.commons.ports.email.*;
-import com.sendgrid.*;
+import com.marcusprado02.commons.ports.email.EmailContent;
+import com.marcusprado02.commons.ports.email.EmailPort;
+import com.marcusprado02.commons.ports.email.TemplateEmailRequest;
+import com.sendgrid.Method;
+import com.sendgrid.Request;
+import com.sendgrid.Response;
+import com.sendgrid.SendGrid;
 import com.sendgrid.helpers.mail.Mail;
-import com.sendgrid.helpers.mail.objects.*;
+import com.sendgrid.helpers.mail.objects.Content;
+import com.sendgrid.helpers.mail.objects.Personalization;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -94,7 +103,7 @@ public class SendGridEmailAdapter implements EmailPort, AutoCloseable {
       }
 
     } catch (IOException e) {
-      return Result.fail(mapIOException(e));
+      return Result.fail(mapIoException(e));
     } catch (Exception e) {
       return Result.fail(
           Problem.of(
@@ -167,7 +176,7 @@ public class SendGridEmailAdapter implements EmailPort, AutoCloseable {
       }
 
     } catch (IOException e) {
-      return Result.fail(mapIOException(e));
+      return Result.fail(mapIoException(e));
     } catch (Exception e) {
       return Result.fail(
           Problem.of(
@@ -187,7 +196,8 @@ public class SendGridEmailAdapter implements EmailPort, AutoCloseable {
    * @param emails list of emails to send
    * @return list of results, one per email in the same order
    */
-  public List<Result<EmailReceipt>> sendBatch(List<com.marcusprado02.commons.ports.email.Email> emails) {
+  public List<Result<EmailReceipt>> sendBatch(
+      List<com.marcusprado02.commons.ports.email.Email> emails) {
     if (emails == null || emails.isEmpty()) {
       return List.of();
     }
@@ -258,6 +268,7 @@ public class SendGridEmailAdapter implements EmailPort, AutoCloseable {
     return statusCode >= 200 && statusCode < 300;
   }
 
+  @SuppressWarnings("checkstyle:indentation")
   private Problem createSendGridProblem(Response response) {
     String errorMessage =
         String.format("SendGrid API request failed with status %d", response.getStatusCode());
@@ -280,7 +291,7 @@ public class SendGridEmailAdapter implements EmailPort, AutoCloseable {
     return Problem.of(ErrorCode.of(errorCode), category, Severity.ERROR, errorMessage);
   }
 
-  private Problem mapIOException(IOException e) {
+  private Problem mapIoException(IOException e) {
     return Problem.of(
         ErrorCode.of("SENDGRID_IO_ERROR"),
         ErrorCategory.TECHNICAL,

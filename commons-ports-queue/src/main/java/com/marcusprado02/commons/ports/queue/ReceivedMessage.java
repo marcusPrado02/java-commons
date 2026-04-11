@@ -63,6 +63,7 @@ public final class ReceivedMessage<T> {
     return new Builder<>();
   }
 
+  /** Builder for {@link ReceivedMessage}. */
   public static final class Builder<T> {
     private String messageId;
     private String receiptHandle;
@@ -89,6 +90,12 @@ public final class ReceivedMessage<T> {
       return this;
     }
 
+    /**
+     * Sets all message attributes, replacing existing ones.
+     *
+     * @param attributes map of attribute key-value pairs
+     * @return this builder
+     */
     public Builder<T> attributes(Map<String, String> attributes) {
       this.attributes.clear();
       this.attributes.putAll(attributes);

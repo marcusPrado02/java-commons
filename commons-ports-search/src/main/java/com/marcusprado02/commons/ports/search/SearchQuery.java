@@ -1,6 +1,10 @@
 package com.marcusprado02.commons.ports.search;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Represents a search query with filters, sorting, and pagination.
@@ -29,6 +33,7 @@ public record SearchQuery(
     QueryType queryType,
     Float minScore) {
 
+  /** Validates and normalizes search query fields. */
   public SearchQuery {
     fields = fields == null ? List.of() : List.copyOf(fields);
     filters = filters == null ? Map.of() : Map.copyOf(filters);
@@ -75,19 +80,19 @@ public record SearchQuery(
 
   /** Query execution type. */
   public enum QueryType {
-    /** Match query (analyzed text matching) */
+    /** Match query (analyzed text matching). */
     MATCH,
-    /** Term query (exact term matching) */
+    /** Term query (exact term matching). */
     TERM,
-    /** Phrase query (exact phrase matching) */
+    /** Phrase query (exact phrase matching). */
     PHRASE,
-    /** Prefix query */
+    /** Prefix query. */
     PREFIX,
-    /** Wildcard query */
+    /** Wildcard query. */
     WILDCARD,
-    /** Fuzzy query (tolerates typos) */
+    /** Fuzzy query (tolerates typos). */
     FUZZY,
-    /** Boolean query (AND/OR combinations) */
+    /** Boolean query (AND/OR combinations). */
     BOOL
   }
 

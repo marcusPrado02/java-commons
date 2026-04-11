@@ -24,6 +24,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.reflect.MethodSignature;
 
+/** AOP aspect that applies resilience policies to methods annotated with {@link Resilient}. */
 @Aspect
 public final class ResilienceAspect {
 
@@ -31,6 +32,12 @@ public final class ResilienceAspect {
   private final ResilienceProperties resilienceProperties;
   private final ConcurrentMap<String, Method> fallbackMethodCache = new ConcurrentHashMap<>();
 
+  /**
+   * Creates a resilience aspect with the given executor and properties.
+   *
+   * @param resilienceExecutor the resilience executor
+   * @param resilienceProperties the resilience configuration properties
+   */
   public ResilienceAspect(
       ResilienceExecutor resilienceExecutor, ResilienceProperties resilienceProperties) {
     this.resilienceExecutor =
@@ -39,6 +46,14 @@ public final class ResilienceAspect {
         Objects.requireNonNull(resilienceProperties, "resilienceProperties must not be null");
   }
 
+  /**
+   * Intercepts {@link Resilient}-annotated methods and applies configured resilience policies.
+   *
+   * @param joinPoint the proceeding join point
+   * @param resilient the resilient annotation
+   * @return the result of the method execution
+   * @throws Throwable if the method or resilience execution fails
+   */
   @Around("@annotation(resilient)")
   public Object aroundResilient(ProceedingJoinPoint joinPoint, Resilient resilient) {
     MethodSignature signature = (MethodSignature) joinPoint.getSignature();
@@ -95,10 +110,10 @@ public final class ResilienceAspect {
     com.marcusprado02.commons.starter.resilience.annotation.CircuitBreaker cbAnn =
         method.getAnnotation(
             com.marcusprado02.commons.starter.resilience.annotation.CircuitBreaker.class);
-    com.marcusprado02.commons.starter.resilience.annotation.Bulkhead bulkheadAnn =
+    final com.marcusprado02.commons.starter.resilience.annotation.Bulkhead bulkheadAnn =
         method.getAnnotation(
             com.marcusprado02.commons.starter.resilience.annotation.Bulkhead.class);
-    com.marcusprado02.commons.starter.resilience.annotation.RateLimiter rlAnn =
+    final com.marcusprado02.commons.starter.resilience.annotation.RateLimiter rlAnn =
         method.getAnnotation(
             com.marcusprado02.commons.starter.resilience.annotation.RateLimiter.class);
 

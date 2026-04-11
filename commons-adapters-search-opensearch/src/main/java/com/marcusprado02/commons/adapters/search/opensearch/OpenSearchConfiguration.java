@@ -45,6 +45,7 @@ public record OpenSearchConfiguration(
     boolean enableSsl,
     boolean verifySslCertificates) {
 
+  /** Validates fields on construction. */
   public OpenSearchConfiguration {
     Objects.requireNonNull(urls, "URLs cannot be null");
     if (urls.isEmpty()) {

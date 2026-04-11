@@ -267,6 +267,7 @@ public class ConsulServiceRegistry implements ServiceRegistry {
     return newService;
   }
 
+  @SuppressWarnings("checkstyle:indentation")
   private NewService.Check convertHealthCheck(ServiceInstance instance, HealthCheck healthCheck) {
     NewService.Check check = new NewService.Check();
 
@@ -278,6 +279,7 @@ public class ConsulServiceRegistry implements ServiceRegistry {
       }
       case TCP -> check.setTcp(healthCheck.endpoint());
       case TTL -> check.setTtl(formatDuration(healthCheck.interval()));
+      default -> throw new AssertionError("Unexpected health check type: " + healthCheck.type());
     }
 
     check.setInterval(formatDuration(healthCheck.interval()));

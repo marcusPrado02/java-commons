@@ -8,6 +8,7 @@ package com.marcusprado02.commons.ports.sms;
 public record SMSOptions(
     boolean deliveryReceipt, int validityPeriodMinutes, SMSPriority priority, String webhookUrl) {
 
+  /** Validates SMS options. */
   public SMSOptions {
     if (validityPeriodMinutes < 0) {
       throw new IllegalArgumentException("validity period must be non-negative");

@@ -14,6 +14,7 @@ import java.util.Optional;
  */
 public record CacheValue<T>(T value, Instant cachedAt, Optional<Instant> expiresAt) {
 
+  /** Validates cache value fields. */
   public CacheValue {
     Objects.requireNonNull(value, "value must not be null");
     Objects.requireNonNull(cachedAt, "cachedAt must not be null");

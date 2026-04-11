@@ -1,5 +1,6 @@
 package com.marcusprado02.commons.ports.persistence.specification;
 
+/** Operators used to filter query results. */
 public enum FilterOperator {
   EQ,
   NEQ,

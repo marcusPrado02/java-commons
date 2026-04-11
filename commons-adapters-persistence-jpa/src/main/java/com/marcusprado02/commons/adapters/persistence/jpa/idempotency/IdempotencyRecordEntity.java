@@ -9,6 +9,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.Instant;
 
+/** JPA entity for storing idempotency records. */
 @Entity
 @Table(name = "commons_idempotency")
 public class IdempotencyRecordEntity {

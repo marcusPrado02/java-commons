@@ -40,7 +40,7 @@ public class LoggingInterceptor implements ServerInterceptor {
     String methodName = call.getMethodDescriptor().getFullMethodName();
     Instant startTime = Instant.now();
 
-    logger.log(Level.INFO, "gRPC call started: {0}", methodName);
+    logger.info("Starting gRPC call: " + methodName);
 
     ServerCall.Listener<ReqT> listener =
         next.startCall(

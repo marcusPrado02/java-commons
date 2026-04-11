@@ -3,14 +3,12 @@ package com.marcusprado02.commons.archunit.kernel;
 import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.noClasses;
 
 import com.marcusprado02.commons.archunit.support.ArchTestSupport;
-import com.tngtech.archunit.junit.AnalyzeClasses;
-import com.tngtech.archunit.junit.ArchTest;
+import org.junit.jupiter.api.Test;
 
-@AnalyzeClasses(packages = "com.marcusprado02.commons")
 class KernelFrameworkFreeArchTest {
 
-  @ArchTest
-  static void kernel_must_not_depend_on_frameworks() {
+  @Test
+  void kernel_must_not_depend_on_frameworks() {
     noClasses()
         .that()
         .resideInAnyPackage("..kernel..")

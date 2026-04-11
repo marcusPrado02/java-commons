@@ -1,6 +1,11 @@
 package com.marcusprado02.commons.testkit.contracts;
 
-import com.marcusprado02.commons.ports.messaging.*;
+import com.marcusprado02.commons.ports.messaging.MessageEnvelope;
+import com.marcusprado02.commons.ports.messaging.MessageHeaders;
+import com.marcusprado02.commons.ports.messaging.MessageId;
+import com.marcusprado02.commons.ports.messaging.MessagePublisherPort;
+import com.marcusprado02.commons.ports.messaging.MessageSerializer;
+import com.marcusprado02.commons.ports.messaging.TopicName;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;

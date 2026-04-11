@@ -2,7 +2,11 @@ package com.marcusprado02.commons.adapters.metrics.prometheus;
 
 import io.micrometer.core.instrument.Tag;
 import io.micrometer.core.instrument.Tags;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Utility class for building metric labels (tags) in a type-safe manner.
@@ -137,11 +141,7 @@ public final class MetricLabels {
    * @return label count
    */
   public int size() {
-    int count = 0;
-    for (Tag ignored : tags) {
-      count++;
-    }
-    return count;
+    return (int) tags.stream().count();
   }
 
   /**
@@ -160,8 +160,12 @@ public final class MetricLabels {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     MetricLabels that = (MetricLabels) o;
     return Objects.equals(tags, that.tags);
   }

@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+/** Default implementation of {@link IdempotencyService}. */
 public final class DefaultIdempotencyService implements IdempotencyService {
 
   private static final Duration FALLBACK_DEFAULT_TTL = Duration.ofMinutes(5);

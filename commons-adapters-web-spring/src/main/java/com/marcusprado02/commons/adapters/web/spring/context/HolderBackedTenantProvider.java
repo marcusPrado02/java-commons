@@ -3,6 +3,10 @@ package com.marcusprado02.commons.adapters.web.spring.context;
 import com.marcusprado02.commons.kernel.ddd.context.TenantProvider;
 import com.marcusprado02.commons.kernel.ddd.tenant.TenantId;
 
+/**
+ * {@link com.marcusprado02.commons.kernel.ddd.context.TenantProvider} backed by {@link
+ * SpringRequestContextHolder}.
+ */
 public final class HolderBackedTenantProvider implements TenantProvider {
 
   @Override

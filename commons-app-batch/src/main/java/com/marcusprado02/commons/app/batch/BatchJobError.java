@@ -10,6 +10,13 @@ public final class BatchJobError {
 
   private BatchJobError() {}
 
+  /**
+   * Creates a technical error problem with the given code and message.
+   *
+   * @param code error code
+   * @param message human-readable error message
+   * @return a new {@link Problem}
+   */
   public static Problem of(String code, String message) {
     return ProblemBuilder.of(code)
         .category(ErrorCategory.TECHNICAL)
@@ -18,6 +25,14 @@ public final class BatchJobError {
         .build();
   }
 
+  /**
+   * Creates a technical error problem with the given code, message, and root cause.
+   *
+   * @param code error code
+   * @param message human-readable error message
+   * @param cause the exception that caused the error
+   * @return a new {@link Problem}
+   */
   public static Problem of(String code, String message, Throwable cause) {
     return ProblemBuilder.of(code)
         .category(ErrorCategory.TECHNICAL)

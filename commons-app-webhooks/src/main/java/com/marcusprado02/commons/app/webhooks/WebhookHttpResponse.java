@@ -52,6 +52,7 @@ public final class WebhookHttpResponse {
     return statusCode >= 200 && statusCode < 300;
   }
 
+  /** Builder for {@link WebhookHttpResponse}. */
   public static final class Builder {
     private int statusCode;
     private Map<String, String> headers = Map.of();

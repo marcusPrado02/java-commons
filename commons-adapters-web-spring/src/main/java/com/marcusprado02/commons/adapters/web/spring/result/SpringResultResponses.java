@@ -3,6 +3,10 @@ package com.marcusprado02.commons.adapters.web.spring.result;
 import com.marcusprado02.commons.adapters.web.result.HttpResultResponse;
 import org.springframework.http.ResponseEntity;
 
+/**
+ * Converts {@link com.marcusprado02.commons.adapters.web.result.HttpResultResponse} to {@link
+ * org.springframework.http.ResponseEntity}.
+ */
 public final class SpringResultResponses {
 
   private SpringResultResponses() {}

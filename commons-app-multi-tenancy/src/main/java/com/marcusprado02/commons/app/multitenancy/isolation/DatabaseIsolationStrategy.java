@@ -40,6 +40,13 @@ public class DatabaseIsolationStrategy implements DataSourceProvider, TenantIsol
   private final HikariConfig baseConfig;
   private final Map<String, HikariDataSource> dataSources = new ConcurrentHashMap<>();
 
+  /**
+   * Creates a strategy with default HikariCP base configuration.
+   *
+   * @param urlGenerator function that produces a JDBC URL for a given tenant ID
+   * @param username database username
+   * @param password database password
+   */
   public DatabaseIsolationStrategy(
       Function<String, String> urlGenerator, String username, String password) {
     this.urlGenerator = urlGenerator;
@@ -48,6 +55,14 @@ public class DatabaseIsolationStrategy implements DataSourceProvider, TenantIsol
     this.baseConfig = createBaseConfig();
   }
 
+  /**
+   * Creates a strategy with a caller-supplied HikariCP base configuration.
+   *
+   * @param urlGenerator function that produces a JDBC URL for a given tenant ID
+   * @param username database username
+   * @param password database password
+   * @param baseConfig base HikariCP configuration to copy pool settings from
+   */
   public DatabaseIsolationStrategy(
       Function<String, String> urlGenerator,
       String username,

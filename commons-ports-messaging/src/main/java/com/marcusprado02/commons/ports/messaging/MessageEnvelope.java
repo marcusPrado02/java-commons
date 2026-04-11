@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.Objects;
 import java.util.Optional;
 
+/** Wraps a message payload with metadata such as id, topic, headers, and timestamp. */
 public final class MessageEnvelope<T> {
 
   private final MessageId id;
@@ -77,6 +78,7 @@ public final class MessageEnvelope<T> {
     return "MessageEnvelope{id=" + id + ", topic=" + topic + "}";
   }
 
+  /** Builder for {@link MessageEnvelope}. */
   public static final class Builder<T> {
     private MessageId id;
     private TopicName topic;
@@ -117,6 +119,11 @@ public final class MessageEnvelope<T> {
       return this;
     }
 
+    /**
+     * Builds the MessageEnvelope.
+     *
+     * @return new MessageEnvelope instance
+     */
     public MessageEnvelope<T> build() {
       MessageId safeId = (id == null) ? MessageId.random() : id;
       Instant safeTimestamp = (timestamp == null) ? Instant.now() : timestamp;

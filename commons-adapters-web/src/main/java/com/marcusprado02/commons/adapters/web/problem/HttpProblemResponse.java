@@ -3,6 +3,7 @@ package com.marcusprado02.commons.adapters.web.problem;
 import com.marcusprado02.commons.adapters.web.envelope.ApiMeta;
 import java.util.Map;
 
+/** HttpProblemResponse data. */
 public record HttpProblemResponse(
     int status, String code, String message, Map<String, Object> details, ApiMeta meta) {
 

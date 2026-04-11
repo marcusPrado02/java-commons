@@ -5,8 +5,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 import io.grpc.Metadata;
+import io.grpc.MethodDescriptor;
 import io.grpc.ServerCall;
 import io.grpc.ServerCallHandler;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -39,12 +42,30 @@ class LoggingInterceptorTest {
     logger.setLevel(Level.ALL);
   }
 
+  private MethodDescriptor<String, String> createDescriptor(String fullMethodName) {
+    MethodDescriptor.Marshaller<String> marshaller =
+        new MethodDescriptor.Marshaller<String>() {
+          @Override
+          public InputStream stream(String value) {
+            return new ByteArrayInputStream(value.getBytes());
+          }
+
+          @Override
+          public String parse(InputStream stream) {
+            return "";
+          }
+        };
+    return MethodDescriptor.<String, String>newBuilder()
+        .setType(MethodDescriptor.MethodType.UNARY)
+        .setFullMethodName(fullMethodName)
+        .setRequestMarshaller(marshaller)
+        .setResponseMarshaller(marshaller)
+        .build();
+  }
+
   @Test
   void shouldLogMethodCall() {
-    when(serverCall.getMethodDescriptor())
-        .thenReturn(
-            io.grpc.MethodDescriptor.create(
-                io.grpc.MethodDescriptor.MethodType.UNARY, "test/Method", null, null));
+    when(serverCall.getMethodDescriptor()).thenReturn(createDescriptor("test/Method"));
 
     interceptor.interceptCall(serverCall, new Metadata(), next);
 
@@ -53,10 +74,7 @@ class LoggingInterceptorTest {
 
   @Test
   void shouldLogSuccessfulCompletion() {
-    when(serverCall.getMethodDescriptor())
-        .thenReturn(
-            io.grpc.MethodDescriptor.create(
-                io.grpc.MethodDescriptor.MethodType.UNARY, "test/Method", null, null));
+    when(serverCall.getMethodDescriptor()).thenReturn(createDescriptor("test/Method"));
 
     ServerCall.Listener<String> result =
         interceptor.interceptCall(serverCall, new Metadata(), next);

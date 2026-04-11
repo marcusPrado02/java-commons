@@ -4,20 +4,25 @@ import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import com.marcusprado02.commons.ports.http.HttpBody;
 import com.marcusprado02.commons.ports.http.HttpInterceptor;
 import com.marcusprado02.commons.ports.http.HttpMethod;
 import com.marcusprado02.commons.ports.http.HttpRequest;
+import com.marcusprado02.commons.ports.http.HttpResponse;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.HttpHandler;
 import org.springframework.http.server.reactive.ReactorHttpHandlerAdapter;
 import org.springframework.test.web.reactive.server.WebTestClient;
+import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -145,5 +150,151 @@ class WebClientHttpClientAdapterTest {
 
   private String baseUrl() {
     return "http://localhost:" + server.port();
+  }
+
+  @Test
+  void post_with_bytes_body() {
+    startServer(
+        RouterFunctions.route(
+            org.springframework.web.reactive.function.server.RequestPredicates.POST("/data"),
+            req -> ServerResponse.status(201).bodyValue("created")));
+
+    WebClientHttpClientAdapter adapter = WebClientHttpClientAdapter.builder().build();
+    byte[] payload = "{\"k\":\"v\"}".getBytes(StandardCharsets.UTF_8);
+    HttpRequest request =
+        HttpRequest.builder()
+            .method(HttpMethod.POST)
+            .uri(URI.create(baseUrl() + "/data"))
+            .body(new HttpBody.Bytes(payload, "application/json"))
+            .build();
+
+    var response = adapter.execute(request).block(Duration.ofSeconds(2));
+    assertNotNull(response);
+    assertEquals(201, response.statusCode());
+  }
+
+  @Test
+  void post_with_form_body() {
+    startServer(
+        RouterFunctions.route(
+            org.springframework.web.reactive.function.server.RequestPredicates.POST("/form"),
+            req -> ServerResponse.ok().bodyValue("ok")));
+
+    WebClientHttpClientAdapter adapter = WebClientHttpClientAdapter.builder().build();
+    HttpRequest request =
+        HttpRequest.builder()
+            .method(HttpMethod.POST)
+            .uri(URI.create(baseUrl() + "/form"))
+            .body(new HttpBody.FormUrlEncoded(Map.of("field", List.of("value"))))
+            .build();
+
+    var response = adapter.execute(request).block(Duration.ofSeconds(2));
+    assertNotNull(response);
+    assertEquals(200, response.statusCode());
+  }
+
+  @Test
+  void post_with_multipart_body() {
+    startServer(
+        RouterFunctions.route(
+            org.springframework.web.reactive.function.server.RequestPredicates.POST("/upload"),
+            req -> ServerResponse.ok().bodyValue("ok")));
+
+    WebClientHttpClientAdapter adapter = WebClientHttpClientAdapter.builder().build();
+    byte[] data = "content".getBytes(StandardCharsets.UTF_8);
+    HttpBody.Multipart.Part part =
+        new HttpBody.Multipart.Part("file", "test.txt", "application/octet-stream", data);
+    HttpRequest request =
+        HttpRequest.builder()
+            .method(HttpMethod.POST)
+            .uri(URI.create(baseUrl() + "/upload"))
+            .body(new HttpBody.Multipart(List.of(part)))
+            .build();
+
+    var response = adapter.execute(request).block(Duration.ofSeconds(2));
+    assertNotNull(response);
+    assertEquals(200, response.statusCode());
+  }
+
+  @Test
+  void exchange_returns_reactive_response() {
+    startServer(
+        RouterFunctions.route(
+            org.springframework.web.reactive.function.server.RequestPredicates.GET("/stream"),
+            req -> ServerResponse.ok().bodyValue("streamed")));
+
+    WebClientHttpClientAdapter adapter = WebClientHttpClientAdapter.builder().build();
+    HttpRequest request =
+        HttpRequest.builder().method(HttpMethod.GET).uri(URI.create(baseUrl() + "/stream")).build();
+
+    var response = adapter.exchange(request).block(Duration.ofSeconds(2));
+    assertNotNull(response);
+    assertEquals(200, response.statusCode());
+  }
+
+  @Test
+  void execute_with_per_request_timeout() {
+    startServer(
+        RouterFunctions.route(
+            org.springframework.web.reactive.function.server.RequestPredicates.GET("/fast"),
+            req -> ServerResponse.ok().bodyValue("ok")));
+
+    WebClientHttpClientAdapter adapter = WebClientHttpClientAdapter.builder().build();
+    HttpRequest request =
+        HttpRequest.builder()
+            .method(HttpMethod.GET)
+            .uri(URI.create(baseUrl() + "/fast"))
+            .timeout(Duration.ofSeconds(5))
+            .build();
+
+    var response = adapter.execute(request).block(Duration.ofSeconds(2));
+    assertNotNull(response);
+    assertEquals(200, response.statusCode());
+  }
+
+  @Test
+  void response_interceptor_is_called() {
+    startServer(
+        RouterFunctions.route(
+            org.springframework.web.reactive.function.server.RequestPredicates.GET("/ri"),
+            req -> ServerResponse.ok().bodyValue("ok")));
+
+    AtomicInteger count = new AtomicInteger();
+    HttpInterceptor interceptor =
+        new HttpInterceptor() {
+          @Override
+          public HttpResponse<byte[]> onResponse(HttpRequest req, HttpResponse<byte[]> resp) {
+            count.incrementAndGet();
+            return resp;
+          }
+        };
+
+    WebClientHttpClientAdapter adapter =
+        WebClientHttpClientAdapter.builder().interceptor(interceptor).build();
+    HttpRequest request =
+        HttpRequest.builder().method(HttpMethod.GET).uri(URI.create(baseUrl() + "/ri")).build();
+
+    adapter.execute(request).block(Duration.ofSeconds(2));
+    assertEquals(1, count.get());
+  }
+
+  @Test
+  void builder_with_webclient_builder() {
+    startServer(
+        RouterFunctions.route(
+            org.springframework.web.reactive.function.server.RequestPredicates.GET("/wb"),
+            req -> ServerResponse.ok().bodyValue("ok")));
+
+    WebClientHttpClientAdapter adapter =
+        WebClientHttpClientAdapter.builder()
+            .webClientBuilder(WebClient.builder().baseUrl(baseUrl()))
+            .build();
+
+    HttpRequest request =
+        HttpRequest.builder().method(HttpMethod.GET).uri(URI.create(baseUrl() + "/wb")).build();
+
+    var response = adapter.execute(request).block(Duration.ofSeconds(2));
+    assertNotNull(response);
+    assertEquals(200, response.statusCode());
   }
 }

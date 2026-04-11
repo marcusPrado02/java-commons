@@ -3,6 +3,7 @@ package com.marcusprado02.commons.adapters.web.result;
 import com.marcusprado02.commons.kernel.errors.Problem;
 import com.marcusprado02.commons.kernel.result.Result;
 
+/** HttpResultMapperWithContext contract. */
 public interface HttpResultMapperWithContext {
 
   <T> HttpResultResponseWithContext mapOk(

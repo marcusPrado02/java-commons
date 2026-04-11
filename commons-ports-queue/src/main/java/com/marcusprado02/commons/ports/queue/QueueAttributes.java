@@ -11,6 +11,11 @@ public record QueueAttributes(
     Instant lastModifiedTimestamp,
     boolean fifoQueue) {
 
+  /**
+   * Returns the total approximate message count across all visibility states.
+   *
+   * @return total approximate messages
+   */
   public int totalApproximateMessages() {
     return approximateNumberOfMessages
         + approximateNumberOfMessagesNotVisible

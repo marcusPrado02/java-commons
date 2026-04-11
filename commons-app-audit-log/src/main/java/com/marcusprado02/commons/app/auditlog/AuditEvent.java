@@ -111,6 +111,7 @@ public final class AuditEvent {
         eventType, actor, action, resourceType, resourceId, result);
   }
 
+  /** Builder for {@link AuditEvent}. */
   public static final class Builder {
     private String id;
     private String eventType;

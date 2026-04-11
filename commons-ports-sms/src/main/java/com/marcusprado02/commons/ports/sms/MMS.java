@@ -15,6 +15,7 @@ public record MMS(
     List<MediaContent> mediaContents,
     SMSOptions options) {
 
+  /** Validates MMS fields and creates defensive copies. */
   public MMS {
     Objects.requireNonNull(from, "from phone number must not be null");
     Objects.requireNonNull(to, "to phone number must not be null");
@@ -48,6 +49,7 @@ public record MMS(
 
   /** Media content for MMS. */
   public record MediaContent(byte[] content, String contentType, String filename) {
+    /** Validates media content. */
     public MediaContent {
       Objects.requireNonNull(content, "content must not be null");
       Objects.requireNonNull(contentType, "content type must not be null");
@@ -93,6 +95,7 @@ public record MMS(
     private PhoneNumber to;
     private String message;
     private java.util.List<MediaContent> mediaContents = new java.util.ArrayList<>();
+    // CPD-OFF - mirrored builder methods in SMS
     private SMSOptions options = SMSOptions.defaults();
 
     private Builder() {}
@@ -126,6 +129,8 @@ public record MMS(
       this.mediaContents.add(mediaContent);
       return this;
     }
+
+    // CPD-ON
 
     public Builder addImage(byte[] imageData, String imageType) {
       return addMedia(MediaContent.image(imageData, imageType));

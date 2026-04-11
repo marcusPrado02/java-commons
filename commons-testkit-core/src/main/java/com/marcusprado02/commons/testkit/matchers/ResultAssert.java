@@ -20,6 +20,11 @@ public class ResultAssert<T> extends AbstractAssert<ResultAssert<T>, Result<T>> 
     return new ResultAssert<>(actual);
   }
 
+  /**
+   * Asserts that the result is a success.
+   *
+   * @return this assertion for chaining
+   */
   public ResultAssert<T> isSuccess() {
     isNotNull();
     if (!actual.isOk()) {
@@ -29,6 +34,11 @@ public class ResultAssert<T> extends AbstractAssert<ResultAssert<T>, Result<T>> 
     return this;
   }
 
+  /**
+   * Asserts that the result is a failure.
+   *
+   * @return this assertion for chaining
+   */
   public ResultAssert<T> isFailure() {
     isNotNull();
     if (actual.isOk()) {
@@ -38,12 +48,24 @@ public class ResultAssert<T> extends AbstractAssert<ResultAssert<T>, Result<T>> 
     return this;
   }
 
+  /**
+   * Asserts that the result is successful and passes the value to the given consumer.
+   *
+   * @param valueAssertions consumer for additional assertions on the value
+   * @return this assertion for chaining
+   */
   public ResultAssert<T> hasValue(Consumer<T> valueAssertions) {
     isSuccess();
     valueAssertions.accept(actual.getOrNull());
     return this;
   }
 
+  /**
+   * Asserts that the result is a failure and passes the problem to the given consumer.
+   *
+   * @param errorAssertions consumer for additional assertions on the problem
+   * @return this assertion for chaining
+   */
   public ResultAssert<T> hasError(Consumer<Problem> errorAssertions) {
     isFailure();
     errorAssertions.accept(actual.problemOrNull());

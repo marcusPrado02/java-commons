@@ -208,6 +208,12 @@
                 <version>${logback.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>ch.qos.logback</groupId>
+                <artifactId>logback-core</artifactId>
+                <version>${logback.version}</version>
+            </dependency>
+
             <!-- ========================================== -->
             <!-- Caching                                    -->
             <!-- ========================================== -->
@@ -476,6 +482,11 @@
             <dependency>
                 <groupId>com.marcusprado02.commons</groupId>
                 <artifactId>commons-testkit-core</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.marcusprado02.commons</groupId>
+                <artifactId>commons-testkit-archunit</artifactId>
                 <version>${project.version}</version>
             </dependency>
             <dependency>

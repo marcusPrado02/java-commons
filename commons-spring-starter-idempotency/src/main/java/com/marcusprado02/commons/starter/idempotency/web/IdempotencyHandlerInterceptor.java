@@ -19,6 +19,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.servlet.HandlerInterceptor;
 
+/** Spring MVC interceptor that enforces idempotency for incoming HTTP requests. */
 public class IdempotencyHandlerInterceptor implements HandlerInterceptor {
 
   static final String ATTR_ACQUIRED = IdempotencyHandlerInterceptor.class.getName() + ".acquired";

@@ -21,7 +21,22 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.*;
+import software.amazon.awssdk.services.s3.model.CopyObjectRequest;
+import software.amazon.awssdk.services.s3.model.Delete;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsResponse;
+import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
+import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
+import software.amazon.awssdk.services.s3.model.NoSuchKeyException;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectResponse;
+import software.amazon.awssdk.services.s3.model.S3Error;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PutObjectPresignRequest;
@@ -35,6 +50,7 @@ public class S3FileStoreAdapter implements FileStorePort {
   private final S3Presigner s3Presigner;
   private final S3Configuration configuration;
 
+  /** Creates a new S3FileStoreAdapter instance. */
   public S3FileStoreAdapter(
       S3Client s3Client, S3Presigner s3Presigner, S3Configuration configuration) {
     this.s3Client = Objects.requireNonNull(s3Client, "s3Client must not be null");
@@ -128,7 +144,7 @@ public class S3FileStoreAdapter implements FileStorePort {
               ErrorCode.of("FILE_NOT_FOUND"),
               ErrorCategory.NOT_FOUND,
               Severity.ERROR,
-              "File does not exist: " + fileId));
+              "File Not Found"));
     } catch (S3Exception e) {
       log.error("S3 error downloading file: {}", fileId, e);
       return Result.fail(
@@ -299,7 +315,7 @@ public class S3FileStoreAdapter implements FileStorePort {
               ErrorCode.of("FILE_NOT_FOUND"),
               ErrorCategory.NOT_FOUND,
               Severity.ERROR,
-              "File does not exist: " + fileId));
+              "File Not Found"));
     } catch (S3Exception e) {
       log.error("S3 error getting file metadata: {}", fileId, e);
       return Result.fail(
@@ -361,6 +377,7 @@ public class S3FileStoreAdapter implements FileStorePort {
   }
 
   @Override
+  @SuppressWarnings("checkstyle:indentation")
   public Result<URL> generatePresignedUrl(
       FileId fileId, PresignedOperation operation, Duration duration) {
     try {
@@ -459,6 +476,7 @@ public class S3FileStoreAdapter implements FileStorePort {
 
   // Helper methods
 
+  @SuppressWarnings("checkstyle:indentation")
   private software.amazon.awssdk.services.s3.model.StorageClass mapStorageClass(
       StorageClass storageClass) {
     return switch (storageClass) {
@@ -475,6 +493,7 @@ public class S3FileStoreAdapter implements FileStorePort {
     };
   }
 
+  @SuppressWarnings("checkstyle:indentation")
   private software.amazon.awssdk.services.s3.model.ServerSideEncryption mapEncryption(
       FileStorePort.ServerSideEncryption encryption) {
     return switch (encryption) {

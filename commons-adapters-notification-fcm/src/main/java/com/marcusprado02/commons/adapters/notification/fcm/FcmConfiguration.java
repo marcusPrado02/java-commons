@@ -77,6 +77,7 @@ public class FcmConfiguration {
     return validateTokens;
   }
 
+  /** Executes the initializeApp operation. */
   public FirebaseApp initializeApp() {
     FirebaseOptions.Builder optionsBuilder = FirebaseOptions.builder().setCredentials(credentials);
 
@@ -92,6 +93,7 @@ public class FcmConfiguration {
     private String projectId;
     private boolean validateTokens = true;
 
+    /** Executes the credentialsPath operation. */
     public Builder credentialsPath(String path) throws IOException {
       Objects.requireNonNull(path, "credentialsPath cannot be null");
       try (FileInputStream serviceAccount = new FileInputStream(path)) {
@@ -100,6 +102,7 @@ public class FcmConfiguration {
       return this;
     }
 
+    /** Executes the credentials operation. */
     public Builder credentials(InputStream credentialsStream) throws IOException {
       Objects.requireNonNull(credentialsStream, "credentialsStream cannot be null");
       this.credentials = GoogleCredentials.fromStream(credentialsStream);

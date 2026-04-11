@@ -1,10 +1,7 @@
 package com.marcusprado02.commons.app.multitenancy.isolation;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
-import com.marcusprado02.commons.app.multitenancy.TenantContext;
-import com.marcusprado02.commons.app.multitenancy.TenantContextHolder;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.function.Function;
@@ -22,20 +19,19 @@ class DatabaseIsolationStrategyTest {
     Function<String, String> urlGenerator =
         tenantId -> "jdbc:h2:mem:" + tenantId + ";DB_CLOSE_DELAY=-1";
     strategy = new DatabaseIsolationStrategy(urlGenerator, "sa", "");
-    TenantContextHolder.clear();
   }
 
   @AfterEach
   void tearDown() {
-    TenantContextHolder.clear();
+    strategy.removeIsolation();
     if (strategy != null) {
-      strategy.destroy();
+      strategy.shutdown();
     }
   }
 
   @Test
   void shouldGetDataSourceForTenant() throws SQLException {
-    TenantContextHolder.setContext(TenantContext.of("tenant1"));
+    strategy.applyIsolation("tenant1");
 
     DataSource result = strategy.getDataSource();
 
@@ -48,7 +44,7 @@ class DatabaseIsolationStrategyTest {
 
   @Test
   void shouldReuseDataSourceForSameTenant() {
-    TenantContextHolder.setContext(TenantContext.of("tenant1"));
+    strategy.applyIsolation("tenant1");
 
     DataSource first = strategy.getDataSource();
     DataSource second = strategy.getDataSource();
@@ -58,10 +54,10 @@ class DatabaseIsolationStrategyTest {
 
   @Test
   void shouldCreateSeparateDataSourcesForDifferentTenants() {
-    TenantContextHolder.setContext(TenantContext.of("tenant1"));
+    strategy.applyIsolation("tenant1");
     DataSource ds1 = strategy.getDataSource();
 
-    TenantContextHolder.setContext(TenantContext.of("tenant2"));
+    strategy.applyIsolation("tenant2");
     DataSource ds2 = strategy.getDataSource();
 
     assertThat(ds1).isNotSameAs(ds2);
@@ -69,7 +65,7 @@ class DatabaseIsolationStrategyTest {
 
   @Test
   void shouldThrowExceptionWhenNoTenantContext() {
-    TenantContextHolder.clear();
+    strategy.removeIsolation();
 
     assertThatThrownBy(() -> strategy.getDataSource())
         .isInstanceOf(IllegalStateException.class)
@@ -79,13 +75,13 @@ class DatabaseIsolationStrategyTest {
   @Test
   void shouldCloseAllDataSourcesOnDestroy() {
     // Create some data sources
-    TenantContextHolder.setContext(TenantContext.of("tenant1"));
+    strategy.applyIsolation("tenant1");
     strategy.getDataSource();
 
-    TenantContextHolder.setContext(TenantContext.of("tenant2"));
+    strategy.applyIsolation("tenant2");
     strategy.getDataSource();
 
-    // Destroy should close all without exception
-    assertThatCode(() -> strategy.destroy()).doesNotThrowAnyException();
+    // Shutdown should close all without exception
+    assertThatCode(() -> strategy.shutdown()).doesNotThrowAnyException();
   }
 }

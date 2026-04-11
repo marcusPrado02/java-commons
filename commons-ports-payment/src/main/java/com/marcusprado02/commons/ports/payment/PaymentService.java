@@ -12,7 +12,7 @@ import java.util.Map;
  * Implementations should handle: - Payment intent creation and processing - Payment method
  * management - Payment retrieval and listing - Payment cancellation
  *
- * <p>All methods return Result<T> for consistent error handling.
+ * <p>All methods return {@code Result<T>} for consistent error handling.
  */
 public interface PaymentService {
 

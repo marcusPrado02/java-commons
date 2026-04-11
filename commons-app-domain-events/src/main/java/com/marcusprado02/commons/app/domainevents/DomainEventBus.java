@@ -42,6 +42,7 @@ public final class DomainEventBus {
   private final DomainEventDispatcher dispatcher;
   private final List<DomainEventInterceptor> interceptors;
 
+  /** Creates a new DomainEventBus with an empty handler registry and no interceptors. */
   public DomainEventBus() {
     this.registry = new DomainEventHandlerRegistry();
     this.dispatcher = new DomainEventDispatcher(registry);

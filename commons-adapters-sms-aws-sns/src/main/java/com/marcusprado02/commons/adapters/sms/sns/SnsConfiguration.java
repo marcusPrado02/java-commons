@@ -26,10 +26,11 @@ public record SnsConfiguration(
     String sessionToken,
     Duration requestTimeout,
     String defaultSenderId,
-    double maxPriceUSD,
+    double maxPriceUsd,
     SmsType smsType,
     boolean deliveryStatusLogging) {
 
+  /** Validates fields on construction. */
   public SnsConfiguration {
     Objects.requireNonNull(region, "Region cannot be null");
     Objects.requireNonNull(requestTimeout, "Request timeout cannot be null");
@@ -52,11 +53,11 @@ public record SnsConfiguration(
       throw new IllegalArgumentException("Request timeout must be positive");
     }
 
-    if (maxPriceUSD <= 0) {
+    if (maxPriceUsd <= 0) {
       throw new IllegalArgumentException("Max price must be positive");
     }
 
-    if (maxPriceUSD > 10.0) {
+    if (maxPriceUsd > 10.0) {
       throw new IllegalArgumentException("Max price cannot exceed $10.00 USD for safety");
     }
   }
@@ -85,7 +86,7 @@ public record SnsConfiguration(
         .accessKeyId(accessKeyId)
         .secretAccessKey(secretAccessKey)
         .requestTimeout(Duration.ofSeconds(30))
-        .maxPriceUSD(0.1) // Low limit for dev
+        .maxPriceUsd(0.1) // Low limit for dev
         .smsType(SmsType.TRANSACTIONAL)
         .deliveryStatusLogging(true)
         .build();
@@ -108,7 +109,7 @@ public record SnsConfiguration(
         .secretAccessKey(secretAccessKey)
         .requestTimeout(Duration.ofSeconds(15))
         .defaultSenderId(senderId)
-        .maxPriceUSD(1.0) // Reasonable limit for prod
+        .maxPriceUsd(1.0) // Reasonable limit for prod
         .smsType(SmsType.TRANSACTIONAL)
         .deliveryStatusLogging(true)
         .build();
@@ -124,7 +125,7 @@ public record SnsConfiguration(
     return builder()
         .region(region)
         .requestTimeout(Duration.ofSeconds(20))
-        .maxPriceUSD(0.5)
+        .maxPriceUsd(0.5)
         .smsType(SmsType.TRANSACTIONAL)
         .deliveryStatusLogging(true)
         .build();
@@ -149,7 +150,7 @@ public record SnsConfiguration(
     private String sessionToken;
     private Duration requestTimeout = Duration.ofSeconds(15);
     private String defaultSenderId;
-    private double maxPriceUSD = 0.5; // $0.50 USD default limit
+    private double maxPriceUsd = 0.5; // $0.50 USD default limit
     private SmsType smsType = SmsType.TRANSACTIONAL;
     private boolean deliveryStatusLogging = false;
 
@@ -224,11 +225,11 @@ public record SnsConfiguration(
     /**
      * Sets the maximum price per SMS in USD (safety limit).
      *
-     * @param maxPriceUSD maximum price per SMS (default: $0.50)
+     * @param maxPriceUsd maximum price per SMS (default: $0.50)
      * @return this builder
      */
-    public Builder maxPriceUSD(double maxPriceUSD) {
-      this.maxPriceUSD = maxPriceUSD;
+    public Builder maxPriceUsd(double maxPriceUsd) {
+      this.maxPriceUsd = maxPriceUsd;
       return this;
     }
 
@@ -268,7 +269,7 @@ public record SnsConfiguration(
           sessionToken,
           requestTimeout,
           defaultSenderId,
-          maxPriceUSD,
+          maxPriceUsd,
           smsType,
           deliveryStatusLogging);
     }

@@ -1,6 +1,9 @@
 package com.marcusprado02.commons.ports.excel;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Represents an Excel workbook containing multiple worksheets.
@@ -25,6 +28,7 @@ public record ExcelWorkbook(
     String subject,
     String comments) {
 
+  /** Validates workbook fields and creates defensive copies. */
   public ExcelWorkbook {
     worksheets = worksheets == null ? List.of() : List.copyOf(worksheets);
     properties = properties == null ? Map.of() : Map.copyOf(properties);

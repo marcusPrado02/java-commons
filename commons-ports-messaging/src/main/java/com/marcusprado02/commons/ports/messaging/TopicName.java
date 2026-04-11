@@ -2,6 +2,7 @@ package com.marcusprado02.commons.ports.messaging;
 
 import java.util.Objects;
 
+/** Represents the name of a messaging topic. */
 public final class TopicName {
 
   private final String value;

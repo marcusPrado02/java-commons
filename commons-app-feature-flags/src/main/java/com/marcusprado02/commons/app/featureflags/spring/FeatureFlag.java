@@ -71,6 +71,7 @@ public @interface FeatureFlag {
    */
   String userId() default "";
 
+  /** Strategy to apply when the feature flag is disabled. */
   enum FallbackStrategy {
     /** Throw FeatureFlagDisabledException. */
     THROW_EXCEPTION,

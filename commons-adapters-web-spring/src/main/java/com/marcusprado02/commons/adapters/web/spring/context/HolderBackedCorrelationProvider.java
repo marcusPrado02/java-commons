@@ -2,6 +2,10 @@ package com.marcusprado02.commons.adapters.web.spring.context;
 
 import com.marcusprado02.commons.kernel.ddd.context.CorrelationProvider;
 
+/**
+ * {@link com.marcusprado02.commons.kernel.ddd.context.CorrelationProvider} backed by {@link
+ * SpringRequestContextHolder}.
+ */
 public final class HolderBackedCorrelationProvider implements CorrelationProvider {
 
   @Override

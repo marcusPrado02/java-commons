@@ -53,6 +53,7 @@ public record Subscription(
     return new Builder();
   }
 
+  /** Builder for {@link Subscription}. */
   public static class Builder {
     private String id;
     private String customerId;
@@ -139,6 +140,11 @@ public record Subscription(
       return this;
     }
 
+    /**
+     * Builds the Subscription instance.
+     *
+     * @return configured Subscription
+     */
     public Subscription build() {
       return new Subscription(
           id,

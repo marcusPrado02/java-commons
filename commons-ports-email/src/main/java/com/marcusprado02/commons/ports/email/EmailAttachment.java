@@ -10,6 +10,7 @@ import java.util.Objects;
  */
 public record EmailAttachment(String filename, String contentType, byte[] data) {
 
+  /** Validates attachment fields. */
   public EmailAttachment {
     Objects.requireNonNull(filename, "filename must not be null");
     Objects.requireNonNull(contentType, "contentType must not be null");

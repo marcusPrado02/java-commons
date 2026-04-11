@@ -125,6 +125,7 @@ public class InMemoryFeatureFlagProvider implements FeatureFlagProvider {
     }
   }
 
+  /** Builder for {@link InMemoryFeatureFlagProvider}. */
   public static class Builder {
     private final Map<String, FlagConfig> flags = new ConcurrentHashMap<>();
 
@@ -167,6 +168,15 @@ public class InMemoryFeatureFlagProvider implements FeatureFlagProvider {
       return this;
     }
 
+    /**
+     * Registers a flag that is enabled for a percentage of users.
+     *
+     * @param featureKey feature flag key
+     * @param percentage percentage of users (0–100) for which the flag is enabled
+     * @param enabledValue value to return when the flag is enabled
+     * @param disabledValue value to return when the flag is disabled
+     * @return this builder
+     */
     public Builder flagWithPercentageRollout(
         String featureKey,
         int percentage,

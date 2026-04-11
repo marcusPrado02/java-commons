@@ -213,6 +213,7 @@ public final class CompressionFactory {
       return new Builder();
     }
 
+    /** Builder for {@link CompressionConfiguration}. */
     public static class Builder {
       private CompressionAlgorithm defaultAlgorithm = CompressionAlgorithm.GZIP;
       private CompressionAlgorithm fallbackAlgorithm = CompressionAlgorithm.DEFLATE;
@@ -222,23 +223,47 @@ public final class CompressionFactory {
       private boolean enableChecksums = true;
       private boolean enableHeaders = true;
 
+      /**
+       * Sets the default compression algorithm.
+       *
+       * @param algorithm the default algorithm
+       * @return this builder
+       */
       public Builder defaultAlgorithm(CompressionAlgorithm algorithm) {
         this.defaultAlgorithm =
             Objects.requireNonNull(algorithm, "Default algorithm cannot be null");
         return this;
       }
 
+      /**
+       * Sets the fallback compression algorithm.
+       *
+       * @param algorithm the fallback algorithm
+       * @return this builder
+       */
       public Builder fallbackAlgorithm(CompressionAlgorithm algorithm) {
         this.fallbackAlgorithm =
             Objects.requireNonNull(algorithm, "Fallback algorithm cannot be null");
         return this;
       }
 
+      /**
+       * Sets whether to prefer speed over compression ratio.
+       *
+       * @param preferSpeed true to prefer speed
+       * @return this builder
+       */
       public Builder preferSpeed(boolean preferSpeed) {
         this.preferSpeed = preferSpeed;
         return this;
       }
 
+      /**
+       * Sets the maximum compression level.
+       *
+       * @param level the maximum compression level (non-negative)
+       * @return this builder
+       */
       public Builder maxCompressionLevel(int level) {
         if (level < 0) {
           throw new IllegalArgumentException("Compression level cannot be negative");
@@ -247,6 +272,12 @@ public final class CompressionFactory {
         return this;
       }
 
+      /**
+       * Sets the buffer size for compression operations.
+       *
+       * @param size the buffer size in bytes (positive)
+       * @return this builder
+       */
       public Builder bufferSize(int size) {
         if (size <= 0) {
           throw new IllegalArgumentException("Buffer size must be positive");
@@ -332,17 +363,17 @@ public final class CompressionFactory {
     }
 
     @Override
+    public com.marcusprado02.commons.kernel.result.Result<byte[]> compress(
+        byte[] data, CompressionOptions options) {
+      return delegate.compress(data, options);
+    }
+
+    @Override
     public com.marcusprado02.commons.kernel.result.Result<
             com.marcusprado02.commons.ports.compression.CompressionResult>
         decompress(
             java.io.InputStream input, java.io.OutputStream output, CompressionOptions options) {
       return delegate.decompress(input, output, options);
-    }
-
-    @Override
-    public com.marcusprado02.commons.kernel.result.Result<byte[]> compress(
-        byte[] data, CompressionOptions options) {
-      return delegate.compress(data, options);
     }
 
     @Override

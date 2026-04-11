@@ -23,6 +23,12 @@ public class IdempotencyWebMvcAutoConfiguration {
     return new IdempotencyHandlerInterceptor(storePort, properties);
   }
 
+  /**
+   * Registers the {@link IdempotencyHandlerInterceptor} with Spring MVC.
+   *
+   * @param interceptor the idempotency handler interceptor
+   * @return the web MVC configurer
+   */
   @Bean
   @ConditionalOnMissingBean(name = "idempotencyWebMvcConfigurer")
   public WebMvcConfigurer idempotencyWebMvcConfigurer(IdempotencyHandlerInterceptor interceptor) {

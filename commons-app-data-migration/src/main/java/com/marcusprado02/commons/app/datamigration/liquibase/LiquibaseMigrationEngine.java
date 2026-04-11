@@ -330,6 +330,7 @@ public class LiquibaseMigrationEngine implements MigrationEngine {
       return this;
     }
 
+    /** Builds and returns a configured {@link LiquibaseMigrationEngine}. */
     public LiquibaseMigrationEngine build() {
       Objects.requireNonNull(dataSource, "dataSource is required");
 

@@ -6,12 +6,14 @@ import com.marcusprado02.commons.kernel.result.Result;
  * Port for receiving and verifying payment provider webhooks.
  *
  * <p>Implementations are responsible for:
+ *
  * <ul>
- *   <li>Verifying the webhook signature to ensure authenticity</li>
- *   <li>Parsing the raw payload into a {@link WebhookEvent}</li>
+ *   <li>Verifying the webhook signature to ensure authenticity
+ *   <li>Parsing the raw payload into a {@link WebhookEvent}
  * </ul>
  *
  * <p>Usage example:
+ *
  * <pre>{@code
  * Result<WebhookEvent> result = webhookService.parseAndVerify(rawBody, signatureHeader);
  * result.peek(event -> {

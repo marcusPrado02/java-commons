@@ -28,6 +28,7 @@ public record PdfSignature(
     SignatureField signatureField,
     Instant timestamp) {
 
+  /** Validates PDF signature fields. */
   public PdfSignature {
     if (keystoreData == null) {
       throw new IllegalArgumentException("Keystore data is required");
@@ -54,6 +55,7 @@ public record PdfSignature(
   public record SignatureField(
       int page, float x, float y, float width, float height, InputStream imageData) {
 
+    /** Validates signature field dimensions and position. */
     public SignatureField {
       if (page < 1) {
         throw new IllegalArgumentException("Page number must be >= 1");
@@ -129,6 +131,11 @@ public record PdfSignature(
       return this;
     }
 
+    /**
+     * Builds the PdfSignature instance.
+     *
+     * @return configured PdfSignature
+     */
     public PdfSignature build() {
       return new PdfSignature(
           keystoreData,

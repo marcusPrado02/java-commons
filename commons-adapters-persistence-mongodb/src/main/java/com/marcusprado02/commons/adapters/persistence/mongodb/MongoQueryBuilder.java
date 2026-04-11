@@ -12,12 +12,18 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 
 /**
- * Converts SearchCriteria and Sort to MongoDB queries.
+ * Converts {@code SearchCriteria} and {@code Sort} to MongoDB queries.
  *
- * @param <E> Entity type
+ * @param <E> the entity type
  */
 public class MongoQueryBuilder<E> {
 
+  /**
+   * Applies the given search criteria as filter conditions to the query.
+   *
+   * @param query the MongoDB query to update
+   * @param searchCriteria the search criteria containing filters to apply
+   */
   public void applyFilters(Query query, SearchCriteria searchCriteria) {
     if (searchCriteria == null || searchCriteria.filters().isEmpty()) {
       return;
@@ -34,6 +40,12 @@ public class MongoQueryBuilder<E> {
     }
   }
 
+  /**
+   * Applies the given sort specification to the query.
+   *
+   * @param query the MongoDB query to update
+   * @param sort the sort specification to apply
+   */
   public void applySort(Query query, Sort sort) {
     if (sort == null || sort.orders().isEmpty()) {
       return;
@@ -55,7 +67,6 @@ public class MongoQueryBuilder<E> {
       case EQ -> Criteria.where(field).is(parseValue(value));
       case NEQ -> Criteria.where(field).ne(parseValue(value));
       case LIKE -> {
-        // Convert SQL-like wildcards to regex
         String regex = value.replace("%", ".*");
         yield Criteria.where(field).regex(Pattern.compile(regex, Pattern.CASE_INSENSITIVE));
       }
@@ -82,33 +93,28 @@ public class MongoQueryBuilder<E> {
       return null;
     }
 
-    // Try boolean
     if ("true".equalsIgnoreCase(value) || "false".equalsIgnoreCase(value)) {
       return Boolean.parseBoolean(value);
     }
 
-    // Try integer
     try {
       return Integer.parseInt(value);
     } catch (NumberFormatException e) {
       // Not an integer
     }
 
-    // Try long
     try {
       return Long.parseLong(value);
     } catch (NumberFormatException e) {
       // Not a long
     }
 
-    // Try double
     try {
       return Double.parseDouble(value);
     } catch (NumberFormatException e) {
       // Not a double
     }
 
-    // Return as string
     return value;
   }
 

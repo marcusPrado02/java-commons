@@ -3,6 +3,7 @@ package com.marcusprado02.commons.app.resilience;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+/** No-operation resilience executor that runs actions directly without any resilience policies. */
 public final class NoopResilienceExecutor implements ResilienceExecutor {
 
   @Override

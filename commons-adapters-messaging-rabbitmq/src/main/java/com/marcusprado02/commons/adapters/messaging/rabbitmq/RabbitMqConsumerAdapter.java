@@ -24,9 +24,10 @@ import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class RabbitMQConsumerAdapter implements MessageConsumerPort, AutoCloseable {
+/** RabbitMqConsumerAdapter implementation. */
+public final class RabbitMqConsumerAdapter implements MessageConsumerPort, AutoCloseable {
 
-  private static final Logger log = LoggerFactory.getLogger(RabbitMQConsumerAdapter.class);
+  private static final Logger log = LoggerFactory.getLogger(RabbitMqConsumerAdapter.class);
 
   private final String host;
   private final int port;
@@ -36,7 +37,7 @@ public final class RabbitMQConsumerAdapter implements MessageConsumerPort, AutoC
   private final Map<String, SubscriptionEntry<?>> subscriptions = new ConcurrentHashMap<>();
   private final Map<String, Connection> connections = new ConcurrentHashMap<>();
 
-  private RabbitMQConsumerAdapter(
+  private RabbitMqConsumerAdapter(
       String host, int port, String username, String password, String virtualHost) {
     this.host = host;
     this.port = port;
@@ -249,6 +250,7 @@ public final class RabbitMQConsumerAdapter implements MessageConsumerPort, AutoC
     }
   }
 
+  /** Builder implementation. */
   public static final class Builder {
     private String host = "localhost";
     private int port = 5672;
@@ -283,8 +285,8 @@ public final class RabbitMQConsumerAdapter implements MessageConsumerPort, AutoC
       return this;
     }
 
-    public RabbitMQConsumerAdapter build() {
-      return new RabbitMQConsumerAdapter(host, port, username, password, virtualHost);
+    public RabbitMqConsumerAdapter build() {
+      return new RabbitMqConsumerAdapter(host, port, username, password, virtualHost);
     }
   }
 }

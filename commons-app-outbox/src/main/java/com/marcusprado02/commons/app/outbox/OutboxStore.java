@@ -6,6 +6,8 @@ import com.marcusprado02.commons.app.outbox.model.OutboxStatus;
 import java.util.List;
 
 /**
+ * Outbox store interface for persisting and querying outbox messages.
+ *
  * @deprecated Use {@link com.marcusprado02.commons.app.outbox.port.OutboxRepositoryPort} instead.
  *     This interface will be removed in a future version.
  */

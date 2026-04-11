@@ -21,7 +21,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 class TwilioSMSAdapterTest {
 
   private TwilioConfiguration configuration;
-  private TwilioSMSAdapter smsAdapter;
+  private TwilioSmsAdapter smsAdapter;
 
   @BeforeEach
   void setUp() {
@@ -33,7 +33,7 @@ class TwilioSMSAdapterTest {
             .requestTimeout(Duration.ofSeconds(10))
             .build();
 
-    smsAdapter = new TwilioSMSAdapter(configuration);
+    smsAdapter = new TwilioSmsAdapter(configuration);
   }
 
   @Test

@@ -19,6 +19,7 @@ import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** Stripe implementation of RefundService. */
 public class StripeRefundService implements RefundService {
   private static final Logger logger = LoggerFactory.getLogger(StripeRefundService.class);
 
@@ -26,6 +27,12 @@ public class StripeRefundService implements RefundService {
     Stripe.apiKey = apiKey;
   }
 
+  /**
+   * Creates a new StripeRefundService instance.
+   *
+   * @param apiKey Stripe API key
+   * @return new StripeRefundService instance
+   */
   public static StripeRefundService create(String apiKey) {
     return new StripeRefundService(apiKey);
   }

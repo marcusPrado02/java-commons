@@ -1,9 +1,11 @@
 package com.marcusprado02.commons.adapters.web.envelope;
 
+/** ApiEnvelope contract. */
 public sealed interface ApiEnvelope permits ApiEnvelope.Success, ApiEnvelope.Failure {
 
   ApiMeta meta();
 
+  /** Success data. */
   record Success<T>(T data, ApiMeta meta) implements ApiEnvelope {
 
     public Success {
@@ -19,6 +21,7 @@ public sealed interface ApiEnvelope permits ApiEnvelope.Success, ApiEnvelope.Fai
     }
   }
 
+  /** Failure data. */
   record Failure(Object error, ApiMeta meta) implements ApiEnvelope {
 
     public Failure {

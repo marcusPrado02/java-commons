@@ -82,7 +82,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
               }
               yield new BrotliStreamingCompressor(output, options);
             }
-            case LZ4 -> new LZ4StreamingCompressor(output, options, lz4Factory);
+            case LZ4 -> new Lz4StreamingCompressor(output, options, lz4Factory);
             case ZSTD -> new ZstdStreamingCompressor(output, options);
             case SNAPPY -> new SnappyStreamingCompressor(output, options);
           };
@@ -123,7 +123,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
               }
               yield new BrotliStreamingDecompressor(input, options);
             }
-            case LZ4 -> new LZ4StreamingDecompressor(input, options, lz4Factory);
+            case LZ4 -> new Lz4StreamingDecompressor(input, options, lz4Factory);
             case ZSTD -> new ZstdStreamingDecompressor(input, options);
             case SNAPPY -> new SnappyStreamingDecompressor(input, options);
           };
@@ -214,7 +214,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
           message);
     }
 
-    protected Problem createIOError(String message, Throwable cause) {
+    protected Problem createIoError(String message, Throwable cause) {
       return Problem.of(
           ErrorCode.of("COMPRESSION_IO_ERROR"),
           ErrorCategory.TECHNICAL,
@@ -243,7 +243,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         bytesWritten.addAndGet(length);
         return Result.ok(null);
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to write data: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to write data: " + e.getMessage(), e));
       }
     }
 
@@ -253,7 +253,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         gzipOut.flush();
         return Result.ok(null);
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to flush: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to flush: " + e.getMessage(), e));
       }
     }
 
@@ -267,7 +267,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         gzipOut.finish();
         return Result.ok(getCurrentStats());
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to finish compression: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to finish compression: " + e.getMessage(), e));
       }
     }
 
@@ -285,10 +285,10 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
   // For brevity, I'll implement a few key ones and use similar patterns
 
   // LZ4 Streaming Compressor
-  static class LZ4StreamingCompressor extends AbstractStreamingCompressor {
+  static class Lz4StreamingCompressor extends AbstractStreamingCompressor {
     private final LZ4BlockOutputStream lz4Out;
 
-    LZ4StreamingCompressor(OutputStream output, CompressionOptions options, LZ4Factory factory)
+    Lz4StreamingCompressor(OutputStream output, CompressionOptions options, LZ4Factory factory)
         throws IOException {
       super(options);
       LZ4Compressor compressor = factory.fastCompressor();
@@ -306,7 +306,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         bytesWritten.addAndGet(length);
         return Result.ok(null);
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to write data: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to write data: " + e.getMessage(), e));
       }
     }
 
@@ -316,7 +316,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         lz4Out.flush();
         return Result.ok(null);
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to flush: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to flush: " + e.getMessage(), e));
       }
     }
 
@@ -330,7 +330,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         lz4Out.finish();
         return Result.ok(getCurrentStats());
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to finish compression: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to finish compression: " + e.getMessage(), e));
       }
     }
 
@@ -366,7 +366,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         bytesWritten.addAndGet(length);
         return Result.ok(null);
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to write data: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to write data: " + e.getMessage(), e));
       }
     }
 
@@ -376,7 +376,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         deflaterOut.flush();
         return Result.ok(null);
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to flush: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to flush: " + e.getMessage(), e));
       }
     }
 
@@ -390,7 +390,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         deflaterOut.finish();
         return Result.ok(getCurrentStats());
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to finish compression: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to finish compression: " + e.getMessage(), e));
       }
     }
 
@@ -423,7 +423,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         bytesWritten.addAndGet(length);
         return Result.ok(null);
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to write data: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to write data: " + e.getMessage(), e));
       }
     }
 
@@ -433,7 +433,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         brotliOut.flush();
         return Result.ok(null);
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to flush: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to flush: " + e.getMessage(), e));
       }
     }
 
@@ -447,7 +447,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         brotliOut.flush();
         return Result.ok(getCurrentStats());
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to finish compression: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to finish compression: " + e.getMessage(), e));
       }
     }
 
@@ -480,7 +480,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         bytesWritten.addAndGet(length);
         return Result.ok(null);
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to write data: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to write data: " + e.getMessage(), e));
       }
     }
 
@@ -490,7 +490,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         zstdOut.flush();
         return Result.ok(null);
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to flush: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to flush: " + e.getMessage(), e));
       }
     }
 
@@ -504,7 +504,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         zstdOut.flush();
         return Result.ok(getCurrentStats());
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to finish compression: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to finish compression: " + e.getMessage(), e));
       }
     }
 
@@ -537,7 +537,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         bytesWritten.addAndGet(length);
         return Result.ok(null);
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to write data: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to write data: " + e.getMessage(), e));
       }
     }
 
@@ -547,7 +547,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         snappyOut.flush();
         return Result.ok(null);
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to flush: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to flush: " + e.getMessage(), e));
       }
     }
 
@@ -561,7 +561,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         snappyOut.flush();
         return Result.ok(getCurrentStats());
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to finish compression: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to finish compression: " + e.getMessage(), e));
       }
     }
 
@@ -632,7 +632,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
           message);
     }
 
-    protected Problem createIOError(String message, Throwable cause) {
+    protected Problem createIoError(String message, Throwable cause) {
       return Problem.of(
           ErrorCode.of("COMPRESSION_IO_ERROR"),
           ErrorCategory.TECHNICAL,
@@ -663,7 +663,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         }
         return Result.ok(bytesRead);
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to read data: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to read data: " + e.getMessage(), e));
       }
     }
 
@@ -673,7 +673,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         long skipped = gzipIn.skip(n);
         return Result.ok(skipped);
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to skip data: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to skip data: " + e.getMessage(), e));
       }
     }
 
@@ -683,7 +683,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         int available = gzipIn.available();
         return Result.ok(available > 0);
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to check availability: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to check availability: " + e.getMessage(), e));
       }
     }
 
@@ -700,10 +700,10 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
   // Similar decompressor implementations for other algorithms...
   // Following the same pattern as compressors
 
-  static class LZ4StreamingDecompressor extends AbstractStreamingDecompressor {
+  static class Lz4StreamingDecompressor extends AbstractStreamingDecompressor {
     private final LZ4BlockInputStream lz4In;
 
-    LZ4StreamingDecompressor(InputStream input, CompressionOptions options, LZ4Factory factory)
+    Lz4StreamingDecompressor(InputStream input, CompressionOptions options, LZ4Factory factory)
         throws IOException {
       super(options);
       LZ4FastDecompressor decompressor = factory.fastDecompressor();
@@ -723,7 +723,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         }
         return Result.ok(bytesRead);
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to read data: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to read data: " + e.getMessage(), e));
       }
     }
 
@@ -733,7 +733,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         long skipped = lz4In.skip(n);
         return Result.ok(skipped);
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to skip data: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to skip data: " + e.getMessage(), e));
       }
     }
 
@@ -743,7 +743,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         int available = lz4In.available();
         return Result.ok(available > 0);
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to check availability: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to check availability: " + e.getMessage(), e));
       }
     }
 
@@ -779,7 +779,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         }
         return Result.ok(bytesRead);
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to read data: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to read data: " + e.getMessage(), e));
       }
     }
 
@@ -789,7 +789,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         long skipped = inflaterIn.skip(n);
         return Result.ok(skipped);
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to skip data: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to skip data: " + e.getMessage(), e));
       }
     }
 
@@ -799,7 +799,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         int available = inflaterIn.available();
         return Result.ok(available > 0);
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to check availability: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to check availability: " + e.getMessage(), e));
       }
     }
 
@@ -834,7 +834,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         }
         return Result.ok(bytesRead);
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to read data: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to read data: " + e.getMessage(), e));
       }
     }
 
@@ -844,7 +844,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         long skipped = brotliIn.skip(n);
         return Result.ok(skipped);
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to skip data: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to skip data: " + e.getMessage(), e));
       }
     }
 
@@ -885,7 +885,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         }
         return Result.ok(bytesRead);
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to read data: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to read data: " + e.getMessage(), e));
       }
     }
 
@@ -895,7 +895,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         long skipped = zstdIn.skip(n);
         return Result.ok(skipped);
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to skip data: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to skip data: " + e.getMessage(), e));
       }
     }
 
@@ -905,7 +905,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         int available = zstdIn.available();
         return Result.ok(available > 0);
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to check availability: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to check availability: " + e.getMessage(), e));
       }
     }
 
@@ -940,7 +940,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         }
         return Result.ok(bytesRead);
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to read data: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to read data: " + e.getMessage(), e));
       }
     }
 
@@ -950,7 +950,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         long skipped = snappyIn.skip(n);
         return Result.ok(skipped);
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to skip data: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to skip data: " + e.getMessage(), e));
       }
     }
 
@@ -960,7 +960,7 @@ public class StreamingCompressionAdapter implements StreamingCompressionPort {
         int available = snappyIn.available();
         return Result.ok(available > 0);
       } catch (IOException e) {
-        return Result.fail(createIOError("Failed to check availability: " + e.getMessage(), e));
+        return Result.fail(createIoError("Failed to check availability: " + e.getMessage(), e));
       }
     }
 

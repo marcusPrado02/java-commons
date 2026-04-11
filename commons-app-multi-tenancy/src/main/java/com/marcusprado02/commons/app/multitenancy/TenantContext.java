@@ -53,6 +53,14 @@ public record TenantContext(
     return Optional.ofNullable(attributes.get(key));
   }
 
+  /**
+   * Returns the attribute value cast to the specified type, or empty if absent or incompatible.
+   *
+   * @param key the attribute key
+   * @param type the expected type
+   * @param <T> the attribute type
+   * @return typed attribute value, or empty
+   */
   @SuppressWarnings("unchecked")
   public <T> Optional<T> getAttribute(String key, Class<T> type) {
     Object value = attributes.get(key);
@@ -62,6 +70,7 @@ public record TenantContext(
     return Optional.empty();
   }
 
+  /** Builder for {@link TenantContext}. */
   public static class Builder {
     private String tenantId;
     private String name;
@@ -88,6 +97,13 @@ public record TenantContext(
       return this;
     }
 
+    /**
+     * Adds a single attribute entry to this builder.
+     *
+     * @param key attribute key
+     * @param value attribute value
+     * @return this builder
+     */
     public Builder attribute(String key, Object value) {
       this.attributes = new java.util.HashMap<>(attributes);
       this.attributes.put(key, value);

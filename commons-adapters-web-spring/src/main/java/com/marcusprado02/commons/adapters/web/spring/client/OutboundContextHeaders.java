@@ -5,10 +5,12 @@ import com.marcusprado02.commons.platform.http.StandardHeaders;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+/** Collects outbound context headers from the current request context. */
 public final class OutboundContextHeaders {
 
   private OutboundContextHeaders() {}
 
+  /** Returns outbound context headers collected from the current request context. */
   public static Map<String, String> currentHeaders() {
     Map<String, String> headers = new LinkedHashMap<>();
 

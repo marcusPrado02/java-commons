@@ -5,16 +5,30 @@ import com.marcusprado02.commons.kernel.errors.ErrorCode;
 import com.marcusprado02.commons.kernel.errors.Problem;
 import com.marcusprado02.commons.kernel.errors.Severity;
 import com.marcusprado02.commons.kernel.result.Result;
-import com.marcusprado02.commons.ports.sms.*;
+import com.marcusprado02.commons.ports.sms.BulkSMS;
+import com.marcusprado02.commons.ports.sms.MMS;
+import com.marcusprado02.commons.ports.sms.PhoneNumber;
+import com.marcusprado02.commons.ports.sms.SMS;
+import com.marcusprado02.commons.ports.sms.SMSOptions;
 import com.marcusprado02.commons.ports.sms.SMSPort;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.auth.credentials.DefaultCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.client.config.ClientOverrideConfiguration;
 import software.amazon.awssdk.services.sns.SnsClient;
-import software.amazon.awssdk.services.sns.model.*;
+import software.amazon.awssdk.services.sns.model.AuthorizationErrorException;
+import software.amazon.awssdk.services.sns.model.InternalErrorException;
+import software.amazon.awssdk.services.sns.model.InvalidParameterException;
+import software.amazon.awssdk.services.sns.model.InvalidParameterValueException;
+import software.amazon.awssdk.services.sns.model.MessageAttributeValue;
+import software.amazon.awssdk.services.sns.model.OptedOutException;
+import software.amazon.awssdk.services.sns.model.PublishRequest;
+import software.amazon.awssdk.services.sns.model.PublishResponse;
+import software.amazon.awssdk.services.sns.model.ThrottledException;
 
 /**
  * AWS SNS implementation of SMSPort.
@@ -23,17 +37,17 @@ import software.amazon.awssdk.services.sns.model.*;
  * both individual SMS and bulk operations, with configurable pricing limits and delivery status
  * tracking.
  */
-public class SnsSMSAdapter implements SMSPort, AutoCloseable {
+public class SnsSmsAdapter implements SMSPort, AutoCloseable {
 
   private final SnsClient snsClient;
   private final SnsConfiguration configuration;
 
   /**
-   * Creates a new SnsSMSAdapter with the given configuration.
+   * Creates a new SnsSmsAdapter with the given configuration.
    *
    * @param configuration SNS configuration
    */
-  public SnsSMSAdapter(SnsConfiguration configuration) {
+  public SnsSmsAdapter(SnsConfiguration configuration) {
     Objects.requireNonNull(configuration, "Configuration cannot be null");
     this.configuration = configuration;
     this.snsClient = createSnsClient(configuration);
@@ -44,6 +58,7 @@ public class SnsSMSAdapter implements SMSPort, AutoCloseable {
     return send(sms, SMSOptions.defaults());
   }
 
+  /** Executes the send operation. */
   public Result<SMSReceipt> send(SMS sms, SMSOptions options) {
     Objects.requireNonNull(sms, "SMS cannot be null");
     Objects.requireNonNull(options, "SMS options cannot be null");
@@ -62,24 +77,25 @@ public class SnsSMSAdapter implements SMSPort, AutoCloseable {
   }
 
   @Override
-  public Result<BulkSMSReceipt> sendBulk(BulkSMS bulkSMS) {
-    return sendBulk(bulkSMS, SMSOptions.defaults());
+  public Result<BulkSMSReceipt> sendBulk(BulkSMS bulkSms) {
+    return sendBulk(bulkSms, SMSOptions.defaults());
   }
 
-  public Result<BulkSMSReceipt> sendBulk(BulkSMS bulkSMS, SMSOptions options) {
-    Objects.requireNonNull(bulkSMS, "Bulk SMS cannot be null");
+  /** Executes the sendBulk operation. */
+  public Result<BulkSMSReceipt> sendBulk(BulkSMS bulkSms, SMSOptions options) {
+    Objects.requireNonNull(bulkSms, "Bulk SMS cannot be null");
     Objects.requireNonNull(options, "SMS options cannot be null");
 
     int successCount = 0;
     int failureCount = 0;
 
     // Send each SMS individually (SNS doesn't have native bulk operations)
-    for (PhoneNumber phone : bulkSMS.to()) {
+    for (PhoneNumber phone : bulkSms.to()) {
       SMS sms =
           SMS.builder()
-              .from(bulkSMS.from())
+              .from(bulkSms.from())
               .to(phone)
-              .message(bulkSMS.message())
+              .message(bulkSms.message())
               .options(options)
               .build();
       Result<SMSReceipt> result = send(sms, options);
@@ -92,24 +108,26 @@ public class SnsSMSAdapter implements SMSPort, AutoCloseable {
     }
 
     BulkSMSReceipt bulkReceipt =
-        SMSPort.BulkSMSReceipt.of(bulkSMS.to().size(), successCount, failureCount);
+        SMSPort.BulkSMSReceipt.of(bulkSms.to().size(), successCount, failureCount);
 
     return Result.ok(bulkReceipt);
   }
 
   @Override
   public Result<SMSReceipt> sendMMS(MMS mms) {
-    return sendMMS(mms, SMSOptions.defaults());
+    return sendMms(mms, SMSOptions.defaults());
   }
 
-  public Result<SMSReceipt> sendMMS(MMS mms, SMSOptions options) {
+  /** Executes the sendMms operation. */
+  public Result<SMSReceipt> sendMms(MMS mms, SMSOptions options) {
     // AWS SNS doesn't natively support MMS, return appropriate error
     Problem problem =
         Problem.of(
             ErrorCode.of("MMS_NOT_SUPPORTED"),
             ErrorCategory.BUSINESS,
             Severity.WARNING,
-            "AWS SNS does not support MMS messages. Use SMS instead or consider using Amazon Pinpoint for MMS support.");
+            "AWS SNS does not support MMS messages. Use SMS instead or consider using"
+                + " Amazon Pinpoint for MMS support.");
 
     return Result.fail(problem);
   }
@@ -194,7 +212,7 @@ public class SnsSMSAdapter implements SMSPort, AutoCloseable {
     smsAttributes.put(
         "AWS.SNS.SMS.MaxPrice",
         MessageAttributeValue.builder()
-            .stringValue(String.format("%.2f", configuration.maxPriceUSD()))
+            .stringValue(String.format("%.2f", configuration.maxPriceUsd()))
             .dataType("Number")
             .build());
 

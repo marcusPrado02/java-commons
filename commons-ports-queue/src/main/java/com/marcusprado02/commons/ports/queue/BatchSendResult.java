@@ -23,5 +23,6 @@ public record BatchSendResult(List<SendMessageResult> successful, List<BatchFail
     return !failed.isEmpty();
   }
 
+  /** Describes a single failed message in a batch send operation. */
   public record BatchFailure(String id, String code, String message) {}
 }

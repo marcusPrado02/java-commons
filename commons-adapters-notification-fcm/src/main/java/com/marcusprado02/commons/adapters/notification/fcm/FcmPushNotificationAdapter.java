@@ -1,11 +1,32 @@
 package com.marcusprado02.commons.adapters.notification.fcm;
 
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.messaging.*;
-import com.marcusprado02.commons.kernel.errors.*;
+import com.google.firebase.messaging.AndroidConfig;
+import com.google.firebase.messaging.AndroidNotification;
+import com.google.firebase.messaging.ApnsConfig;
+import com.google.firebase.messaging.Aps;
+import com.google.firebase.messaging.BatchResponse;
+import com.google.firebase.messaging.FirebaseMessaging;
+import com.google.firebase.messaging.FirebaseMessagingException;
+import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.MulticastMessage;
+import com.google.firebase.messaging.Notification;
+import com.google.firebase.messaging.SendResponse;
+import com.marcusprado02.commons.kernel.errors.ErrorCategory;
+import com.marcusprado02.commons.kernel.errors.ErrorCode;
+import com.marcusprado02.commons.kernel.errors.Problem;
+import com.marcusprado02.commons.kernel.errors.Severity;
 import com.marcusprado02.commons.kernel.result.Result;
-import com.marcusprado02.commons.ports.notification.*;
-import java.util.*;
+import com.marcusprado02.commons.ports.notification.NotificationPriority;
+import com.marcusprado02.commons.ports.notification.NotificationTarget;
+import com.marcusprado02.commons.ports.notification.PushNotification;
+import com.marcusprado02.commons.ports.notification.PushNotificationPort;
+import com.marcusprado02.commons.ports.notification.SendNotificationResult;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,6 +64,7 @@ public class FcmPushNotificationAdapter implements PushNotificationPort {
   private final FirebaseMessaging messaging;
   private final boolean validateTokens;
 
+  /** Creates a new FcmPushNotificationAdapter instance. */
   public FcmPushNotificationAdapter(FcmConfiguration config) {
     FirebaseApp app = config.initializeApp();
     this.messaging = FirebaseMessaging.getInstance(app);

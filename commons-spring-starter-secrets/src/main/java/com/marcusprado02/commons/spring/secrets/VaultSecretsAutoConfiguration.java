@@ -39,6 +39,12 @@ public class VaultSecretsAutoConfiguration {
 
   private static final Logger log = LoggerFactory.getLogger(VaultSecretsAutoConfiguration.class);
 
+  /**
+   * Creates and configures a {@link VaultTemplate} from the secrets properties.
+   *
+   * @param properties the secrets configuration properties
+   * @return the Vault template
+   */
   @Bean
   @ConditionalOnMissingBean
   public VaultTemplate vaultTemplate(SecretsProperties properties) {
@@ -59,6 +65,13 @@ public class VaultSecretsAutoConfiguration {
     return template;
   }
 
+  /**
+   * Creates the Vault-backed {@link SecretStorePort} bean.
+   *
+   * @param vaultTemplate the Vault template to use
+   * @param properties the secrets configuration properties
+   * @return the secret store port
+   */
   @Bean
   @ConditionalOnMissingBean(SecretStorePort.class)
   @ConditionalOnProperty(

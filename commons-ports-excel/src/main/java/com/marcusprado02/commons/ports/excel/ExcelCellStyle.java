@@ -192,6 +192,11 @@ public record ExcelCellStyle(
       return this;
     }
 
+    /**
+     * Builds the ExcelCellStyle instance.
+     *
+     * @return configured ExcelCellStyle
+     */
     public ExcelCellStyle build() {
       return new ExcelCellStyle(
           fontName,

@@ -1,12 +1,19 @@
 package com.marcusprado02.commons.adapters.files.gcs;
 
-import com.google.cloud.storage.*;
+import com.google.cloud.storage.BlobId;
+import com.google.cloud.storage.BlobInfo;
+import com.google.cloud.storage.HttpMethod;
+import com.google.cloud.storage.Storage;
+import com.google.cloud.storage.StorageException;
+import com.google.cloud.storage.UploadResult;
 import com.marcusprado02.commons.kernel.errors.ErrorCategory;
 import com.marcusprado02.commons.kernel.errors.ErrorCode;
 import com.marcusprado02.commons.kernel.errors.Problem;
 import com.marcusprado02.commons.kernel.errors.Severity;
 import com.marcusprado02.commons.kernel.result.Result;
-import com.marcusprado02.commons.ports.files.*;
+import com.marcusprado02.commons.ports.files.FileId;
+import com.marcusprado02.commons.ports.files.FileObject;
+import com.marcusprado02.commons.ports.files.FileStorePort;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -34,13 +41,13 @@ import org.slf4j.LoggerFactory;
  *   <li>Server-side copy
  * </ul>
  */
-public class GCSFileStoreAdapter implements FileStorePort {
+public class GcsFileStoreAdapter implements FileStorePort {
 
-  private static final Logger log = LoggerFactory.getLogger(GCSFileStoreAdapter.class);
+  private static final Logger log = LoggerFactory.getLogger(GcsFileStoreAdapter.class);
 
   private final Storage storage;
 
-  public GCSFileStoreAdapter(Storage storage) {
+  public GcsFileStoreAdapter(Storage storage) {
     this.storage = Objects.requireNonNull(storage, "storage must not be null");
   }
 
@@ -332,6 +339,7 @@ public class GCSFileStoreAdapter implements FileStorePort {
   }
 
   @Override
+  @SuppressWarnings("checkstyle:indentation")
   public Result<URL> generatePresignedUrl(
       FileId fileId, PresignedOperation operation, Duration duration) {
     Objects.requireNonNull(fileId, "fileId must not be null");
@@ -448,6 +456,7 @@ public class GCSFileStoreAdapter implements FileStorePort {
   }
 
   /** Map FileStorePort storage class to GCS storage class. */
+  @SuppressWarnings("checkstyle:indentation")
   private com.google.cloud.storage.StorageClass mapStorageClass(
       FileStorePort.StorageClass storageClass) {
     return switch (storageClass) {

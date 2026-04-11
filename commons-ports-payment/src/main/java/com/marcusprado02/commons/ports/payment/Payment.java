@@ -59,6 +59,7 @@ public record Payment(
     return new Builder();
   }
 
+  /** Builder for {@link Payment}. */
   public static class Builder {
     private String id;
     private BigDecimal amount;
@@ -139,6 +140,11 @@ public record Payment(
       return this;
     }
 
+    /**
+     * Builds the Payment instance.
+     *
+     * @return configured Payment
+     */
     public Payment build() {
       return new Payment(
           id,

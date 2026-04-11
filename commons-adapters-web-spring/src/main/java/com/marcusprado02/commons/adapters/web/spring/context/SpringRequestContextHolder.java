@@ -3,6 +3,10 @@ package com.marcusprado02.commons.adapters.web.spring.context;
 import com.marcusprado02.commons.platform.context.RequestContextSnapshot;
 import java.util.Optional;
 
+/**
+ * Thread-local holder for the current {@link
+ * com.marcusprado02.commons.platform.context.RequestContextSnapshot}.
+ */
 public final class SpringRequestContextHolder {
 
   private static final ThreadLocal<RequestContextSnapshot> CTX = new ThreadLocal<>();

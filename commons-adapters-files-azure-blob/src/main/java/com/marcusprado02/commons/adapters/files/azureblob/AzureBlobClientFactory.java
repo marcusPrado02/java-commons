@@ -16,6 +16,7 @@ public final class AzureBlobClientFactory {
   private AzureBlobClientFactory() {}
 
   /** Create a BlobServiceClient with the given configuration. */
+  @SuppressWarnings("checkstyle:indentation")
   public static BlobServiceClient createClient(AzureBlobConfiguration config) {
     Objects.requireNonNull(config, "config must not be null");
 
@@ -36,6 +37,9 @@ public final class AzureBlobClientFactory {
         TokenCredential credential = new DefaultAzureCredentialBuilder().build();
         builder.endpoint(config.endpoint()).credential(credential);
       }
+      default ->
+          throw new AssertionError(
+              "Unexpected authentication type: " + config.authenticationType());
     }
 
     return builder.buildClient();

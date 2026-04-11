@@ -194,15 +194,20 @@ class DefaultOutboxProcessorTest {
     // Use a publisher that fails only on the second publish call
     publisher =
         new TestOutboundPublisher() {
+          private int callIndex = 0;
+
           @Override
           public void publish(String topic, byte[] body, Map<String, String> headers) {
-            if (publishedCount == 1) {
+            callIndex++;
+            if (callIndex == 2) {
               throw new RuntimeException("Simulated failure for second message");
             }
             publishedCount++;
           }
         };
-    processor = new DefaultOutboxProcessor(repository, publisher, OutboxProcessorConfig.defaults(), metrics);
+    processor =
+        new DefaultOutboxProcessor(
+            repository, publisher, OutboxProcessorConfig.defaults(), metrics);
 
     repository.append(createMessage("msg-ok-1", OutboxStatus.PENDING));
     repository.append(createMessage("msg-fail", OutboxStatus.PENDING));

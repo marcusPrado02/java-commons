@@ -96,14 +96,30 @@ public final class PropertyMetadata {
     StringBuilder sb = new StringBuilder();
     sb.append("PropertyMetadata{");
     sb.append("name='").append(name).append('\'');
-    if (type != null) sb.append(", type='").append(type).append('\'');
-    if (description != null) sb.append(", description='").append(description).append('\'');
-    if (defaultValue != null) sb.append(", defaultValue='").append(defaultValue).append('\'');
-    if (required) sb.append(", required=true");
-    if (example != null) sb.append(", example='").append(example).append('\'');
-    if (minValue != null) sb.append(", minValue=").append(minValue);
-    if (maxValue != null) sb.append(", maxValue=").append(maxValue);
-    if (allowedValues != null) sb.append(", allowedValues=").append(allowedValues);
+    if (type != null) {
+      sb.append(", type='").append(type).append('\'');
+    }
+    if (description != null) {
+      sb.append(", description='").append(description).append('\'');
+    }
+    if (defaultValue != null) {
+      sb.append(", defaultValue='").append(defaultValue).append('\'');
+    }
+    if (required) {
+      sb.append(", required=true");
+    }
+    if (example != null) {
+      sb.append(", example='").append(example).append('\'');
+    }
+    if (minValue != null) {
+      sb.append(", minValue=").append(minValue);
+    }
+    if (maxValue != null) {
+      sb.append(", maxValue=").append(maxValue);
+    }
+    if (allowedValues != null) {
+      sb.append(", allowedValues=").append(allowedValues);
+    }
     sb.append('}');
     return sb.toString();
   }
@@ -149,17 +165,35 @@ public final class PropertyMetadata {
       return this;
     }
 
+    /**
+     * Sets the valid value range for numeric properties.
+     *
+     * @param min the minimum value
+     * @param max the maximum value
+     * @return this builder
+     */
     public Builder range(long min, long max) {
       this.minValue = min;
       this.maxValue = max;
       return this;
     }
 
+    /**
+     * Sets the allowed values for enum-like properties.
+     *
+     * @param values the allowed values
+     * @return this builder
+     */
     public Builder allowedValues(String... values) {
       this.allowedValues = Arrays.asList(values);
       return this;
     }
 
+    /**
+     * Builds the PropertyMetadata instance.
+     *
+     * @return the built PropertyMetadata
+     */
     public PropertyMetadata build() {
       return new PropertyMetadata(
           name,

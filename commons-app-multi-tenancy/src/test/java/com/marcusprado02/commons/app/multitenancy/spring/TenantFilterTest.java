@@ -86,7 +86,7 @@ class TenantFilterTest {
 
     filter.doFilter(request, response, filterChain);
 
-    // Original context should be restored
-    assertThat(TenantContextHolder.getCurrentTenantId()).isEqualTo("original");
+    // Filter always clears context on completion (does not restore previous)
+    assertThat(TenantContextHolder.getCurrentTenantId()).isNull();
   }
 }

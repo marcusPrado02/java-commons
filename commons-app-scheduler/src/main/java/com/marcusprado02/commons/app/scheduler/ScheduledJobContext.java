@@ -123,6 +123,7 @@ public final class ScheduledJobContext {
     return refireCount > 0;
   }
 
+  /** Builder for {@link ScheduledJobContext}. */
   public static final class Builder {
     private String jobId;
     private Instant scheduledFireTime;

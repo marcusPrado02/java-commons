@@ -58,6 +58,7 @@ public class UrlPathVersionResolver<T> implements VersionResolver<T> {
     return Optional.empty();
   }
 
+  /** Extracts the URL path from a request of type {@code T}. */
   @FunctionalInterface
   public interface PathExtractor<T> {
     String extractPath(T request);

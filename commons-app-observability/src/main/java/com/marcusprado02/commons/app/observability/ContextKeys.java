@@ -1,5 +1,6 @@
 package com.marcusprado02.commons.app.observability;
 
+/** Constant keys for contextual observability data (logging, tracing, etc.). */
 public final class ContextKeys {
 
   public static final String CORRELATION_ID = "correlation_id";

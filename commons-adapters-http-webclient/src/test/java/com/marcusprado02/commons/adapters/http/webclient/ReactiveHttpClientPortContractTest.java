@@ -31,9 +31,9 @@ import org.junit.jupiter.api.Test;
 /**
  * Contract test for {@link ReactiveHttpClientPort}.
  *
- * <p>Verifies that {@link WebClientHttpClientAdapter} honours the reactive port contract:
- * every HTTP interaction must return the correct status, body, and headers as a {@code Mono} —
- * never throwing for 4xx/5xx responses, always completing with a populated {@link HttpResponse}.
+ * <p>Verifies that {@link WebClientHttpClientAdapter} honours the reactive port contract: every
+ * HTTP interaction must return the correct status, body, and headers as a {@code Mono} — never
+ * throwing for 4xx/5xx responses, always completing with a populated {@link HttpResponse}.
  */
 class ReactiveHttpClientPortContractTest {
 
@@ -69,11 +69,9 @@ class ReactiveHttpClientPortContractTest {
   @Test
   void get_returns_200_with_body() {
     server.stubFor(
-        get(urlEqualTo("/hello"))
-            .willReturn(aResponse().withStatus(200).withBody("hello")));
+        get(urlEqualTo("/hello")).willReturn(aResponse().withStatus(200).withBody("hello")));
 
-    HttpRequest request =
-        HttpRequest.builder().method(HttpMethod.GET).uri(uri("/hello")).build();
+    HttpRequest request = HttpRequest.builder().method(HttpMethod.GET).uri(uri("/hello")).build();
     HttpResponse<byte[]> response = execute(request);
 
     assertEquals(200, response.statusCode());
@@ -84,11 +82,9 @@ class ReactiveHttpClientPortContractTest {
   @Test
   void get_passes_through_404_as_mono_value_not_error() {
     server.stubFor(
-        get(urlEqualTo("/missing"))
-            .willReturn(aResponse().withStatus(404).withBody("not found")));
+        get(urlEqualTo("/missing")).willReturn(aResponse().withStatus(404).withBody("not found")));
 
-    HttpRequest request =
-        HttpRequest.builder().method(HttpMethod.GET).uri(uri("/missing")).build();
+    HttpRequest request = HttpRequest.builder().method(HttpMethod.GET).uri(uri("/missing")).build();
     HttpResponse<byte[]> response = execute(request);
 
     assertEquals(404, response.statusCode());
@@ -98,11 +94,9 @@ class ReactiveHttpClientPortContractTest {
   @Test
   void get_passes_through_500_as_mono_value_not_error() {
     server.stubFor(
-        get(urlEqualTo("/error"))
-            .willReturn(aResponse().withStatus(500).withBody("server error")));
+        get(urlEqualTo("/error")).willReturn(aResponse().withStatus(500).withBody("server error")));
 
-    HttpRequest request =
-        HttpRequest.builder().method(HttpMethod.GET).uri(uri("/error")).build();
+    HttpRequest request = HttpRequest.builder().method(HttpMethod.GET).uri(uri("/error")).build();
     HttpResponse<byte[]> response = execute(request);
 
     assertEquals(500, response.statusCode());
@@ -111,8 +105,7 @@ class ReactiveHttpClientPortContractTest {
 
   @Test
   void get_returns_empty_body_on_204() {
-    server.stubFor(
-        get(urlEqualTo("/no-content")).willReturn(aResponse().withStatus(204)));
+    server.stubFor(get(urlEqualTo("/no-content")).willReturn(aResponse().withStatus(204)));
 
     HttpRequest request =
         HttpRequest.builder().method(HttpMethod.GET).uri(uri("/no-content")).build();
@@ -165,8 +158,7 @@ class ReactiveHttpClientPortContractTest {
   void response_headers_are_accessible() {
     server.stubFor(
         get(urlEqualTo("/hdr"))
-            .willReturn(
-                aResponse().withStatus(200).withHeader("X-Trace", "abc").withBody("ok")));
+            .willReturn(aResponse().withStatus(200).withHeader("X-Trace", "abc").withBody("ok")));
 
     HttpRequest request = HttpRequest.builder().method(HttpMethod.GET).uri(uri("/hdr")).build();
     HttpResponse<byte[]> response = execute(request);
@@ -220,8 +212,7 @@ class ReactiveHttpClientPortContractTest {
 
   @Test
   void delete_returns_204() {
-    server.stubFor(
-        delete(urlEqualTo("/users/1")).willReturn(aResponse().withStatus(204)));
+    server.stubFor(delete(urlEqualTo("/users/1")).willReturn(aResponse().withStatus(204)));
 
     HttpRequest request =
         HttpRequest.builder().method(HttpMethod.DELETE).uri(uri("/users/1")).build();
@@ -235,8 +226,7 @@ class ReactiveHttpClientPortContractTest {
   @Test
   void mono_is_resubscribable() {
     server.stubFor(
-        get(urlEqualTo("/ping"))
-            .willReturn(aResponse().withStatus(200).withBody("pong")));
+        get(urlEqualTo("/ping")).willReturn(aResponse().withStatus(200).withBody("pong")));
 
     HttpRequest request = HttpRequest.builder().method(HttpMethod.GET).uri(uri("/ping")).build();
 

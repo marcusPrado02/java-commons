@@ -51,6 +51,7 @@ public final class QueueMessage<T> {
     return new Builder<>();
   }
 
+  /** Builder for {@link QueueMessage}. */
   public static final class Builder<T> {
     private T payload;
     private final Map<String, String> attributes = new HashMap<>();
@@ -70,6 +71,12 @@ public final class QueueMessage<T> {
       return this;
     }
 
+    /**
+     * Sets all message attributes, replacing existing ones.
+     *
+     * @param attributes map of attribute key-value pairs
+     * @return this builder
+     */
     public Builder<T> attributes(Map<String, String> attributes) {
       this.attributes.clear();
       this.attributes.putAll(attributes);

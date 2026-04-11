@@ -72,6 +72,7 @@ public class MediaTypeVersionResolver<T> implements VersionResolver<T> {
     return Optional.empty();
   }
 
+  /** Extracts the {@code Accept} header value from a request of type {@code T}. */
   @FunctionalInterface
   public interface AcceptHeaderExtractor<T> {
     String extractAcceptHeader(T request);

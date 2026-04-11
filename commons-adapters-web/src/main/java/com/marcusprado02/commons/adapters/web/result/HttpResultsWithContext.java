@@ -3,10 +3,12 @@ package com.marcusprado02.commons.adapters.web.result;
 import com.marcusprado02.commons.kernel.result.Result;
 import java.util.Objects;
 
+/** HttpResultsWithContext implementation. */
 public final class HttpResultsWithContext {
 
   private HttpResultsWithContext() {}
 
+  /** Executes the map operation. */
   public static <T> HttpResultResponseWithContext map(
       Result<T> result,
       HttpResultMapperWithContext mapper,

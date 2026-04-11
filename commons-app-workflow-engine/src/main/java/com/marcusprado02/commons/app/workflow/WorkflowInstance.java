@@ -28,6 +28,7 @@ public record WorkflowInstance(
     Optional<Instant> completedAt,
     Optional<String> error) {
 
+  /** Validates and normalises fields on construction. */
   public WorkflowInstance {
     context = context == null ? Map.of() : Map.copyOf(context);
     completedAt = completedAt == null ? Optional.empty() : completedAt;
@@ -132,6 +133,11 @@ public record WorkflowInstance(
       return this;
     }
 
+    /**
+     * Builds and returns a configured {@link WorkflowInstance}.
+     *
+     * @return the new workflow instance
+     */
     public WorkflowInstance build() {
       return new WorkflowInstance(
           id,

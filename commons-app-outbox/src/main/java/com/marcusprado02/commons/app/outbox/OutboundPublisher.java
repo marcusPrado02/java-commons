@@ -1,5 +1,6 @@
 package com.marcusprado02.commons.app.outbox;
 
+/** OutboundPublisher contract. */
 public interface OutboundPublisher {
 
   /**

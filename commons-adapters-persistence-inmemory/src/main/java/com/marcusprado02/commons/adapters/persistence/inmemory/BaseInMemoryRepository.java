@@ -5,36 +5,49 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-/** Implementação em memória de Repository<E, ID>. */
-public class BaseInMemoryRepository<E, ID> implements Repository<E, ID> {
+/**
+ * Base in-memory implementation of {@code Repository} using entity type {@code E} and ID type
+ * {@code I}.
+ *
+ * @param <E> the entity type
+ * @param <I> the ID type
+ */
+public class BaseInMemoryRepository<E, I> implements Repository<E, I> {
 
-  protected final Map<ID, E> storage = new ConcurrentHashMap<>();
-  private final IdExtractor<E, ID> idExtractor;
+  /** In-memory storage map keyed by entity ID. */
+  protected final Map<I, E> storage = new ConcurrentHashMap<>();
 
-  public BaseInMemoryRepository(IdExtractor<E, ID> idExtractor) {
+  private final IdExtractor<E, I> idExtractor;
+
+  /**
+   * Creates a new repository with the given ID extractor.
+   *
+   * @param idExtractor the strategy to extract the ID from an entity
+   */
+  public BaseInMemoryRepository(IdExtractor<E, I> idExtractor) {
     this.idExtractor = idExtractor;
   }
 
   @Override
-  public Optional<E> findById(ID id) {
+  public Optional<E> findById(I id) {
     return Optional.ofNullable(storage.get(id));
   }
 
   @Override
   public E save(E entity) {
-    ID id = idExtractor.getId(entity);
+    I id = idExtractor.getId(entity);
     storage.put(id, entity);
     return entity;
   }
 
   @Override
   public void delete(E entity) {
-    ID id = idExtractor.getId(entity);
+    I id = idExtractor.getId(entity);
     storage.remove(id);
   }
 
   @Override
-  public void deleteById(ID id) {
+  public void deleteById(I id) {
     storage.remove(id);
   }
 }

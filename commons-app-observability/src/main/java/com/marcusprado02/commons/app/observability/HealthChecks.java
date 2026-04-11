@@ -17,10 +17,21 @@ public final class HealthChecks {
   private final List<HealthCheck> checks;
   private final Clock clock;
 
+  /**
+   * Creates a HealthChecks with the given checks using the system UTC clock.
+   *
+   * @param checks the list of health checks to evaluate
+   */
   public HealthChecks(List<HealthCheck> checks) {
     this(checks, Clock.systemUTC());
   }
 
+  /**
+   * Creates a HealthChecks with the given checks and clock.
+   *
+   * @param checks the list of health checks to evaluate
+   * @param clock the clock to use for check timestamps
+   */
   public HealthChecks(List<HealthCheck> checks, Clock clock) {
     this.checks =
         Collections.unmodifiableList(new ArrayList<>(checks == null ? List.of() : checks));
@@ -35,6 +46,12 @@ public final class HealthChecks {
     return evaluate(HealthCheckType.READINESS);
   }
 
+  /**
+   * Evaluates all health checks of the given type and returns a consolidated report.
+   *
+   * @param type the health check type to evaluate
+   * @return consolidated health report
+   */
   public HealthReport evaluate(HealthCheckType type) {
     Objects.requireNonNull(type, "type must not be null");
 

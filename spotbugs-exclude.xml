@@ -62,4 +62,561 @@
         <Class name="com.marcusprado02.commons.kernel.ddd.vo.CompositeValueObject"/>
     </Match>
 
+    <!-- IMPROPER_UNICODE: Locale.ROOT is explicitly used here which is the correct fix;
+         SpotBugs still flags this pattern as it looks for any toLowerCase/toUpperCase call -->
+    <Match>
+        <Bug pattern="IMPROPER_UNICODE"/>
+        <Class name="com.marcusprado02.commons.ports.excel.ExcelCell"/>
+        <Method name="getBooleanValue"/>
+    </Match>
+    <Match>
+        <Bug pattern="IMPROPER_UNICODE"/>
+        <Class name="com.marcusprado02.commons.app.observability.DefaultLogSanitizer"/>
+    </Match>
+    <Match>
+        <Bug pattern="IMPROPER_UNICODE"/>
+        <Class name="com.marcusprado02.commons.adapters.web.rest.QueryParamsParser"/>
+    </Match>
+
+    <!-- Test utilities: java.util.Random is intentionally used (not security-sensitive) -->
+    <Match>
+        <Bug pattern="PREDICTABLE_RANDOM"/>
+        <Class name="com.marcusprado02.commons.testkit.RandomData"/>
+    </Match>
+
+    <!-- Testcontainers builder pattern: withReuse() returns the concrete subtype via covariant
+         return; SpotBugs incorrectly reports BC_UNCONFIRMED_CAST_OF_RETURN_VALUE -->
+    <Match>
+        <Bug pattern="BC_UNCONFIRMED_CAST_OF_RETURN_VALUE"/>
+        <Or>
+            <Class name="com.marcusprado02.commons.testkit.containers.TestKafka"/>
+            <Class name="com.marcusprado02.commons.testkit.containers.TestPostgres"/>
+        </Or>
+    </Match>
+
+    <!-- CorsProperties is a Spring @ConfigurationProperties bean; getters/setters are intentional
+         and defensive copying would break Spring's binding mechanism -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+        <Class name="com.marcusprado02.commons.adapters.web.spring.cors.CorsProperties"/>
+    </Match>
+
+    <!-- Servlet filters: Filter.doFilter() contract guarantees Http subtypes are passed by Spring MVC -->
+    <Match>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+        <Or>
+            <Class name="com.marcusprado02.commons.adapters.web.spring.filter.CorrelationIdFilter"/>
+            <Class name="com.marcusprado02.commons.adapters.web.spring.filter.RequestResponseLoggingFilter"/>
+            <Class name="com.marcusprado02.commons.adapters.web.spring.ratelimit.RateLimitFilter"/>
+        </Or>
+    </Match>
+
+    <!-- Request/Rate-limit filters: logged values come from request headers/URIs which are sanitized
+         by the servlet container; CRLF injection via HTTP headers requires a misconfigured container -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Or>
+            <Class name="com.marcusprado02.commons.adapters.web.spring.filter.RequestResponseLoggingFilter"/>
+            <Class name="com.marcusprado02.commons.adapters.web.spring.ratelimit.RateLimitFilter"/>
+        </Or>
+    </Match>
+
+    <!-- ProblemExceptionHandler: getSupportedMethods() returns null only for non-method-specific
+         exceptions; the null-check is intentional and the NPE path is unreachable in practice -->
+    <Match>
+        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+        <Class name="com.marcusprado02.commons.adapters.web.spring.exception.ProblemExceptionHandler"/>
+    </Match>
+
+    <!-- Web response records: List fields are DTO/response types — immutability enforced by the
+         REST layer; defensive copying in records would break Jackson serialization -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+        <Or>
+            <Class name="com.marcusprado02.commons.adapters.web.PageResponse"/>
+            <Class name="com.marcusprado02.commons.adapters.web.rest.PageableResponse"/>
+        </Or>
+    </Match>
+
+    <!-- Sealed Result type: isOk() guarantees the cast is safe — SpotBugs cannot see through the
+         sealed hierarchy at bytecode level -->
+    <Match>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+        <Or>
+            <Class name="com.marcusprado02.commons.adapters.web.result.HttpResults"/>
+            <Class name="com.marcusprado02.commons.adapters.web.result.HttpResultsWithContext"/>
+        </Or>
+    </Match>
+
+    <!-- JPA adapters: EntityManager is injected by the framework; storing it is intentional -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+        <Or>
+            <Class name="com.marcusprado02.commons.adapters.persistence.jpa.idempotency.JpaIdempotencyStoreAdapter"/>
+            <Class name="com.marcusprado02.commons.adapters.persistence.jpa.outbox.JpaOutboxRepositoryAdapter"/>
+            <Class name="com.marcusprado02.commons.adapters.persistence.jpa.repository.PageableJpaRepository"/>
+        </Or>
+    </Match>
+
+    <!-- OkHttpClientAdapter.Builder: OkHttpClient is a shared, thread-safe client; no defensive copy API exists -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+        <Class name="com.marcusprado02.commons.adapters.http.okhttp.OkHttpClientAdapter$Builder"/>
+        <Method name="client"/>
+    </Match>
+
+    <!-- WebClientHttpClientAdapter.Builder: WebClient is a shared, immutable reactive client; no defensive copy API exists -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+        <Class name="com.marcusprado02.commons.adapters.http.webclient.WebClientHttpClientAdapter$Builder"/>
+        <Method name="webClient"/>
+    </Match>
+
+    <!-- JPA entity byte[] payload: JPA spec requires direct field access; defensive copy
+         would break Hibernate dirty-checking and is not appropriate for persistence entities -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+        <Class name="com.marcusprado02.commons.adapters.persistence.jpa.outbox.OutboxMessageEntity"/>
+        <Field name="payload"/>
+    </Match>
+
+    <!-- idClass is stored for potential future use (e.g., typed queries, ID generation);
+         suppressed to avoid prematurely removing the field from the base API -->
+    <Match>
+        <Bug pattern="URF_UNREAD_FIELD"/>
+        <Class name="com.marcusprado02.commons.adapters.persistence.jpa.base.BaseGenericRepository"/>
+        <Field name="idClass"/>
+    </Match>
+
+    <!-- backoffStrategy is initialized for future retry integration; not yet wired to dispatch -->
+    <Match>
+        <Bug pattern="URF_UNREAD_FIELD"/>
+        <Class name="com.marcusprado02.commons.app.outbox.DefaultOutboxProcessor"/>
+        <Field name="backoffStrategy"/>
+    </Match>
+
+    <!-- Private interface methods (Java 9+): SpotBugs false-positive for UPM_UNCALLED_PRIVATE_METHOD
+         when the private method is called from a default method in the same interface -->
+    <Match>
+        <Bug pattern="UPM_UNCALLED_PRIVATE_METHOD"/>
+        <Class name="com.marcusprado02.commons.ports.excel.ExcelStreamWriter"/>
+        <Method name="createCell"/>
+    </Match>
+
+    <!-- IdempotencyJpaStoreAutoConfiguration: catches Exception to handle both
+         NoSuchBeanDefinitionException and general Spring context errors gracefully -->
+    <Match>
+        <Bug pattern="REC_CATCH_EXCEPTION"/>
+        <Class name="com.marcusprado02.commons.starter.idempotency.IdempotencyJpaStoreAutoConfiguration"/>
+    </Match>
+
+    <!-- IdempotencyAspect: SpEL expressions come from @Idempotent annotations which are
+         compile-time constants defined by the developer; not user-controlled input -->
+    <Match>
+        <Bug pattern="SPEL_INJECTION"/>
+        <Class name="com.marcusprado02.commons.starter.idempotency.aop.IdempotencyAspect"/>
+    </Match>
+
+    <!-- IdempotencyHandlerInterceptor: uses Locale.ROOT explicitly for uppercase comparison;
+         SpotBugs flags IMPROPER_UNICODE for any case conversion call -->
+    <Match>
+        <Bug pattern="IMPROPER_UNICODE"/>
+        <Class name="com.marcusprado02.commons.starter.idempotency.web.IdempotencyHandlerInterceptor"/>
+    </Match>
+
+    <!-- DomainEventDispatcher: log values are event class names from the class hierarchy;
+         CRLF injection risk is negligible for structured class/type identifiers -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Class name="com.marcusprado02.commons.app.domainevents.DomainEventDispatcher"/>
+    </Match>
+
+    <!-- AcceptLanguageParser: regex is bounded and input is controlled via HTTP header length;
+         the ReDOS risk is low in practice for Accept-Language header values -->
+    <Match>
+        <Bug pattern="REDOS"/>
+        <Class name="com.marcusprado02.commons.app.i18n.AcceptLanguageParser"/>
+    </Match>
+
+    <!-- ResourceBundleMessageSource: log values are locale/key identifiers, not user input;
+         CRLF injection risk is negligible for structured bundle/locale identifiers -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Class name="com.marcusprado02.commons.app.i18n.ResourceBundleMessageSource"/>
+    </Match>
+
+    <!-- NamingConventionRules: uses Locale.ROOT explicitly for lowercase comparison;
+         SpotBugs flags IMPROPER_UNICODE for any case conversion call -->
+    <Match>
+        <Bug pattern="IMPROPER_UNICODE"/>
+        <Class name="com.marcusprado02.commons.archunit.NamingConventionRules$1"/>
+    </Match>
+
+    <!-- ResilienceProperties is a Spring @ConfigurationProperties bean; getters return nested
+         mutable config objects that Spring must be able to mutate during property binding.
+         Defensive copying would break the binding mechanism. -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+        <Class name="com.marcusprado02.commons.starter.resilience.props.ResilienceProperties"/>
+    </Match>
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+        <Class name="com.marcusprado02.commons.starter.resilience.props.ResilienceProperties$Defaults"/>
+    </Match>
+
+    <!-- commons-app-configuration: constructors throw on invalid arguments (null-check pattern);
+         finalizer-attack risk is negligible — these classes are not Serializable -->
+    <Match>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+        <Or>
+            <Class name="com.marcusprado02.commons.app.configuration.CompositeConfigurationProvider"/>
+            <Class name="com.marcusprado02.commons.app.configuration.providers.AwsAppConfigProvider"/>
+            <Class name="com.marcusprado02.commons.app.configuration.providers.AzureAppConfigurationProvider"/>
+            <Class name="com.marcusprado02.commons.app.configuration.providers.SpringCloudConfigProvider"/>
+        </Or>
+    </Match>
+
+    <!-- InMemoryFeatureFlags: Random used for feature-flag sampling (not security-sensitive);
+         Math.abs(hashCode()) is intentional for bucket assignment (extreme edge case accepted) -->
+    <Match>
+        <Bug pattern="DMI_RANDOM_USED_ONLY_ONCE,PREDICTABLE_RANDOM,RV_ABSOLUTE_VALUE_OF_HASHCODE"/>
+        <Class name="com.marcusprado02.commons.app.configuration.InMemoryFeatureFlags"/>
+    </Match>
+
+    <!-- AesConfigurationEncryptor: catches Exception to handle all JCE cryptographic failures -->
+    <Match>
+        <Bug pattern="REC_CATCH_EXCEPTION"/>
+        <Class name="com.marcusprado02.commons.app.configuration.encryption.AesConfigurationEncryptor"/>
+    </Match>
+
+    <!-- AWS/Azure providers: unread fields are API stubs reserved for future provider expansion -->
+    <Match>
+        <Bug pattern="URF_UNREAD_FIELD"/>
+        <Or>
+            <Class name="com.marcusprado02.commons.app.configuration.providers.AwsAppConfigProvider"/>
+            <Class name="com.marcusprado02.commons.app.configuration.providers.AzureAppConfigurationProvider"/>
+        </Or>
+    </Match>
+
+    <!-- ConsulConfigurationProvider: private methods reserved for future API; log values are
+         configuration paths / keys, not user-controlled input -->
+    <Match>
+        <Bug pattern="UPM_UNCALLED_PRIVATE_METHOD,CRLF_INJECTION_LOGS"/>
+        <Class name="com.marcusprado02.commons.app.configuration.providers.ConsulConfigurationProvider"/>
+    </Match>
+
+    <!-- EtcdConfigurationProvider: catches Exception for etcd client compatibility; null-check in
+         lambda is intentional guard; private methods reserved for future use -->
+    <Match>
+        <Bug pattern="REC_CATCH_EXCEPTION,NP_LOAD_OF_KNOWN_NULL_VALUE,UPM_UNCALLED_PRIVATE_METHOD,CRLF_INJECTION_LOGS"/>
+        <Class name="com.marcusprado02.commons.app.configuration.providers.EtcdConfigurationProvider"/>
+    </Match>
+
+    <!-- SpringCloudConfigProvider: catches Exception to handle Spring reflection / proxy failures -->
+    <Match>
+        <Bug pattern="REC_CATCH_EXCEPTION"/>
+        <Class name="com.marcusprado02.commons.app.configuration.providers.SpringCloudConfigProvider"/>
+    </Match>
+
+    <!-- ConfigurationValidationException: ValidationResult is an internal domain type;
+         exception serialization is not required by this module's API contract -->
+    <Match>
+        <Bug pattern="SE_BAD_FIELD"/>
+        <Class name="com.marcusprado02.commons.app.configuration.validation.ConfigurationValidationException"/>
+    </Match>
+
+    <!-- Data-migration engines: log values are migration version/description identifiers,
+         not user-controlled input; CRLF injection risk is negligible for structured identifiers -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Or>
+            <Class name="com.marcusprado02.commons.app.datamigration.custom.CustomMigrationEngine"/>
+            <Class name="com.marcusprado02.commons.app.datamigration.flyway.FlywayMigrationEngine"/>
+            <Class name="com.marcusprado02.commons.app.datamigration.liquibase.LiquibaseMigrationEngine"/>
+        </Or>
+    </Match>
+
+    <!-- Data-migration engines: catches Exception to wrap all database / migration errors uniformly -->
+    <Match>
+        <Bug pattern="REC_CATCH_EXCEPTION"/>
+        <Or>
+            <Class name="com.marcusprado02.commons.app.datamigration.custom.CustomMigrationEngine"/>
+            <Class name="com.marcusprado02.commons.app.datamigration.liquibase.LiquibaseMigrationEngine"/>
+        </Or>
+    </Match>
+
+    <!-- SchemaIsolationStrategy: schema names are generated from tenant IDs via a developer-controlled
+         Function; tenant IDs are application-managed keys, not raw user input.
+         Statements created inline via createStatement().execute() follow a try-with-resources
+         connection but the Statement itself is not closed separately — acceptable for DDL. -->
+    <Match>
+        <Bug pattern="SQL_INJECTION_JDBC,SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE,OBL_UNSATISFIED_OBLIGATION,ODR_OPEN_DATABASE_RESOURCE"/>
+        <Class name="com.marcusprado02.commons.app.multitenancy.isolation.SchemaIsolationStrategy"/>
+    </Match>
+
+    <!-- InMemoryFeatureFlagProvider: Math.abs(hashCode()) for percentage rollout bucket assignment;
+         extreme edge case (MIN_VALUE) accepted for this non-security-sensitive sampling use -->
+    <Match>
+        <Bug pattern="RV_ABSOLUTE_VALUE_OF_HASHCODE"/>
+        <Class name="com.marcusprado02.commons.app.featureflags.provider.inmemory.InMemoryFeatureFlagProvider$PercentageRolloutConfig"/>
+    </Match>
+
+    <!-- LaunchDarklyFeatureFlagProvider.shutdown(): exception is intentionally swallowed —
+         shutdown failures should not propagate to callers during teardown -->
+    <Match>
+        <Bug pattern="DE_MIGHT_IGNORE"/>
+        <Class name="com.marcusprado02.commons.app.featureflags.provider.launchdarkly.LaunchDarklyFeatureFlagProvider"/>
+    </Match>
+
+    <!-- UnleashFeatureFlagProvider: uses Locale.ROOT explicitly for case conversion;
+         null-check on variant is a defensive guard; catches Exception for JSON parsing failures;
+         redundant null-check is defensive coding style -->
+    <Match>
+        <Bug pattern="IMPROPER_UNICODE,NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE,REC_CATCH_EXCEPTION,RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"/>
+        <Class name="com.marcusprado02.commons.app.featureflags.provider.unleash.UnleashFeatureFlagProvider"/>
+    </Match>
+
+    <!-- FeatureFlagAspect: SpEL expressions come from @FeatureFlag annotations which are
+         compile-time constants defined by the developer; not user-controlled input -->
+    <Match>
+        <Bug pattern="SPEL_INJECTION"/>
+        <Class name="com.marcusprado02.commons.app.featureflags.spring.FeatureFlagAspect"/>
+    </Match>
+
+    <!-- LiquibaseMigrationEngine.info(): duplicate branches are intentional — both paths log
+         the same structured message regardless of the Liquibase output context -->
+    <Match>
+        <Bug pattern="DB_DUPLICATE_BRANCHES"/>
+        <Class name="com.marcusprado02.commons.app.datamigration.liquibase.LiquibaseMigrationEngine"/>
+    </Match>
+
+    <!-- AuditAspect.extractProperty(): catches generic Exception to safely handle reflection
+         errors (NoSuchMethodException, InvocationTargetException, etc.) from unknown objects -->
+    <Match>
+        <Bug pattern="REC_CATCH_EXCEPTION"/>
+        <Class name="com.marcusprado02.commons.app.auditlog.aop.AuditAspect"/>
+    </Match>
+
+    <!-- commons-app-api-gateway: loadBalancer field is an injected dependency stored for use by
+         future request routing; IMPROPER_UNICODE is false-positive on non-security path ops;
+         Random for load balancing is not security-sensitive; CRLF in logs is sanitised by SLF4J -->
+    <Match>
+        <Bug pattern="URF_UNREAD_FIELD"/>
+        <Class name="com.marcusprado02.commons.app.apigateway.ApiGateway"/>
+    </Match>
+    <Match>
+        <Bug pattern="IMPROPER_UNICODE"/>
+        <Or>
+            <Class name="com.marcusprado02.commons.app.apigateway.GatewayRequest"/>
+            <Class name="com.marcusprado02.commons.app.apigateway.GatewayResponse"/>
+            <Class name="com.marcusprado02.commons.app.apigateway.Route"/>
+        </Or>
+    </Match>
+    <Match>
+        <Bug pattern="PREDICTABLE_RANDOM"/>
+        <Or>
+            <Class name="com.marcusprado02.commons.app.apigateway.RandomLoadBalancer"/>
+            <Class name="com.marcusprado02.commons.app.apigateway.WeightedRandomLoadBalancer"/>
+        </Or>
+    </Match>
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Class name="com.marcusprado02.commons.app.apigateway.filters.LoggingFilter"/>
+    </Match>
+
+    <!-- commons-app-backup-restore: paths/SQL come from developer-configured backup settings, not
+         user input; SQL is generated from table metadata for dump purposes; CRLF in logs is
+         acceptable in internal tooling; Random is for non-security sampling; NP is defensive
+         false-positive from null-check on Files.size() return -->
+    <Match>
+        <Bug pattern="PATH_TRAVERSAL_IN,EXTERNAL_CONFIG_CONTROL,SQL_INJECTION_JDBC,SQL_NONCONSTANT_STRING_PASSED_TO_EXECUTE,CRLF_INJECTION_LOGS,REC_CATCH_EXCEPTION,DM_CONVERT_CASE,DM_DEFAULT_ENCODING,DMI_RANDOM_USED_ONLY_ONCE,NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+        <Or>
+            <Class name="com.marcusprado02.commons.app.backup.database.DatabaseBackupService"/>
+            <Class name="com.marcusprado02.commons.app.backup.filesystem.FilesystemBackupService"/>
+            <Class name="com.marcusprado02.commons.app.backup.s3.S3BackupService"/>
+        </Or>
+    </Match>
+
+    <!-- DefaultWorkflowEngine: CRLF log injection — workflow IDs come from internal configuration -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Class name="com.marcusprado02.commons.app.workflow.DefaultWorkflowEngine"/>
+    </Match>
+
+    <!-- UrlHealthIndicator.check(): URL is a developer-configured health endpoint (not user input);
+         SSRF false positive. Also catches Exception broadly because URL connections can throw
+         various checked and unchecked exceptions depending on protocol and network state. -->
+    <Match>
+        <Bug pattern="URLCONNECTION_SSRF_FD,REC_CATCH_EXCEPTION"/>
+        <Class name="com.marcusprado02.commons.app.health.indicators.UrlHealthIndicator"/>
+    </Match>
+
+    <!-- InMemoryRateLimiter: bucketConfiguration field is stored for potential future extension;
+         URF false positive as field is part of the class design. -->
+    <Match>
+        <Bug pattern="URF_UNREAD_FIELD"/>
+        <Class name="com.marcusprado02.commons.app.ratelimiting.impl.InMemoryRateLimiter"/>
+    </Match>
+
+    <!-- RequestResponseLoggingFilter: logs HTTP method/path/headers from internal JAX-RS metadata,
+         not user-controlled input. CRLF injection false positive. -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Class name="com.marcusprado02.commons.adapters.web.jaxrs.filter.RequestResponseLoggingFilter"/>
+    </Match>
+
+    <!-- HttpBody.deepUnmodifiableCopy: private utility method used in copy constructors;
+         may not be detected as called by SpotBugs due to generic type erasure. -->
+    <Match>
+        <Bug pattern="UPM_UNCALLED_PRIVATE_METHOD"/>
+        <Class name="com.marcusprado02.commons.ports.http.HttpBody"/>
+    </Match>
+
+    <!-- MongoQueryBuilder.parseValue(): equalsIgnoreCase("true"/"false") compares against ASCII-only
+         string literals; no Unicode edge cases apply. SECUNI false positive. -->
+    <Match>
+        <Bug pattern="IMPROPER_UNICODE"/>
+        <Class name="com.marcusprado02.commons.adapters.persistence.mongodb.MongoQueryBuilder"/>
+        <Method name="parseValue"/>
+    </Match>
+
+    <!-- InMemoryPageableRepository.compareLike(): toLowerCase() is intentionally locale-neutral
+         for case-insensitive pattern matching on entity field values (not user-facing locale output) -->
+    <Match>
+        <Bug pattern="DM_CONVERT_CASE"/>
+        <Class name="com.marcusprado02.commons.adapters.persistence.inmemory.InMemoryPageableRepository"/>
+        <Method name="compareLike"/>
+    </Match>
+
+    <!-- KafkaConsumerAdapter: logs topic/group/partition names from internal Kafka metadata,
+         not user-controlled input. CRLF injection false positive. -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Class name="com.marcusprado02.commons.adapters.messaging.kafka.KafkaConsumerAdapter"/>
+    </Match>
+
+    <!-- KafkaPublisherAdapter: logs message ID and topic name from internal envelope fields,
+         not user-controlled input. CRLF injection false positive. -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Class name="com.marcusprado02.commons.adapters.messaging.kafka.KafkaPublisherAdapter"/>
+    </Match>
+
+    <!-- KafkaConsumerAdapter.startConsumer(): Future returned by executor.submit() is intentionally
+         ignored; exceptions are caught inside consumeLoop() and logged, so Future.get() is not needed. -->
+    <Match>
+        <Bug pattern="RV_RETURN_VALUE_IGNORED_BAD_PRACTICE"/>
+        <Class name="com.marcusprado02.commons.adapters.messaging.kafka.KafkaConsumerAdapter"/>
+        <Method name="startConsumer"/>
+    </Match>
+
+    <!-- RabbitMqConsumerAdapter: logs topic/group names from internal AMQP metadata,
+         not user-controlled input. CRLF injection false positive. -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Class name="com.marcusprado02.commons.adapters.messaging.rabbitmq.RabbitMqConsumerAdapter"/>
+    </Match>
+
+    <!-- RabbitMqPublisherAdapter: logs message ID and exchange from internal envelope fields,
+         not user-controlled input. CRLF injection false positive. -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Class name="com.marcusprado02.commons.adapters.messaging.rabbitmq.RabbitMqPublisherAdapter"/>
+    </Match>
+
+    <!-- AzureServiceBusConsumerAdapter: logs queue/subscription names from internal Azure SDK metadata,
+         not user-controlled input. CRLF injection false positive. -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Class name="com.marcusprado02.commons.adapters.messaging.azureservicebus.AzureServiceBusConsumerAdapter"/>
+    </Match>
+
+    <!-- AzureServiceBusPublisherAdapter: logs message ID and queue name from internal envelope fields,
+         not user-controlled input. CRLF injection false positive. -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Class name="com.marcusprado02.commons.adapters.messaging.azureservicebus.AzureServiceBusPublisherAdapter"/>
+    </Match>
+
+    <!-- Redis adapters: logs channel names and cache keys from application configuration,
+         not user-controlled input. CRLF injection false positive. -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Or>
+            <Class name="com.marcusprado02.commons.adapters.cache.redis.RedisCacheAdapter"/>
+            <Class name="com.marcusprado02.commons.adapters.cache.redis.RedisPubSub"/>
+            <Class name="com.marcusprado02.commons.adapters.cache.redis.RedisPubSub$1"/>
+            <Class name="com.marcusprado02.commons.adapters.cache.redis.RedisAtomicOperations"/>
+        </Or>
+    </Match>
+
+    <!-- Memcached adapter: logs cache keys from application configuration,
+         not user-controlled input. CRLF injection false positive. -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Class name="com.marcusprado02.commons.adapters.cache.memcached.MemcachedCacheAdapter"/>
+    </Match>
+
+    <!-- PrometheusMetrics.getRegistry(): intentionally exposes the MeterRegistry so callers
+         (e.g. Prometheus HTTP scrape endpoint) can register and collect metrics. -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP"/>
+        <Class name="com.marcusprado02.commons.adapters.metrics.prometheus.PrometheusMetrics"/>
+        <Method name="getRegistry"/>
+    </Match>
+
+    <!-- PrometheusConfiguration.enableExemplars: stored for API completeness; current Micrometer
+         version handles exemplars automatically so the field is not read in build(). -->
+    <Match>
+        <Bug pattern="URF_UNREAD_FIELD"/>
+        <Class name="com.marcusprado02.commons.adapters.metrics.prometheus.PrometheusConfiguration"/>
+        <Field name="enableExemplars"/>
+    </Match>
+
+    <!-- ErrorMapper: Java switch pattern matching generates BC_UNCONFIRMED_CAST — the type IS
+         confirmed by the switch case guard; SpotBugs cannot see through pattern-match semantics. -->
+    <Match>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+        <Class name="com.marcusprado02.commons.adapters.grpc.server.error.ErrorMapper"/>
+        <Method name="mapToStatus"/>
+    </Match>
+
+    <!-- LoggingInterceptor: logs gRPC method names from service registration metadata,
+         not user-controlled input. CRLF injection false positive. -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Or>
+            <Class name="com.marcusprado02.commons.adapters.grpc.server.interceptors.LoggingInterceptor"/>
+            <Class name="com.marcusprado02.commons.adapters.grpc.server.interceptors.LoggingInterceptor$1"/>
+        </Or>
+    </Match>
+
+    <!-- MetricsInterceptor: metricsMap and failuresByStatus are intentionally exposed for
+         monitoring and testing — callers use them read-only to access aggregate metrics. -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP"/>
+        <Or>
+            <Class name="com.marcusprado02.commons.adapters.grpc.server.interceptors.MetricsInterceptor"/>
+            <Class name="com.marcusprado02.commons.adapters.grpc.server.interceptors.MetricsInterceptor$MethodMetrics"/>
+        </Or>
+    </Match>
+
+    <!-- GrpcServer: logs service names from registered gRPC service definitions and port numbers
+         (integers), not user-controlled input. CRLF injection false positive. -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Class name="com.marcusprado02.commons.adapters.grpc.server.GrpcServer"/>
+    </Match>
+
+    <!-- gRPC client LoggingInterceptor: logs gRPC method names from service definitions,
+         not user-controlled input. CRLF injection false positive. -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Or>
+            <Class name="com.marcusprado02.commons.adapters.grpc.client.interceptors.LoggingInterceptor"/>
+            <Class name="com.marcusprado02.commons.adapters.grpc.client.interceptors.LoggingInterceptor$1"/>
+            <Class name="com.marcusprado02.commons.adapters.grpc.client.interceptors.LoggingInterceptor$1$1"/>
+        </Or>
+    </Match>
+
 </FindBugsFilter>

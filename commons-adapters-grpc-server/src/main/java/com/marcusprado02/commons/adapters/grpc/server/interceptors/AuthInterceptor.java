@@ -84,7 +84,13 @@ public class AuthInterceptor implements ServerInterceptor {
     }
 
     // Validate token
-    String principal = tokenValidator.apply(token);
+    String principal;
+    try {
+      principal = tokenValidator.apply(token);
+    } catch (Exception e) {
+      call.close(Status.UNAUTHENTICATED.withDescription("Token validation failed"), headers);
+      return new ServerCall.Listener<>() {};
+    }
     if (principal == null) {
       call.close(Status.UNAUTHENTICATED.withDescription("Invalid or expired token"), headers);
       return new ServerCall.Listener<>() {};

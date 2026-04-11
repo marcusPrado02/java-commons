@@ -7,12 +7,14 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
+/** OutboxMetadataEnricher implementation. */
 public final class OutboxMetadataEnricher {
 
   private final TenantProvider tenant;
   private final CorrelationProvider correlation;
   private final ActorProvider actor;
 
+  /** Creates a new OutboxMetadataEnricher instance. */
   public OutboxMetadataEnricher(
       TenantProvider tenant, CorrelationProvider correlation, ActorProvider actor) {
     this.tenant = Objects.requireNonNull(tenant, "tenant");
@@ -20,6 +22,7 @@ public final class OutboxMetadataEnricher {
     this.actor = Objects.requireNonNull(actor, "actor");
   }
 
+  /** Executes the enrich operation. */
   public Map<String, Object> enrich() {
     Map<String, Object> metadata = new LinkedHashMap<>();
     metadata.put("tenantId", tenant.currentTenant().value());

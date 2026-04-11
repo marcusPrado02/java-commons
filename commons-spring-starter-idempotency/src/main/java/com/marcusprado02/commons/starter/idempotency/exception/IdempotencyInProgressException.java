@@ -1,5 +1,6 @@
 package com.marcusprado02.commons.starter.idempotency.exception;
 
+/** Thrown when an idempotency key is currently being processed. */
 public class IdempotencyInProgressException extends RuntimeException {
 
   private final String key;

@@ -16,8 +16,7 @@ class ResultTest {
           ErrorCode.of("TEST.NOT_FOUND"), ErrorCategory.NOT_FOUND, Severity.ERROR, "Not found");
 
   private static final Problem VALIDATION_ERROR =
-      Problem.of(
-          ErrorCode.of("TEST.INVALID"), ErrorCategory.VALIDATION, Severity.ERROR, "Invalid");
+      Problem.of(ErrorCode.of("TEST.INVALID"), ErrorCategory.VALIDATION, Severity.ERROR, "Invalid");
 
   // ---- ok / fail basics ----
 
@@ -59,10 +58,13 @@ class ResultTest {
   @Test
   void getOrElseGet_should_invoke_supplier_on_fail() {
     AtomicBoolean invoked = new AtomicBoolean(false);
-    String result = Result.<String>fail(NOT_FOUND).getOrElseGet(() -> {
-      invoked.set(true);
-      return "computed";
-    });
+    String result =
+        Result.<String>fail(NOT_FOUND)
+            .getOrElseGet(
+                () -> {
+                  invoked.set(true);
+                  return "computed";
+                });
     assertTrue(invoked.get());
     assertEquals("computed", result);
   }
@@ -100,8 +102,7 @@ class ResultTest {
 
   @Test
   void flatMap_should_return_inner_failure() {
-    Result<Integer> r =
-        Result.ok("hello").flatMap(s -> Result.fail(VALIDATION_ERROR));
+    Result<Integer> r = Result.ok("hello").flatMap(s -> Result.fail(VALIDATION_ERROR));
     assertTrue(r.isFail());
     assertEquals(VALIDATION_ERROR, r.problemOrNull());
   }
@@ -157,8 +158,7 @@ class ResultTest {
 
   @Test
   void recoverWith_should_allow_async_style_recovery() {
-    Result<String> r =
-        Result.<String>fail(NOT_FOUND).recoverWith(p -> Result.ok("recovered"));
+    Result<String> r = Result.<String>fail(NOT_FOUND).recoverWith(p -> Result.ok("recovered"));
     assertTrue(r.isOk());
     assertEquals("recovered", r.getOrNull());
   }
@@ -243,10 +243,13 @@ class ResultTest {
   @Test
   void mapAsync_should_propagate_failure_without_executing_fn() throws Exception {
     AtomicBoolean fnCalled = new AtomicBoolean(false);
-    var future = Result.<String>fail(NOT_FOUND).mapAsync(s -> {
-      fnCalled.set(true);
-      return s.length();
-    });
+    var future =
+        Result.<String>fail(NOT_FOUND)
+            .mapAsync(
+                s -> {
+                  fnCalled.set(true);
+                  return s.length();
+                });
     Result<Integer> r = future.get();
     assertTrue(r.isFail());
     assertFalse(fnCalled.get());

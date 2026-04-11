@@ -140,6 +140,11 @@ public final class ApiGateway {
       return this;
     }
 
+    /**
+     * Builds and returns a configured {@link ApiGateway}.
+     *
+     * @return the new gateway
+     */
     public ApiGateway build() {
       if (backendHandler == null) {
         backendHandler = this::defaultBackendHandler;

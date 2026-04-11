@@ -178,7 +178,9 @@ public final class DryKissYagniRules {
                 java.util.Optional<? extends JavaType> optSuper = current.getSuperclass();
                 while (optSuper.isPresent()) {
                   JavaType superType = optSuper.get();
-                  if (superType.getName().equals("java.lang.Object")) break;
+                  if (superType.getName().equals("java.lang.Object")) {
+                    break;
+                  }
                   depth++;
                   current = superType.toErasure();
                   optSuper = current.getSuperclass();

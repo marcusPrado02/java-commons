@@ -26,6 +26,7 @@ public record TwilioConfiguration(
     String webhookUrl,
     boolean deliveryReceiptsEnabled) {
 
+  /** Validates fields on construction. */
   public TwilioConfiguration {
     Objects.requireNonNull(accountSid, "Account SID cannot be null");
     Objects.requireNonNull(authToken, "Auth token cannot be null");

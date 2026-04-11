@@ -74,12 +74,13 @@ public class ErrorMapper {
     }
 
     return switch (throwable) {
-      case IllegalArgumentException ignored -> Status.INVALID_ARGUMENT;
-      case NullPointerException ignored -> Status.INVALID_ARGUMENT;
-      case IllegalStateException ignored -> Status.FAILED_PRECONDITION;
-      case SecurityException ignored -> Status.PERMISSION_DENIED;
-      case UnsupportedOperationException ignored -> Status.UNIMPLEMENTED;
-      case null, default -> Status.INTERNAL;
+      case IllegalArgumentException e -> Status.INVALID_ARGUMENT.withDescription(e.getMessage());
+      case NullPointerException e -> Status.INVALID_ARGUMENT.withDescription(e.getMessage());
+      case IllegalStateException e -> Status.FAILED_PRECONDITION.withDescription(e.getMessage());
+      case SecurityException e -> Status.PERMISSION_DENIED.withDescription(e.getMessage());
+      case UnsupportedOperationException e -> Status.UNIMPLEMENTED.withDescription(e.getMessage());
+      case null -> Status.INTERNAL;
+      default -> Status.INTERNAL.withDescription(throwable.getMessage());
     };
   }
 
@@ -172,8 +173,7 @@ public class ErrorMapper {
    * @return StatusRuntimeException
    */
   public static StatusRuntimeException notFound(String resourceType, String identifier) {
-    String description = String.format("%s not found: %s", resourceType, identifier);
-    return Status.NOT_FOUND.withDescription(description).asRuntimeException();
+    return Status.NOT_FOUND.withDescription("Resource not found").asRuntimeException();
   }
 
   /**
@@ -195,8 +195,7 @@ public class ErrorMapper {
    * @return StatusRuntimeException
    */
   public static StatusRuntimeException permissionDenied(String action) {
-    String description = String.format("Permission denied for: %s", action);
-    return Status.PERMISSION_DENIED.withDescription(description).asRuntimeException();
+    return Status.PERMISSION_DENIED.withDescription(action).asRuntimeException();
   }
 
   /**
@@ -207,7 +206,6 @@ public class ErrorMapper {
    * @return StatusRuntimeException
    */
   public static StatusRuntimeException alreadyExists(String resourceType, String identifier) {
-    String description = String.format("%s already exists: %s", resourceType, identifier);
-    return Status.ALREADY_EXISTS.withDescription(description).asRuntimeException();
+    return Status.ALREADY_EXISTS.withDescription("Resource already exists").asRuntimeException();
   }
 }

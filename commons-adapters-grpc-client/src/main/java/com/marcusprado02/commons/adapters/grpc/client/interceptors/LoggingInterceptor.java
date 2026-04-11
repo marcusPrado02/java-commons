@@ -1,8 +1,15 @@
 package com.marcusprado02.commons.adapters.grpc.client.interceptors;
 
-import io.grpc.*;
+import io.grpc.CallOptions;
+import io.grpc.Channel;
+import io.grpc.ClientCall;
+import io.grpc.ClientInterceptor;
+import io.grpc.ForwardingClientCall;
+import io.grpc.ForwardingClientCallListener;
+import io.grpc.Metadata;
+import io.grpc.MethodDescriptor;
+import io.grpc.Status;
 import java.time.Instant;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
@@ -35,7 +42,7 @@ public class LoggingInterceptor implements ClientInterceptor {
     String methodName = method.getFullMethodName();
     Instant startTime = Instant.now();
 
-    logger.log(Level.INFO, "gRPC client call started: {0}", methodName);
+    logger.info("gRPC client call started: " + methodName);
 
     return new ForwardingClientCall.SimpleForwardingClientCall<ReqT, RespT>(
         next.newCall(method, callOptions)) {
@@ -51,17 +58,22 @@ public class LoggingInterceptor implements ClientInterceptor {
                 long durationMs = java.time.Duration.between(startTime, Instant.now()).toMillis();
 
                 if (status.isOk()) {
-                  logger.log(
-                      Level.INFO,
-                      "gRPC client call completed: {0} - duration: {1}ms",
-                      new Object[] {methodName, durationMs});
+                  logger.info(
+                      "gRPC client call completed: "
+                          + methodName
+                          + " - duration: "
+                          + durationMs
+                          + "ms");
                 } else {
-                  logger.log(
-                      Level.WARNING,
-                      "gRPC client call failed: {0} - status: {1} - duration: {2}ms - description: {3}",
-                      new Object[] {
-                        methodName, status.getCode(), durationMs, status.getDescription()
-                      });
+                  logger.warning(
+                      "gRPC client call failed: "
+                          + methodName
+                          + " - status: "
+                          + status.getCode()
+                          + " - duration: "
+                          + durationMs
+                          + "ms - description: "
+                          + status.getDescription());
                 }
 
                 super.onClose(status, trailers);

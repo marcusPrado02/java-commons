@@ -3,10 +3,12 @@ package com.marcusprado02.commons.adapters.web.result;
 import com.marcusprado02.commons.kernel.result.Result;
 import java.util.Objects;
 
+/** HttpResults implementation. */
 public final class HttpResults {
 
   private HttpResults() {}
 
+  /** Executes the map operation. */
   public static <T> HttpResultResponse map(Result<T> result, HttpResultMapper mapper) {
     Objects.requireNonNull(result, "result");
     Objects.requireNonNull(mapper, "mapper");

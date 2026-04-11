@@ -72,8 +72,12 @@ public class Schema {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     Schema schema = (Schema) o;
     return Objects.equals(name, schema.name)
         && Objects.equals(version, schema.version)

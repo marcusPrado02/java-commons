@@ -23,6 +23,11 @@ public record ConfigurationChangeEvent(
     Instant timestamp,
     String source) {
 
+  /**
+   * Validates the required fields of the configuration change event.
+   *
+   * @throws NullPointerException if key, changeType, timestamp, or source is null
+   */
   public ConfigurationChangeEvent {
     Objects.requireNonNull(key, "key cannot be null");
     Objects.requireNonNull(changeType, "changeType cannot be null");

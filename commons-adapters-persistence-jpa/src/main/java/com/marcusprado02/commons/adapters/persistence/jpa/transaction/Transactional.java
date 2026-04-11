@@ -17,9 +17,13 @@ public final class Transactional {
     boolean active = tx.isActive();
 
     try {
-      if (!active) tx.begin();
+      if (!active) {
+        tx.begin();
+      }
       T result = action.get();
-      if (!active) tx.commit();
+      if (!active) {
+        tx.commit();
+      }
       return result;
     } catch (RuntimeException e) {
       if (!active && tx.isActive()) {

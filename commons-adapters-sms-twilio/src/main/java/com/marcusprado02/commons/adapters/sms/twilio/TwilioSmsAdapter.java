@@ -1,8 +1,14 @@
 package com.marcusprado02.commons.adapters.sms.twilio;
 
-import com.marcusprado02.commons.kernel.errors.*;
+import com.marcusprado02.commons.kernel.errors.ErrorCategory;
+import com.marcusprado02.commons.kernel.errors.ErrorCode;
+import com.marcusprado02.commons.kernel.errors.Problem;
+import com.marcusprado02.commons.kernel.errors.Severity;
 import com.marcusprado02.commons.kernel.result.Result;
-import com.marcusprado02.commons.ports.sms.*;
+import com.marcusprado02.commons.ports.sms.BulkSMS;
+import com.marcusprado02.commons.ports.sms.PhoneNumber;
+import com.marcusprado02.commons.ports.sms.SMS;
+import com.marcusprado02.commons.ports.sms.SMSPort;
 import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.rest.api.v2010.account.MessageCreator;
@@ -22,17 +28,17 @@ import java.util.Objects;
  *   <li>Connection verification
  * </ul>
  */
-public class TwilioSMSAdapter implements SMSPort, AutoCloseable {
+public class TwilioSmsAdapter implements SMSPort, AutoCloseable {
 
   private final TwilioConfiguration configuration;
 
   /**
-   * Creates a new TwilioSMSAdapter with the given configuration.
+   * Creates a new TwilioSmsAdapter with the given configuration.
    *
    * @param configuration Twilio configuration with credentials
    * @throws IllegalArgumentException if configuration is null
    */
-  public TwilioSMSAdapter(TwilioConfiguration configuration) {
+  public TwilioSmsAdapter(TwilioConfiguration configuration) {
     this.configuration = Objects.requireNonNull(configuration, "Configuration cannot be null");
 
     // Initialize Twilio SDK
@@ -73,20 +79,20 @@ public class TwilioSMSAdapter implements SMSPort, AutoCloseable {
   }
 
   @Override
-  public Result<BulkSMSReceipt> sendBulk(BulkSMS bulkSMS) {
+  public Result<BulkSMSReceipt> sendBulk(BulkSMS bulkSms) {
     int successCount = 0;
     int failureCount = 0;
 
-    for (com.marcusprado02.commons.ports.sms.PhoneNumber recipient : bulkSMS.to()) {
-      SMS individualSMS =
+    for (com.marcusprado02.commons.ports.sms.PhoneNumber recipient : bulkSms.to()) {
+      SMS individualSms =
           SMS.builder()
-              .from(bulkSMS.from())
+              .from(bulkSms.from())
               .to(recipient)
-              .message(bulkSMS.message())
-              .options(bulkSMS.options())
+              .message(bulkSms.message())
+              .options(bulkSms.options())
               .build();
 
-      Result<SMSReceipt> result = send(individualSMS);
+      Result<SMSReceipt> result = send(individualSms);
       if (result.isOk()) {
         successCount++;
       } else {
@@ -94,7 +100,7 @@ public class TwilioSMSAdapter implements SMSPort, AutoCloseable {
       }
     }
 
-    BulkSMSReceipt bulkReceipt = BulkSMSReceipt.of(bulkSMS.to().size(), successCount, failureCount);
+    BulkSMSReceipt bulkReceipt = BulkSMSReceipt.of(bulkSms.to().size(), successCount, failureCount);
 
     return Result.ok(bulkReceipt);
   }

@@ -1,6 +1,10 @@
 package com.marcusprado02.commons.app.i18n;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -55,9 +59,9 @@ public final class AcceptLanguageParser {
       if (matcher.find()) {
         String language = matcher.group(1);
         String country = matcher.group(2);
-        String qValue = matcher.group(3);
+        String qualityValue = matcher.group(3);
 
-        double quality = qValue != null ? parseQuality(qValue) : 1.0;
+        double quality = qualityValue != null ? parseQuality(qualityValue) : 1.0;
 
         Locale locale;
         if (country != null) {
@@ -87,9 +91,9 @@ public final class AcceptLanguageParser {
     return locales.isEmpty() ? null : locales.get(0);
   }
 
-  private static double parseQuality(String qValue) {
+  private static double parseQuality(String qualityValue) {
     try {
-      double q = Double.parseDouble(qValue);
+      double q = Double.parseDouble(qualityValue);
       return Math.max(0.0, Math.min(1.0, q)); // Clamp between 0 and 1
     } catch (NumberFormatException e) {
       return 1.0;

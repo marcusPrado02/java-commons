@@ -1,8 +1,10 @@
 package com.marcusprado02.commons.adapters.messaging.kafka;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.awaitility.Awaitility.await;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.marcusprado02.commons.ports.messaging.ConsumerGroup;
 import com.marcusprado02.commons.ports.messaging.MessageEnvelope;
 import com.marcusprado02.commons.ports.messaging.MessageHeaders;
@@ -132,6 +134,129 @@ class KafkaAdapterTest {
               assertThat(received).hasSize(1);
               assertThat(received.get(0).partitionKey()).hasValue("user-123");
             });
+  }
+
+  @Test
+  void subscribe_after_start_also_starts_consumer() {
+    TopicName topic = TopicName.of("test-subscribe-after-start");
+    ConsumerGroup group = ConsumerGroup.of("sub-after-start-group");
+
+    KafkaConsumerAdapter lateConsumer =
+        KafkaConsumerAdapter.builder()
+            .bootstrapServers(kafka.getBootstrapServers())
+            .pollTimeout(Duration.ofMillis(100))
+            .build();
+
+    try {
+      lateConsumer.start();
+      List<MessageEnvelope<TestMessage>> received = new ArrayList<>();
+      lateConsumer.subscribe(topic, group, TestMessage.class, serializer, received::add);
+
+      MessageEnvelope<TestMessage> envelope =
+          MessageEnvelope.<TestMessage>builder()
+              .topic(topic)
+              .payload(new TestMessage("late"))
+              .build();
+      publisher.publish(envelope, serializer);
+
+      await().atMost(Duration.ofSeconds(10)).untilAsserted(() -> assertThat(received).hasSize(1));
+    } finally {
+      lateConsumer.close();
+    }
+  }
+
+  @Test
+  void unsubscribe_removes_subscription() {
+    TopicName topic = TopicName.of("test-unsub");
+    ConsumerGroup group = ConsumerGroup.of("unsub-group");
+
+    consumer.subscribe(topic, group, TestMessage.class, serializer, msg -> {});
+    consumer.unsubscribe(topic, group);
+    // No exception expected
+  }
+
+  @Test
+  void stop_shuts_down_running_consumer() {
+    KafkaConsumerAdapter stoppable =
+        KafkaConsumerAdapter.builder().bootstrapServers(kafka.getBootstrapServers()).build();
+
+    stoppable.start();
+    stoppable.stop();
+    // Second stop is a no-op
+    stoppable.stop();
+  }
+
+  @Test
+  void duplicate_subscribe_throws() {
+    TopicName topic = TopicName.of("test-dup");
+    ConsumerGroup group = ConsumerGroup.of("dup-group");
+
+    consumer.subscribe(topic, group, TestMessage.class, serializer, msg -> {});
+    assertThatThrownBy(
+            () -> consumer.subscribe(topic, group, TestMessage.class, serializer, msg -> {}))
+        .isInstanceOf(IllegalStateException.class);
+  }
+
+  @Test
+  void serializer_with_custom_object_mapper() {
+    JacksonMessageSerializer<TestMessage> customSerializer =
+        new JacksonMessageSerializer<>(new ObjectMapper());
+    byte[] bytes = customSerializer.serialize(new TestMessage("hello"));
+    TestMessage result = customSerializer.deserialize(bytes, TestMessage.class);
+    assertThat(result.message()).isEqualTo("hello");
+  }
+
+  @Test
+  void publisher_builder_with_property() {
+    // Verify builder property() and transactionalId() produce a valid builder
+    // (we can't build without a real broker for transactional, so just test non-transactional)
+    KafkaPublisherAdapter pub =
+        KafkaPublisherAdapter.builder()
+            .bootstrapServers(kafka.getBootstrapServers())
+            .property("max.block.ms", 1000)
+            .build();
+    pub.close();
+  }
+
+  @Test
+  void beginTransaction_throws_when_not_transactional() {
+    KafkaPublisherAdapter pub =
+        KafkaPublisherAdapter.builder().bootstrapServers(kafka.getBootstrapServers()).build();
+    try {
+      assertThatThrownBy(pub::beginTransaction).isInstanceOf(IllegalStateException.class);
+    } finally {
+      pub.close();
+    }
+  }
+
+  @Test
+  void commitTransaction_throws_when_not_transactional() {
+    KafkaPublisherAdapter pub =
+        KafkaPublisherAdapter.builder().bootstrapServers(kafka.getBootstrapServers()).build();
+    try {
+      assertThatThrownBy(pub::commitTransaction).isInstanceOf(IllegalStateException.class);
+    } finally {
+      pub.close();
+    }
+  }
+
+  @Test
+  void abortTransaction_throws_when_not_transactional() {
+    KafkaPublisherAdapter pub =
+        KafkaPublisherAdapter.builder().bootstrapServers(kafka.getBootstrapServers()).build();
+    try {
+      assertThatThrownBy(pub::abortTransaction).isInstanceOf(IllegalStateException.class);
+    } finally {
+      pub.close();
+    }
+  }
+
+  @Test
+  void unsubscribe_nonexistent_subscription_is_noop() {
+    TopicName topic = TopicName.of("never-subscribed");
+    ConsumerGroup group = ConsumerGroup.of("never-group");
+    // Should not throw even if no subscription exists
+    consumer.unsubscribe(topic, group);
   }
 
   public record TestMessage(String message) {}

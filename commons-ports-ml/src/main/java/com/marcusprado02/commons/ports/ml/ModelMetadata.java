@@ -53,6 +53,7 @@ public record ModelMetadata(
     return labels.size();
   }
 
+  /** Builder for {@link ModelMetadata}. */
   public static class Builder {
     private String name;
     private String version;
@@ -110,11 +111,19 @@ public record ModelMetadata(
       return this;
     }
 
+    // CPD-OFF - metadata builder methods mirrored in Prediction and BatchPrediction
     public Builder metadata(Map<String, String> metadata) {
       this.metadata = metadata != null ? metadata : Map.of();
       return this;
     }
 
+    /**
+     * Adds a single metadata entry.
+     *
+     * @param key metadata key
+     * @param value metadata value
+     * @return this builder
+     */
     public Builder metadata(String key, String value) {
       if (this.metadata.isEmpty()) {
         this.metadata = new java.util.HashMap<>();
@@ -126,6 +135,13 @@ public record ModelMetadata(
       return this;
     }
 
+    // CPD-ON
+
+    /**
+     * Builds the ModelMetadata instance.
+     *
+     * @return configured ModelMetadata
+     */
     public ModelMetadata build() {
       return new ModelMetadata(
           name,

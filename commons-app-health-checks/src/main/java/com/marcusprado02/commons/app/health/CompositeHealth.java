@@ -10,6 +10,13 @@ public final class CompositeHealth {
   private final Map<String, Health> components;
   private final Instant timestamp;
 
+  /**
+   * Creates a composite health result.
+   *
+   * @param status aggregate health status
+   * @param components health results keyed by component name
+   * @param timestamp when the check was performed
+   */
   public CompositeHealth(HealthStatus status, Map<String, Health> components, Instant timestamp) {
     this.status = status;
     this.components = Map.copyOf(components);

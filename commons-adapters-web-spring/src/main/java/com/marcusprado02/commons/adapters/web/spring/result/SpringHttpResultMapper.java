@@ -9,6 +9,10 @@ import com.marcusprado02.commons.kernel.errors.Problem;
 import com.marcusprado02.commons.kernel.result.Result;
 import java.util.Map;
 
+/**
+ * Maps {@link com.marcusprado02.commons.kernel.result.Result} values to Spring HTTP response
+ * objects.
+ */
 public final class SpringHttpResultMapper implements HttpResultMapper {
 
   @Override
@@ -25,6 +29,7 @@ public final class SpringHttpResultMapper implements HttpResultMapper {
   }
 
   @Override
+  @SuppressWarnings("checkstyle:indentation")
   public HttpProblemResponse mapProblem(Problem problem) {
     int status =
         switch (problem.category()) {

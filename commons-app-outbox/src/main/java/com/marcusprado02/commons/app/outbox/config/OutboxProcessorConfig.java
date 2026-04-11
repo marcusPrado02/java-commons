@@ -26,6 +26,7 @@ public record OutboxProcessorConfig(
   public static final Duration DEFAULT_MAX_BACKOFF = Duration.ofMinutes(5);
   public static final double DEFAULT_BACKOFF_MULTIPLIER = 2.0;
 
+  /** Validates fields on construction. */
   public OutboxProcessorConfig {
     if (batchSize <= 0) {
       throw new IllegalArgumentException("batchSize must be positive");
@@ -44,6 +45,7 @@ public record OutboxProcessorConfig(
     }
   }
 
+  /** Executes the defaults operation. */
   public static OutboxProcessorConfig defaults() {
     return new OutboxProcessorConfig(
         DEFAULT_BATCH_SIZE,

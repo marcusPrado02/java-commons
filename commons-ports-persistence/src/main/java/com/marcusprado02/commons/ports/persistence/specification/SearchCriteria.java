@@ -3,6 +3,7 @@ package com.marcusprado02.commons.ports.persistence.specification;
 import java.util.Arrays;
 import java.util.List;
 
+/** Search criteria composed of multiple search filters. */
 public class SearchCriteria {
 
   private final List<SearchFilter> filters;

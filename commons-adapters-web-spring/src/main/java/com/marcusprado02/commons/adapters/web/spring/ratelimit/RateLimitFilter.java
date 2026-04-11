@@ -64,6 +64,7 @@ public final class RateLimitFilter implements Filter {
   }
 
   @Override
+  @SuppressWarnings("checkstyle:indentation")
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {
 
@@ -102,6 +103,7 @@ public final class RateLimitFilter implements Filter {
     response.setHeader("X-RateLimit-Reset", String.valueOf(bucket.getResetTime()));
   }
 
+  /** Builder for {@link RateLimitFilter}. */
   public static final class Builder {
     private int limit = 60;
     private Duration window = Duration.ofMinutes(1);
@@ -109,6 +111,12 @@ public final class RateLimitFilter implements Filter {
 
     private Builder() {}
 
+    /**
+     * Sets the maximum number of requests per window.
+     *
+     * @param limit positive limit value
+     * @return this builder
+     */
     public Builder limit(int limit) {
       if (limit <= 0) {
         throw new IllegalArgumentException("Limit must be positive");
@@ -117,6 +125,12 @@ public final class RateLimitFilter implements Filter {
       return this;
     }
 
+    /**
+     * Sets the time window for rate limiting.
+     *
+     * @param window positive duration
+     * @return this builder
+     */
     public Builder window(Duration window) {
       if (window == null || window.isNegative() || window.isZero()) {
         throw new IllegalArgumentException("Window must be a positive duration");
@@ -125,6 +139,12 @@ public final class RateLimitFilter implements Filter {
       return this;
     }
 
+    /**
+     * Sets the function used to extract the rate limit key from a request.
+     *
+     * @param keyExtractor non-null key extractor
+     * @return this builder
+     */
     public Builder keyExtractor(Function<HttpServletRequest, String> keyExtractor) {
       if (keyExtractor == null) {
         throw new IllegalArgumentException("Key extractor must not be null");

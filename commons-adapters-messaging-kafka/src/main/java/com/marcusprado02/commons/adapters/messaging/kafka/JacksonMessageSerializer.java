@@ -7,10 +7,12 @@ import com.marcusprado02.commons.ports.messaging.MessageSerializer;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 
+/** JacksonMessageSerializer implementation. */
 public final class JacksonMessageSerializer<T> implements MessageSerializer<T> {
 
   private final ObjectMapper objectMapper;
 
+  /** Creates a new JacksonMessageSerializer instance. */
   public JacksonMessageSerializer() {
     this.objectMapper =
         new ObjectMapper()

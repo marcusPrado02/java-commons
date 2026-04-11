@@ -9,9 +9,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+/** Global exception handler for idempotency-related errors. */
 @RestControllerAdvice
 public class IdempotencyWebExceptionHandler {
 
+  /**
+   * Handles duplicate idempotency key errors.
+   *
+   * @param ex the exception
+   * @return the HTTP conflict response
+   */
   @ExceptionHandler(DuplicateIdempotencyKeyException.class)
   public ResponseEntity<Map<String, Object>> handleDuplicate(DuplicateIdempotencyKeyException ex) {
     Map<String, Object> body = new LinkedHashMap<>();
@@ -28,6 +35,12 @@ public class IdempotencyWebExceptionHandler {
     return response.body(body);
   }
 
+  /**
+   * Handles idempotency key in-progress errors.
+   *
+   * @param ex the exception
+   * @return the HTTP conflict response
+   */
   @ExceptionHandler(IdempotencyInProgressException.class)
   public ResponseEntity<Map<String, Object>> handleInProgress(IdempotencyInProgressException ex) {
     Map<String, Object> body = new LinkedHashMap<>();

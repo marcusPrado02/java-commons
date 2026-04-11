@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+/** Immutable HTTP request with method, URI, headers, optional body, and optional timeout. */
 public final class HttpRequest {
 
   private final String name;
@@ -62,6 +63,7 @@ public final class HttpRequest {
     return Optional.ofNullable(timeout);
   }
 
+  /** Builder for {@link HttpRequest}. */
   public static final class Builder {
     private String name;
     private HttpMethod method;
@@ -87,6 +89,13 @@ public final class HttpRequest {
       return this;
     }
 
+    /**
+     * Adds a single header value.
+     *
+     * @param name header name
+     * @param value header value
+     * @return this builder
+     */
     public Builder header(String name, String value) {
       Objects.requireNonNull(name, "header name must not be null");
       Objects.requireNonNull(value, "header value must not be null");
@@ -94,6 +103,12 @@ public final class HttpRequest {
       return this;
     }
 
+    /**
+     * Replaces all headers with the provided map.
+     *
+     * @param headers new headers map
+     * @return this builder
+     */
     public Builder headers(Map<String, List<String>> headers) {
       Objects.requireNonNull(headers, "headers must not be null");
       this.headers.clear();
@@ -133,6 +148,12 @@ public final class HttpRequest {
       return this;
     }
 
+    /**
+     * Builds and returns an immutable {@link HttpRequest}.
+     *
+     * @return the constructed request
+     * @throws NullPointerException if method or uri is null
+     */
     public HttpRequest build() {
       HttpMethod safeMethod = Objects.requireNonNull(method, "method must not be null");
       URI safeUri = Objects.requireNonNull(uri, "uri must not be null");

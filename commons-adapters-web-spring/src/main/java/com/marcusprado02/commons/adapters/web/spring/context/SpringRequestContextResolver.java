@@ -7,6 +7,10 @@ import com.marcusprado02.commons.platform.id.CorrelationIdGenerator;
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.Objects;
 
+/**
+ * Resolves a {@link com.marcusprado02.commons.platform.context.RequestContextSnapshot} from an
+ * incoming HTTP request.
+ */
 public final class SpringRequestContextResolver {
 
   private final CommonsWebContextProperties props;
@@ -18,6 +22,12 @@ public final class SpringRequestContextResolver {
     this.actorResolver = Objects.requireNonNull(actorResolver, "actorResolver");
   }
 
+  /**
+   * Resolves the request context from the given HTTP request.
+   *
+   * @param request the incoming HTTP request
+   * @return the resolved context snapshot
+   */
   public RequestContextSnapshot resolve(HttpServletRequest request) {
     Objects.requireNonNull(request, "request");
 
@@ -41,7 +51,9 @@ public final class SpringRequestContextResolver {
   }
 
   private static String headerOrNull(HttpServletRequest req, String name) {
-    if (name == null || name.isBlank()) return null;
+    if (name == null || name.isBlank()) {
+      return null;
+    }
     String v = req.getHeader(name);
     return (v == null || v.isBlank()) ? null : v;
   }

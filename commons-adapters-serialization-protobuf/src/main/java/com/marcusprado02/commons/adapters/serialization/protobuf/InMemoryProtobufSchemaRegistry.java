@@ -8,7 +8,14 @@ import com.marcusprado02.commons.kernel.result.Result;
 import com.marcusprado02.commons.ports.serialization.Schema;
 import com.marcusprado02.commons.ports.serialization.SchemaRegistry;
 import com.marcusprado02.commons.ports.serialization.ValidationResult;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -255,10 +262,14 @@ public class InMemoryProtobufSchemaRegistry implements SchemaRegistry {
     @Override
     public int compareTo(Version other) {
       int result = Integer.compare(major, other.major);
-      if (result != 0) return result;
+      if (result != 0) {
+        return result;
+      }
 
       result = Integer.compare(minor, other.minor);
-      if (result != 0) return result;
+      if (result != 0) {
+        return result;
+      }
 
       return Integer.compare(patch, other.patch);
     }

@@ -9,6 +9,7 @@ import java.util.Objects;
  */
 public record SMS(PhoneNumber from, PhoneNumber to, String message, SMSOptions options) {
 
+  /** Validates SMS fields. */
   public SMS {
     Objects.requireNonNull(from, "from phone number must not be null");
     Objects.requireNonNull(to, "to phone number must not be null");

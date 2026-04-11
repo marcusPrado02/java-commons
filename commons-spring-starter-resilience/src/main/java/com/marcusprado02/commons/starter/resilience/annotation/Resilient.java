@@ -5,10 +5,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
+/**
+ * Marks a method for composite resilience (retry, circuit breaker, bulkhead, timeout, rate
+ * limiting, and caching) via the resilience AOP aspect.
+ */
 @Target({ElementType.METHOD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Resilient {
 
+  /** Optional name for the resilience operation; defaults to ClassName.methodName. */
   String name() default "";
 
   /**

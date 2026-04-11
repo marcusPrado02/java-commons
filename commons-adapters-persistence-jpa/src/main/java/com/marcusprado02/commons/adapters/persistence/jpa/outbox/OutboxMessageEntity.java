@@ -12,6 +12,7 @@ import jakarta.persistence.Lob;
 import jakarta.persistence.Table;
 import java.time.Instant;
 
+/** JPA entity representing a persisted outbox message. */
 @Entity
 @Table(
     name = "commons_outbox",

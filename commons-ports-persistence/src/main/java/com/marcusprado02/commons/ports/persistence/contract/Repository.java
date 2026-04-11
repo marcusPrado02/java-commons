@@ -6,13 +6,13 @@ import java.util.Optional;
  * Contracts for generic repository operations. Can be implemented for various persistence
  * mechanisms.
  */
-public interface Repository<E, ID> {
+public interface Repository<E, I> {
 
-  Optional<E> findById(ID id);
+  Optional<E> findById(I id);
 
   E save(E entity);
 
   void delete(E entity);
 
-  void deleteById(ID id);
+  void deleteById(I id);
 }

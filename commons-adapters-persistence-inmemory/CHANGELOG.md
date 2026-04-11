@@ -63,6 +63,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### ✨ Features
 ### ✨ Features
 ### ✨ Features
+### ✨ Features
+### ✨ Features
+### ✨ Features
+### ✨ Features
+### ✨ Features
+### ✨ Features
+### ✨ Features
+- feat(ratelimiting): add factory methods for rate limit configuration and enhance test assertions ([027ead1432874e5]())
+- feat(notification): implement error handling improvements in APNS and FCM adapters ([e471996b87b9e39]())
+- feat(batch): enhance BatchJobError to use ProblemBuilder for error creation with detailed error categorization and severity ([51ae8493360252a]())
+- feat: Add OpenSearch adapter for SearchPort with configuration and usage examples ([6684d25a9da656c]())
+- feat: add search module with Elasticsearch support including SearchPort, SearchQuery, and related classes ([725f9ae619222fc]())
+- feat: add MemcachedCacheAdapter and related tests for caching implementation ([088a8ac20c037f7]())
+- feat: add Redis atomic operations and Pub/Sub support for real-time messaging ([7217c12af60f41e]())
 - feat: add test dependencies for JUnit and AssertJ ([fa66579a1026056]())
 - feat(validation): implement configuration validation framework with metadata and error handling ([a1c8746e36efab7]())
 - feat: add Result, AsyncResult, and ValidationResult classes for functional error handling and validation workflows ([d37733f31770ea5]())
@@ -121,6 +135,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - feat: update .gitignore to include additional file types and directories ([140686c71fc0748]())
 
 ### 🐛 Bug Fixes
+### 🐛 Bug Fixes
+### 🐛 Bug Fixes
+- fix(compression): improve formatting and documentation in Compression classes ([88dad323c3c956e]())
+- fix(protobuf): correct formatting and build method calls in serialization adapter ([bcb14ba1b3a6c30]())
 - fix: add missing newline at end of NamingConventionRules and TestOrganizationRules files ([e9076660ae1c2d3]())
 
 

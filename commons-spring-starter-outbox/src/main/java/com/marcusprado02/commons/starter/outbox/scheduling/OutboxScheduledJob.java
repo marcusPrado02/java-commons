@@ -5,6 +5,7 @@ import com.marcusprado02.commons.starter.outbox.OutboxProperties;
 import java.util.Objects;
 import org.springframework.scheduling.annotation.Scheduled;
 
+/** Scheduled job that periodically triggers outbox message processing. */
 public final class OutboxScheduledJob {
 
   private final OutboxProcessor processor;

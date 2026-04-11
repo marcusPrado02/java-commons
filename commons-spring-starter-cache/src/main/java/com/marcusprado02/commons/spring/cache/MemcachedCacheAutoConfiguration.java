@@ -36,6 +36,13 @@ public class MemcachedCacheAutoConfiguration {
 
   private static final Logger log = LoggerFactory.getLogger(MemcachedCacheAutoConfiguration.class);
 
+  /**
+   * Creates a {@link MemcachedClient} configured from the cache properties.
+   *
+   * @param properties the cache configuration properties
+   * @return the Memcached client
+   * @throws Exception if the client cannot be created
+   */
   @Bean(destroyMethod = "shutdown")
   @ConditionalOnMissingBean
   public MemcachedClient memcachedClient(CacheProperties properties) throws Exception {
@@ -53,6 +60,13 @@ public class MemcachedCacheAutoConfiguration {
     return client;
   }
 
+  /**
+   * Creates the Memcached-backed {@link CachePort} bean.
+   *
+   * @param memcachedClient the Memcached client to use
+   * @param properties the cache configuration properties
+   * @return the cache port
+   */
   @Bean
   @ConditionalOnMissingBean(CachePort.class)
   @ConditionalOnProperty(prefix = "commons.cache", name = "type", havingValue = "memcached")

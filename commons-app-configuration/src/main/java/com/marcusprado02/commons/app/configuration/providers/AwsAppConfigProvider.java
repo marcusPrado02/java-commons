@@ -2,7 +2,11 @@ package com.marcusprado02.commons.app.configuration.providers;
 
 import com.marcusprado02.commons.app.configuration.ConfigurationProvider;
 import com.marcusprado02.commons.kernel.result.Result;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Configuration provider for AWS AppConfig.
@@ -153,7 +157,8 @@ public class AwsAppConfigProvider implements ConfigurationProvider {
        *     .build();
        *
        * // Start configuration session
-       * StartConfigurationSessionRequest sessionRequest = StartConfigurationSessionRequest.builder()
+       * StartConfigurationSessionRequest sessionRequest =
+       *     StartConfigurationSessionRequest.builder()
        *     .applicationIdentifier(application)
        *     .environmentIdentifier(environment)
        *     .configurationProfileIdentifier(configuration)

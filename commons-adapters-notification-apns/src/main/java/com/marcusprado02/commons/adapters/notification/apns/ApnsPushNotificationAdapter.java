@@ -9,9 +9,15 @@ import com.marcusprado02.commons.kernel.errors.ErrorCode;
 import com.marcusprado02.commons.kernel.errors.Problem;
 import com.marcusprado02.commons.kernel.errors.Severity;
 import com.marcusprado02.commons.kernel.result.Result;
-import com.marcusprado02.commons.ports.notification.*;
+import com.marcusprado02.commons.ports.notification.NotificationPriority;
+import com.marcusprado02.commons.ports.notification.NotificationTarget;
+import com.marcusprado02.commons.ports.notification.PushNotification;
+import com.marcusprado02.commons.ports.notification.PushNotificationPort;
+import com.marcusprado02.commons.ports.notification.SendNotificationResult;
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -59,6 +65,7 @@ public class ApnsPushNotificationAdapter implements PushNotificationPort {
   private final ApnsClient apnsClient;
   private final String defaultTopic;
 
+  /** Creates a new ApnsPushNotificationAdapter instance. */
   public ApnsPushNotificationAdapter(ApnsConfiguration config) throws IOException {
     ApnsClientBuilder builder = new ApnsClientBuilder();
     this.apnsClient = config.configureClientBuilder(builder).build();
@@ -90,7 +97,8 @@ public class ApnsPushNotificationAdapter implements PushNotificationPort {
                 ErrorCode.of("TOPIC_NOT_SUPPORTED"),
                 ErrorCategory.VALIDATION,
                 Severity.ERROR,
-                "APNS does not support topic-based broadcasting. Use FCM for topic subscriptions."));
+                "APNS does not support topic-based broadcasting."
+                    + " Use FCM for topic subscriptions."));
       } else if (target.isMultiDevice()) {
         return sendToMultipleDevices(target.getDeviceTokens(), notification);
       } else {

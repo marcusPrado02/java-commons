@@ -30,6 +30,12 @@ public class AggregateRootAssert<T extends AggregateRoot<?>>
     return new AggregateRootAssert<>(actual);
   }
 
+  /**
+   * Asserts that the aggregate root has exactly the given number of domain events.
+   *
+   * @param count expected number of domain events
+   * @return this assertion for chaining
+   */
   public AggregateRootAssert<T> hasDomainEvents(int count) {
     isNotNull();
     List<DomainEvent> events = actual.pullDomainEvents();
@@ -39,10 +45,21 @@ public class AggregateRootAssert<T extends AggregateRoot<?>>
     return this;
   }
 
+  /**
+   * Asserts that the aggregate root has no domain events.
+   *
+   * @return this assertion for chaining
+   */
   public AggregateRootAssert<T> hasNoDomainEvents() {
     return hasDomainEvents(0);
   }
 
+  /**
+   * Asserts that the aggregate root has a domain event of the specified type.
+   *
+   * @param eventType the expected domain event class
+   * @return this assertion for chaining
+   */
   public AggregateRootAssert<T> hasDomainEventOfType(Class<? extends DomainEvent> eventType) {
     isNotNull();
     List<DomainEvent> events = actual.pullDomainEvents();
@@ -55,6 +72,12 @@ public class AggregateRootAssert<T extends AggregateRoot<?>>
     return this;
   }
 
+  /**
+   * Asserts that no domain event of the given type was raised.
+   *
+   * @param eventType expected absent event type
+   * @return this assertion
+   */
   public AggregateRootAssert<T> doesNotHaveDomainEventOfType(
       Class<? extends DomainEvent> eventType) {
     isNotNull();

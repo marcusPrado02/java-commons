@@ -1,6 +1,10 @@
 package com.marcusprado02.commons.ports.template;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * Context for template rendering with variables and configuration.
@@ -23,6 +27,7 @@ import java.util.*;
  */
 public record TemplateContext(Map<String, Object> variables, Locale locale) {
 
+  /** Validates and normalises template context fields on construction. */
   public TemplateContext {
     variables = Map.copyOf(variables);
     if (locale == null) {

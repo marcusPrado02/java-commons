@@ -45,6 +45,14 @@ public class AuditAspect {
     this.actorProvider = Objects.requireNonNull(actorProvider, "actorProvider cannot be null");
   }
 
+  /**
+   * Intercepts methods annotated with {@link com.marcusprado02.commons.app.auditlog.Audited} and
+   * records an audit event before and after the method call.
+   *
+   * @param joinPoint the intercepted method invocation
+   * @return the method's return value
+   * @throws Throwable if the intercepted method throws
+   */
   @Around("@annotation(com.marcusprado02.commons.app.auditlog.Audited)")
   public Object auditMethod(ProceedingJoinPoint joinPoint) throws Throwable {
     MethodSignature signature = (MethodSignature) joinPoint.getSignature();

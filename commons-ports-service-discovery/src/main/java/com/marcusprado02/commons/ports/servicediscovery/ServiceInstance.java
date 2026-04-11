@@ -39,6 +39,7 @@ public record ServiceInstance(
     boolean secure,
     Map<String, String> metadata) {
 
+  /** Validates service instance fields and creates defensive copies. */
   public ServiceInstance {
     Objects.requireNonNull(serviceId, "serviceId cannot be null");
     Objects.requireNonNull(instanceId, "instanceId cannot be null");
@@ -128,6 +129,13 @@ public record ServiceInstance(
       return this;
     }
 
+    /**
+     * Adds a single metadata entry.
+     *
+     * @param key metadata key
+     * @param value metadata value
+     * @return this builder
+     */
     public Builder addMetadata(String key, String value) {
       if (this.metadata.isEmpty()) {
         this.metadata = new java.util.HashMap<>();

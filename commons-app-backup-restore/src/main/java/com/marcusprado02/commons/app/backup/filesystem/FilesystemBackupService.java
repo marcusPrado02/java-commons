@@ -1,20 +1,40 @@
 package com.marcusprado02.commons.app.backup.filesystem;
 
-import com.marcusprado02.commons.app.backup.*;
+import com.marcusprado02.commons.app.backup.BackupConfiguration;
+import com.marcusprado02.commons.app.backup.BackupMetadata;
+import com.marcusprado02.commons.app.backup.BackupService;
+import com.marcusprado02.commons.app.backup.RestoreConfiguration;
+import com.marcusprado02.commons.app.backup.RestoreResult;
+import com.marcusprado02.commons.app.backup.RestoreService;
 import com.marcusprado02.commons.kernel.errors.ErrorCategory;
 import com.marcusprado02.commons.kernel.errors.ErrorCode;
 import com.marcusprado02.commons.kernel.errors.Problem;
 import com.marcusprado02.commons.kernel.errors.Severity;
 import com.marcusprado02.commons.kernel.result.Result;
-import java.io.*;
-import java.nio.file.*;
-import java.util.concurrent.ForkJoinPool;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.StandardCopyOption;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ForkJoinPool;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -299,7 +319,10 @@ public final class FilesystemBackupService implements BackupService, RestoreServ
                   "Backup is encrypted but no decryption key provided"));
         }
         filesRestored =
-            extractEncryptedZip(backupFile, targetPath, configuration.overwriteExisting(),
+            extractEncryptedZip(
+                backupFile,
+                targetPath,
+                configuration.overwriteExisting(),
                 configuration.decryptionKey());
       } else {
         filesRestored = extractZip(backupFile, targetPath, configuration.overwriteExisting());
@@ -492,8 +515,8 @@ public final class FilesystemBackupService implements BackupService, RestoreServ
     return Files.size(outFile);
   }
 
-  private long createSelectiveZipBackup(
-      List<Path> files, Path outFile, BackupConfiguration config) throws Exception {
+  private long createSelectiveZipBackup(List<Path> files, Path outFile, BackupConfiguration config)
+      throws Exception {
     Files.createDirectories(outFile.getParent());
 
     var zipBytes = selectiveZipToBytes(files, config.compressionEnabled());
@@ -553,7 +576,9 @@ public final class FilesystemBackupService implements BackupService, RestoreServ
               .get();
     } catch (Exception e) {
       Throwable cause = e.getCause() != null ? e.getCause() : e;
-      if (cause instanceof UncheckedIOException uio) throw uio.getCause();
+      if (cause instanceof UncheckedIOException uio) {
+        throw uio.getCause();
+      }
       throw new IOException("Parallel file read failed: " + cause.getMessage(), cause);
     }
 
@@ -590,9 +615,7 @@ public final class FilesystemBackupService implements BackupService, RestoreServ
     }
   }
 
-  /**
-   * Decrypts a file produced by {@link #encryptToFile}. Returns the decrypted ZIP bytes.
-   */
+  /** Decrypts a file produced by {@link #encryptToFile}. Returns the decrypted ZIP bytes. */
   private byte[] decryptFromFile(Path encFile, String password) throws Exception {
     var raw = Files.readAllBytes(encFile);
     var iv = Arrays.copyOfRange(raw, 0, GCM_IV_LENGTH);
@@ -635,8 +658,8 @@ public final class FilesystemBackupService implements BackupService, RestoreServ
     return count;
   }
 
-  private long extractEncryptedZip(
-      Path encFile, Path targetDir, boolean overwrite, String password) throws Exception {
+  private long extractEncryptedZip(Path encFile, Path targetDir, boolean overwrite, String password)
+      throws Exception {
     var zipBytes = decryptFromFile(encFile, password);
     var tmpZip = Files.createTempFile("commons-restore-", ".zip");
     try {

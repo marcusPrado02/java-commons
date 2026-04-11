@@ -39,6 +39,12 @@ public class AwsSecretsAutoConfiguration {
 
   private static final Logger log = LoggerFactory.getLogger(AwsSecretsAutoConfiguration.class);
 
+  /**
+   * Creates and configures an AWS {@link SecretsManagerClient} from the secrets properties.
+   *
+   * @param properties the secrets configuration properties
+   * @return the AWS Secrets Manager client
+   */
   @Bean(destroyMethod = "close")
   @ConditionalOnMissingBean
   public SecretsManagerClient secretsManagerClient(SecretsProperties properties) {
@@ -62,6 +68,13 @@ public class AwsSecretsAutoConfiguration {
     return builder.build();
   }
 
+  /**
+   * Creates the AWS Secrets Manager-backed {@link SecretStorePort} bean.
+   *
+   * @param client the AWS Secrets Manager client
+   * @param properties the secrets configuration properties
+   * @return the secret store port
+   */
   @Bean
   @ConditionalOnMissingBean(SecretStorePort.class)
   @ConditionalOnProperty(prefix = "commons.secrets", name = "type", havingValue = "aws")

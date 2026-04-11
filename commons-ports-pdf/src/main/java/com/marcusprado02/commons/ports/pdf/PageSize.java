@@ -83,8 +83,12 @@ public final class PageSize {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (!(obj instanceof PageSize other)) return false;
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof PageSize other)) {
+      return false;
+    }
     return Float.compare(width, other.width) == 0 && Float.compare(height, other.height) == 0;
   }
 

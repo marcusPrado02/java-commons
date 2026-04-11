@@ -16,6 +16,7 @@ import org.apache.kafka.common.serialization.StringSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/** KafkaPublisherAdapter implementation. */
 public final class KafkaPublisherAdapter implements MessagePublisherPort, AutoCloseable {
 
   private static final Logger log = LoggerFactory.getLogger(KafkaPublisherAdapter.class);
@@ -76,6 +77,7 @@ public final class KafkaPublisherAdapter implements MessagePublisherPort, AutoCl
     }
   }
 
+  /** Executes the beginTransaction operation. */
   public void beginTransaction() {
     if (!transactional) {
       throw new IllegalStateException("Producer is not transactional");
@@ -83,6 +85,7 @@ public final class KafkaPublisherAdapter implements MessagePublisherPort, AutoCl
     producer.beginTransaction();
   }
 
+  /** Executes the commitTransaction operation. */
   public void commitTransaction() {
     if (!transactional) {
       throw new IllegalStateException("Producer is not transactional");
@@ -90,6 +93,7 @@ public final class KafkaPublisherAdapter implements MessagePublisherPort, AutoCl
     producer.commitTransaction();
   }
 
+  /** Executes the abortTransaction operation. */
   public void abortTransaction() {
     if (!transactional) {
       throw new IllegalStateException("Producer is not transactional");
@@ -102,6 +106,7 @@ public final class KafkaPublisherAdapter implements MessagePublisherPort, AutoCl
     producer.close();
   }
 
+  /** Builder implementation. */
   public static final class Builder {
     private String bootstrapServers;
     private final Map<String, Object> properties = new HashMap<>();
@@ -125,12 +130,14 @@ public final class KafkaPublisherAdapter implements MessagePublisherPort, AutoCl
       return this;
     }
 
+    /** Executes the transactionalId operation. */
     public Builder transactionalId(String transactionalId) {
       this.transactionalId = transactionalId;
       this.transactional = true;
       return this;
     }
 
+    /** Executes the build operation. */
     public KafkaPublisherAdapter build() {
       Objects.requireNonNull(bootstrapServers, "bootstrapServers must not be null");
 

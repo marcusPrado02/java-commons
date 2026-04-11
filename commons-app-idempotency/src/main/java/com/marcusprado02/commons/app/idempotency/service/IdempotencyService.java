@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+/** Service for executing operations with idempotency guarantees. */
 public interface IdempotencyService {
 
   <T> IdempotencyResult<T> execute(IdempotencyKey key, Duration ttl, Supplier<T> action);

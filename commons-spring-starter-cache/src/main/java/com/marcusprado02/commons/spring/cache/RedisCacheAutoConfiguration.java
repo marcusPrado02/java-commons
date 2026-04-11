@@ -39,6 +39,12 @@ public class RedisCacheAutoConfiguration {
 
   private static final Logger log = LoggerFactory.getLogger(RedisCacheAutoConfiguration.class);
 
+  /**
+   * Creates and configures a {@link LettuceConnectionFactory} from the cache properties.
+   *
+   * @param properties the cache configuration properties
+   * @return the Redis connection factory
+   */
   @Bean
   @ConditionalOnMissingBean
   public LettuceConnectionFactory redisConnectionFactory(CacheProperties properties) {
@@ -62,6 +68,12 @@ public class RedisCacheAutoConfiguration {
     return factory;
   }
 
+  /**
+   * Creates a JSON-serialized {@link RedisTemplate} for the cache.
+   *
+   * @param connectionFactory the Redis connection factory
+   * @return the Redis template
+   */
   @Bean
   @ConditionalOnMissingBean(name = "cacheRedisTemplate")
   public RedisTemplate<String, Object> cacheRedisTemplate(
@@ -84,6 +96,13 @@ public class RedisCacheAutoConfiguration {
     return template;
   }
 
+  /**
+   * Creates the Redis-backed {@link CachePort} bean.
+   *
+   * @param redisTemplate the Redis template to use
+   * @param properties the cache configuration properties
+   * @return the cache port
+   */
   @Bean
   @ConditionalOnMissingBean(CachePort.class)
   @ConditionalOnProperty(

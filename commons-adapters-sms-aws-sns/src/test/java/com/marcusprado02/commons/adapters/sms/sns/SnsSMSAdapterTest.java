@@ -27,7 +27,7 @@ class SnsSMSAdapterTest {
   @Mock private SnsClientBuilder snsClientBuilder;
 
   private SnsConfiguration configuration;
-  private SnsSMSAdapter adapter;
+  private SnsSmsAdapter adapter;
 
   @BeforeEach
   void setUp() {
@@ -37,7 +37,7 @@ class SnsSMSAdapterTest {
             .accessKeyId("AKIAIOSFODNN7EXAMPLE")
             .secretAccessKey("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY")
             .requestTimeout(Duration.ofSeconds(15))
-            .maxPriceUSD(1.0)
+            .maxPriceUsd(1.0)
             .build();
   }
 
@@ -56,7 +56,7 @@ class SnsSMSAdapterTest {
       PublishResponse response = PublishResponse.builder().messageId("12345-67890").build();
       when(snsClient.publish(any(PublishRequest.class))).thenReturn(response);
 
-      adapter = new SnsSMSAdapter(configuration);
+      adapter = new SnsSmsAdapter(configuration);
 
       PhoneNumber from = PhoneNumber.of("+1000000000");
       PhoneNumber to = PhoneNumber.of("+1234567890");
@@ -85,7 +85,7 @@ class SnsSMSAdapterTest {
       PublishResponse response = PublishResponse.builder().messageId("msg-123").build();
       when(snsClient.publish(any(PublishRequest.class))).thenReturn(response);
 
-      adapter = new SnsSMSAdapter(configuration);
+      adapter = new SnsSmsAdapter(configuration);
 
       PhoneNumber from = PhoneNumber.of("+1000000000");
       PhoneNumber to = PhoneNumber.of("+1234567890");
@@ -112,7 +112,7 @@ class SnsSMSAdapterTest {
           InvalidParameterException.builder().message("Invalid phone number").build();
       when(snsClient.publish(any(PublishRequest.class))).thenThrow(exception);
 
-      adapter = new SnsSMSAdapter(configuration);
+      adapter = new SnsSmsAdapter(configuration);
 
       SMS sms = SMS.of(PhoneNumber.of("+1000000000"), PhoneNumber.of("+1234567890"), "Test");
 
@@ -136,7 +136,7 @@ class SnsSMSAdapterTest {
           AuthorizationErrorException.builder().message("Access denied").build();
       when(snsClient.publish(any(PublishRequest.class))).thenThrow(exception);
 
-      adapter = new SnsSMSAdapter(configuration);
+      adapter = new SnsSmsAdapter(configuration);
 
       SMS sms = SMS.of(PhoneNumber.of("+1000000000"), PhoneNumber.of("+1234567890"), "Test");
 
@@ -159,7 +159,7 @@ class SnsSMSAdapterTest {
           OptedOutException.builder().message("Phone number opted out").build();
       when(snsClient.publish(any(PublishRequest.class))).thenThrow(exception);
 
-      adapter = new SnsSMSAdapter(configuration);
+      adapter = new SnsSmsAdapter(configuration);
 
       SMS sms = SMS.of(PhoneNumber.of("+1000000000"), PhoneNumber.of("+1234567890"), "Test");
 
@@ -184,7 +184,7 @@ class SnsSMSAdapterTest {
           .thenReturn(response1)
           .thenReturn(response2);
 
-      adapter = new SnsSMSAdapter(configuration);
+      adapter = new SnsSmsAdapter(configuration);
 
       List<PhoneNumber> recipients =
           List.of(PhoneNumber.of("+1234567890"), PhoneNumber.of("+1987654321"));
@@ -223,7 +223,7 @@ class SnsSMSAdapterTest {
           .thenReturn(successResponse)
           .thenThrow(exception);
 
-      adapter = new SnsSMSAdapter(configuration);
+      adapter = new SnsSmsAdapter(configuration);
 
       List<PhoneNumber> recipients =
           List.of(
@@ -275,7 +275,7 @@ class SnsSMSAdapterTest {
     // Given
     try (MockedStatic<SnsClient> snsClientMock = mockStatic(SnsClient.class)) {
       setupMockedClient(snsClientMock);
-      adapter = new SnsSMSAdapter(configuration);
+      adapter = new SnsSmsAdapter(configuration);
 
       // When
       Result<Void> result = adapter.verify();
@@ -309,7 +309,7 @@ class SnsSMSAdapterTest {
     // Given
     try (MockedStatic<SnsClient> snsClientMock = mockStatic(SnsClient.class)) {
       setupMockedClient(snsClientMock);
-      adapter = new SnsSMSAdapter(configuration);
+      adapter = new SnsSmsAdapter(configuration);
 
       // When
       adapter.close();

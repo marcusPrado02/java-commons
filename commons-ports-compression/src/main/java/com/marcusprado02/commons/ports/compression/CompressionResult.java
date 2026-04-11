@@ -111,7 +111,7 @@ public record CompressionResult(
    *
    * @return throughput in MB/second
    */
-  public double getThroughputMBPerSecond() {
+  public double getThroughputMegabytesPerSecond() {
     return getThroughputBytesPerSecond() / (1024.0 * 1024.0);
   }
 
@@ -127,7 +127,7 @@ public record CompressionResult(
         originalSize,
         compressedSize,
         getSpaceSavedPercentage(),
-        getThroughputMBPerSecond());
+        getThroughputMegabytesPerSecond());
   }
 
   /** Builder for compression result. */

@@ -10,6 +10,7 @@ import java.util.List;
  */
 public record PageableResponse<T>(List<T> content, long totalElements, int page, int size) {
 
+  /** Validates fields on construction. */
   public PageableResponse {
     if (content == null) {
       throw new IllegalArgumentException("content cannot be null");

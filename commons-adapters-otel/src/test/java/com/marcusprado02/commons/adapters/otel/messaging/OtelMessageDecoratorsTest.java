@@ -169,4 +169,136 @@ class OtelMessageDecoratorsTest {
     assertNotNull(traceId);
     assertFalse(traceId.isBlank());
   }
+
+  @Test
+  void consumerHandlerExceptionShouldRecordOnSpanAndRethrow() {
+    AtomicReference<Consumer<MessageEnvelope<?>>> handlerRef = new AtomicReference<>();
+
+    MessageConsumerPort delegate =
+        new MessageConsumerPort() {
+          @Override
+          public <T> void subscribe(
+              TopicName topic,
+              ConsumerGroup group,
+              Class<T> messageType,
+              MessageSerializer<T> serializer,
+              Consumer<MessageEnvelope<T>> handler) {
+            handlerRef.set((Consumer<MessageEnvelope<?>>) (Consumer<?>) handler);
+          }
+
+          @Override
+          public void unsubscribe(TopicName topic, ConsumerGroup group) {}
+
+          @Override
+          public void start() {}
+
+          @Override
+          public void stop() {}
+        };
+
+    MessageConsumerPort consumer = new OtelMessageConsumerPortDecorator(delegate, null);
+    MessageSerializer<String> serializer =
+        new MessageSerializer<>() {
+          @Override
+          public byte[] serialize(String message) {
+            return message.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+          }
+
+          @Override
+          public String deserialize(byte[] data, Class<String> type) {
+            return new String(data, java.nio.charset.StandardCharsets.UTF_8);
+          }
+        };
+
+    consumer.subscribe(
+        TopicName.of("orders"),
+        ConsumerGroup.of("g1"),
+        String.class,
+        serializer,
+        msg -> {
+          throw new RuntimeException("handler failed");
+        });
+
+    @SuppressWarnings("unchecked")
+    Consumer<MessageEnvelope<String>> wrapped =
+        (Consumer<MessageEnvelope<String>>) (Consumer<?>) handlerRef.get();
+
+    MessageEnvelope<String> envelope =
+        MessageEnvelope.<String>builder().topic(TopicName.of("orders")).payload("p").build();
+
+    assertThrows(RuntimeException.class, () -> wrapped.accept(envelope));
+    assertFalse(exporter.getFinishedSpanItems().isEmpty());
+  }
+
+  @Test
+  void consumerDelegateLifecycleShouldBeForwarded() {
+    boolean[] started = {false};
+    boolean[] stopped = {false};
+    boolean[] unsubscribed = {false};
+
+    MessageConsumerPort delegate =
+        new MessageConsumerPort() {
+          @Override
+          public <T> void subscribe(
+              TopicName topic,
+              ConsumerGroup group,
+              Class<T> messageType,
+              MessageSerializer<T> serializer,
+              Consumer<MessageEnvelope<T>> handler) {}
+
+          @Override
+          public void unsubscribe(TopicName topic, ConsumerGroup group) {
+            unsubscribed[0] = true;
+          }
+
+          @Override
+          public void start() {
+            started[0] = true;
+          }
+
+          @Override
+          public void stop() {
+            stopped[0] = true;
+          }
+        };
+
+    MessageConsumerPort consumer = new OtelMessageConsumerPortDecorator(delegate, "  ");
+    consumer.start();
+    consumer.stop();
+    consumer.unsubscribe(TopicName.of("t"), ConsumerGroup.of("g"));
+
+    assertTrue(started[0]);
+    assertTrue(stopped[0]);
+    assertTrue(unsubscribed[0]);
+  }
+
+  @Test
+  void publisherWithNullInstrumentationNameShouldUseDefault() {
+    MessagePublisherPort delegate =
+        new MessagePublisherPort() {
+          @Override
+          public <T> void publish(MessageEnvelope<T> message, MessageSerializer<T> serializer) {}
+        };
+
+    MessagePublisherPort publisher = new OtelMessagePublisherPortDecorator(delegate, null);
+
+    MessageSerializer<String> serializer =
+        new MessageSerializer<>() {
+          @Override
+          public byte[] serialize(String message) {
+            return message.getBytes(java.nio.charset.StandardCharsets.UTF_8);
+          }
+
+          @Override
+          public String deserialize(byte[] data, Class<String> type) {
+            return new String(data, java.nio.charset.StandardCharsets.UTF_8);
+          }
+        };
+
+    publisher.publish(
+        MessageEnvelope.<String>builder().topic(TopicName.of("t")).payload("p").build(),
+        serializer);
+
+    assertFalse(exporter.getFinishedSpanItems().isEmpty());
+  }
 }

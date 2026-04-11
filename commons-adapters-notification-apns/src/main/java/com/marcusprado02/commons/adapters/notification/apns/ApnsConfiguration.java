@@ -104,6 +104,7 @@ public class ApnsConfiguration {
     return p12Certificate != null;
   }
 
+  /** Executes the configureClientBuilder operation. */
   public ApnsClientBuilder configureClientBuilder(ApnsClientBuilder builder) throws IOException {
     if (isTokenBased()) {
       return builder
@@ -121,7 +122,8 @@ public class ApnsConfiguration {
           .setClientCredentials(p12Certificate, p12Password);
     } else {
       throw new IllegalStateException(
-          "Invalid configuration: must provide either token-based (p8) or certificate-based (p12) credentials");
+          "Invalid configuration: must provide either token-based (p8) or"
+              + " certificate-based (p12) credentials");
     }
   }
 
@@ -199,6 +201,7 @@ public class ApnsConfiguration {
       return this;
     }
 
+    /** Executes the build operation. */
     public ApnsConfiguration build() {
       Objects.requireNonNull(topic, "topic is required");
 

@@ -11,7 +11,7 @@ import java.util.Map;
  * Implementations should handle: - Subscription creation and management - Subscription updates and
  * cancellation - Subscription retrieval and listing
  *
- * <p>All methods return Result<T> for consistent error handling.
+ * <p>All methods return {@code Result<T>} for consistent error handling.
  */
 public interface SubscriptionService {
 

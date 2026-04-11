@@ -7,7 +7,7 @@ import com.marcusprado02.commons.ports.persistence.specification.SearchCriteria;
 import com.marcusprado02.commons.ports.persistence.specification.Specification;
 
 /** Repository with pagination support. */
-public interface PageableRepository<E, ID> extends Repository<E, ID> {
+public interface PageableRepository<E, I> extends Repository<E, I> {
 
   PageResult<E> findAll(PageRequest pageRequest, Specification<E> specification);
 

@@ -6,9 +6,9 @@ import java.io.IOException;
 import java.util.Objects;
 
 /** Factory for creating GCS Storage clients. */
-public final class GCSClientFactory {
+public final class GcsClientFactory {
 
-  private GCSClientFactory() {
+  private GcsClientFactory() {
     // Utility class
   }
 
@@ -19,7 +19,7 @@ public final class GCSClientFactory {
    * @return configured Storage client
    * @throws IOException if credentials cannot be loaded
    */
-  public static Storage createStorage(GCSConfiguration config) throws IOException {
+  public static Storage createStorage(GcsConfiguration config) throws IOException {
     Objects.requireNonNull(config, "config must not be null");
 
     var credentials = config.loadCredentials();

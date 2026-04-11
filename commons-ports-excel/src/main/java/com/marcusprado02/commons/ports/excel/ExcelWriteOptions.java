@@ -120,6 +120,11 @@ public record ExcelWriteOptions(
       return this;
     }
 
+    /**
+     * Builds the ExcelWriteOptions instance.
+     *
+     * @return configured ExcelWriteOptions
+     */
     public ExcelWriteOptions build() {
       return new ExcelWriteOptions(
           format,

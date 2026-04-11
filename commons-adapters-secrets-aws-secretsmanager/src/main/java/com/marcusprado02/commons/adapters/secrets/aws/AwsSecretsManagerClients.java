@@ -4,6 +4,7 @@ import java.util.Objects;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.secretsmanager.SecretsManagerClient;
 
+/** AwsSecretsManagerClients implementation. */
 public final class AwsSecretsManagerClients {
 
   private AwsSecretsManagerClients() {}

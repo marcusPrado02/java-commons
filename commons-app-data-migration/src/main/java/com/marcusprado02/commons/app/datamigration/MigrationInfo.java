@@ -22,6 +22,7 @@ public record MigrationInfo(
     Integer executionTime,
     String checksum) {
 
+  /** Validates that required fields are non-null. */
   public MigrationInfo {
     java.util.Objects.requireNonNull(version, "version cannot be null");
     java.util.Objects.requireNonNull(description, "description cannot be null");

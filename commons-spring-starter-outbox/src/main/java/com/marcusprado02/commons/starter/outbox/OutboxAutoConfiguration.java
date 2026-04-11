@@ -2,7 +2,14 @@ package com.marcusprado02.commons.starter.outbox;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.marcusprado02.commons.adapters.persistence.jpa.outbox.JpaOutboxRepositoryAdapter;
-import com.marcusprado02.commons.app.outbox.*;
+import com.marcusprado02.commons.app.outbox.DefaultOutboxProcessor;
+import com.marcusprado02.commons.app.outbox.DefaultOutboxPublisher;
+import com.marcusprado02.commons.app.outbox.OutboundPublisher;
+import com.marcusprado02.commons.app.outbox.OutboxMetadataEnricher;
+import com.marcusprado02.commons.app.outbox.OutboxProcessor;
+import com.marcusprado02.commons.app.outbox.OutboxPublisher;
+import com.marcusprado02.commons.app.outbox.OutboxSerializer;
+import com.marcusprado02.commons.app.outbox.OutboxSupport;
 import com.marcusprado02.commons.app.outbox.config.OutboxProcessorConfig;
 import com.marcusprado02.commons.app.outbox.metrics.OutboxMetrics;
 import com.marcusprado02.commons.app.outbox.port.OutboxRepositoryPort;
@@ -88,6 +95,12 @@ public class OutboxAutoConfiguration {
     return new MicrometerOutboxMetrics(registry);
   }
 
+  /**
+   * Creates the {@link OutboxProcessorConfig} from the configured outbox properties.
+   *
+   * @param properties the outbox properties
+   * @return the processor configuration
+   */
   @Bean
   @ConditionalOnMissingBean(OutboxProcessorConfig.class)
   public OutboxProcessorConfig outboxProcessorConfig(OutboxProperties properties) {

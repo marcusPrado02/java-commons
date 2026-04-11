@@ -1,8 +1,21 @@
 package com.marcusprado02.commons.adapters.excel.poi;
 
-import com.marcusprado02.commons.ports.excel.*;
-import java.util.*;
-import org.apache.poi.ss.usermodel.*;
+import com.marcusprado02.commons.ports.excel.ExcelCell;
+import com.marcusprado02.commons.ports.excel.ExcelCellStyle;
+import com.marcusprado02.commons.ports.excel.ExcelWorkbook;
+import com.marcusprado02.commons.ports.excel.ExcelWorksheet;
+import com.marcusprado02.commons.ports.excel.ExcelWriteOptions;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.CellStyle;
+import org.apache.poi.ss.usermodel.DateUtil;
+import org.apache.poi.ss.usermodel.Font;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 
 /** Mapper class for converting between POI and Commons Excel models. */
 public final class PoiWorkbookMapper {
@@ -93,6 +106,7 @@ public final class PoiWorkbookMapper {
   }
 
   /** Maps POI CellType to Commons CellType. */
+  @SuppressWarnings("checkstyle:indentation")
   private static com.marcusprado02.commons.ports.excel.CellType mapPoiCellType(
       org.apache.poi.ss.usermodel.CellType poiCellType) {
     return switch (poiCellType) {
@@ -107,6 +121,7 @@ public final class PoiWorkbookMapper {
   }
 
   /** Extracts cell value based on cell type. */
+  @SuppressWarnings("checkstyle:indentation")
   private static Object extractCellValue(Cell poiCell) {
     return switch (poiCell.getCellType()) {
       case BLANK -> null;
@@ -239,6 +254,7 @@ public final class PoiWorkbookMapper {
   }
 
   /** Sets POI cell value based on Commons cell. */
+  @SuppressWarnings("checkstyle:indentation")
   private static void setPoiCellValue(Cell poiCell, ExcelCell cell) {
     if (cell.formula() != null && !cell.formula().isEmpty()) {
       poiCell.setCellFormula(cell.formula());
@@ -269,7 +285,7 @@ public final class PoiWorkbookMapper {
 
   /** Converts Commons ExcelCellStyle to POI CellStyle. */
   private static CellStyle toPoiCellStyle(ExcelCellStyle style, Workbook workbook) {
-    CellStyle poiStyle = workbook.createCellStyle();
+    final CellStyle poiStyle = workbook.createCellStyle();
 
     // Font
     Font font = workbook.createFont();

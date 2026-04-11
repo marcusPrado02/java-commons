@@ -37,6 +37,7 @@ public final class WebhookHttpRequest {
     return body;
   }
 
+  /** Builder for {@link WebhookHttpRequest}. */
   public static final class Builder {
     private URI url;
     private Map<String, String> headers = Map.of();

@@ -1,5 +1,6 @@
 package com.marcusprado02.commons.app.outbox;
 
+/** OutboxProcessor contract. */
 public interface OutboxProcessor {
 
   /** Process pending messages using the processor's configured batch size. */

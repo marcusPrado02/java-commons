@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+/** DefaultOutboxProcessor implementation. */
 public final class DefaultOutboxProcessor implements OutboxProcessor {
 
   private final OutboxRepositoryPort repository;
@@ -21,6 +22,7 @@ public final class DefaultOutboxProcessor implements OutboxProcessor {
   private final OutboxMetrics metrics;
   private final CircuitBreakerWrapper circuitBreaker;
 
+  /** Creates a new DefaultOutboxProcessor instance. */
   public DefaultOutboxProcessor(
       OutboxRepositoryPort repository,
       OutboundPublisher outbound,

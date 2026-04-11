@@ -96,6 +96,7 @@ public final class AuditQuery {
     return offset;
   }
 
+  /** Builder for {@link AuditQuery}. */
   public static final class Builder {
     private String actor;
     private String eventType;

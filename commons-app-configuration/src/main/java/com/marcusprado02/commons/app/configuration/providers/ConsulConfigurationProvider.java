@@ -10,8 +10,18 @@ import com.marcusprado02.commons.app.configuration.DynamicConfiguration;
 import com.marcusprado02.commons.kernel.result.Result;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -207,7 +217,9 @@ public class ConsulConfigurationProvider implements DynamicConfiguration {
   }
 
   private String decodeValue(byte[] bytes) {
-    if (bytes == null) return null;
+    if (bytes == null) {
+      return null;
+    }
     return new String(bytes, StandardCharsets.UTF_8);
   }
 
@@ -334,11 +346,21 @@ public class ConsulConfigurationProvider implements DynamicConfiguration {
 
   @SuppressWarnings("unchecked")
   private <T> T convertValue(String value, Class<T> type) {
-    if (type == String.class) return (T) value;
-    if (type == Integer.class) return (T) Integer.valueOf(value);
-    if (type == Long.class) return (T) Long.valueOf(value);
-    if (type == Double.class) return (T) Double.valueOf(value);
-    if (type == Boolean.class) return (T) Boolean.valueOf(value);
+    if (type == String.class) {
+      return (T) value;
+    }
+    if (type == Integer.class) {
+      return (T) Integer.valueOf(value);
+    }
+    if (type == Long.class) {
+      return (T) Long.valueOf(value);
+    }
+    if (type == Double.class) {
+      return (T) Double.valueOf(value);
+    }
+    if (type == Boolean.class) {
+      return (T) Boolean.valueOf(value);
+    }
     throw new IllegalArgumentException("Unsupported type: " + type);
   }
 
@@ -379,6 +401,7 @@ public class ConsulConfigurationProvider implements DynamicConfiguration {
       return new Builder();
     }
 
+    /** Builder for Consul Configuration. */
     public static class Builder {
       private String host = "localhost";
       private int port = 8500;

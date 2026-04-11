@@ -157,8 +157,12 @@ public class SerializationOptions {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
     SerializationOptions that = (SerializationOptions) o;
     return validateSchema == that.validateSchema
         && useSchemaRegistry == that.useSchemaRegistry

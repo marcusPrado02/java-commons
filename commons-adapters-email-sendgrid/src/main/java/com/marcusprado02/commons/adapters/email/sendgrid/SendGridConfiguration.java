@@ -44,6 +44,7 @@ public record SendGridConfiguration(
     boolean trackOpens,
     boolean sandboxMode) {
 
+  /** Validates fields on construction. */
   public SendGridConfiguration {
     if (apiKey == null || apiKey.isBlank()) {
       throw new IllegalArgumentException("SendGrid API key cannot be null or blank");

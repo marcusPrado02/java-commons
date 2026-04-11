@@ -37,4 +37,16 @@
     <suppress checks="AbbreviationAsWordInName" files=".*RFC7807ProblemDetail\.java"/>
     <suppress checks="AbbreviationAsWordInName" files=".*Problems\.java"/>
 
+    <!-- SMS/MMS are industry-standard abbreviations; renaming would break public API -->
+    <suppress checks="AbbreviationAsWordInName" files=".*/ports/sms/.*\.java"/>
+
+    <!-- ML is an industry-standard abbreviation for Machine Learning -->
+    <suppress checks="AbbreviationAsWordInName" files=".*/ports/ml/.*\.java"/>
+
+    <!-- GraphQL is a proper noun / well-known technology name -->
+    <suppress checks="AbbreviationAsWordInName" files=".*/graphql/.*\.java"/>
+
+    <!-- Full logger class name inside a <pre> Javadoc block exceeds line limit; cannot wrap -->
+    <suppress checks="LineLength" files=".*RequestResponseLoggingFilter\.java"/>
+
 </suppressions>

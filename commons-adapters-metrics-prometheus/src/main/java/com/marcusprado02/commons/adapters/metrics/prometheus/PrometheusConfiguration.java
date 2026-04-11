@@ -61,12 +61,7 @@ public final class PrometheusConfiguration {
 
     PrometheusMeterRegistry registry = new PrometheusMeterRegistry(config);
 
-    // Configure exemplars if enabled
-    if (enableExemplars) {
-      // Exemplars are enabled by default in newer Micrometer versions
-      // Additional configuration can be added here if needed
-    }
-
+    // Exemplars are enabled by default in newer Micrometer versions when enableExemplars is true
     return registry;
   }
 

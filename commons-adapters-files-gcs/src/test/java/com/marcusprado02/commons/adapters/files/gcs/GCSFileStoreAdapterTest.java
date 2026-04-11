@@ -28,7 +28,7 @@ class GCSFileStoreAdapterTest {
           .withExposedPorts(4443)
           .withCommand("-scheme", "http");
 
-  private GCSFileStoreAdapter adapter;
+  private GcsFileStoreAdapter adapter;
   private Storage storage;
 
   private static byte[] convertStreamToBytes(java.io.InputStream stream) {
@@ -50,7 +50,7 @@ class GCSFileStoreAdapterTest {
     // Create bucket
     storage.create(com.google.cloud.storage.BucketInfo.of(BUCKET_NAME));
 
-    adapter = new GCSFileStoreAdapter(storage);
+    adapter = new GcsFileStoreAdapter(storage);
   }
 
   @Test

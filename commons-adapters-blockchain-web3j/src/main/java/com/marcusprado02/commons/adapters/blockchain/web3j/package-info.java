@@ -71,7 +71,7 @@
  *
  * <h2>Network Configuration</h2>
  *
- * Connect to different Ethereum networks:
+ * <p>Connect to different Ethereum networks:
  *
  * <pre>{@code
  * // Mainnet
@@ -86,7 +86,7 @@
  *
  * <h2>Error Handling</h2>
  *
- * All operations return {@code Result<T>} for consistent error handling:
+ * <p>All operations return {@code Result<T>} for consistent error handling:
  *
  * <pre>{@code
  * var result = client.getBalance(address);

@@ -33,6 +33,12 @@ public class QueryParameterVersionResolver<T> implements VersionResolver<T> {
   private final String parameterName;
   private final ParameterExtractor<T> parameterExtractor;
 
+  /**
+   * Creates a resolver that reads the API version from a query parameter.
+   *
+   * @param parameterName query parameter name
+   * @param parameterExtractor strategy to read the parameter value from the request
+   */
   public QueryParameterVersionResolver(
       String parameterName, ParameterExtractor<T> parameterExtractor) {
     this.parameterName = Objects.requireNonNull(parameterName, "parameterName cannot be null");
@@ -54,6 +60,7 @@ public class QueryParameterVersionResolver<T> implements VersionResolver<T> {
     }
   }
 
+  /** Extracts a named query parameter value from a request of type {@code T}. */
   @FunctionalInterface
   public interface ParameterExtractor<T> {
     String extractParameter(T request, String parameterName);

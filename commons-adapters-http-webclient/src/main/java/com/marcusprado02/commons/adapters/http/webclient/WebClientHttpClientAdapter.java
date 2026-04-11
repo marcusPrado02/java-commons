@@ -28,6 +28,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 import reactor.util.context.ContextView;
 
+/** Reactive HTTP client adapter backed by Spring WebClient with interceptor support. */
 public final class WebClientHttpClientAdapter implements ReactiveHttpClientPort {
 
   private final WebClient webClient;
@@ -258,6 +259,7 @@ public final class WebClientHttpClientAdapter implements ReactiveHttpClientPort 
     return current;
   }
 
+  /** Builder for {@link WebClientHttpClientAdapter}. */
   public static final class Builder {
     private WebClient webClient;
     private WebClient.Builder webClientBuilder;
@@ -276,6 +278,12 @@ public final class WebClientHttpClientAdapter implements ReactiveHttpClientPort 
       return this;
     }
 
+    /**
+     * Adds an interceptor to the chain; null values are silently ignored.
+     *
+     * @param interceptor the interceptor to add
+     * @return this builder
+     */
     public Builder interceptor(HttpInterceptor interceptor) {
       if (interceptor != null) {
         interceptors.add(interceptor);
@@ -283,12 +291,19 @@ public final class WebClientHttpClientAdapter implements ReactiveHttpClientPort 
       return this;
     }
 
+    /**
+     * Sets a function that extracts headers from the reactive context for each request.
+     *
+     * @param contextHeadersProvider function mapping context to header key-value pairs
+     * @return this builder
+     */
     public Builder contextHeadersProvider(
         Function<ContextView, Map<String, String>> contextHeadersProvider) {
       this.contextHeadersProvider = contextHeadersProvider;
       return this;
     }
 
+    /** Executes the build operation. */
     public WebClientHttpClientAdapter build() {
       WebClient safeClient =
           (webClient != null)

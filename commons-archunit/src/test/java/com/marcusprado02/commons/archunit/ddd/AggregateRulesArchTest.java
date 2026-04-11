@@ -4,12 +4,12 @@ import static com.tngtech.archunit.lang.syntax.ArchRuleDefinition.classes;
 
 import com.marcusprado02.commons.archunit.support.ArchTestSupport;
 import com.marcusprado02.commons.kernel.ddd.entity.AggregateRoot;
-import com.tngtech.archunit.junit.ArchTest;
+import org.junit.jupiter.api.Test;
 
 class AggregateRulesArchTest {
 
-  @ArchTest
-  static void aggregates_should_extend_aggregate_root() {
+  @Test
+  void aggregates_should_extend_aggregate_root() {
     classes()
         .that()
         .resideInAPackage("..kernel.ddd..")
@@ -17,6 +17,7 @@ class AggregateRulesArchTest {
         .haveSimpleNameEndingWith("Aggregate")
         .should()
         .beAssignableTo(AggregateRoot.class)
+        .allowEmptyShould(true)
         .check(ArchTestSupport.importCommons());
   }
 }

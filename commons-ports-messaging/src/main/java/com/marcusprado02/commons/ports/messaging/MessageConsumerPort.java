@@ -2,6 +2,7 @@ package com.marcusprado02.commons.ports.messaging;
 
 import java.util.function.Consumer;
 
+/** Port for subscribing to and consuming messages from topics. */
 public interface MessageConsumerPort {
 
   <T> void subscribe(

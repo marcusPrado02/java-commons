@@ -10,6 +10,10 @@ import java.io.IOException;
 import java.util.Objects;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+/**
+ * Servlet filter that resolves and stores the {@link
+ * com.marcusprado02.commons.platform.context.RequestContextSnapshot} for each request.
+ */
 public final class SpringRequestContextFilter extends OncePerRequestFilter {
 
   private final SpringRequestContextResolver resolver;

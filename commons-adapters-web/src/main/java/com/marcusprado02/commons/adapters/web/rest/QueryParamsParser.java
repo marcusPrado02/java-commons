@@ -7,6 +7,7 @@ import com.marcusprado02.commons.ports.persistence.specification.SearchCriteria;
 import com.marcusprado02.commons.ports.persistence.specification.SearchFilter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * Utility class to parse query parameters into domain objects. Handles filter and sort parsing in a
@@ -89,7 +90,7 @@ public final class QueryParamsParser {
       return null;
     }
 
-    return switch (operatorStr.toLowerCase()) {
+    return switch (operatorStr.toLowerCase(Locale.ROOT)) {
       case "eq" -> FilterOperator.EQ;
       case "neq" -> FilterOperator.NEQ;
       case "like" -> FilterOperator.LIKE;
@@ -168,7 +169,7 @@ public final class QueryParamsParser {
       return null;
     }
 
-    return switch (directionStr.toLowerCase()) {
+    return switch (directionStr.toLowerCase(Locale.ROOT)) {
       case "asc" -> Order.Direction.ASC;
       case "desc" -> Order.Direction.DESC;
       default -> null;

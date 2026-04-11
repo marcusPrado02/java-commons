@@ -44,18 +44,18 @@ import org.junit.jupiter.api.Test;
  * }</pre>
  *
  * @param <E> Entity type
- * @param <ID> Entity ID type
+ * @param <I> Entity ID type
  */
-public abstract class PageableRepositoryContract<E, ID> {
+public abstract class PageableRepositoryContract<E, I> {
 
-  protected PageableRepository<E, ID> repository;
+  protected PageableRepository<E, I> repository;
 
   /**
    * Create the repository instance to be tested.
    *
    * @return repository implementation
    */
-  protected abstract PageableRepository<E, ID> createRepository();
+  protected abstract PageableRepository<E, I> createRepository();
 
   /**
    * Create a test entity with unique ID.
@@ -77,7 +77,7 @@ public abstract class PageableRepositoryContract<E, ID> {
    * @param entity entity
    * @return entity ID
    */
-  protected abstract ID getEntityId(E entity);
+  protected abstract I getEntityId(E entity);
 
   /** Clean up repository after each test (optional). */
   protected void cleanupRepository() {
@@ -95,7 +95,7 @@ public abstract class PageableRepositoryContract<E, ID> {
   void shouldSaveAndFindById() {
     // Given
     E entity = createEntity();
-    ID id = getEntityId(entity);
+    I id = getEntityId(entity);
 
     // When
     E saved = repository.save(entity);
@@ -112,7 +112,7 @@ public abstract class PageableRepositoryContract<E, ID> {
   void shouldReturnEmptyWhenNotFound() {
     // Given
     E entity = createEntity();
-    ID id = getEntityId(entity);
+    I id = getEntityId(entity);
 
     // When
     Optional<E> found = repository.findById(id);
@@ -126,7 +126,7 @@ public abstract class PageableRepositoryContract<E, ID> {
   void shouldDeleteById() {
     // Given
     E entity = createEntity();
-    ID id = getEntityId(entity);
+    I id = getEntityId(entity);
     repository.save(entity);
 
     // When
@@ -142,7 +142,7 @@ public abstract class PageableRepositoryContract<E, ID> {
   void shouldDelete() {
     // Given
     E entity = createEntity();
-    ID id = getEntityId(entity);
+    I id = getEntityId(entity);
     E saved = repository.save(entity);
 
     // When

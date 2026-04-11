@@ -1,6 +1,10 @@
 package com.marcusprado02.commons.ports.email;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 
 /**
  * Request for sending an email using a template.
@@ -18,6 +22,7 @@ public record TemplateEmailRequest(
     List<EmailAttachment> attachments,
     EmailAddress replyTo) {
 
+  /** Validates template email request fields and creates defensive copies. */
   public TemplateEmailRequest {
     Objects.requireNonNull(from, "from address must not be null");
     Objects.requireNonNull(to, "to addresses must not be null");
@@ -56,6 +61,7 @@ public record TemplateEmailRequest(
     private EmailSubject subject;
     private String templateName;
     private final Map<String, Object> variables = new HashMap<>();
+    // CPD-OFF - mirrored builder methods in Email
     private final List<EmailAttachment> attachments = new ArrayList<>();
     private EmailAddress replyTo;
 
@@ -95,6 +101,8 @@ public record TemplateEmailRequest(
       this.cc.add(EmailAddress.of(email));
       return this;
     }
+
+    // CPD-ON
 
     public Builder bcc(EmailAddress address) {
       this.bcc.add(address);

@@ -19,6 +19,7 @@ public record Email(
     List<EmailAttachment> attachments,
     EmailAddress replyTo) {
 
+  /** Validates email fields and creates defensive copies. */
   public Email {
     Objects.requireNonNull(from, "from address must not be null");
     Objects.requireNonNull(to, "to addresses must not be null");
@@ -74,6 +75,7 @@ public record Email(
     private final List<EmailAddress> bcc = new ArrayList<>();
     private EmailSubject subject;
     private EmailContent content;
+    // CPD-OFF - mirrored builder methods in TemplateEmailRequest
     private final List<EmailAttachment> attachments = new ArrayList<>();
     private EmailAddress replyTo;
 
@@ -118,6 +120,8 @@ public record Email(
       this.cc.addAll(addresses);
       return this;
     }
+
+    // CPD-ON
 
     public Builder bcc(EmailAddress address) {
       this.bcc.add(address);

@@ -126,7 +126,9 @@ public class MemcachedCacheAdapter<K, V> implements CachePort<K, V> {
       Boolean success = future.get();
 
       if (Boolean.TRUE.equals(success)) {
-        keyTracker.put(prefixedKey, System.currentTimeMillis() + (expiration * 1000L));
+        long expiresAt =
+            (expiration == 0) ? 0L : System.currentTimeMillis() + ((long) expiration * 1000L);
+        keyTracker.put(prefixedKey, expiresAt);
         logger.debug("Cached key: {} with TTL: {}", key, ttl);
       } else {
         logger.warn("Failed to cache key: {}", key);

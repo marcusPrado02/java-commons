@@ -20,6 +20,7 @@ public final class OtelBusinessMetrics {
 
   private final Meter meter;
 
+  /** Creates a new OtelBusinessMetrics instance. */
   public OtelBusinessMetrics(String instrumentationName) {
     String name =
         (instrumentationName == null || instrumentationName.isBlank())
@@ -28,6 +29,7 @@ public final class OtelBusinessMetrics {
     this.meter = GlobalOpenTelemetry.getMeter(name);
   }
 
+  /** Executes the counter operation. */
   public LongCounter counter(String name, String description, String unit) {
     return meter
         .counterBuilder(Objects.requireNonNull(name, "name must not be null"))
@@ -36,6 +38,7 @@ public final class OtelBusinessMetrics {
         .build();
   }
 
+  /** Executes the upDownCounter operation. */
   public LongUpDownCounter upDownCounter(String name, String description, String unit) {
     return meter
         .upDownCounterBuilder(Objects.requireNonNull(name, "name must not be null"))
@@ -44,6 +47,7 @@ public final class OtelBusinessMetrics {
         .build();
   }
 
+  /** Executes the histogram operation. */
   public DoubleHistogram histogram(String name, String description, String unit) {
     return meter
         .histogramBuilder(Objects.requireNonNull(name, "name must not be null"))
@@ -52,6 +56,7 @@ public final class OtelBusinessMetrics {
         .build();
   }
 
+  /** Executes the gauge operation. */
   public ObservableLongGauge gauge(
       String name, String description, String unit, LongSupplier value) {
     Objects.requireNonNull(value, "value must not be null");
@@ -63,6 +68,7 @@ public final class OtelBusinessMetrics {
         .buildWithCallback(measurement -> measurement.record(value.getAsLong()));
   }
 
+  /** Executes the gauge operation. */
   public ObservableDoubleGauge gauge(
       String name, String description, String unit, DoubleSupplier value) {
     Objects.requireNonNull(value, "value must not be null");

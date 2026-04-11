@@ -11,8 +11,8 @@ import com.marcusprado02.commons.ports.payment.PaymentService;
 import com.marcusprado02.commons.ports.payment.PaymentStatus;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
-import com.stripe.model.PaymentIntent;
 import com.stripe.model.Customer;
+import com.stripe.model.PaymentIntent;
 import com.stripe.model.PaymentMethodCollection;
 import com.stripe.param.CustomerCreateParams;
 import com.stripe.param.PaymentIntentCancelParams;
@@ -26,7 +26,6 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -203,6 +202,7 @@ public class StripePaymentService implements PaymentService {
   }
 
   @Override
+  @SuppressWarnings("checkstyle:indentation")
   public Result<PaymentMethod> createPaymentMethod(
       String customerId, String type, Map<String, String> details) {
     try {
@@ -218,12 +218,18 @@ public class StripePaymentService implements PaymentService {
 
       if (typeEnum == PaymentMethodCreateParams.Type.CARD && details != null) {
         var cardBuilder = PaymentMethodCreateParams.CardDetails.builder();
-        if (details.containsKey("number")) cardBuilder.setNumber(details.get("number"));
-        if (details.containsKey("exp_month"))
+        if (details.containsKey("number")) {
+          cardBuilder.setNumber(details.get("number"));
+        }
+        if (details.containsKey("exp_month")) {
           cardBuilder.setExpMonth(Long.parseLong(details.get("exp_month")));
-        if (details.containsKey("exp_year"))
+        }
+        if (details.containsKey("exp_year")) {
           cardBuilder.setExpYear(Long.parseLong(details.get("exp_year")));
-        if (details.containsKey("cvc")) cardBuilder.setCvc(details.get("cvc"));
+        }
+        if (details.containsKey("cvc")) {
+          cardBuilder.setCvc(details.get("cvc"));
+        }
         paramsBuilder.setCard(cardBuilder.build());
       }
 
@@ -326,13 +332,18 @@ public class StripePaymentService implements PaymentService {
    * @param metadata additional key-value metadata
    * @return Stripe customer ID
    */
-  public Result<String> createCustomer(
-      String email, String name, Map<String, String> metadata) {
+  public Result<String> createCustomer(String email, String name, Map<String, String> metadata) {
     try {
       var paramsBuilder = CustomerCreateParams.builder();
-      if (email != null) paramsBuilder.setEmail(email);
-      if (name != null) paramsBuilder.setName(name);
-      if (metadata != null && !metadata.isEmpty()) paramsBuilder.putAllMetadata(metadata);
+      if (email != null) {
+        paramsBuilder.setEmail(email);
+      }
+      if (name != null) {
+        paramsBuilder.setName(name);
+      }
+      if (metadata != null && !metadata.isEmpty()) {
+        paramsBuilder.putAllMetadata(metadata);
+      }
 
       var customer = Customer.create(paramsBuilder.build());
       logger.info("Created Stripe customer: {}", customer.getId());
@@ -360,10 +371,14 @@ public class StripePaymentService implements PaymentService {
       var customer = Customer.retrieve(customerId);
       var data =
           Map.of(
-              "id", customer.getId(),
-              "email", customer.getEmail() != null ? customer.getEmail() : "",
-              "name", customer.getName() != null ? customer.getName() : "",
-              "created", String.valueOf(customer.getCreated()));
+              "id",
+              customer.getId(),
+              "email",
+              customer.getEmail() != null ? customer.getEmail() : "",
+              "name",
+              customer.getName() != null ? customer.getName() : "",
+              "created",
+              String.valueOf(customer.getCreated()));
       return Result.ok(data);
 
     } catch (StripeException e) {
@@ -417,8 +432,7 @@ public class StripePaymentService implements PaymentService {
         .build();
   }
 
-  private PaymentMethod mapToPaymentMethod(
-      com.stripe.model.PaymentMethod pm, String customerId) {
+  private PaymentMethod mapToPaymentMethod(com.stripe.model.PaymentMethod pm, String customerId) {
     var card = pm.getCard();
     return PaymentMethod.builder()
         .id(pm.getId())
@@ -433,6 +447,7 @@ public class StripePaymentService implements PaymentService {
         .build();
   }
 
+  @SuppressWarnings("checkstyle:indentation")
   private PaymentStatus mapStatus(String stripeStatus) {
     return switch (stripeStatus) {
       case "requires_payment_method", "requires_confirmation" -> PaymentStatus.PENDING;

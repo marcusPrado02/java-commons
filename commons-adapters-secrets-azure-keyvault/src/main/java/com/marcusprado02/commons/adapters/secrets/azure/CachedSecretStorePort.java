@@ -6,8 +6,16 @@ import com.marcusprado02.commons.ports.secrets.SecretValue;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.*;
-import java.util.concurrent.*;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Simple in-memory caching decorator for SecretStorePort.
@@ -34,6 +42,7 @@ public final class CachedSecretStorePort implements SecretStorePort, AutoCloseab
     this(delegate, ttl, Clock.systemUTC(), null);
   }
 
+  /** Creates a new CachedSecretStorePort instance. */
   public CachedSecretStorePort(
       SecretStorePort delegate, Duration ttl, Clock clock, Duration refreshInterval) {
     this.delegate = Objects.requireNonNull(delegate, "delegate cannot be null");

@@ -19,6 +19,7 @@ import java.util.Objects;
  */
 public record SearchResult(List<Document> hits, long totalHits, float maxScore, long tookMillis) {
 
+  /** Validates search result fields and creates defensive copies. */
   public SearchResult {
     Objects.requireNonNull(hits, "Hits cannot be null");
     hits = List.copyOf(hits);

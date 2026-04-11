@@ -32,6 +32,7 @@ import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeoutException;
 import java.util.function.Supplier;
 
+/** Resilience4jExecutor implementation. */
 public final class Resilience4jExecutor implements ResilienceExecutor {
 
   private static final String METRIC_CALLS = "commons.resilience.calls";
@@ -54,6 +55,7 @@ public final class Resilience4jExecutor implements ResilienceExecutor {
     this.metrics = (metrics == null) ? MetricsFacade.noop() : metrics;
   }
 
+  /** Executes the circuitBreakerStatuses operation. */
   public List<CircuitBreakerStatus> circuitBreakerStatuses() {
     return circuitBreakers.entrySet().stream()
         .map(
@@ -73,6 +75,7 @@ public final class Resilience4jExecutor implements ResilienceExecutor {
         .toList();
   }
 
+  /** CircuitBreakerStatus data. */
   public record CircuitBreakerStatus(
       String key,
       String name,

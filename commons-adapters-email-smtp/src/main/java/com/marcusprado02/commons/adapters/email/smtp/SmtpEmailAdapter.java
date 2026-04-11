@@ -1,10 +1,27 @@
 package com.marcusprado02.commons.adapters.email.smtp;
 
-import com.marcusprado02.commons.kernel.errors.*;
+import com.marcusprado02.commons.kernel.errors.ErrorCategory;
+import com.marcusprado02.commons.kernel.errors.ErrorCode;
+import com.marcusprado02.commons.kernel.errors.Problem;
+import com.marcusprado02.commons.kernel.errors.Severity;
 import com.marcusprado02.commons.kernel.result.Result;
-import com.marcusprado02.commons.ports.email.*;
-import jakarta.mail.*;
-import jakarta.mail.internet.*;
+import com.marcusprado02.commons.ports.email.Email;
+import com.marcusprado02.commons.ports.email.EmailAddress;
+import com.marcusprado02.commons.ports.email.EmailAttachment;
+import com.marcusprado02.commons.ports.email.EmailContent;
+import com.marcusprado02.commons.ports.email.EmailPort;
+import com.marcusprado02.commons.ports.email.TemplateEmailRequest;
+import jakarta.mail.Authenticator;
+import jakarta.mail.Message;
+import jakarta.mail.MessagingException;
+import jakarta.mail.Multipart;
+import jakarta.mail.PasswordAuthentication;
+import jakarta.mail.Session;
+import jakarta.mail.Transport;
+import jakarta.mail.internet.InternetAddress;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeMultipart;
 import java.util.Objects;
 import java.util.Optional;
 

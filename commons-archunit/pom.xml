@@ -11,6 +11,13 @@
     <artifactId>commons-archunit</artifactId>
 
     <dependencies>
+        <!-- ArchUnit testkit (shared rules used in tests) -->
+        <dependency>
+            <groupId>com.marcusprado02.commons</groupId>
+            <artifactId>commons-testkit-archunit</artifactId>
+            <scope>test</scope>
+        </dependency>
+
         <!-- ArchUnit annotations API (for @AnalyzeClasses, @ArchTest, etc) -->
         <dependency>
             <groupId>com.tngtech.archunit</groupId>

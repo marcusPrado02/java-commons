@@ -16,6 +16,12 @@ import org.springframework.context.annotation.Bean;
     })
 public class IdempotencyJpaStoreAutoConfiguration {
 
+  /**
+   * Creates the JPA-backed {@link IdempotencyStorePort} bean via reflection when available.
+   *
+   * @param applicationContext the Spring application context
+   * @return the idempotency store port
+   */
   @Bean
   @ConditionalOnMissingBean(IdempotencyStorePort.class)
   public IdempotencyStorePort idempotencyStorePort(ApplicationContext applicationContext) {
@@ -23,9 +29,10 @@ public class IdempotencyJpaStoreAutoConfiguration {
       Class<?> entityManagerClass = Class.forName("jakarta.persistence.EntityManager");
       Object entityManager = applicationContext.getBean(entityManagerClass);
 
-      Class<?> adapterClass =
-          Class.forName(
-              "com.marcusprado02.commons.adapters.persistence.jpa.idempotency.JpaIdempotencyStoreAdapter");
+      String adapterClassName =
+          "com.marcusprado02.commons.adapters.persistence.jpa.idempotency"
+              + ".JpaIdempotencyStoreAdapter";
+      Class<?> adapterClass = Class.forName(adapterClassName);
       Constructor<?> ctor = adapterClass.getConstructor(entityManagerClass);
       return (IdempotencyStorePort) ctor.newInstance(entityManager);
     } catch (Exception ex) {

@@ -258,7 +258,9 @@ public final class AsyncResult<T> {
   public CompletableFuture<T> toCompletableFutureOfValue() {
     return future.thenApply(
         result -> {
-          if (result.isOk()) return result.getOrNull();
+          if (result.isOk()) {
+            return result.getOrNull();
+          }
           throw new ResultException(result.problemOrNull());
         });
   }

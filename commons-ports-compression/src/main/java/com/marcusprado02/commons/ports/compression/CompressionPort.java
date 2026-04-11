@@ -28,6 +28,15 @@ public interface CompressionPort {
       InputStream input, OutputStream output, CompressionOptions options);
 
   /**
+   * Compresses byte array data.
+   *
+   * @param data the data to compress
+   * @param options compression options
+   * @return result containing compressed data or error details
+   */
+  Result<byte[]> compress(byte[] data, CompressionOptions options);
+
+  /**
    * Decompresses data from input stream to output stream.
    *
    * @param input the input stream containing compressed data
@@ -37,15 +46,6 @@ public interface CompressionPort {
    */
   Result<CompressionResult> decompress(
       InputStream input, OutputStream output, CompressionOptions options);
-
-  /**
-   * Compresses byte array data.
-   *
-   * @param data the data to compress
-   * @param options compression options
-   * @return result containing compressed data or error details
-   */
-  Result<byte[]> compress(byte[] data, CompressionOptions options);
 
   /**
    * Decompresses byte array data.

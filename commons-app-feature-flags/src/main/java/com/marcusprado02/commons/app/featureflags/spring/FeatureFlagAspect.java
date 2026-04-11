@@ -25,10 +25,24 @@ public class FeatureFlagAspect {
   private final FeatureFlagService featureFlagService;
   private final ExpressionParser parser = new SpelExpressionParser();
 
+  /**
+   * Creates a new {@code FeatureFlagAspect}.
+   *
+   * @param featureFlagService the service used to evaluate feature flags
+   */
   public FeatureFlagAspect(FeatureFlagService featureFlagService) {
     this.featureFlagService = featureFlagService;
   }
 
+  /**
+   * Intercepts methods annotated with {@link FeatureFlag} and applies the flag evaluation logic.
+   *
+   * @param joinPoint the intercepted method invocation
+   * @param featureFlag the annotation applied to the intercepted method
+   * @return the method's return value, or null when the fallback strategy skips the call
+   * @throws Throwable if the intercepted method throws, or if the flag is disabled and strategy is
+   *     THROW_EXCEPTION
+   */
   @Around("@annotation(featureFlag)")
   public Object aroundFeatureFlaggedMethod(ProceedingJoinPoint joinPoint, FeatureFlag featureFlag)
       throws Throwable {

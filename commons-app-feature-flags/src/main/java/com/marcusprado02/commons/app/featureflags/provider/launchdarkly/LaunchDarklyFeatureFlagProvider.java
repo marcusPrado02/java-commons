@@ -45,13 +45,13 @@ public class LaunchDarklyFeatureFlagProvider implements FeatureFlagProvider {
 
   @Override
   public boolean isEnabled(String featureKey, FeatureFlagContext context) {
-    LDContext ldContext = toLDContext(context);
+    LDContext ldContext = toLdContext(context);
     return client.boolVariation(featureKey, ldContext, false);
   }
 
   @Override
   public FeatureFlagValue getValue(String featureKey, FeatureFlagContext context) {
-    LDContext ldContext = toLDContext(context);
+    LDContext ldContext = toLdContext(context);
     LDValue value = client.jsonValueVariation(featureKey, ldContext, LDValue.ofNull());
     return toFeatureFlagValue(value);
   }
@@ -65,7 +65,7 @@ public class LaunchDarklyFeatureFlagProvider implements FeatureFlagProvider {
     }
   }
 
-  private LDContext toLDContext(FeatureFlagContext context) {
+  private LDContext toLdContext(FeatureFlagContext context) {
     var builder = LDContext.builder(context.userId() != null ? context.userId() : "anonymous");
 
     // Add session ID as attribute

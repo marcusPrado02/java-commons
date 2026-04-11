@@ -13,7 +13,13 @@ import io.etcd.jetcd.options.GetOption;
 import io.etcd.jetcd.options.WatchOption;
 import io.etcd.jetcd.watch.WatchEvent;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -323,11 +329,21 @@ public class EtcdConfigurationProvider implements DynamicConfiguration {
 
   @SuppressWarnings("unchecked")
   private <T> T convertValue(String value, Class<T> type) {
-    if (type == String.class) return (T) value;
-    if (type == Integer.class) return (T) Integer.valueOf(value);
-    if (type == Long.class) return (T) Long.valueOf(value);
-    if (type == Double.class) return (T) Double.valueOf(value);
-    if (type == Boolean.class) return (T) Boolean.valueOf(value);
+    if (type == String.class) {
+      return (T) value;
+    }
+    if (type == Integer.class) {
+      return (T) Integer.valueOf(value);
+    }
+    if (type == Long.class) {
+      return (T) Long.valueOf(value);
+    }
+    if (type == Double.class) {
+      return (T) Double.valueOf(value);
+    }
+    if (type == Boolean.class) {
+      return (T) Boolean.valueOf(value);
+    }
     throw new IllegalArgumentException("Unsupported type: " + type);
   }
 
@@ -357,6 +373,7 @@ public class EtcdConfigurationProvider implements DynamicConfiguration {
       return new Builder();
     }
 
+    /** Builder for etcd Configuration. */
     public static class Builder {
       private String[] endpoints = new String[] {"http://localhost:2379"};
       private String keyPrefix = "/config";

@@ -71,7 +71,8 @@ public final class Web3jSmartContractClient implements SmartContractClient {
               ErrorCode.of("BLOCKCHAIN.NOT_IMPLEMENTED"),
               ErrorCategory.TECHNICAL,
               Severity.ERROR,
-              "Contract deployment requires transaction signing. Use a full transaction flow with WalletManager."));
+              "Contract deployment requires transaction signing."
+                  + " Use a full transaction flow with WalletManager."));
     } catch (Exception e) {
       logger.error("Error deploying contract", e);
       return Result.fail(
@@ -150,7 +151,8 @@ public final class Web3jSmartContractClient implements SmartContractClient {
               ErrorCode.of("BLOCKCHAIN.NOT_IMPLEMENTED"),
               ErrorCategory.TECHNICAL,
               Severity.ERROR,
-              "Contract transaction requires signing. Use a full transaction flow with WalletManager."));
+              "Contract transaction requires signing."
+                  + " Use a full transaction flow with WalletManager."));
     } catch (Exception e) {
       logger.error("Error sending contract transaction", e);
       return Result.fail(

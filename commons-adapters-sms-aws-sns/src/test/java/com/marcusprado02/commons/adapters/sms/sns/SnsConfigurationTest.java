@@ -23,7 +23,7 @@ class SnsConfigurationTest {
     assertNull(config.sessionToken());
     assertEquals(Duration.ofSeconds(15), config.requestTimeout());
     assertNull(config.defaultSenderId());
-    assertEquals(0.5, config.maxPriceUSD());
+    assertEquals(0.5, config.maxPriceUsd());
     assertEquals(SnsConfiguration.SmsType.TRANSACTIONAL, config.smsType());
     assertFalse(config.deliveryStatusLogging());
   }
@@ -38,7 +38,7 @@ class SnsConfigurationTest {
             .sessionToken("session123")
             .requestTimeout(Duration.ofSeconds(30))
             .defaultSenderId("MyApp")
-            .maxPriceUSD(1.0)
+            .maxPriceUsd(1.0)
             .smsType(SnsConfiguration.SmsType.PROMOTIONAL)
             .deliveryStatusLogging(true)
             .build();
@@ -49,7 +49,7 @@ class SnsConfigurationTest {
     assertEquals("session123", config.sessionToken());
     assertEquals(Duration.ofSeconds(30), config.requestTimeout());
     assertEquals("MyApp", config.defaultSenderId());
-    assertEquals(1.0, config.maxPriceUSD());
+    assertEquals(1.0, config.maxPriceUsd());
     assertEquals(SnsConfiguration.SmsType.PROMOTIONAL, config.smsType());
     assertTrue(config.deliveryStatusLogging());
   }
@@ -64,7 +64,7 @@ class SnsConfigurationTest {
     assertEquals("AKIAIOSFODNN7EXAMPLE", config.accessKeyId());
     assertEquals("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY", config.secretAccessKey());
     assertEquals(Duration.ofSeconds(30), config.requestTimeout());
-    assertEquals(0.1, config.maxPriceUSD());
+    assertEquals(0.1, config.maxPriceUsd());
     assertEquals(SnsConfiguration.SmsType.TRANSACTIONAL, config.smsType());
     assertTrue(config.deliveryStatusLogging());
   }
@@ -83,7 +83,7 @@ class SnsConfigurationTest {
     assertEquals("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY", config.secretAccessKey());
     assertEquals("MyCompany", config.defaultSenderId());
     assertEquals(Duration.ofSeconds(15), config.requestTimeout());
-    assertEquals(1.0, config.maxPriceUSD());
+    assertEquals(1.0, config.maxPriceUsd());
     assertEquals(SnsConfiguration.SmsType.TRANSACTIONAL, config.smsType());
     assertTrue(config.deliveryStatusLogging());
   }
@@ -97,7 +97,7 @@ class SnsConfigurationTest {
     assertNull(config.secretAccessKey());
     assertNull(config.sessionToken());
     assertEquals(Duration.ofSeconds(20), config.requestTimeout());
-    assertEquals(0.5, config.maxPriceUSD());
+    assertEquals(0.5, config.maxPriceUsd());
     assertEquals(SnsConfiguration.SmsType.TRANSACTIONAL, config.smsType());
     assertTrue(config.deliveryStatusLogging());
   }
@@ -200,7 +200,7 @@ class SnsConfigurationTest {
                     .region(Region.US_EAST_1)
                     .accessKeyId("AKIAIOSFODNN7EXAMPLE")
                     .secretAccessKey("secret")
-                    .maxPriceUSD(0)
+                    .maxPriceUsd(0)
                     .build());
     assertEquals("Max price must be positive", exception.getMessage());
   }
@@ -215,7 +215,7 @@ class SnsConfigurationTest {
                     .region(Region.US_EAST_1)
                     .accessKeyId("AKIAIOSFODNN7EXAMPLE")
                     .secretAccessKey("secret")
-                    .maxPriceUSD(-0.1)
+                    .maxPriceUsd(-0.1)
                     .build());
     assertEquals("Max price must be positive", exception.getMessage());
   }
@@ -230,7 +230,7 @@ class SnsConfigurationTest {
                     .region(Region.US_EAST_1)
                     .accessKeyId("AKIAIOSFODNN7EXAMPLE")
                     .secretAccessKey("secret")
-                    .maxPriceUSD(15.0)
+                    .maxPriceUsd(15.0)
                     .build());
     assertEquals("Max price cannot exceed $10.00 USD for safety", exception.getMessage());
   }
@@ -243,7 +243,7 @@ class SnsConfigurationTest {
                 .region(Region.US_EAST_1)
                 .accessKeyId("AKIAIOSFODNN7EXAMPLE")
                 .secretAccessKey("secret")
-                .maxPriceUSD(10.0)
+                .maxPriceUsd(10.0)
                 .build());
   }
 

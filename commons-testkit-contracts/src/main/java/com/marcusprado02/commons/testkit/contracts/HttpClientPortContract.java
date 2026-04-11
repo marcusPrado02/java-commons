@@ -2,7 +2,13 @@ package com.marcusprado02.commons.testkit.contracts;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.marcusprado02.commons.ports.http.*;
+import com.marcusprado02.commons.ports.http.HttpBody;
+import com.marcusprado02.commons.ports.http.HttpClientPort;
+import com.marcusprado02.commons.ports.http.HttpMethod;
+import com.marcusprado02.commons.ports.http.HttpRequest;
+import com.marcusprado02.commons.ports.http.HttpResponse;
+import com.marcusprado02.commons.ports.http.HttpResponseBodyMapper;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
@@ -82,7 +88,9 @@ public abstract class HttpClientPortContract {
         HttpRequest.builder()
             .method(HttpMethod.POST)
             .uri(java.net.URI.create(getTestServerUrl() + "/post"))
-            .body(new HttpBody.Bytes(requestBody.getBytes(), "application/json"))
+            .body(
+                new HttpBody.Bytes(
+                    requestBody.getBytes(StandardCharsets.UTF_8), "application/json"))
             .build();
 
     // When
@@ -140,7 +148,8 @@ public abstract class HttpClientPortContract {
             .uri(java.net.URI.create(getTestServerUrl() + "/get"))
             .build();
 
-    HttpResponseBodyMapper<String> mapper = (bytes, resp) -> new String(bytes);
+    HttpResponseBodyMapper<String> mapper =
+        (bytes, resp) -> new String(bytes, StandardCharsets.UTF_8);
 
     // When
     HttpResponse<String> response = httpClient.execute(request, mapper);

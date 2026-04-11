@@ -36,6 +36,7 @@ public record PdfDocument(
     Map<String, String> properties,
     Instant createdAt) {
 
+  /** Validates PDF document fields and creates defensive copies. */
   public PdfDocument {
     elements = Collections.unmodifiableList(new ArrayList<>(elements));
     properties = properties == null ? Map.of() : Map.copyOf(properties);
@@ -157,6 +158,13 @@ public record PdfDocument(
       return this;
     }
 
+    /**
+     * Adds a single document property.
+     *
+     * @param key property key
+     * @param value property value
+     * @return this builder
+     */
     public Builder property(String key, String value) {
       if (this.properties.isEmpty()) {
         this.properties = new java.util.HashMap<>();
@@ -172,6 +180,11 @@ public record PdfDocument(
       return this;
     }
 
+    /**
+     * Builds the PdfDocument instance.
+     *
+     * @return configured PdfDocument
+     */
     public PdfDocument build() {
       return new PdfDocument(
           title,

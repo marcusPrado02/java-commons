@@ -5,10 +5,17 @@ import com.marcusprado02.commons.app.outbox.model.OutboxMessageId;
 import com.marcusprado02.commons.app.outbox.model.OutboxPayload;
 import java.util.Map;
 
+/** Maps between {@link com.marcusprado02.commons.app.outbox.model.OutboxMessage} and JPA entity. */
 public final class OutboxJpaMapper {
 
   private OutboxJpaMapper() {}
 
+  /**
+   * Converts a domain message to a JPA entity.
+   *
+   * @param m the domain message
+   * @return the JPA entity
+   */
   public static OutboxMessageEntity toEntity(OutboxMessage m) {
     OutboxMessageEntity e = new OutboxMessageEntity();
     e.setId(m.id().value());
@@ -25,6 +32,12 @@ public final class OutboxJpaMapper {
     return e;
   }
 
+  /**
+   * Converts a JPA entity to a domain message.
+   *
+   * @param e the JPA entity
+   * @return the domain message
+   */
   public static OutboxMessage toModel(OutboxMessageEntity e) {
     return new OutboxMessage(
         new OutboxMessageId(e.getId()),

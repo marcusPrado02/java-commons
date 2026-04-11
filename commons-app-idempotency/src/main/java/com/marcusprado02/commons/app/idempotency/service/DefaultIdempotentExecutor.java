@@ -6,6 +6,7 @@ import java.time.Duration;
 import java.util.Objects;
 import java.util.function.Supplier;
 
+/** Default implementation of {@link IdempotentExecutor} backed by an {@link IdempotencyService}. */
 public final class DefaultIdempotentExecutor implements IdempotentExecutor {
 
   private final IdempotencyService service;

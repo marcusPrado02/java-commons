@@ -53,6 +53,7 @@ public record Prediction(
         .toList();
   }
 
+  /** Builder for {@link Prediction}. */
   public static class Builder {
     private String label;
     private double confidence;
@@ -77,6 +78,13 @@ public record Prediction(
       return this;
     }
 
+    /**
+     * Adds a class probability entry.
+     *
+     * @param label class label
+     * @param probability probability value (0.0 to 1.0)
+     * @return this builder
+     */
     public Builder probability(String label, double probability) {
       if (this.probabilities.isEmpty()) {
         this.probabilities = new java.util.HashMap<>();
@@ -93,6 +101,13 @@ public record Prediction(
       return this;
     }
 
+    /**
+     * Adds a single input feature.
+     *
+     * @param key feature name
+     * @param value feature value
+     * @return this builder
+     */
     public Builder feature(String key, Object value) {
       if (this.features.isEmpty()) {
         this.features = new java.util.HashMap<>();
@@ -104,11 +119,19 @@ public record Prediction(
       return this;
     }
 
+    // CPD-OFF - metadata builder methods mirrored in ModelMetadata and BatchPrediction
     public Builder metadata(Map<String, String> metadata) {
       this.metadata = metadata != null ? metadata : Map.of();
       return this;
     }
 
+    /**
+     * Adds a single metadata entry.
+     *
+     * @param key metadata key
+     * @param value metadata value
+     * @return this builder
+     */
     public Builder metadata(String key, String value) {
       if (this.metadata.isEmpty()) {
         this.metadata = new java.util.HashMap<>();
@@ -119,6 +142,8 @@ public record Prediction(
       this.metadata.put(key, value);
       return this;
     }
+
+    // CPD-ON
 
     public Builder timestamp(Instant timestamp) {
       this.timestamp = timestamp;

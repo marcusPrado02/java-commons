@@ -68,6 +68,13 @@ public record BackupConfiguration(
       return this;
     }
 
+    /**
+     * Adds a single option entry to this builder.
+     *
+     * @param key option key
+     * @param value option value
+     * @return this builder
+     */
     public Builder option(String key, String value) {
       if (this.options.isEmpty()) {
         this.options = Map.of(key, value);

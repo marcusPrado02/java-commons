@@ -90,6 +90,7 @@ public interface SMSPort {
 
   /** Receipt returned after successful SMS send. */
   record SMSReceipt(String messageId, String status, PhoneNumber to) {
+    /** Validates SMS receipt fields. */
     public SMSReceipt {
       if (messageId == null || messageId.isBlank()) {
         throw new IllegalArgumentException("messageId must not be null or blank");
@@ -109,6 +110,7 @@ public interface SMSPort {
 
   /** Receipt returned after successful bulk SMS send. */
   record BulkSMSReceipt(int totalMessages, int successCount, int failureCount) {
+    /** Validates bulk SMS receipt fields. */
     public BulkSMSReceipt {
       if (totalMessages < 0) {
         throw new IllegalArgumentException("totalMessages must be non-negative");

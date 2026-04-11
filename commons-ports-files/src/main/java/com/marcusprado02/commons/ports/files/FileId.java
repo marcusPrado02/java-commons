@@ -9,6 +9,7 @@ import java.util.UUID;
  */
 public record FileId(String bucket, String key) {
 
+  /** Validates file identifier fields. */
   public FileId {
     Objects.requireNonNull(bucket, "bucket must not be null");
     Objects.requireNonNull(key, "key must not be null");

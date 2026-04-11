@@ -23,6 +23,10 @@ import org.springframework.expression.spel.standard.SpelExpressionParser;
 import org.springframework.expression.spel.support.StandardEvaluationContext;
 import org.springframework.util.StringUtils;
 
+/**
+ * AOP aspect that enforces idempotency on methods annotated with {@link
+ * com.marcusprado02.commons.starter.idempotency.annotation.Idempotent}.
+ */
 @Aspect
 public class IdempotencyAspect {
 
@@ -33,6 +37,12 @@ public class IdempotencyAspect {
   private final ParameterNameDiscoverer parameterNameDiscoverer =
       new DefaultParameterNameDiscoverer();
 
+  /**
+   * Creates an aspect with the given idempotency service and properties.
+   *
+   * @param idempotencyService the idempotency service
+   * @param properties the idempotency configuration properties
+   */
   public IdempotencyAspect(
       IdempotencyService idempotencyService, IdempotencyProperties properties) {
     this.idempotencyService =
@@ -40,6 +50,14 @@ public class IdempotencyAspect {
     this.properties = Objects.requireNonNull(properties, "properties must not be null");
   }
 
+  /**
+   * Intercepts methods annotated with {@link Idempotent} and enforces idempotency.
+   *
+   * @param pjp the proceeding join point
+   * @param idempotent the idempotent annotation
+   * @return the result of the method or the cached result
+   * @throws Throwable if the method throws
+   */
   @Around("@annotation(idempotent)")
   public Object around(ProceedingJoinPoint pjp, Idempotent idempotent) throws Throwable {
     MethodSignature signature = (MethodSignature) pjp.getSignature();

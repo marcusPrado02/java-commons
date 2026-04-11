@@ -17,6 +17,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -30,6 +31,7 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
+/** OkHttpClientAdapter implementation. */
 public final class OkHttpClientAdapter implements HttpClientPort {
 
   private static final MediaType DEFAULT_MEDIA_TYPE = MediaType.get("application/octet-stream");
@@ -305,9 +307,10 @@ public final class OkHttpClientAdapter implements HttpClientPort {
   private String defaultOperationName(HttpRequest request) {
     String host = request.uri().getHost();
     String safeHost = (host == null || host.isBlank()) ? "unknown-host" : host;
-    return "http." + request.method().name().toLowerCase() + "." + safeHost;
+    return "http." + request.method().name().toLowerCase(Locale.ROOT) + "." + safeHost;
   }
 
+  /** Builder implementation. */
   public static final class Builder {
     private OkHttpClient client;
     private ResilienceExecutor resilienceExecutor;
@@ -362,6 +365,7 @@ public final class OkHttpClientAdapter implements HttpClientPort {
       return this;
     }
 
+    /** Executes the interceptor operation. */
     public Builder interceptor(HttpInterceptor interceptor) {
       if (interceptor != null) {
         this.interceptors.add(interceptor);
@@ -369,6 +373,7 @@ public final class OkHttpClientAdapter implements HttpClientPort {
       return this;
     }
 
+    /** Executes the build operation. */
     public OkHttpClientAdapter build() {
       OkHttpClient okClient = (client == null) ? new OkHttpClient() : client;
       OkHttpClient.Builder builder = okClient.newBuilder();

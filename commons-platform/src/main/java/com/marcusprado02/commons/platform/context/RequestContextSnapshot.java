@@ -4,6 +4,7 @@ import com.marcusprado02.commons.kernel.ddd.audit.ActorId;
 import com.marcusprado02.commons.kernel.ddd.tenant.TenantId;
 import java.util.Optional;
 
+/** Immutable snapshot of the current request context: correlation, causation, tenant, and actor. */
 public record RequestContextSnapshot(
     String correlationId, String causationId, TenantId tenantId, ActorId actorId) {
 

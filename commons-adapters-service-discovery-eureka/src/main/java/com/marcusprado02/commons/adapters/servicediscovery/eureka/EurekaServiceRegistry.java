@@ -250,7 +250,8 @@ public class EurekaServiceRegistry implements ServiceRegistry {
   @Override
   public Result<Void> updateHealthCheck(String instanceId, HealthCheck healthCheck) {
     logger.warn(
-        "updateHealthCheck is not supported by Eureka - health checks are managed by Eureka client");
+        "updateHealthCheck is not supported by Eureka"
+            + " - health checks are managed by Eureka client");
     return Result.fail(
         Problem.of(
             ErrorCode.of("OPERATION_NOT_SUPPORTED"),

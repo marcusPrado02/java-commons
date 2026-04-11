@@ -20,9 +20,21 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -34,15 +46,17 @@ import org.slf4j.LoggerFactory;
 /**
  * JDBC-based database backup service.
  *
- * <p>Exports all tables of a database schema to a compressed SQL dump (ZIP file containing
- * {@code dump.sql}). Supports full, incremental (timestamp-based), and differential backups.
+ * <p>Exports all tables of a database schema to a compressed SQL dump (ZIP file containing {@code
+ * dump.sql}). Supports full, incremental (timestamp-based), and differential backups.
  *
  * <p>Configuration options (via {@link BackupConfiguration#options()}):
  *
  * <ul>
- *   <li>{@code db.schema} — schema/catalog name to back up (optional, defaults to connection schema)
+ *   <li>{@code db.schema} — schema/catalog name to back up (optional, defaults to connection
+ *       schema)
  *   <li>{@code db.tables} — comma-separated list of tables (optional, defaults to all tables)
- *   <li>{@code db.timestamp_column} — column used for incremental filtering (default: {@code updated_at})
+ *   <li>{@code db.timestamp_column} — column used for incremental filtering (default: {@code
+ *       updated_at})
  *   <li>{@code db.since} — ISO-8601 instant for incremental cutoff (required for incremental)
  * </ul>
  *
@@ -334,7 +348,8 @@ public class DatabaseBackupService implements BackupService {
   private List<String> listTables(Connection conn, Set<String> tableFilter) throws SQLException {
     List<String> tables = new ArrayList<>();
     try (ResultSet rs =
-        conn.getMetaData().getTables(conn.getCatalog(), conn.getSchema(), "%", new String[]{"TABLE"})) {
+        conn.getMetaData()
+            .getTables(conn.getCatalog(), conn.getSchema(), "%", new String[] {"TABLE"})) {
       while (rs.next()) {
         String table = rs.getString("TABLE_NAME");
         if (tableFilter.isEmpty() || tableFilter.contains(table)) {
@@ -380,12 +395,7 @@ public class DatabaseBackupService implements BackupService {
   }
 
   private void dumpTable(
-      Connection conn,
-      String table,
-      PrintWriter out,
-      Instant since,
-      String tsCol,
-      BackupType type)
+      Connection conn, String table, PrintWriter out, Instant since, String tsCol, BackupType type)
       throws SQLException {
 
     // Build WHERE clause for incremental/differential backups
@@ -409,7 +419,9 @@ public class DatabaseBackupService implements BackupService {
       while (rs.next()) {
         out.print("INSERT INTO " + quoteIdentifier(table) + " VALUES (");
         for (int i = 1; i <= columnCount; i++) {
-          if (i > 1) out.print(", ");
+          if (i > 1) {
+            out.print(", ");
+          }
           Object value = rs.getObject(i);
           if (value == null) {
             out.print("NULL");
@@ -426,7 +438,8 @@ public class DatabaseBackupService implements BackupService {
   }
 
   private boolean hasColumn(Connection conn, String table, String column) {
-    try (ResultSet rs = conn.getMetaData().getColumns(conn.getCatalog(), conn.getSchema(), table, column)) {
+    try (ResultSet rs =
+        conn.getMetaData().getColumns(conn.getCatalog(), conn.getSchema(), table, column)) {
       return rs.next();
     } catch (SQLException e) {
       return false;

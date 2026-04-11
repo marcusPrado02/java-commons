@@ -124,6 +124,7 @@ public final class BatchJobContext {
     return Optional.ofNullable(restartFromPosition);
   }
 
+  /** Builder for {@link BatchJobContext}. */
   public static final class Builder {
     private String jobId;
     private String executionId;
