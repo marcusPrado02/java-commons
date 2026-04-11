@@ -67,7 +67,8 @@ jobs:
             -Dpit.timeoutFactor=2.0 \
             -Dpit.failWhenNoMutations=false \
             -Dpit.mutationThreshold=60 \
-            -Dpit.coverageThreshold=70
+            -Dpit.coverageThreshold=70 \
+            -Djacoco.skip=true
         env:
           MAVEN_OPTS: -Xmx4g
 
