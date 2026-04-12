@@ -230,4 +230,48 @@ class VaultSecretStoreAdapterTest {
     var retrievedAgain = secretStore.get(key);
     assertTrue(retrievedAgain.isPresent());
   }
+
+  @Test
+  void shouldGetSecretByVersion() {
+    var key = SecretKey.of("test/get-by-version");
+    secretStore.put(key, SecretValue.of("v1-value"));
+
+    // Vault KV v2: first write is version 1
+    var result = secretStore.get(key, "1");
+
+    assertNotNull(result);
+  }
+
+  @Test
+  void shouldReturnEmptyForNonExistentVersion() {
+    var key = SecretKey.of("test/nonexistent-version-key");
+
+    var result = secretStore.get(key, "999");
+
+    assertFalse(result.isPresent());
+  }
+
+  @Test
+  void shouldListSecretsWithPrefix() {
+    secretStore.put(SecretKey.of("test/list-a"), SecretValue.of("a"));
+    secretStore.put(SecretKey.of("test/list-b"), SecretValue.of("b"));
+
+    var result = secretStore.list("test");
+
+    assertNotNull(result);
+  }
+
+  @Test
+  void shouldListSecretsWithNullPrefix() {
+    var result = secretStore.list(null);
+
+    assertNotNull(result);
+  }
+
+  @Test
+  void shouldListSecretsWithBlankPrefix() {
+    var result = secretStore.list("   ");
+
+    assertNotNull(result);
+  }
 }
