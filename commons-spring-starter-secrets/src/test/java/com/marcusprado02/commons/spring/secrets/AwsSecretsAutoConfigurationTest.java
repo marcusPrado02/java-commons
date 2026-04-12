@@ -6,6 +6,8 @@ import com.marcusprado02.commons.adapters.secrets.aws.AwsSecretsManagerSecretSto
 import com.marcusprado02.commons.ports.secrets.SecretKey;
 import com.marcusprado02.commons.ports.secrets.SecretStorePort;
 import com.marcusprado02.commons.ports.secrets.SecretValue;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
@@ -22,6 +24,22 @@ class AwsSecretsAutoConfigurationTest {
   private static final LocalStackContainer localstack =
       new LocalStackContainer(DockerImageName.parse("localstack/localstack:3.0"))
           .withServices(LocalStackContainer.Service.SECRETSMANAGER);
+
+  // LocalStack accepts any credentials; provide them via the system-property provider
+  // so DefaultCredentialsProvider (used by the auto-configuration) succeeds.
+  @BeforeAll
+  static void setAwsCredentials() {
+    System.setProperty("aws.accessKeyId", localstack.getAccessKey());
+    System.setProperty("aws.secretAccessKey", localstack.getSecretKey());
+    System.setProperty("aws.region", localstack.getRegion());
+  }
+
+  @AfterAll
+  static void clearAwsCredentials() {
+    System.clearProperty("aws.accessKeyId");
+    System.clearProperty("aws.secretAccessKey");
+    System.clearProperty("aws.region");
+  }
 
   private final ApplicationContextRunner contextRunner =
       new ApplicationContextRunner()

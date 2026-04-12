@@ -641,6 +641,32 @@
         </Or>
     </Match>
 
+    <!-- commons-spring-starter-secrets: auto-configuration classes log config values
+         (region, endpoint, vault URL) set by operators, not user-supplied HTTP input. -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Or>
+            <Class name="com.marcusprado02.commons.spring.secrets.AwsSecretsAutoConfiguration"/>
+            <Class name="com.marcusprado02.commons.spring.secrets.AzureSecretsAutoConfiguration"/>
+            <Class name="com.marcusprado02.commons.spring.secrets.VaultSecretsAutoConfiguration"/>
+        </Or>
+    </Match>
+
+    <!-- SecretsProperties: Spring @ConfigurationProperties requires mutable getters that
+         return the sub-configuration objects directly. EI_EXPOSE_REP is a false positive
+         for configuration-properties beans. -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP"/>
+        <Class name="com.marcusprado02.commons.spring.secrets.SecretsProperties"/>
+    </Match>
+
+    <!-- SecretsHealthIndicator: Spring constructor-injects the SecretStorePort; storing
+         it is the standard Spring @Component pattern. EI_EXPOSE_REP2 is a false positive. -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+        <Class name="com.marcusprado02.commons.spring.secrets.SecretsHealthIndicator"/>
+    </Match>
+
     <!-- VaultSecretStoreAdapter: SpotBugs cannot see through the null-guard pattern where
          response.getData() / response.getMetadata() are called once in the null check and
          once to retrieve the value. Each call is flagged independently as potentially null,

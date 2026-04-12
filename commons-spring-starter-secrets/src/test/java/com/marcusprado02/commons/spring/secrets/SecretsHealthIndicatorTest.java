@@ -40,6 +40,20 @@ class SecretsHealthIndicatorTest {
     assertThat(health.getDetails()).containsKey("error");
   }
 
+  @Test
+  void shouldReturnDownWhenReadBackValueDoesNotMatch() {
+    // Arrange — store that returns a wrong value on get()
+    SecretStorePort secretStore = new WrongValueSecretStore();
+    SecretsHealthIndicator indicator = new SecretsHealthIndicator(secretStore);
+
+    // Act
+    Health health = indicator.health();
+
+    // Assert
+    assertThat(health.getStatus()).isEqualTo(Status.DOWN);
+    assertThat(health.getDetails()).containsKey("error");
+  }
+
   private static class InMemorySecretStore implements SecretStorePort {
     private final java.util.Map<SecretKey, SecretValue> secrets =
         new java.util.concurrent.ConcurrentHashMap<>();
@@ -80,6 +94,44 @@ class SecretsHealthIndicatorTest {
       return secrets.keySet().stream()
           .filter(k -> k.value().startsWith(prefix))
           .collect(java.util.stream.Collectors.toList());
+    }
+  }
+
+  /** Returns a wrong value on get() to trigger the mismatch branch in health(). */
+  private static class WrongValueSecretStore implements SecretStorePort {
+    @Override
+    public String put(SecretKey key, SecretValue value) {
+      return "v1";
+    }
+
+    @Override
+    public String put(SecretKey key, java.util.Map<String, String> values) {
+      return "v1";
+    }
+
+    @Override
+    public java.util.Optional<SecretValue> get(SecretKey key) {
+      return java.util.Optional.of(SecretValue.of("wrong-value"));
+    }
+
+    @Override
+    public java.util.Optional<SecretValue> get(SecretKey key, String version) {
+      return get(key);
+    }
+
+    @Override
+    public boolean delete(SecretKey key) {
+      return true;
+    }
+
+    @Override
+    public boolean exists(SecretKey key) {
+      return true;
+    }
+
+    @Override
+    public java.util.List<SecretKey> list(String prefix) {
+      return java.util.Collections.emptyList();
     }
   }
 
