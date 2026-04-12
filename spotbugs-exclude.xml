@@ -619,4 +619,20 @@
         </Or>
     </Match>
 
+    <!-- VaultSecretStoreAdapter: logs SecretKey values and Map sizes — both are app-controlled
+         internal identifiers, not user-supplied HTTP input. CRLF injection false positive. -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Class name="com.marcusprado02.commons.adapters.secrets.vault.VaultSecretStoreAdapter"/>
+    </Match>
+
+    <!-- VaultSecretStoreAdapter: SpotBugs cannot see through the null-guard pattern where
+         response.getData() / response.getMetadata() are called once in the null check and
+         once to retrieve the value. Each call is flagged independently as potentially null,
+         even though the preceding null check makes this safe. False positive. -->
+    <Match>
+        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+        <Class name="com.marcusprado02.commons.adapters.secrets.vault.VaultSecretStoreAdapter"/>
+    </Match>
+
 </FindBugsFilter>
