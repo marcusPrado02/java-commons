@@ -619,11 +619,22 @@
         </Or>
     </Match>
 
-    <!-- VaultSecretStoreAdapter: logs SecretKey values and Map sizes — both are app-controlled
-         internal identifiers, not user-supplied HTTP input. CRLF injection false positive. -->
+    <!-- VaultSecretStoreAdapter and AzureKeyVaultSecretStoreAdapter: logs SecretKey values
+         and metadata — both are app-controlled internal identifiers, not user-supplied HTTP
+         input. CRLF injection false positive. -->
     <Match>
         <Bug pattern="CRLF_INJECTION_LOGS"/>
-        <Class name="com.marcusprado02.commons.adapters.secrets.vault.VaultSecretStoreAdapter"/>
+        <Or>
+            <Class name="com.marcusprado02.commons.adapters.secrets.vault.VaultSecretStoreAdapter"/>
+            <Class name="com.marcusprado02.commons.adapters.secrets.azure.AzureKeyVaultSecretStoreAdapter"/>
+        </Or>
+    </Match>
+
+    <!-- CachedSecretStorePort.refreshAllOnce(): intentionally catches all exceptions during
+         best-effort background refresh — swallowing is correct here. False positive. -->
+    <Match>
+        <Bug pattern="REC_CATCH_EXCEPTION"/>
+        <Class name="com.marcusprado02.commons.adapters.secrets.azure.CachedSecretStorePort"/>
     </Match>
 
     <!-- VaultSecretStoreAdapter: SpotBugs cannot see through the null-guard pattern where

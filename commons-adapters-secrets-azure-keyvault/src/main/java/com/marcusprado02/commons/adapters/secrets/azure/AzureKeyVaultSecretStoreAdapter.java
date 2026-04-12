@@ -9,6 +9,7 @@ import com.azure.security.keyvault.secrets.models.SecretProperties;
 import com.marcusprado02.commons.ports.secrets.SecretKey;
 import com.marcusprado02.commons.ports.secrets.SecretStorePort;
 import com.marcusprado02.commons.ports.secrets.SecretValue;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.Collections;
 import java.util.List;
@@ -245,6 +246,6 @@ public final class AzureKeyVaultSecretStoreAdapter implements SecretStorePort {
             ? secret.getProperties().getExpiresOn().toInstant()
             : null;
 
-    return SecretValue.of(value.getBytes(), version, createdAt, expiresAt);
+    return SecretValue.of(value.getBytes(StandardCharsets.UTF_8), version, createdAt, expiresAt);
   }
 }
