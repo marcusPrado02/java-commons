@@ -94,7 +94,10 @@ public class S3FileStoreAdapter implements FileStorePort {
               ErrorCode.of("S3_UPLOAD_ERROR"),
               ErrorCategory.TECHNICAL,
               Severity.ERROR,
-              "Failed to upload file to S3: " + e.awsErrorDetails().errorMessage()));
+              "Failed to upload file to S3: "
+                  + (e.awsErrorDetails() != null
+                      ? e.awsErrorDetails().errorMessage()
+                      : e.getMessage())));
     } catch (IOException e) {
       log.error("I/O error reading file content: {}", fileId, e);
       return Result.fail(
@@ -152,7 +155,10 @@ public class S3FileStoreAdapter implements FileStorePort {
               ErrorCode.of("S3_DOWNLOAD_ERROR"),
               ErrorCategory.TECHNICAL,
               Severity.ERROR,
-              "Failed to download file from S3: " + e.awsErrorDetails().errorMessage()));
+              "Failed to download file from S3: "
+                  + (e.awsErrorDetails() != null
+                      ? e.awsErrorDetails().errorMessage()
+                      : e.getMessage())));
     } catch (Exception e) {
       log.error("Unexpected error downloading file: {}", fileId, e);
       return Result.fail(
@@ -184,7 +190,10 @@ public class S3FileStoreAdapter implements FileStorePort {
               ErrorCode.of("S3_DELETE_ERROR"),
               ErrorCategory.TECHNICAL,
               Severity.ERROR,
-              "Failed to delete file from S3: " + e.awsErrorDetails().errorMessage()));
+              "Failed to delete file from S3: "
+                  + (e.awsErrorDetails() != null
+                      ? e.awsErrorDetails().errorMessage()
+                      : e.getMessage())));
     } catch (Exception e) {
       log.error("Unexpected error deleting file: {}", fileId, e);
       return Result.fail(
@@ -241,7 +250,10 @@ public class S3FileStoreAdapter implements FileStorePort {
               ErrorCode.of("S3_DELETE_ERROR"),
               ErrorCategory.TECHNICAL,
               Severity.ERROR,
-              "Failed to delete files from S3: " + e.awsErrorDetails().errorMessage()));
+              "Failed to delete files from S3: "
+                  + (e.awsErrorDetails() != null
+                      ? e.awsErrorDetails().errorMessage()
+                      : e.getMessage())));
     } catch (Exception e) {
       log.error("Unexpected error deleting files", e);
       return Result.fail(
@@ -274,7 +286,10 @@ public class S3FileStoreAdapter implements FileStorePort {
               ErrorCode.of("S3_ERROR"),
               ErrorCategory.TECHNICAL,
               Severity.ERROR,
-              "Failed to check file existence: " + e.awsErrorDetails().errorMessage()));
+              "Failed to check file existence: "
+                  + (e.awsErrorDetails() != null
+                      ? e.awsErrorDetails().errorMessage()
+                      : e.getMessage())));
     } catch (Exception e) {
       log.error("Unexpected error checking file existence: {}", fileId, e);
       return Result.fail(
@@ -323,7 +338,10 @@ public class S3FileStoreAdapter implements FileStorePort {
               ErrorCode.of("S3_ERROR"),
               ErrorCategory.TECHNICAL,
               Severity.ERROR,
-              "Failed to get file metadata: " + e.awsErrorDetails().errorMessage()));
+              "Failed to get file metadata: "
+                  + (e.awsErrorDetails() != null
+                      ? e.awsErrorDetails().errorMessage()
+                      : e.getMessage())));
     } catch (Exception e) {
       log.error("Unexpected error getting file metadata: {}", fileId, e);
       return Result.fail(
@@ -364,7 +382,10 @@ public class S3FileStoreAdapter implements FileStorePort {
               ErrorCode.of("S3_LIST_ERROR"),
               ErrorCategory.TECHNICAL,
               Severity.ERROR,
-              "Failed to list files: " + e.awsErrorDetails().errorMessage()));
+              "Failed to list files: "
+                  + (e.awsErrorDetails() != null
+                      ? e.awsErrorDetails().errorMessage()
+                      : e.getMessage())));
     } catch (Exception e) {
       log.error("Unexpected error listing files in bucket: {}", bucket, e);
       return Result.fail(
@@ -425,7 +446,10 @@ public class S3FileStoreAdapter implements FileStorePort {
               ErrorCode.of("S3_PRESIGN_ERROR"),
               ErrorCategory.TECHNICAL,
               Severity.ERROR,
-              "Failed to generate presigned URL: " + e.awsErrorDetails().errorMessage()));
+              "Failed to generate presigned URL: "
+                  + (e.awsErrorDetails() != null
+                      ? e.awsErrorDetails().errorMessage()
+                      : e.getMessage())));
     } catch (Exception e) {
       log.error("Unexpected error generating presigned URL: {}", fileId, e);
       return Result.fail(
@@ -462,7 +486,10 @@ public class S3FileStoreAdapter implements FileStorePort {
               ErrorCode.of("S3_COPY_ERROR"),
               ErrorCategory.TECHNICAL,
               Severity.ERROR,
-              "Failed to copy file: " + e.awsErrorDetails().errorMessage()));
+              "Failed to copy file: "
+                  + (e.awsErrorDetails() != null
+                      ? e.awsErrorDetails().errorMessage()
+                      : e.getMessage())));
     } catch (Exception e) {
       log.error("Unexpected error copying file from {} to {}", source, destination, e);
       return Result.fail(

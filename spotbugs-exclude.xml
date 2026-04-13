@@ -676,4 +676,11 @@
         <Class name="com.marcusprado02.commons.adapters.secrets.vault.VaultSecretStoreAdapter"/>
     </Match>
 
+    <!-- S3FileStoreAdapter: logs FileId values (bucket/key - internal app identifiers, not
+         user HTTP input) in error messages. CRLF_INJECTION_LOGS is a false positive here. -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Class name="com.marcusprado02.commons.adapters.files.s3.S3FileStoreAdapter"/>
+    </Match>
+
 </FindBugsFilter>
