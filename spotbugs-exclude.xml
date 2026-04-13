@@ -683,6 +683,24 @@
         <Class name="com.marcusprado02.commons.adapters.files.s3.S3FileStoreAdapter"/>
     </Match>
 
+    <!-- GcsFileStoreAdapter: logs FileId values (bucket/key - internal app identifiers, not
+         user HTTP input) in error messages. CRLF_INJECTION_LOGS is a false positive here. -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Class name="com.marcusprado02.commons.adapters.files.gcs.GcsFileStoreAdapter"/>
+    </Match>
+
+    <!-- GcsConfiguration: service-account JSON path is set by operators via application config,
+         not by end-user HTTP input — this is standard GCS SDK initialization.
+         PATH_TRAVERSAL_IN is a false positive here. -->
+    <Match>
+        <Bug pattern="PATH_TRAVERSAL_IN"/>
+        <Or>
+            <Class name="com.marcusprado02.commons.adapters.files.gcs.GcsConfiguration"/>
+            <Class name="com.marcusprado02.commons.adapters.files.gcs.GcsConfiguration$Builder"/>
+        </Or>
+    </Match>
+
     <!-- FcmPushNotificationAdapter: logs FCM topic names, token counts, and batch indices from
          internal app configuration and Firebase SDK metadata, not user-controlled HTTP input.
          CRLF_INJECTION_LOGS is a false positive here. -->

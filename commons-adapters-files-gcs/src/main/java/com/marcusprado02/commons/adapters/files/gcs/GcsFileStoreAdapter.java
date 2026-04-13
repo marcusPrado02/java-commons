@@ -5,7 +5,6 @@ import com.google.cloud.storage.BlobInfo;
 import com.google.cloud.storage.HttpMethod;
 import com.google.cloud.storage.Storage;
 import com.google.cloud.storage.StorageException;
-import com.google.cloud.storage.UploadResult;
 import com.marcusprado02.commons.kernel.errors.ErrorCategory;
 import com.marcusprado02.commons.kernel.errors.ErrorCode;
 import com.marcusprado02.commons.kernel.errors.Problem;
