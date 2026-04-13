@@ -683,4 +683,55 @@
         <Class name="com.marcusprado02.commons.adapters.files.s3.S3FileStoreAdapter"/>
     </Match>
 
+    <!-- FcmPushNotificationAdapter: logs FCM topic names, token counts, and batch indices from
+         internal app configuration and Firebase SDK metadata, not user-controlled HTTP input.
+         CRLF_INJECTION_LOGS is a false positive here. -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Class name="com.marcusprado02.commons.adapters.notification.fcm.FcmPushNotificationAdapter"/>
+    </Match>
+
+    <!-- FcmConfiguration: credentials is a GoogleCredentials object (immutable at runtime);
+         EI_EXPOSE_REP is a false positive for this configuration type.
+         PATH_TRAVERSAL_IN: the service-account JSON path is set by operators via application config,
+         not by end-user HTTP input — this is standard Firebase SDK initialization. -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP"/>
+        <Class name="com.marcusprado02.commons.adapters.notification.fcm.FcmConfiguration"/>
+    </Match>
+    <Match>
+        <Bug pattern="PATH_TRAVERSAL_IN"/>
+        <Or>
+            <Class name="com.marcusprado02.commons.adapters.notification.fcm.FcmConfiguration"/>
+            <Class name="com.marcusprado02.commons.adapters.notification.fcm.FcmConfiguration$Builder"/>
+        </Or>
+    </Match>
+
+    <!-- AzureBlobFileStoreAdapter: logs FileId / container / blob names from internal app
+         configuration and Azure SDK metadata, not user-controlled HTTP input.
+         CRLF_INJECTION_LOGS is a false positive here. -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Class name="com.marcusprado02.commons.adapters.files.azureblob.AzureBlobFileStoreAdapter"/>
+    </Match>
+
+    <!-- ApnsPushNotificationAdapter: logs device token / APNS ID values from internal SDK metadata,
+         not user-controlled HTTP input. CRLF_INJECTION_LOGS is a false positive here.
+         CT_CONSTRUCTOR_THROW: IOException from ApnsClientBuilder.build() is the documented API;
+         the adapter is not Serializable so finalizer-attack risk does not apply.
+         PATH_TRAVERSAL_IN (ApnsConfiguration.Builder): p8KeyPath / certPath are operator-configured
+         file paths, not end-user input. -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Class name="com.marcusprado02.commons.adapters.notification.apns.ApnsPushNotificationAdapter"/>
+    </Match>
+    <Match>
+        <Bug pattern="CT_CONSTRUCTOR_THROW"/>
+        <Class name="com.marcusprado02.commons.adapters.notification.apns.ApnsPushNotificationAdapter"/>
+    </Match>
+    <Match>
+        <Bug pattern="PATH_TRAVERSAL_IN"/>
+        <Class name="com.marcusprado02.commons.adapters.notification.apns.ApnsConfiguration$Builder"/>
+    </Match>
+
 </FindBugsFilter>

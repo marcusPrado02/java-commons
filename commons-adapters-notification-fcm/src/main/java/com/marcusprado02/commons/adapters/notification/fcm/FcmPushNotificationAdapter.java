@@ -5,13 +5,16 @@ import com.google.firebase.messaging.AndroidConfig;
 import com.google.firebase.messaging.AndroidNotification;
 import com.google.firebase.messaging.ApnsConfig;
 import com.google.firebase.messaging.Aps;
+import com.google.firebase.messaging.ApsAlert;
 import com.google.firebase.messaging.BatchResponse;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.FirebaseMessagingException;
 import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.MessagingErrorCode;
 import com.google.firebase.messaging.MulticastMessage;
 import com.google.firebase.messaging.Notification;
 import com.google.firebase.messaging.SendResponse;
+import com.google.firebase.messaging.TopicManagementResponse;
 import com.marcusprado02.commons.kernel.errors.ErrorCategory;
 import com.marcusprado02.commons.kernel.errors.ErrorCode;
 import com.marcusprado02.commons.kernel.errors.Problem;
@@ -333,69 +336,55 @@ public class FcmPushNotificationAdapter implements PushNotificationPort {
     }
   }
 
-  private Message.Builder buildMessage(PushNotification notification) {
-    Message.Builder builder = Message.builder();
+  /** Shared payload components for both single-message and multicast builders. */
+  private record MessagePayload(
+      Notification notification,
+      Map<String, String> data,
+      AndroidConfig androidConfig,
+      ApnsConfig apnsConfig) {}
 
-    // Build notification (visual content)
+  private MessagePayload buildPayload(PushNotification notification) {
+    Notification notif = null;
     if (notification.hasVisualContent()) {
-      Notification.Builder notificationBuilder =
+      Notification.Builder nb =
           Notification.builder().setTitle(notification.title()).setBody(notification.body());
-
       if (notification.imageUrl() != null) {
-        notificationBuilder.setImage(notification.imageUrl());
+        nb.setImage(notification.imageUrl());
       }
-
-      builder.setNotification(notificationBuilder.build());
+      notif = nb.build();
     }
+    Map<String, String> data = notification.hasData() ? notification.data() : Map.of();
+    return new MessagePayload(
+        notif, data, buildAndroidConfig(notification), buildApnsConfig(notification));
+  }
 
-    // Add data payload
-    if (notification.hasData()) {
-      builder.putAllData(notification.data());
+  private Message.Builder buildMessage(PushNotification notification) {
+    MessagePayload p = buildPayload(notification);
+    Message.Builder builder = Message.builder();
+    if (p.notification() != null) {
+      builder.setNotification(p.notification());
     }
-
-    // Configure Android-specific options
-    AndroidConfig androidConfig = buildAndroidConfig(notification);
-    builder.setAndroidConfig(androidConfig);
-
-    // Configure APNS (iOS) options
-    ApnsConfig apnsConfig = buildApnsConfig(notification);
-    builder.setApnsConfig(apnsConfig);
-
-    return builder;
+    if (!p.data().isEmpty()) {
+      builder.putAllData(p.data());
+    }
+    return builder.setAndroidConfig(p.androidConfig()).setApnsConfig(p.apnsConfig());
   }
 
   private MulticastMessage buildMulticastMessage(
       PushNotification notification, List<String> tokens) {
+    MessagePayload p = buildPayload(notification);
     MulticastMessage.Builder builder = MulticastMessage.builder();
-
-    // Build notification (visual content)
-    if (notification.hasVisualContent()) {
-      Notification.Builder notificationBuilder =
-          Notification.builder().setTitle(notification.title()).setBody(notification.body());
-
-      if (notification.imageUrl() != null) {
-        notificationBuilder.setImage(notification.imageUrl());
-      }
-
-      builder.setNotification(notificationBuilder.build());
+    if (p.notification() != null) {
+      builder.setNotification(p.notification());
     }
-
-    // Add data payload
-    if (notification.hasData()) {
-      builder.putAllData(notification.data());
+    if (!p.data().isEmpty()) {
+      builder.putAllData(p.data());
     }
-
-    // Configure Android-specific options
-    AndroidConfig androidConfig = buildAndroidConfig(notification);
-    builder.setAndroidConfig(androidConfig);
-
-    // Configure APNS (iOS) options
-    ApnsConfig apnsConfig = buildApnsConfig(notification);
-    builder.setApnsConfig(apnsConfig);
-
-    builder.addAllTokens(tokens);
-
-    return builder.build();
+    return builder
+        .setAndroidConfig(p.androidConfig())
+        .setApnsConfig(p.apnsConfig())
+        .addAllTokens(tokens)
+        .build();
   }
 
   private AndroidConfig buildAndroidConfig(PushNotification notification) {
