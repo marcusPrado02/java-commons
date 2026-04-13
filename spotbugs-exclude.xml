@@ -752,4 +752,11 @@
         <Class name="com.marcusprado02.commons.adapters.notification.apns.ApnsConfiguration$Builder"/>
     </Match>
 
+    <!-- SesEmailAdapter: logs messageId and exception messages from AWS SDK responses;
+         not user-controlled HTTP input. CRLF_INJECTION_LOGS is a false positive here. -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Class name="com.marcusprado02.commons.adapters.email.ses.SesEmailAdapter"/>
+    </Match>
+
 </FindBugsFilter>
