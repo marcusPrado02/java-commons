@@ -49,7 +49,7 @@
         <dependency>
             <groupId>io.opentelemetry.semconv</groupId>
             <artifactId>opentelemetry-semconv</artifactId>
-            <version>1.28.0-alpha</version>
+            <version>1.40.0</version>
         </dependency>
 
         <!-- OTLP exporter (Jaeger native OTLP support) -->
