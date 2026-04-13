@@ -268,8 +268,7 @@ public class EurekaServiceRegistry implements ServiceRegistry {
       // Eureka client handles heartbeats automatically
       // We can trigger a manual renew if needed
       boolean renewed =
-          eurekaClient.getApplicationInfoManager().getInfo().getStatus()
-              == InstanceInfo.InstanceStatus.UP;
+          applicationInfoManager.getInfo().getStatus() == InstanceInfo.InstanceStatus.UP;
 
       if (renewed) {
         logger.debug("Heartbeat sent successfully for instance: {}", instanceId);
