@@ -12,7 +12,6 @@ import com.marcusprado02.commons.ports.sms.SMSPort;
 import com.twilio.Twilio;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.rest.api.v2010.account.MessageCreator;
-import com.twilio.type.PhoneNumber;
 import java.net.URI;
 import java.util.Objects;
 
@@ -50,8 +49,8 @@ public class TwilioSmsAdapter implements SMSPort, AutoCloseable {
     try {
       MessageCreator messageCreator =
           Message.creator(
-              new PhoneNumber(sms.to().toE164()),
-              new PhoneNumber(sms.from().toE164()),
+              new com.twilio.type.PhoneNumber(sms.to().toE164()),
+              new com.twilio.type.PhoneNumber(sms.from().toE164()),
               sms.message());
 
       // Configure webhook URL for status callbacks if enabled
@@ -111,8 +110,8 @@ public class TwilioSmsAdapter implements SMSPort, AutoCloseable {
       // Simple verification by creating a Message resource (but not sending it)
       // Create a MessageCreator to verify the connection without sending
       Message.creator(
-          new PhoneNumber(configuration.fromPhoneNumber()),
-          new PhoneNumber(configuration.fromPhoneNumber()),
+          new com.twilio.type.PhoneNumber(configuration.fromPhoneNumber()),
+          new com.twilio.type.PhoneNumber(configuration.fromPhoneNumber()),
           "Connection test - not sent");
 
       // Note: We don't call create() to avoid sending actual message

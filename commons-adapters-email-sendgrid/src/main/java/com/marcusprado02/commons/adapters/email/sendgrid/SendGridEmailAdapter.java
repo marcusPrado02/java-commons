@@ -15,6 +15,7 @@ import com.sendgrid.SendGrid;
 import com.sendgrid.helpers.mail.Mail;
 import com.sendgrid.helpers.mail.objects.Content;
 import com.sendgrid.helpers.mail.objects.Personalization;
+import com.sendgrid.helpers.mail.objects.Setting;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;

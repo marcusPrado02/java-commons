@@ -252,7 +252,7 @@ class SnsSMSAdapterTest {
   @Test
   void shouldRejectMMSWithNotSupportedError() {
     // Given
-    adapter = new SnsSMSAdapter(configuration);
+    adapter = new SnsSmsAdapter(configuration);
 
     MMS mms =
         MMS.builder()
@@ -294,7 +294,7 @@ class SnsSMSAdapterTest {
   @Test
   void shouldReturnUnknownStatusForMessageTracking() {
     // Given
-    adapter = new SnsSMSAdapter(configuration);
+    adapter = new SnsSmsAdapter(configuration);
 
     // When
     Result<SMSPort.SMSStatus> result = adapter.getStatus("msg-123");

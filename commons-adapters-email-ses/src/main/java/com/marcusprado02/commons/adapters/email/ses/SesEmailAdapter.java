@@ -19,7 +19,6 @@ import software.amazon.awssdk.services.sesv2.model.Body;
 import software.amazon.awssdk.services.sesv2.model.Content;
 import software.amazon.awssdk.services.sesv2.model.Destination;
 import software.amazon.awssdk.services.sesv2.model.EmailContent;
-import software.amazon.awssdk.services.sesv2.model.EmailTemplateContent;
 import software.amazon.awssdk.services.sesv2.model.ListEmailIdentitiesRequest;
 import software.amazon.awssdk.services.sesv2.model.Message;
 import software.amazon.awssdk.services.sesv2.model.SendEmailRequest;
@@ -135,12 +134,6 @@ public final class SesEmailAdapter implements EmailPort, AutoCloseable {
               .toAddresses(toStringList(templateRequest.to()))
               .ccAddresses(toStringList(templateRequest.cc()))
               .bccAddresses(toStringList(templateRequest.bcc()))
-              .build();
-
-      var templateContent =
-          EmailTemplateContent.builder()
-              .templateName(templateRequest.templateName())
-              .templateData(templateDataBuilder.toString())
               .build();
 
       var requestBuilder =
