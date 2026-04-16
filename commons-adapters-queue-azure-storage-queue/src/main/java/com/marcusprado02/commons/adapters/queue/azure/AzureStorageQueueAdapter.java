@@ -21,6 +21,7 @@ import com.marcusprado02.commons.ports.queue.QueuePort;
 import com.marcusprado02.commons.ports.queue.ReceivedMessage;
 import com.marcusprado02.commons.ports.queue.SendMessageResult;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -88,7 +89,7 @@ public final class AzureStorageQueueAdapter<T> implements QueuePort<T> {
       String jsonPayload = serializePayload(message.payload());
 
       // Azure Storage Queue has max message size of 64KB
-      if (jsonPayload.getBytes().length > 64 * 1024) {
+      if (jsonPayload.getBytes(StandardCharsets.UTF_8).length > 64 * 1024) {
         return Result.fail(
             Problem.of(
                 ErrorCode.of("MESSAGE_TOO_LARGE"),

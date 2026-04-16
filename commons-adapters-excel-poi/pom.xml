@@ -70,5 +70,37 @@
       <artifactId>assertj-core</artifactId>
       <scope>test</scope>
     </dependency>
+    <dependency>
+      <groupId>ch.qos.logback</groupId>
+      <artifactId>logback-classic</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
+
+  <build>
+    <plugins>
+      <!-- Suppress CPD duplication between PoiCellMapper and PoiWorkbookMapper:
+           both contain identical mapCellType() and the start of extractCellValue()
+           because they serve symmetrical purposes. Refactoring would couple two
+           independent utility classes that may diverge over time. -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-pmd-plugin</artifactId>
+        <configuration>
+          <failOnViolation>true</failOnViolation>
+          <printFailingErrors>true</printFailingErrors>
+          <rulesets>
+            <ruleset>${maven.multiModuleProjectDirectory}/pmd-ruleset.xml</ruleset>
+          </rulesets>
+          <excludeRoots>
+            <excludeRoot>${basedir}/target/generated-sources</excludeRoot>
+          </excludeRoots>
+          <excludes>
+            <exclude>**/PoiCellMapper.java</exclude>
+            <exclude>**/PoiWorkbookMapper.java</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

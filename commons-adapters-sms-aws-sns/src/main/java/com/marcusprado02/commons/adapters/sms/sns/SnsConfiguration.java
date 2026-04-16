@@ -1,7 +1,6 @@
 package com.marcusprado02.commons.adapters.sms.sns;
 
 import java.time.Duration;
-import java.util.Objects;
 import software.amazon.awssdk.regions.Region;
 
 /**
@@ -28,16 +27,25 @@ public record SnsConfiguration(
     String defaultSenderId,
     double maxPriceUsd,
     SmsType smsType,
-    boolean deliveryStatusLogging) {
+    boolean deliveryStatusLogging,
+    boolean useIamRole) {
 
   /** Validates fields on construction. */
   public SnsConfiguration {
-    Objects.requireNonNull(region, "Region cannot be null");
-    Objects.requireNonNull(requestTimeout, "Request timeout cannot be null");
-    Objects.requireNonNull(smsType, "SMS type cannot be null");
+    if (region == null) {
+      throw new IllegalArgumentException("Region cannot be null");
+    }
+    if (requestTimeout == null) {
+      throw new IllegalArgumentException("Request timeout cannot be null");
+    }
+    if (smsType == null) {
+      throw new IllegalArgumentException("SMS type cannot be null");
+    }
 
     // Validate credentials - either access key or session token should be provided
-    if ((accessKeyId == null || accessKeyId.isBlank())
+    // (unless using IAM role-based auth where the SDK discovers credentials automatically)
+    if (!useIamRole
+        && (accessKeyId == null || accessKeyId.isBlank())
         && (sessionToken == null || sessionToken.isBlank())) {
       throw new IllegalArgumentException("Either access key ID or session token must be provided");
     }
@@ -128,6 +136,7 @@ public record SnsConfiguration(
         .maxPriceUsd(0.5)
         .smsType(SmsType.TRANSACTIONAL)
         .deliveryStatusLogging(true)
+        .useIamRole(true)
         .build();
   }
 
@@ -153,6 +162,7 @@ public record SnsConfiguration(
     private double maxPriceUsd = 0.5; // $0.50 USD default limit
     private SmsType smsType = SmsType.TRANSACTIONAL;
     private boolean deliveryStatusLogging = false;
+    private boolean useIamRole = false;
 
     private Builder() {}
 
@@ -256,6 +266,21 @@ public record SnsConfiguration(
     }
 
     /**
+     * Configures the adapter to use IAM role-based authentication.
+     *
+     * <p>When enabled, no explicit credentials are required — the AWS SDK discovers them
+     * automatically via the default credential provider chain (EC2 instance profile, ECS task role,
+     * environment variables, etc.).
+     *
+     * @param useIamRole true to use IAM role-based auth
+     * @return this builder
+     */
+    public Builder useIamRole(boolean useIamRole) {
+      this.useIamRole = useIamRole;
+      return this;
+    }
+
+    /**
      * Builds the SnsConfiguration.
      *
      * @return SnsConfiguration instance
@@ -271,7 +296,8 @@ public record SnsConfiguration(
           defaultSenderId,
           maxPriceUsd,
           smsType,
-          deliveryStatusLogging);
+          deliveryStatusLogging,
+          useIamRole);
     }
   }
 }

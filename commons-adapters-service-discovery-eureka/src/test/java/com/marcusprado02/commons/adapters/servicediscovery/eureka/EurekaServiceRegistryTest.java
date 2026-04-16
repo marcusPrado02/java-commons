@@ -1,367 +1,317 @@
 package com.marcusprado02.commons.adapters.servicediscovery.eureka;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.*;
 
 import com.marcusprado02.commons.kernel.result.Result;
 import com.marcusprado02.commons.ports.servicediscovery.HealthCheck;
 import com.marcusprado02.commons.ports.servicediscovery.ServiceInstance;
-import java.time.Duration;
+import com.netflix.appinfo.ApplicationInfoManager;
+import com.netflix.appinfo.InstanceInfo;
+import com.netflix.discovery.EurekaClient;
+import com.netflix.discovery.shared.Application;
+import com.netflix.discovery.shared.Applications;
 import java.util.List;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.containers.wait.strategy.Wait;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-@Testcontainers
+@ExtendWith(MockitoExtension.class)
 class EurekaServiceRegistryTest {
 
-  @Container
-  private static final GenericContainer<?> eurekaContainer =
-      new GenericContainer<>(DockerImageName.parse("springcloud/eureka:latest"))
-          .withExposedPorts(8761)
-          .withEnv("EUREKA_INSTANCE_HOSTNAME", "eureka")
-          .withEnv("EUREKA_CLIENT_REGISTER_WITH_EUREKA", "false")
-          .withEnv("EUREKA_CLIENT_FETCH_REGISTRY", "false")
-          .waitingFor(Wait.forHttp("/").forPort(8761).withStartupTimeout(Duration.ofMinutes(2)));
+  @Mock private EurekaClient eurekaClient;
+  @Mock private ApplicationInfoManager applicationInfoManager;
+  @Mock private InstanceInfo instanceInfo;
 
   private EurekaServiceRegistry registry;
-  private String eurekaUrl;
 
   @BeforeEach
   void setUp() {
-    eurekaUrl =
-        "http://"
-            + eurekaContainer.getHost()
-            + ":"
-            + eurekaContainer.getMappedPort(8761)
-            + "/eureka";
-
-    registry =
-        EurekaServiceRegistry.builder()
-            .eurekaServerUrl(eurekaUrl)
-            .appName("test-service")
-            .hostName("localhost")
-            .port(9090)
-            .renewalInterval(Duration.ofSeconds(10))
-            .expirationDuration(Duration.ofSeconds(30))
-            .build();
+    registry = new EurekaServiceRegistry(eurekaClient, applicationInfoManager, true);
   }
 
-  @AfterEach
-  void tearDown() {
-    if (registry != null) {
-      registry.shutdown();
-    }
-  }
+  // ── register ──────────────────────────────────────────────────────────────
 
   @Test
-  void register_shouldRegisterServiceInstance() throws InterruptedException {
-    ServiceInstance instance =
-        ServiceInstance.builder()
-            .serviceId("test-service")
-            .instanceId("test-01")
-            .host("localhost")
-            .port(9090)
-            .build();
+  void register_shouldSetInstanceStatusToUpAndReturnOk() {
+    ServiceInstance instance = sampleInstance("svc", "svc-01", 8080);
 
     Result<Void> result = registry.register(instance);
 
     assertThat(result.isOk()).isTrue();
-
-    // Wait for registration to propagate
-    Thread.sleep(3000);
-
-    // Verify instance is discoverable
-    Result<List<ServiceInstance>> discovered = registry.discover("test-service");
-    assertThat(discovered.isOk()).isTrue();
-    assertThat(discovered.getOrNull()).isNotEmpty();
+    verify(applicationInfoManager).setInstanceStatus(InstanceInfo.InstanceStatus.UP);
   }
 
   @Test
-  void registerWithHealthCheck_shouldRegisterWithMetadata() throws InterruptedException {
-    ServiceInstance instance =
-        ServiceInstance.builder()
-            .serviceId("health-test-service")
-            .instanceId("health-01")
-            .host("localhost")
-            .port(9091)
-            .addMetadata("version", "1.0.0")
-            .build();
+  void registerWithHealthCheck_shouldSucceed() {
+    ServiceInstance instance = sampleInstance("svc", "svc-01", 8080);
+    HealthCheck check = HealthCheck.http("http://localhost:8080/health").build();
 
-    HealthCheck healthCheck = HealthCheck.http("http://localhost:9091/health").build();
-
-    EurekaServiceRegistry healthRegistry =
-        EurekaServiceRegistry.builder()
-            .eurekaServerUrl(eurekaUrl)
-            .appName("health-test-service")
-            .hostName("localhost")
-            .port(9091)
-            .metadata("version", "1.0.0")
-            .build();
-
-    Result<Void> result = healthRegistry.register(instance, healthCheck);
-    assertThat(result.isOk()).isTrue();
-
-    // Wait for registration
-    Thread.sleep(3000);
-
-    Result<List<ServiceInstance>> discovered = healthRegistry.discover("health-test-service");
-    assertThat(discovered.isOk()).isTrue();
-    assertThat(discovered.getOrNull()).hasSize(1);
-
-    ServiceInstance found = discovered.getOrNull().get(0);
-    assertThat(found.metadata()).containsEntry("version", "1.0.0");
-
-    healthRegistry.shutdown();
-  }
-
-  @Test
-  void discover_shouldReturnHealthyInstances() throws InterruptedException {
-    // Register instance first
-    ServiceInstance instance =
-        ServiceInstance.builder()
-            .serviceId("discover-service")
-            .instanceId("discover-01")
-            .host("localhost")
-            .port(9092)
-            .build();
-
-    EurekaServiceRegistry discoverRegistry =
-        EurekaServiceRegistry.builder()
-            .eurekaServerUrl(eurekaUrl)
-            .appName("discover-service")
-            .hostName("localhost")
-            .port(9092)
-            .build();
-
-    discoverRegistry.register(instance);
-    Thread.sleep(3000);
-
-    Result<List<ServiceInstance>> result = discoverRegistry.discover("discover-service");
+    Result<Void> result = registry.register(instance, check);
 
     assertThat(result.isOk()).isTrue();
-    assertThat(result.getOrNull()).hasSize(1);
-
-    ServiceInstance found = result.getOrNull().get(0);
-    assertThat(found.serviceId()).isEqualToIgnoringCase("discover-service");
-    assertThat(found.host()).isEqualTo("localhost");
-    assertThat(found.port()).isEqualTo(9092);
-
-    discoverRegistry.shutdown();
+    verify(applicationInfoManager).setInstanceStatus(InstanceInfo.InstanceStatus.UP);
   }
 
   @Test
-  void discover_shouldReturnEmptyListForNonexistentService() {
-    Result<List<ServiceInstance>> result = registry.discover("nonexistent-service");
+  void registerWithTtlHealthCheck_shouldSucceed() {
+    ServiceInstance instance = sampleInstance("svc", "svc-01", 8080);
+    HealthCheck check = HealthCheck.ttl(java.time.Duration.ofSeconds(30)).build();
+
+    Result<Void> result = registry.register(instance, check);
+
+    assertThat(result.isOk()).isTrue();
+  }
+
+  @Test
+  void register_whenExceptionThrown_shouldReturnFail() {
+    ServiceInstance instance = sampleInstance("svc", "svc-01", 8080);
+    doThrow(new RuntimeException("boom")).when(applicationInfoManager).setInstanceStatus(any());
+
+    Result<Void> result = registry.register(instance);
+
+    assertThat(result.isFail()).isTrue();
+    assertThat(result.problemOrNull().code().value()).isEqualTo("REGISTRATION_FAILED");
+  }
+
+  // ── deregister ────────────────────────────────────────────────────────────
+
+  @Test
+  void deregister_whenOwnsClient_shouldSetDownAndShutdown() {
+    Result<Void> result = registry.deregister("svc-01");
+
+    assertThat(result.isOk()).isTrue();
+    verify(applicationInfoManager).setInstanceStatus(InstanceInfo.InstanceStatus.DOWN);
+    verify(eurekaClient).shutdown();
+  }
+
+  @Test
+  void deregister_whenNotOwnsClient_shouldNotShutdownClient() {
+    EurekaServiceRegistry nonOwning =
+        new EurekaServiceRegistry(eurekaClient, applicationInfoManager, false);
+
+    Result<Void> result = nonOwning.deregister("svc-01");
+
+    assertThat(result.isOk()).isTrue();
+    verify(eurekaClient, never()).shutdown();
+  }
+
+  @Test
+  void deregister_whenExceptionThrown_shouldReturnFail() {
+    doThrow(new RuntimeException("boom")).when(applicationInfoManager).setInstanceStatus(any());
+
+    Result<Void> result = registry.deregister("svc-01");
+
+    assertThat(result.isFail()).isTrue();
+    assertThat(result.problemOrNull().code().value()).isEqualTo("DEREGISTRATION_FAILED");
+  }
+
+  // ── discover ──────────────────────────────────────────────────────────────
+
+  @Test
+  void discover_whenApplicationNotFound_shouldReturnEmptyList() {
+    when(eurekaClient.getApplication("SVC")).thenReturn(null);
+
+    Result<List<ServiceInstance>> result = registry.discover("svc");
 
     assertThat(result.isOk()).isTrue();
     assertThat(result.getOrNull()).isEmpty();
   }
 
   @Test
-  void deregister_shouldRemoveServiceInstance() throws InterruptedException {
-    ServiceInstance instance =
-        ServiceInstance.builder()
-            .serviceId("deregister-service")
-            .instanceId("deregister-01")
-            .host("localhost")
-            .port(9093)
-            .build();
+  void discover_shouldReturnOnlyUpInstances() {
+    // UP instance: full stub needed because convertFromInstanceInfo is called
+    InstanceInfo upInstance = mockInstanceInfo("svc", "svc-01", "localhost", 8080, false);
+    when(upInstance.getStatus()).thenReturn(InstanceInfo.InstanceStatus.UP);
 
-    EurekaServiceRegistry deregisterRegistry =
-        EurekaServiceRegistry.builder()
-            .eurekaServerUrl(eurekaUrl)
-            .appName("deregister-service")
-            .hostName("localhost")
-            .port(9093)
-            .build();
+    // DOWN instance: only status stub needed; convertFromInstanceInfo is never reached
+    InstanceInfo downInstance = mock(InstanceInfo.class);
+    when(downInstance.getStatus()).thenReturn(InstanceInfo.InstanceStatus.DOWN);
 
-    deregisterRegistry.register(instance);
-    Thread.sleep(3000);
+    Application app = mock(Application.class);
+    when(app.getInstances()).thenReturn(List.of(upInstance, downInstance));
+    when(eurekaClient.getApplication("SVC")).thenReturn(app);
 
-    Result<List<ServiceInstance>> beforeDeregister =
-        deregisterRegistry.discover("deregister-service");
-    assertThat(beforeDeregister.getOrNull()).hasSize(1);
-
-    Result<Void> deregisterResult = deregisterRegistry.deregister("deregister-01");
-    assertThat(deregisterResult.isOk()).isTrue();
-
-    // Note: Eureka has a delay before instances are fully removed
-    // In real scenarios, instances will show as DOWN before being removed
-  }
-
-  @Test
-  void listServices_shouldReturnAllRegisteredServices() throws InterruptedException {
-    ServiceInstance instance1 =
-        ServiceInstance.builder()
-            .serviceId("list-service-a")
-            .instanceId("list-01")
-            .host("localhost")
-            .port(9094)
-            .build();
-
-    ServiceInstance instance2 =
-        ServiceInstance.builder()
-            .serviceId("list-service-b")
-            .instanceId("list-02")
-            .host("localhost")
-            .port(9095)
-            .build();
-
-    EurekaServiceRegistry registryA =
-        EurekaServiceRegistry.builder()
-            .eurekaServerUrl(eurekaUrl)
-            .appName("list-service-a")
-            .hostName("localhost")
-            .port(9094)
-            .build();
-
-    EurekaServiceRegistry registryB =
-        EurekaServiceRegistry.builder()
-            .eurekaServerUrl(eurekaUrl)
-            .appName("list-service-b")
-            .hostName("localhost")
-            .port(9095)
-            .build();
-
-    registryA.register(instance1);
-    registryB.register(instance2);
-    Thread.sleep(3000);
-
-    Result<List<String>> result = registryA.listServices();
-
-    assertThat(result.isOk()).isTrue();
-    assertThat(result.getOrNull()).contains("list-service-a", "list-service-b");
-
-    registryA.shutdown();
-    registryB.shutdown();
-  }
-
-  @Test
-  void getInstances_shouldReturnAllInstancesRegardlessOfStatus() throws InterruptedException {
-    ServiceInstance instance =
-        ServiceInstance.builder()
-            .serviceId("instances-service")
-            .instanceId("instances-01")
-            .host("localhost")
-            .port(9096)
-            .build();
-
-    EurekaServiceRegistry instancesRegistry =
-        EurekaServiceRegistry.builder()
-            .eurekaServerUrl(eurekaUrl)
-            .appName("instances-service")
-            .hostName("localhost")
-            .port(9096)
-            .build();
-
-    instancesRegistry.register(instance);
-    Thread.sleep(3000);
-
-    Result<List<ServiceInstance>> result = instancesRegistry.getInstances("instances-service");
+    Result<List<ServiceInstance>> result = registry.discover("svc");
 
     assertThat(result.isOk()).isTrue();
     assertThat(result.getOrNull()).hasSize(1);
-
-    instancesRegistry.shutdown();
+    assertThat(result.getOrNull().get(0).instanceId()).isEqualTo("svc-01");
   }
 
   @Test
-  void heartbeat_shouldMaintainInstanceRegistration() throws InterruptedException {
-    ServiceInstance instance =
-        ServiceInstance.builder()
-            .serviceId("heartbeat-service")
-            .instanceId("heartbeat-01")
-            .host("localhost")
-            .port(9097)
-            .build();
+  void discover_whenExceptionThrown_shouldReturnFail() {
+    when(eurekaClient.getApplication(anyString())).thenThrow(new RuntimeException("boom"));
 
-    EurekaServiceRegistry heartbeatRegistry =
-        EurekaServiceRegistry.builder()
-            .eurekaServerUrl(eurekaUrl)
-            .appName("heartbeat-service")
-            .hostName("localhost")
-            .port(9097)
-            .renewalInterval(Duration.ofSeconds(5))
-            .build();
+    Result<List<ServiceInstance>> result = registry.discover("svc");
 
-    heartbeatRegistry.register(instance);
-    Thread.sleep(3000);
+    assertThat(result.isFail()).isTrue();
+    assertThat(result.problemOrNull().code().value()).isEqualTo("DISCOVERY_FAILED");
+  }
 
-    // Send heartbeat
-    Result<Void> heartbeatResult = heartbeatRegistry.heartbeat("heartbeat-01");
-    assertThat(heartbeatResult.isOk()).isTrue();
+  // ── listServices ──────────────────────────────────────────────────────────
 
-    // Verify instance is still discoverable
-    Result<List<ServiceInstance>> discovered = heartbeatRegistry.discover("heartbeat-service");
-    assertThat(discovered.isOk()).isTrue();
-    assertThat(discovered.getOrNull()).hasSize(1);
+  @Test
+  void listServices_shouldReturnLowercaseServiceNames() {
+    Application app1 = mock(Application.class);
+    when(app1.getName()).thenReturn("SERVICE-A");
+    Application app2 = mock(Application.class);
+    when(app2.getName()).thenReturn("SERVICE-B");
 
-    heartbeatRegistry.shutdown();
+    Applications apps = mock(Applications.class);
+    when(apps.getRegisteredApplications()).thenReturn(List.of(app1, app2));
+    when(eurekaClient.getApplications()).thenReturn(apps);
+
+    Result<List<String>> result = registry.listServices();
+
+    assertThat(result.isOk()).isTrue();
+    assertThat(result.getOrNull()).containsExactlyInAnyOrder("service-a", "service-b");
   }
 
   @Test
-  void updateHealthCheck_shouldReturnNotSupported() {
-    HealthCheck newCheck = HealthCheck.tcp("localhost:9000").build();
+  void listServices_whenExceptionThrown_shouldReturnFail() {
+    when(eurekaClient.getApplications()).thenThrow(new RuntimeException("boom"));
 
-    Result<Void> result = registry.updateHealthCheck("some-instance", newCheck);
+    Result<List<String>> result = registry.listServices();
 
-    assertThat(result.isOk()).isFalse();
-    assertThat(result.problemOrNull()).isNotNull();
-    assertThat(result.problemOrNull().code().value()).isEqualTo("OPERATION_NOT_SUPPORTED");
+    assertThat(result.isFail()).isTrue();
+    assertThat(result.problemOrNull().code().value()).isEqualTo("LIST_SERVICES_FAILED");
+  }
+
+  // ── getInstances ──────────────────────────────────────────────────────────
+
+  @Test
+  void getInstances_whenApplicationNotFound_shouldReturnEmptyList() {
+    when(eurekaClient.getApplication("SVC")).thenReturn(null);
+
+    Result<List<ServiceInstance>> result = registry.getInstances("svc");
+
+    assertThat(result.isOk()).isTrue();
+    assertThat(result.getOrNull()).isEmpty();
   }
 
   @Test
-  void multipleInstances_shouldDiscoverAll() throws InterruptedException {
-    ServiceInstance instance1 =
-        ServiceInstance.builder()
-            .serviceId("multi-service")
-            .instanceId("multi-01")
-            .host("localhost")
-            .port(9098)
-            .build();
+  void getInstances_shouldReturnAllInstancesRegardlessOfStatus() {
+    // getInstances does not filter by status — no getStatus() stub needed
+    InstanceInfo up = mockInstanceInfo("svc", "svc-01", "localhost", 8080, false);
+    InstanceInfo down = mockInstanceInfo("svc", "svc-02", "localhost", 8081, false);
 
-    ServiceInstance instance2 =
-        ServiceInstance.builder()
-            .serviceId("multi-service")
-            .instanceId("multi-02")
-            .host("localhost")
-            .port(9099)
-            .build();
+    Application app = mock(Application.class);
+    when(app.getInstances()).thenReturn(List.of(up, down));
+    when(eurekaClient.getApplication("SVC")).thenReturn(app);
 
-    EurekaServiceRegistry registry1 =
-        EurekaServiceRegistry.builder()
-            .eurekaServerUrl(eurekaUrl)
-            .appName("multi-service")
-            .hostName("localhost")
-            .port(9098)
-            .build();
-
-    EurekaServiceRegistry registry2 =
-        EurekaServiceRegistry.builder()
-            .eurekaServerUrl(eurekaUrl)
-            .appName("multi-service")
-            .hostName("localhost")
-            .port(9099)
-            .build();
-
-    registry1.register(instance1);
-    registry2.register(instance2);
-    Thread.sleep(3000);
-
-    Result<List<ServiceInstance>> result = registry1.discover("multi-service");
+    Result<List<ServiceInstance>> result = registry.getInstances("svc");
 
     assertThat(result.isOk()).isTrue();
     assertThat(result.getOrNull()).hasSize(2);
-    assertThat(result.getOrNull())
-        .extracting(ServiceInstance::instanceId)
-        .containsExactlyInAnyOrder("multi-01", "multi-02");
+  }
 
-    registry1.shutdown();
-    registry2.shutdown();
+  @Test
+  void getInstances_whenExceptionThrown_shouldReturnFail() {
+    when(eurekaClient.getApplication(anyString())).thenThrow(new RuntimeException("boom"));
+
+    Result<List<ServiceInstance>> result = registry.getInstances("svc");
+
+    assertThat(result.isFail()).isTrue();
+    assertThat(result.problemOrNull().code().value()).isEqualTo("GET_INSTANCES_FAILED");
+  }
+
+  // ── updateHealthCheck ─────────────────────────────────────────────────────
+
+  @Test
+  void updateHealthCheck_shouldAlwaysReturnOperationNotSupported() {
+    HealthCheck check = HealthCheck.tcp("localhost:8080").build();
+
+    Result<Void> result = registry.updateHealthCheck("svc-01", check);
+
+    assertThat(result.isFail()).isTrue();
+    assertThat(result.problemOrNull().code().value()).isEqualTo("OPERATION_NOT_SUPPORTED");
+  }
+
+  // ── heartbeat ─────────────────────────────────────────────────────────────
+
+  @Test
+  void heartbeat_whenInstanceIsUp_shouldReturnOk() {
+    when(applicationInfoManager.getInfo()).thenReturn(instanceInfo);
+    when(instanceInfo.getStatus()).thenReturn(InstanceInfo.InstanceStatus.UP);
+
+    Result<Void> result = registry.heartbeat("svc-01");
+
+    assertThat(result.isOk()).isTrue();
+  }
+
+  @Test
+  void heartbeat_whenInstanceIsNotUp_shouldReturnFail() {
+    when(applicationInfoManager.getInfo()).thenReturn(instanceInfo);
+    when(instanceInfo.getStatus()).thenReturn(InstanceInfo.InstanceStatus.DOWN);
+
+    Result<Void> result = registry.heartbeat("svc-01");
+
+    assertThat(result.isFail()).isTrue();
+    assertThat(result.problemOrNull().code().value()).isEqualTo("HEARTBEAT_FAILED");
+  }
+
+  @Test
+  void heartbeat_whenExceptionThrown_shouldReturnFail() {
+    when(applicationInfoManager.getInfo()).thenThrow(new RuntimeException("boom"));
+
+    Result<Void> result = registry.heartbeat("svc-01");
+
+    assertThat(result.isFail()).isTrue();
+    assertThat(result.problemOrNull().code().value()).isEqualTo("HEARTBEAT_FAILED");
+  }
+
+  // ── shutdown ──────────────────────────────────────────────────────────────
+
+  @Test
+  void shutdown_whenOwnsClient_shouldShutdownEurekaClient() {
+    registry.shutdown();
+
+    verify(eurekaClient).shutdown();
+  }
+
+  @Test
+  void shutdown_whenNotOwnsClient_shouldNotShutdownEurekaClient() {
+    EurekaServiceRegistry nonOwning =
+        new EurekaServiceRegistry(eurekaClient, applicationInfoManager, false);
+
+    nonOwning.shutdown();
+
+    verify(eurekaClient, never()).shutdown();
+  }
+
+  // ── builder ───────────────────────────────────────────────────────────────
+
+  @Test
+  void builder_withNullAppName_shouldThrow() {
+    assertThatThrownBy(() -> EurekaServiceRegistry.builder().build())
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("appName must be set");
+  }
+
+  // ── helpers ───────────────────────────────────────────────────────────────
+
+  private ServiceInstance sampleInstance(String serviceId, String instanceId, int port) {
+    return ServiceInstance.builder()
+        .serviceId(serviceId)
+        .instanceId(instanceId)
+        .host("localhost")
+        .port(port)
+        .build();
+  }
+
+  private InstanceInfo mockInstanceInfo(
+      String appName, String instanceId, String host, int port, boolean secure) {
+    InstanceInfo info = mock(InstanceInfo.class);
+    when(info.getAppName()).thenReturn(appName.toUpperCase());
+    when(info.getInstanceId()).thenReturn(instanceId);
+    when(info.getHostName()).thenReturn(host);
+    when(info.getPort()).thenReturn(port);
+    when(info.isPortEnabled(InstanceInfo.PortType.SECURE)).thenReturn(secure);
+    when(info.getMetadata()).thenReturn(new java.util.HashMap<>());
+    return info;
   }
 }

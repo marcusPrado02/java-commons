@@ -49,4 +49,10 @@
     <!-- Full logger class name inside a <pre> Javadoc block exceeds line limit; cannot wrap -->
     <suppress checks="LineLength" files=".*RequestResponseLoggingFilter\.java"/>
 
+    <!-- Compression adapters: nested switch expressions inside ternary or method returns
+         produce indentation level mismatches that Checkstyle cannot handle correctly. -->
+    <suppress checks="Indentation" files=".*CompressionFactory\.java"/>
+    <suppress checks="Indentation" files=".*StreamingCompressionAdapter\.java"/>
+    <suppress checks="Indentation" files=".*MultiAlgorithmCompressionAdapter\.java"/>
+
 </suppressions>

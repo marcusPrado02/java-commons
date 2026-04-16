@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -246,7 +247,7 @@ public class ProtobufSerializationAdapter<T extends Message> implements Serializ
   private Result<byte[]> serializeToJson(T object) {
     try {
       String json = JsonFormat.printer().includingDefaultValueFields().print(object);
-      return Result.ok(json.getBytes());
+      return Result.ok(json.getBytes(StandardCharsets.UTF_8));
     } catch (Exception e) {
       log.error("Failed to serialize to JSON", e);
       return Result.fail(
@@ -261,7 +262,7 @@ public class ProtobufSerializationAdapter<T extends Message> implements Serializ
   private Result<byte[]> serializeToText(T object) {
     try {
       String text = object.toString();
-      return Result.ok(text.getBytes());
+      return Result.ok(text.getBytes(StandardCharsets.UTF_8));
     } catch (Exception e) {
       log.error("Failed to serialize to text", e);
       return Result.fail(

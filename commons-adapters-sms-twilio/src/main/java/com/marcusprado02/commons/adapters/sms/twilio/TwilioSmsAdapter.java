@@ -6,7 +6,6 @@ import com.marcusprado02.commons.kernel.errors.Problem;
 import com.marcusprado02.commons.kernel.errors.Severity;
 import com.marcusprado02.commons.kernel.result.Result;
 import com.marcusprado02.commons.ports.sms.BulkSMS;
-import com.marcusprado02.commons.ports.sms.PhoneNumber;
 import com.marcusprado02.commons.ports.sms.SMS;
 import com.marcusprado02.commons.ports.sms.SMSPort;
 import com.twilio.Twilio;
@@ -102,6 +101,17 @@ public class TwilioSmsAdapter implements SMSPort, AutoCloseable {
     BulkSMSReceipt bulkReceipt = BulkSMSReceipt.of(bulkSms.to().size(), successCount, failureCount);
 
     return Result.ok(bulkReceipt);
+  }
+
+  @Override
+  public Result<SMSReceipt> sendMMS(com.marcusprado02.commons.ports.sms.MMS mms) {
+    return Result.fail(
+        Problem.of(
+            ErrorCode.of("MMS_MEDIA_NOT_SUPPORTED"),
+            ErrorCategory.VALIDATION,
+            Severity.ERROR,
+            "MMS with binary media is not supported by the Twilio adapter;"
+                + " use a media URL instead"));
   }
 
   @Override

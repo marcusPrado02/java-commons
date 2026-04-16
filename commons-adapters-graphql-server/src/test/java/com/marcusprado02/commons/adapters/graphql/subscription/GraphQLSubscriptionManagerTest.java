@@ -2,6 +2,7 @@ package com.marcusprado02.commons.adapters.graphql.subscription;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.time.Duration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.reactivestreams.Publisher;
@@ -27,7 +28,7 @@ class GraphQLSubscriptionManagerTest {
         .expectNext("event1")
         .expectNext("event2")
         .thenCancel()
-        .verify();
+        .verify(Duration.ofSeconds(5));
   }
 
   @Test
@@ -38,7 +39,11 @@ class GraphQLSubscriptionManagerTest {
     manager.publish("other");
     manager.publish("test2");
 
-    StepVerifier.create(subscription).expectNext("test1").expectNext("test2").thenCancel().verify();
+    StepVerifier.create(subscription)
+        .expectNext("test1")
+        .expectNext("test2")
+        .thenCancel()
+        .verify(Duration.ofSeconds(5));
   }
 
   @Test
@@ -49,9 +54,15 @@ class GraphQLSubscriptionManagerTest {
     manager.publish("sink1", "event1");
     manager.publish("sink2", "event2");
 
-    StepVerifier.create(subscription1).expectNext("event1").thenCancel().verify();
+    StepVerifier.create(subscription1)
+        .expectNext("event1")
+        .thenCancel()
+        .verify(Duration.ofSeconds(5));
 
-    StepVerifier.create(subscription2).expectNext("event2").thenCancel().verify();
+    StepVerifier.create(subscription2)
+        .expectNext("event2")
+        .thenCancel()
+        .verify(Duration.ofSeconds(5));
   }
 
   @Test
@@ -61,7 +72,10 @@ class GraphQLSubscriptionManagerTest {
     manager.publish("sink1", "event1");
     manager.complete("sink1");
 
-    StepVerifier.create(subscription).expectNext("event1").expectComplete().verify();
+    StepVerifier.create(subscription)
+        .expectNext("event1")
+        .expectComplete()
+        .verify(Duration.ofSeconds(5));
   }
 
   @Test
@@ -72,9 +86,15 @@ class GraphQLSubscriptionManagerTest {
     manager.publish("event");
     manager.completeAll();
 
-    StepVerifier.create(subscription1).expectNext("event").expectComplete().verify();
+    StepVerifier.create(subscription1)
+        .expectNext("event")
+        .expectComplete()
+        .verify(Duration.ofSeconds(5));
 
-    StepVerifier.create(subscription2).expectNext("event").expectComplete().verify();
+    StepVerifier.create(subscription2)
+        .expectNext("event")
+        .expectComplete()
+        .verify(Duration.ofSeconds(5));
   }
 
   @Test
@@ -96,14 +116,21 @@ class GraphQLSubscriptionManagerTest {
 
   @Test
   void shouldHandleMultipleSubscribers() {
+    // Multicast sink: each sequential subscriber receives events published after it subscribed.
+    // Events consumed by subscriber-1's flux are not replayed to subscriber-2.
     Publisher<String> subscription1 = manager.subscribe();
+    manager.publish("event1");
+    StepVerifier.create(subscription1)
+        .expectNext("event1")
+        .thenCancel()
+        .verify(Duration.ofSeconds(5));
+
     Publisher<String> subscription2 = manager.subscribe();
-
-    manager.publish("event");
-
-    StepVerifier.create(subscription1).expectNext("event").thenCancel().verify();
-
-    StepVerifier.create(subscription2).expectNext("event").thenCancel().verify();
+    manager.publish("event2");
+    StepVerifier.create(subscription2)
+        .expectNext("event2")
+        .thenCancel()
+        .verify(Duration.ofSeconds(5));
   }
 
   @Test
@@ -128,6 +155,9 @@ class GraphQLSubscriptionManagerTest {
     }
 
     // Should receive all events
-    StepVerifier.create(subscription).expectNextCount(100).thenCancel().verify();
+    StepVerifier.create(subscription)
+        .expectNextCount(100)
+        .thenCancel()
+        .verify(Duration.ofSeconds(10));
   }
 }

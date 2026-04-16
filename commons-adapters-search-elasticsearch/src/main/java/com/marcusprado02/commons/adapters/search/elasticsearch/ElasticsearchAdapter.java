@@ -58,7 +58,6 @@ import org.elasticsearch.client.RestClientBuilder;
 public class ElasticsearchAdapter implements SearchPort {
 
   private final ElasticsearchClient client;
-  private final ElasticsearchConfiguration configuration;
   private final RestClient restClient;
 
   /**
@@ -68,9 +67,17 @@ public class ElasticsearchAdapter implements SearchPort {
    */
   public ElasticsearchAdapter(ElasticsearchConfiguration configuration) {
     Objects.requireNonNull(configuration, "Configuration cannot be null");
-    this.configuration = configuration;
     this.restClient = createRestClient(configuration);
     this.client = createElasticsearchClient(restClient);
+  }
+
+  /**
+   * Package-private constructor for testing — accepts an already-built client so tests can inject a
+   * mock without starting a real Elasticsearch node.
+   */
+  ElasticsearchAdapter(ElasticsearchConfiguration configuration, ElasticsearchClient client) {
+    this.client = client;
+    this.restClient = null;
   }
 
   @Override

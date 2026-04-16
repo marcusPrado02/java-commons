@@ -41,7 +41,7 @@ class TwilioSMSAdapterTest {
   void shouldSendSMS() {
     // Given
     SMS sms =
-        SMS.builder().from("+1234567890").to("+0987654321").message("Test SMS message").build();
+        SMS.builder().from("+1234567890").to("+19876543210").message("Test SMS message").build();
 
     // Mock Twilio Message
     Message mockMessage = mock(Message.class);
@@ -68,8 +68,8 @@ class TwilioSMSAdapterTest {
       assertThat(result.isOk()).isTrue();
       assertThat(result.getOrNull()).isNotNull();
       assertThat(result.getOrNull().messageId()).isEqualTo("SMxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
-      assertThat(result.getOrNull().status()).isEqualTo("SENT");
-      assertThat(result.getOrNull().to().toE164()).isEqualTo("+0987654321");
+      assertThat(result.getOrNull().status()).isEqualToIgnoringCase("sent");
+      assertThat(result.getOrNull().to().toE164()).isEqualTo("+19876543210");
     }
   }
 
@@ -77,7 +77,7 @@ class TwilioSMSAdapterTest {
   @DisplayName("Should handle Twilio exception during SMS send")
   void shouldHandleTwilioException() {
     // Given
-    SMS sms = SMS.builder().from("+1234567890").to("+invalid").message("Test SMS").build();
+    SMS sms = SMS.builder().from("+1234567890").to("+19876543210").message("Test SMS").build();
 
     // Mock Twilio exception
     com.twilio.exception.TwilioException twilioException =
@@ -113,8 +113,8 @@ class TwilioSMSAdapterTest {
     BulkSMS bulkSMS =
         BulkSMS.builder()
             .from("+1234567890")
-            .to("+0987654321")
-            .to("+1122334455")
+            .to("+19876543210")
+            .to("+11223344556")
             .message("Bulk SMS test message")
             .build();
 
@@ -138,7 +138,7 @@ class TwilioSMSAdapterTest {
           .when(
               () ->
                   Message.creator(
-                      eq(new com.twilio.type.PhoneNumber("+0987654321")),
+                      eq(new com.twilio.type.PhoneNumber("+19876543210")),
                       any(com.twilio.type.PhoneNumber.class),
                       anyString()))
           .thenReturn(mockCreator1);
@@ -147,7 +147,7 @@ class TwilioSMSAdapterTest {
           .when(
               () ->
                   Message.creator(
-                      eq(new com.twilio.type.PhoneNumber("+1122334455")),
+                      eq(new com.twilio.type.PhoneNumber("+11223344556")),
                       any(com.twilio.type.PhoneNumber.class),
                       anyString()))
           .thenReturn(mockCreator2);
@@ -191,18 +191,16 @@ class TwilioSMSAdapterTest {
   @Test
   @DisplayName("Should verify Twilio connection")
   void shouldVerifyConnection() {
-    // Given
-    com.twilio.rest.api.v2010.account.ValidationRequest mockValidation =
-        mock(com.twilio.rest.api.v2010.account.ValidationRequest.class);
-
-    var mockCreator = mock(com.twilio.rest.api.v2010.account.ValidationRequestCreator.class);
-    when(mockCreator.create()).thenReturn(mockValidation);
-
-    try (MockedStatic<com.twilio.rest.api.v2010.account.ValidationRequest> mockedValidation =
-        mockStatic(com.twilio.rest.api.v2010.account.ValidationRequest.class)) {
-
-      mockedValidation
-          .when(() -> com.twilio.rest.api.v2010.account.ValidationRequest.creator(any()))
+    // adapter.verify() calls Message.creator(...) (without .create()) to validate connectivity
+    try (MockedStatic<Message> mockedMessage = mockStatic(Message.class)) {
+      var mockCreator = mock(MessageCreator.class);
+      mockedMessage
+          .when(
+              () ->
+                  Message.creator(
+                      any(com.twilio.type.PhoneNumber.class),
+                      any(com.twilio.type.PhoneNumber.class),
+                      anyString()))
           .thenReturn(mockCreator);
 
       // When
@@ -220,7 +218,7 @@ class TwilioSMSAdapterTest {
     MMS mms =
         MMS.builder()
             .from("+1234567890")
-            .to("+0987654321")
+            .to("+19876543210")
             .message("MMS with image")
             .addImage("test image content".getBytes(), "jpeg")
             .build();

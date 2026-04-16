@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -118,7 +119,7 @@ public final class HttpCompression {
       return false;
     }
 
-    String normalized = mimeType.toLowerCase().trim();
+    String normalized = mimeType.toLowerCase(Locale.ROOT).trim();
 
     // Remove charset and other parameters
     int semicolon = normalized.indexOf(';');

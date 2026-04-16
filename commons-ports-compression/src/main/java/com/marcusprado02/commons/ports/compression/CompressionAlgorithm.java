@@ -1,5 +1,7 @@
 package com.marcusprado02.commons.ports.compression;
 
+import java.util.Locale;
+
 /**
  * Enumeration of supported compression algorithms.
  *
@@ -103,7 +105,7 @@ public enum CompressionAlgorithm {
       return null;
     }
 
-    String normalizedName = name.trim().toLowerCase();
+    String normalizedName = name.trim().toLowerCase(Locale.ROOT);
     for (CompressionAlgorithm algorithm : values()) {
       if (algorithm.algorithmName.equalsIgnoreCase(normalizedName)) {
         return algorithm;
@@ -123,7 +125,7 @@ public enum CompressionAlgorithm {
       return null;
     }
 
-    String normalizedMimeType = mimeType.trim().toLowerCase();
+    String normalizedMimeType = mimeType.trim().toLowerCase(Locale.ROOT);
     for (CompressionAlgorithm algorithm : values()) {
       if (algorithm.mimeType.equalsIgnoreCase(normalizedMimeType)) {
         return algorithm;
@@ -143,7 +145,7 @@ public enum CompressionAlgorithm {
       return null;
     }
 
-    String normalizedExt = extension.trim().toLowerCase();
+    String normalizedExt = extension.trim().toLowerCase(Locale.ROOT);
     if (normalizedExt.startsWith(".")) {
       normalizedExt = normalizedExt.substring(1);
     }

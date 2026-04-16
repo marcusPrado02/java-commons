@@ -235,12 +235,10 @@ class ThymeleafAdapterTest {
 
   @Test
   void javascriptModeShouldReturnJavaScriptContentType() {
-    var config =
-        ThymeleafConfiguration.builder().templateMode(TemplateMode.JAVASCRIPT).build();
+    var config = ThymeleafConfiguration.builder().templateMode(TemplateMode.JAVASCRIPT).build();
     var adapter = new ThymeleafTemplateAdapter(config);
 
-    Result<TemplateResult> result =
-        adapter.renderString("var x = 1;", TemplateContext.empty());
+    Result<TemplateResult> result = adapter.renderString("var x = 1;", TemplateContext.empty());
 
     assertThat(result.isOk()).isTrue();
     assertThat(result.getOrNull().contentType()).isEqualTo("application/javascript");
@@ -263,8 +261,7 @@ class ThymeleafAdapterTest {
     var config = ThymeleafConfiguration.builder().templateMode(TemplateMode.RAW).build();
     var adapter = new ThymeleafTemplateAdapter(config);
 
-    Result<TemplateResult> result =
-        adapter.renderString("raw content", TemplateContext.empty());
+    Result<TemplateResult> result = adapter.renderString("raw content", TemplateContext.empty());
 
     assertThat(result.isOk()).isTrue();
     assertThat(result.getOrNull().contentType()).isEqualTo("application/octet-stream");

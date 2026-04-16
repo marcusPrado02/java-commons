@@ -7,6 +7,9 @@ import com.marcusprado02.commons.ports.cache.CachePort;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.AutoConfigurations;
 import org.springframework.boot.test.context.runner.ApplicationContextRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.testcontainers.containers.GenericContainer;
@@ -95,11 +98,18 @@ class RedisCacheAutoConfigurationTest {
         .run(
             context -> {
               assertThat(context).hasSingleBean(RedisTemplate.class);
-              assertThat(context).getBean("customRedisTemplate").isNotNull();
+              assertThat(context).getBean("cacheRedisTemplate").isNotNull();
             });
   }
 
+  @Configuration
   static class CustomRedisTemplateConfiguration {
-    // Custom configuration if needed for testing
+    @Bean
+    public RedisTemplate<String, Object> cacheRedisTemplate(
+        RedisConnectionFactory connectionFactory) {
+      RedisTemplate<String, Object> template = new RedisTemplate<>();
+      template.setConnectionFactory(connectionFactory);
+      return template;
+    }
   }
 }

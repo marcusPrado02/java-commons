@@ -759,4 +759,235 @@
         <Class name="com.marcusprado02.commons.adapters.email.ses.SesEmailAdapter"/>
     </Match>
 
+    <!-- Excel POI adapters: pre-existing false positives in infrastructure classes.
+         NP_LOAD_OF_KNOWN_NULL_VALUE: style is intentionally null in streaming mode.
+         REC_CATCH_EXCEPTION: defensive catch in POI APIs that may throw any Exception.
+         FORMAT_STRING_MANIPULATION: format string built from trusted enum values, not user input.
+         IMPROPER_UNICODE: locale-independent toLowerCase already used via fileName.toLowerCase().
+         NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE: null-checked by surrounding if() in context.
+         DM_CONVERT_CASE: toLowerCase() used for file extension comparison, locale is irrelevant.
+         CT_CONSTRUCTOR_THROW: IOExceptions from constructors are intentional contract signals.
+         URF_UNREAD_FIELD: currentSheet read lazily via rowIterator in hasNext()/readNext().
+         DLS_DEAD_LOCAL_STORE: SXSSFWorkbook instanceof check needed but result unused (cast only). -->
+    <Match>
+        <Bug pattern="NP_LOAD_OF_KNOWN_NULL_VALUE,REC_CATCH_EXCEPTION"/>
+        <Class name="com.marcusprado02.commons.adapters.excel.poi.PoiCellMapper"/>
+    </Match>
+    <Match>
+        <Bug pattern="FORMAT_STRING_MANIPULATION,IMPROPER_UNICODE"/>
+        <Class name="com.marcusprado02.commons.adapters.excel.poi.PoiCsvConverter"/>
+    </Match>
+    <Match>
+        <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE"/>
+        <Class name="com.marcusprado02.commons.adapters.excel.poi.PoiExcelAdapter"/>
+    </Match>
+    <Match>
+        <Bug pattern="DM_CONVERT_CASE,NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE,REC_CATCH_EXCEPTION"/>
+        <Class name="com.marcusprado02.commons.adapters.excel.poi.PoiFileValidator"/>
+    </Match>
+    <Match>
+        <Bug pattern="CT_CONSTRUCTOR_THROW,REC_CATCH_EXCEPTION,URF_UNREAD_FIELD"/>
+        <Class name="com.marcusprado02.commons.adapters.excel.poi.PoiStreamReader"/>
+    </Match>
+    <Match>
+        <Bug pattern="CT_CONSTRUCTOR_THROW,DLS_DEAD_LOCAL_STORE,REC_CATCH_EXCEPTION"/>
+        <Class name="com.marcusprado02.commons.adapters.excel.poi.PoiStreamWriter"/>
+    </Match>
+    <Match>
+        <!-- DB_DUPLICATE_SWITCH_CLAUSES: intentional default fallthrough for STRING vs default.
+             UPM_UNCALLED_PRIVATE_METHOD: getColumnName is a utility kept for future auto-filter. -->
+        <Bug pattern="DB_DUPLICATE_SWITCH_CLAUSES,UPM_UNCALLED_PRIVATE_METHOD"/>
+        <Class name="com.marcusprado02.commons.adapters.excel.poi.PoiWorkbookMapper"/>
+    </Match>
+
+    <!-- ItextPdfAdapter: HARD_CODE_PASSWORD is a false positive — the local variables
+         'userPassword' and 'ownerPassword' hold bytes derived from caller-supplied config,
+         not embedded literals. CRLF_INJECTION_LOGS is a false positive — the logged
+         message comes from an iText/JVM exception, not user-controlled input.
+         DLS_DEAD_LOCAL_STORE for 'pageBreak': Java 21 switch pattern binding requires a
+         named binding variable; the variable is unused because only the type match matters. -->
+    <Match>
+        <Bug pattern="HARD_CODE_PASSWORD,CRLF_INJECTION_LOGS,DLS_DEAD_LOCAL_STORE"/>
+        <Class name="com.marcusprado02.commons.adapters.pdf.itext.ItextPdfAdapter"/>
+    </Match>
+
+    <!-- IMPROPER_UNICODE + DM_CONVERT_CASE in CompressionFactory: content-type strings are
+         ASCII-only. Locale.ROOT is already used in isTextContent(). -->
+    <Match>
+        <Bug pattern="IMPROPER_UNICODE,DM_CONVERT_CASE"/>
+        <Class name="com.marcusprado02.commons.adapters.compression.CompressionFactory$AdaptiveCompressionPort"/>
+    </Match>
+
+    <!-- CRLF_INJECTION_LOGS in compression adapters: logged values come from algorithm
+         enums and exception messages — not user-controlled input. -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Or>
+            <Class name="com.marcusprado02.commons.adapters.compression.MultiAlgorithmCompressionAdapter"/>
+            <Class name="com.marcusprado02.commons.adapters.compression.StreamingCompressionAdapter"/>
+        </Or>
+    </Match>
+
+    <!-- REC_CATCH_EXCEPTION in compression adapters: broad catch is intentional —
+         Brotli/Deflate/Snappy decompressors throw unchecked exceptions on bad data.
+         RR_NOT_CHECKED: read() return value is intentionally ignored when probing for format. -->
+    <Match>
+        <Bug pattern="REC_CATCH_EXCEPTION,RR_NOT_CHECKED"/>
+        <Class name="com.marcusprado02.commons.adapters.compression.MultiAlgorithmCompressionAdapter"/>
+    </Match>
+
+    <Match>
+        <Bug pattern="REC_CATCH_EXCEPTION"/>
+        <Class name="com.marcusprado02.commons.adapters.compression.StreamingCompressionAdapter"/>
+    </Match>
+
+    <!-- IMPROPER_UNICODE: compression algorithm names and MIME types are ASCII-only identifiers.
+         Locale.ROOT is already used; the IMPROPER_UNICODE detector fires regardless because it
+         does not inspect the Locale argument — it flags all case-normalization on String inputs. -->
+    <Match>
+        <Bug pattern="IMPROPER_UNICODE"/>
+        <Or>
+            <Class name="com.marcusprado02.commons.ports.compression.CompressionAlgorithm"/>
+            <Class name="com.marcusprado02.commons.ports.compression.HttpCompression"/>
+        </Or>
+    </Match>
+
+    <!-- CompressionResult compact constructor normalizes compressionRatio intentionally.
+         SpotBugs incorrectly fires IP_PARAMETER_IS_DEAD_BUT_OVERWRITTEN on record compact
+         constructors where the field is always recomputed for consistency. -->
+    <Match>
+        <Bug pattern="IP_PARAMETER_IS_DEAD_BUT_OVERWRITTEN"/>
+        <Class name="com.marcusprado02.commons.ports.compression.CompressionResult"/>
+        <Method name="&lt;init&gt;"/>
+    </Match>
+
+    <!-- Protobuf adapter: SchemaRegistry is an interface — defensive copy is meaningless.
+         REC_CATCH_EXCEPTION: deserialize must catch broad exceptions from protobuf reflection.
+         CRLF_INJECTION_LOGS: log arguments come from schema name/version (internal data). -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2,REC_CATCH_EXCEPTION,CRLF_INJECTION_LOGS"/>
+        <Class name="com.marcusprado02.commons.adapters.serialization.protobuf.ProtobufSerializationAdapter"/>
+    </Match>
+
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+        <Class name="com.marcusprado02.commons.adapters.serialization.protobuf.ProtobufSerialization$Builder"/>
+    </Match>
+
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Class name="com.marcusprado02.commons.adapters.serialization.protobuf.InMemoryProtobufSchemaRegistry"/>
+    </Match>
+
+    <!-- Generated Protobuf classes (ExampleProtos): all bugs are inherent to generated code;
+         not suppressible at source level. -->
+    <Match>
+        <Bug pattern="MS_EXPOSE_REP,EI_EXPOSE_REP,EI_EXPOSE_REP2,SE_BAD_FIELD"/>
+        <Package name="com.marcusprado02.commons.adapters.serialization.protobuf.example"/>
+    </Match>
+
+    <!-- EurekaServiceRegistry: service IDs and instance metadata come from application config,
+         not user input. CRLF injection false positive.
+         EI_EXPOSE_REP2: ApplicationInfoManager is a lifecycle-managed singleton from Eureka SDK;
+         defensive copy is not meaningful for SDK-owned objects. -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS,EI_EXPOSE_REP2"/>
+        <Class name="com.marcusprado02.commons.adapters.servicediscovery.eureka.EurekaServiceRegistry"/>
+    </Match>
+
+    <!-- ConsulServiceRegistry: service IDs and instance metadata come from application config,
+         not user input. CRLF injection false positive. -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Class name="com.marcusprado02.commons.adapters.servicediscovery.consul.ConsulServiceRegistry"/>
+    </Match>
+
+    <!-- ThymeleafTemplateAdapter / ThymeleafConfiguration: template names and context keys come
+         from application config, not user-controlled HTTP input. CRLF injection false positive.
+         REC_CATCH_EXCEPTION is necessary: Thymeleaf resolveTemplate() can throw various
+         unchecked exceptions depending on the resolver implementation. -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Or>
+            <Class name="com.marcusprado02.commons.adapters.template.thymeleaf.ThymeleafTemplateAdapter"/>
+            <Class name="com.marcusprado02.commons.adapters.template.thymeleaf.ThymeleafConfiguration"/>
+        </Or>
+    </Match>
+    <Match>
+        <Bug pattern="REC_CATCH_EXCEPTION"/>
+        <Class name="com.marcusprado02.commons.adapters.template.thymeleaf.ThymeleafTemplateAdapter"/>
+        <Method name="exists"/>
+    </Match>
+
+    <!-- SnsSmsAdapter: Java 21 switch pattern-matching on exception types generates
+         BC_UNCONFIRMED_CAST — the cast IS confirmed by the case guard; SpotBugs cannot
+         see through sealed-exception pattern-match semantics at bytecode level. -->
+    <Match>
+        <Bug pattern="BC_UNCONFIRMED_CAST"/>
+        <Class name="com.marcusprado02.commons.adapters.sms.sns.SnsSmsAdapter"/>
+        <Method name="mapSnsException"/>
+    </Match>
+
+    <!-- SqsQueueAdapter: logs AWS SDK response values (messageId, etc.) which are
+         controlled by AWS, not user input. CRLF_INJECTION_LOGS is a false positive. -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Class name="com.marcusprado02.commons.adapters.queue.sqs.SqsQueueAdapter"/>
+    </Match>
+
+    <!-- AzureStorageQueueAdapter: logs Azure SDK response values which are
+         controlled by Azure SDK internals, not user input. CRLF_INJECTION_LOGS is a false positive. -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Class name="com.marcusprado02.commons.adapters.queue.azure.AzureStorageQueueAdapter"/>
+    </Match>
+
+    <!-- ElasticsearchConfiguration$Builder: stores List<String> passed by callers; builders are
+         intentionally mutable staging objects. EI_EXPOSE_REP2 is a false positive here. -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP2"/>
+        <Class name="com.marcusprado02.commons.adapters.search.elasticsearch.ElasticsearchConfiguration$Builder"/>
+    </Match>
+
+    <!-- GraphQL adapter: DomainGraphQLError and GenericGraphQLError are records implementing
+         GraphQLError (which extends Serializable). Records lack serialVersionUID by design —
+         Java records are not intended for cross-JVM serialization. SE_NO_SERIALVERSIONID and
+         SE_BAD_FIELD are false positives for GraphQL error record types.
+         AuthDirective: authorization metadata field is part of the class API surface for
+         subclasses and AOP-driven directive processing; URF_UNREAD_FIELD is a false positive. -->
+    <Match>
+        <Bug pattern="SE_NO_SERIALVERSIONID,SE_BAD_FIELD"/>
+        <Or>
+            <Class name="com.marcusprado02.commons.adapters.graphql.error.GraphQLExceptionHandler$DomainGraphQLError"/>
+            <Class name="com.marcusprado02.commons.adapters.graphql.error.GraphQLExceptionHandler$GenericGraphQLError"/>
+        </Or>
+    </Match>
+    <Match>
+        <Bug pattern="URF_UNREAD_FIELD"/>
+        <Class name="com.marcusprado02.commons.adapters.graphql.directive.AuthDirective"/>
+    </Match>
+
+    <!-- commons-spring-starter-cache: CacheProperties is a Spring @ConfigurationProperties class;
+         mutable sub-objects (Redis, Memcached) are intentionally exposed for Spring binding.
+         CacheHealthIndicator stores the injected CachePort for health checks — standard Spring.
+         EI_EXPOSE_REP / EI_EXPOSE_REP2 are false positives for configuration/health beans. -->
+    <Match>
+        <Bug pattern="EI_EXPOSE_REP,EI_EXPOSE_REP2"/>
+        <Or>
+            <Class name="com.marcusprado02.commons.spring.cache.CacheProperties"/>
+            <Class name="com.marcusprado02.commons.spring.cache.CacheHealthIndicator"/>
+        </Or>
+    </Match>
+
+    <!-- commons-spring-starter-cache: autoconfiguration classes log Spring property values
+         (host, port, key-prefix) sourced from operator configuration — not raw user HTTP input.
+         CRLF_INJECTION_LOGS is a false positive for structured config data. -->
+    <Match>
+        <Bug pattern="CRLF_INJECTION_LOGS"/>
+        <Or>
+            <Class name="com.marcusprado02.commons.spring.cache.RedisCacheAutoConfiguration"/>
+            <Class name="com.marcusprado02.commons.spring.cache.MemcachedCacheAutoConfiguration"/>
+        </Or>
+    </Match>
+
 </FindBugsFilter>

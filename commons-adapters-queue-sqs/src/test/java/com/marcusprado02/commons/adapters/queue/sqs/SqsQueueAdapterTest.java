@@ -8,6 +8,7 @@ import com.marcusprado02.commons.ports.queue.*;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import org.junit.jupiter.api.*;
 import org.testcontainers.containers.localstack.LocalStackContainer;
 import org.testcontainers.containers.localstack.LocalStackContainer.Service;
@@ -48,8 +49,9 @@ class SqsQueueAdapterTest {
             .credentialsProvider(credentials)
             .build()) {
 
-      CreateQueueRequest createRequest =
-          CreateQueueRequest.builder().queueName("test-queue").build();
+      // Use unique name per test to avoid cross-test message contamination
+      String queueName = "test-queue-" + UUID.randomUUID();
+      CreateQueueRequest createRequest = CreateQueueRequest.builder().queueName(queueName).build();
 
       CreateQueueResponse createResponse = sqsClient.createQueue(createRequest);
       queueUrl = createResponse.queueUrl();
@@ -279,6 +281,22 @@ class SqsQueueAdapterTest {
 
     // Then
     assertThat(purgeResult.isOk()).isTrue();
+  }
+
+  @Test
+  void defaultCredentialsConstructor_shouldCreateAdapter() {
+    // The no-credentials constructor uses the default AWS credential provider chain.
+    // No actual connection is made during construction, so this works without real credentials.
+    SqsConfiguration config =
+        SqsConfiguration.builder()
+            .queueUrl(queueUrl)
+            .region(Region.of(localStack.getRegion()))
+            .endpoint(localStack.getEndpointOverride(Service.SQS))
+            .build();
+
+    SqsQueueAdapter<TestMessage> defaultAdapter = new SqsQueueAdapter<>(config, TestMessage.class);
+    assertThat(defaultAdapter).isNotNull();
+    defaultAdapter.close();
   }
 
   /** Test payload class */

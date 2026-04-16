@@ -22,6 +22,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -115,7 +116,7 @@ public class EurekaServiceRegistry implements ServiceRegistry {
 
       // Eureka client handles registration automatically when started
       // We just need to update the instance info if needed
-      InstanceInfo instanceInfo = convertToInstanceInfo(instance, healthCheck);
+      convertToInstanceInfo(instance, healthCheck);
 
       // Set instance status to UP
       applicationInfoManager.setInstanceStatus(InstanceInfo.InstanceStatus.UP);
@@ -169,7 +170,7 @@ public class EurekaServiceRegistry implements ServiceRegistry {
     try {
       logger.debug("Discovering healthy instances for service: {}", serviceId);
 
-      Application application = eurekaClient.getApplication(serviceId.toUpperCase());
+      Application application = eurekaClient.getApplication(serviceId.toUpperCase(Locale.ROOT));
       if (application == null) {
         return Result.ok(List.of());
       }
@@ -201,7 +202,7 @@ public class EurekaServiceRegistry implements ServiceRegistry {
 
       List<String> serviceIds =
           eurekaClient.getApplications().getRegisteredApplications().stream()
-              .map(app -> app.getName().toLowerCase())
+              .map(app -> app.getName().toLowerCase(Locale.ROOT))
               .collect(Collectors.toList());
 
       logger.debug("Found {} registered services", serviceIds.size());
@@ -223,7 +224,7 @@ public class EurekaServiceRegistry implements ServiceRegistry {
     try {
       logger.debug("Getting all instances for service: {}", serviceId);
 
-      Application application = eurekaClient.getApplication(serviceId.toUpperCase());
+      Application application = eurekaClient.getApplication(serviceId.toUpperCase(Locale.ROOT));
       if (application == null) {
         return Result.ok(List.of());
       }
@@ -311,7 +312,7 @@ public class EurekaServiceRegistry implements ServiceRegistry {
     }
 
     return InstanceInfo.Builder.newBuilder()
-        .setAppName(instance.serviceId().toUpperCase())
+        .setAppName(instance.serviceId().toUpperCase(Locale.ROOT))
         .setInstanceId(instance.instanceId())
         .setHostName(instance.host())
         .setPort(instance.port())
@@ -327,7 +328,7 @@ public class EurekaServiceRegistry implements ServiceRegistry {
     Map<String, String> metadata = new HashMap<>(info.getMetadata());
 
     return ServiceInstance.builder()
-        .serviceId(info.getAppName().toLowerCase())
+        .serviceId(info.getAppName().toLowerCase(Locale.ROOT))
         .instanceId(info.getInstanceId())
         .host(info.getHostName())
         .port(info.getPort())

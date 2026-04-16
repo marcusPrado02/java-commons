@@ -97,6 +97,34 @@
                 </executions>
             </plugin>
 
+            <!-- PMD/CPD: exclude generated Protobuf sources (ExampleProtos.java has
+             inherent duplication — it is machine-generated and cannot be modified). -->
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-pmd-plugin</artifactId>
+            <configuration>
+                <failOnViolation>true</failOnViolation>
+                <printFailingErrors>true</printFailingErrors>
+                <rulesets>
+                    <ruleset>${maven.multiModuleProjectDirectory}/pmd-ruleset.xml</ruleset>
+                </rulesets>
+                <excludeRoots>
+                    <excludeRoot>${basedir}/target/generated-sources</excludeRoot>
+                </excludeRoots>
+            </configuration>
+        </plugin>
+
+        <!-- JaCoCo: exclude generated Protobuf example classes from coverage -->
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <excludes>
+                        <exclude>**/example/**</exclude>
+                    </excludes>
+                </configuration>
+            </plugin>
+
             <!-- OS Detector Plugin (required for protoc) -->
             <plugin>
                 <groupId>kr.motd.maven</groupId>

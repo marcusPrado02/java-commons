@@ -161,7 +161,6 @@ public class ThymeleafTemplateAdapter implements TemplatePort {
   public boolean exists(String templateName) {
     try {
       // Try to resolve template without actually processing it
-      ITemplateResolver resolver = createFileResolver();
       return templateEngine.getConfiguration().getTemplateResolvers().stream()
           .anyMatch(
               r ->

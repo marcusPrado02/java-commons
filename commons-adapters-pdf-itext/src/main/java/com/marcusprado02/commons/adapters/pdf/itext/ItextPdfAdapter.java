@@ -8,6 +8,7 @@ import com.itextpdf.kernel.pdf.PdfDocumentInfo;
 import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfVersion;
 import com.itextpdf.kernel.pdf.PdfWriter;
+import com.itextpdf.kernel.pdf.StampingProperties;
 import com.itextpdf.kernel.pdf.WriterProperties;
 import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.AreaBreak;
@@ -26,18 +27,17 @@ import com.itextpdf.signatures.IExternalSignature;
 import com.itextpdf.signatures.PdfSignatureAppearance;
 import com.itextpdf.signatures.PdfSigner;
 import com.itextpdf.signatures.PrivateKeySignature;
-import com.itextpdf.signatures.StampingProperties;
 import com.marcusprado02.commons.kernel.errors.ErrorCategory;
 import com.marcusprado02.commons.kernel.errors.ErrorCode;
 import com.marcusprado02.commons.kernel.errors.Problem;
 import com.marcusprado02.commons.kernel.errors.Severity;
 import com.marcusprado02.commons.kernel.result.Result;
-import com.marcusprado02.commons.ports.pdf.PageSize;
 import com.marcusprado02.commons.ports.pdf.PdfElement;
 import com.marcusprado02.commons.ports.pdf.PdfPort;
 import com.marcusprado02.commons.ports.pdf.PdfSignature;
 import java.io.ByteArrayOutputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.cert.Certificate;
@@ -202,9 +202,13 @@ public class ItextPdfAdapter implements PdfPort {
     // Set encryption if configured
     if (configuration.userPassword() != null || configuration.ownerPassword() != null) {
       byte[] userPassword =
-          configuration.userPassword() != null ? configuration.userPassword().getBytes() : null;
+          configuration.userPassword() != null
+              ? configuration.userPassword().getBytes(StandardCharsets.UTF_8)
+              : null;
       byte[] ownerPassword =
-          configuration.ownerPassword() != null ? configuration.ownerPassword().getBytes() : null;
+          configuration.ownerPassword() != null
+              ? configuration.ownerPassword().getBytes(StandardCharsets.UTF_8)
+              : null;
 
       int permissions = EncryptionConstants.ALLOW_PRINTING | EncryptionConstants.ALLOW_COPY;
 
@@ -252,10 +256,6 @@ public class ItextPdfAdapter implements PdfPort {
     for (java.util.Map.Entry<String, String> entry : document.properties().entrySet()) {
       info.setMoreInfo(entry.getKey(), entry.getValue());
     }
-  }
-
-  private Rectangle toItextRectangle(PageSize pageSize) {
-    return new Rectangle(pageSize.getWidth(), pageSize.getHeight());
   }
 
   private void setMargins(

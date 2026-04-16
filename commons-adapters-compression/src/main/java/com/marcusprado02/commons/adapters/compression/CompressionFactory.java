@@ -4,6 +4,7 @@ import com.marcusprado02.commons.ports.compression.CompressionAlgorithm;
 import com.marcusprado02.commons.ports.compression.CompressionOptions;
 import com.marcusprado02.commons.ports.compression.CompressionPort;
 import com.marcusprado02.commons.ports.compression.StreamingCompressionPort;
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -345,7 +346,7 @@ public final class CompressionFactory {
       if (contentType == null) {
         return false;
       }
-      String normalized = contentType.toLowerCase();
+      String normalized = contentType.toLowerCase(Locale.ROOT);
       return normalized.startsWith("text/")
           || normalized.contains("json")
           || normalized.contains("xml")

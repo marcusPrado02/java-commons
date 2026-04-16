@@ -148,12 +148,6 @@
             <artifactId>commons-adapters-web-spring</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>com.marcusprado02.commons</groupId>
-            <artifactId>commons-adapters-web-spring-webflux</artifactId>
-            <scope>test</scope>
-        </dependency>
-
         <!-- Spring starter modules (for module validation tests) -->
         <dependency>
             <groupId>com.marcusprado02.commons</groupId>

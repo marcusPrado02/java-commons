@@ -41,7 +41,6 @@
     <module>commons-ports-excel</module>
     <module>commons-ports-blockchain</module>
     <module>commons-ports-payment</module>
-    <module>commons-ports-ml</module>
 
     <module>commons-testkit-core</module>
     <module>commons-testkit-contracts</module>
@@ -55,17 +54,8 @@
     <module>commons-app-idempotency</module>
     <module>commons-app-i18n</module>
     <module>commons-app-domain-events</module>
-    <module>commons-app-configuration</module>
-    <module>commons-app-data-migration</module>
     <module>commons-app-feature-flags</module>
     <module>commons-app-multi-tenancy</module>
-    <module>commons-app-scheduler</module>
-    <module>commons-app-batch</module>
-    <module>commons-app-api-versioning</module>
-    <module>commons-app-webhooks</module>
-    <module>commons-app-data-validation</module>
-    <module>commons-app-audit-log</module>
-    <module>commons-app-health-checks</module>
     <module>commons-app-api-gateway</module>
     <module>commons-app-workflow-engine</module>
     <module>commons-app-backup-restore</module>
@@ -73,8 +63,6 @@
 
     <module>commons-adapters-web</module>
     <module>commons-adapters-web-spring</module>
-    <module>commons-adapters-web-spring-webflux</module>
-    <module>commons-adapters-web-jaxrs</module>
 
     <module>commons-adapters-http-okhttp</module>
     <module>commons-adapters-http-webclient</module>
@@ -84,8 +72,6 @@
     <module>commons-adapters-messaging-azure-servicebus</module>
 
     <module>commons-adapters-otel</module>
-    <module>commons-adapters-tracing-jaeger</module>
-    <module>commons-adapters-metrics-prometheus</module>
 
     <module>commons-adapters-resilience4j</module>
 
@@ -133,7 +119,6 @@
     <module>commons-adapters-queue-azure-storage-queue</module>
 
     <module>commons-adapters-search-elasticsearch</module>
-    <module>commons-adapters-search-opensearch</module>
 
     <module>commons-adapters-grpc-server</module>
     <module>commons-adapters-grpc-client</module>
@@ -142,8 +127,6 @@
     <module>commons-adapters-blockchain-web3j</module>
 
     <module>commons-adapters-payment-stripe</module>
-
-    <module>commons-adapters-ml-tensorflow</module>
 
     <module>commons-spring-starter-observability</module>
     <module>commons-spring-starter-otel</module>

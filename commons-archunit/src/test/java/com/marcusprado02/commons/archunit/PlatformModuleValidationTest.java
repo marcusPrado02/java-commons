@@ -42,8 +42,7 @@ class PlatformModuleValidationTest {
           "com.marcusprado02.commons.adapters.persistence.jpa",
           "com.marcusprado02.commons.adapters.resilience4j",
           "com.marcusprado02.commons.adapters.web",
-          "com.marcusprado02.commons.adapters.web.spring",
-          "com.marcusprado02.commons.adapters.web.spring.webflux");
+          "com.marcusprado02.commons.adapters.web.spring");
 
   private static final List<String> STARTER_MODULE_PACKAGES =
       List.of(
