@@ -83,8 +83,8 @@
         <jacoco.check.skip>false</jacoco.check.skip>
 
         <!-- Static analysis tools -->
-        <spotbugs.version>4.8.3</spotbugs.version>
-        <spotbugs-maven-plugin.version>4.8.3.1</spotbugs-maven-plugin.version>
+        <spotbugs.version>4.8.6</spotbugs.version>
+        <spotbugs-maven-plugin.version>4.8.6.4</spotbugs-maven-plugin.version>
         <checkstyle.version>10.12.7</checkstyle.version>
         <maven-checkstyle-plugin.version>3.3.1</maven-checkstyle-plugin.version>
         <maven-pmd-plugin.version>3.21.2</maven-pmd-plugin.version>

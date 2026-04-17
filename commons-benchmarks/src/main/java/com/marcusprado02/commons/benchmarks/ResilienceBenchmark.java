@@ -34,6 +34,7 @@ public class ResilienceBenchmark {
   private Retry retry;
   private AtomicInteger counter;
 
+  /** Configures circuit breaker and retry instances used across all benchmark methods. */
   @Setup
   public void setup() {
     // Circuit breaker configuration
@@ -70,6 +71,7 @@ public class ResilienceBenchmark {
     return retry.executeSupplier(this::successfulOperation);
   }
 
+  /** Benchmark: circuit breaker wrapping a retry-decorated supplier. */
   @Benchmark
   public int circuitBreakerAndRetry() {
     return CircuitBreaker.decorateSupplier(
@@ -77,6 +79,9 @@ public class ResilienceBenchmark {
         .get();
   }
 
+  /**
+   * Benchmark: a conditional operation to measure branching overhead without resilience wrapping.
+   */
   @Benchmark
   public int complexOperation() {
     // Simulate more complex business logic

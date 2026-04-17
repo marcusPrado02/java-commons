@@ -14,6 +14,7 @@ import com.stripe.param.RefundListParams;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -48,7 +49,7 @@ public class StripeRefundService implements RefundService {
       }
 
       if (reason != null) {
-        paramsBuilder.setReason(RefundCreateParams.Reason.valueOf(reason.toUpperCase()));
+        paramsBuilder.setReason(RefundCreateParams.Reason.valueOf(reason.toUpperCase(Locale.ROOT)));
       }
 
       if (metadata != null && !metadata.isEmpty()) {

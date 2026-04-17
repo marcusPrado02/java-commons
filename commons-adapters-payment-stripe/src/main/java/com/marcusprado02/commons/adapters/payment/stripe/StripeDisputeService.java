@@ -186,7 +186,6 @@ public final class StripeDisputeService {
    */
   public Result<DisputeRecord> acceptDispute(String disputeId) {
     try {
-      var params = DisputeUpdateParams.builder().setSubmit(true).build();
       var dispute = Dispute.retrieve(disputeId);
       var closed = dispute.close();
 

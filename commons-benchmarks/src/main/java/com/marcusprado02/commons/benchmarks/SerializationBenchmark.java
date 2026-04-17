@@ -6,7 +6,16 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
-import org.openjdk.jmh.annotations.*;
+import org.openjdk.jmh.annotations.Benchmark;
+import org.openjdk.jmh.annotations.BenchmarkMode;
+import org.openjdk.jmh.annotations.Fork;
+import org.openjdk.jmh.annotations.Measurement;
+import org.openjdk.jmh.annotations.Mode;
+import org.openjdk.jmh.annotations.OutputTimeUnit;
+import org.openjdk.jmh.annotations.Scope;
+import org.openjdk.jmh.annotations.Setup;
+import org.openjdk.jmh.annotations.State;
+import org.openjdk.jmh.annotations.Warmup;
 
 /**
  * Benchmarks for JSON serialization/deserialization using Jackson. Tests performance of different
@@ -26,6 +35,7 @@ public class SerializationBenchmark {
   private String simpleJson;
   private String complexJson;
 
+  /** Initializes Jackson ObjectMapper and pre-builds test objects and their JSON strings. */
   @Setup
   public void setup() throws Exception {
     objectMapper = new ObjectMapper();
@@ -73,9 +83,10 @@ public class SerializationBenchmark {
     return objectMapper.writeValueAsBytes(complexObject);
   }
 
-  // Test objects
+  /** Simple flat object used as benchmark input. */
   public record SimpleObject(String id, String name, int value) {}
 
+  /** Complex nested object with collections used as benchmark input. */
   public record ComplexObject(
       String id,
       String name,
@@ -85,5 +96,6 @@ public class SerializationBenchmark {
       NestedObject nested,
       List<NestedObject> items) {}
 
+  /** Nested object embedded inside {@link ComplexObject}. */
   public record NestedObject(String id, int count) {}
 }

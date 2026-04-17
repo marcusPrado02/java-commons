@@ -47,6 +47,7 @@ public class RateLimiterBenchmark {
   private RateLimiter restrictedLimiter;
   private int keyCounter;
 
+  /** Creates a high-capacity and a restricted rate limiter for the benchmark scenarios. */
   @Setup
   public void setup() {
     // High-capacity limiter — nearly all requests succeed

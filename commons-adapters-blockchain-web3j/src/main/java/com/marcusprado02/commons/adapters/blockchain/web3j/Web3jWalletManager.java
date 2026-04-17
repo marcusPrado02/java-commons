@@ -9,6 +9,7 @@ import com.marcusprado02.commons.ports.blockchain.BlockchainTransaction;
 import com.marcusprado02.commons.ports.blockchain.Wallet;
 import com.marcusprado02.commons.ports.blockchain.WalletManager;
 import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -116,7 +117,7 @@ public final class Web3jWalletManager implements WalletManager {
   public Result<String> signData(String data, String privateKey) {
     try {
       var credentials = Credentials.create(privateKey);
-      var messageHash = org.web3j.crypto.Hash.sha3(data.getBytes());
+      var messageHash = org.web3j.crypto.Hash.sha3(data.getBytes(StandardCharsets.UTF_8));
       var signature = Sign.signMessage(messageHash, credentials.getEcKeyPair(), false);
 
       // Concatenate r, s, v into signature
@@ -155,7 +156,7 @@ public final class Web3jWalletManager implements WalletManager {
       var signData = new Sign.SignatureData(v, r, s);
 
       // Hash the data
-      var messageHash = org.web3j.crypto.Hash.sha3(data.getBytes());
+      var messageHash = org.web3j.crypto.Hash.sha3(data.getBytes(StandardCharsets.UTF_8));
 
       // Recover public key from signature
       var publicKeyBigInt = Sign.signedMessageHashToKey(messageHash, signData);

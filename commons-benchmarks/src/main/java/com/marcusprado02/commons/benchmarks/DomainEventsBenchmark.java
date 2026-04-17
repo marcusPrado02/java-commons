@@ -55,6 +55,7 @@ public class DomainEventsBenchmark {
   private OrderCreated singleEvent;
   private List<DomainEvent> batchOf10;
 
+  /** Creates event bus instances and pre-allocates test events. */
   @Setup
   public void setup() {
     singleEvent = new OrderCreated("order-1");

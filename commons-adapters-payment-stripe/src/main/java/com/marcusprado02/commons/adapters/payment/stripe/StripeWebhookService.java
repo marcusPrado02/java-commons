@@ -12,6 +12,7 @@ import com.stripe.model.Event;
 import com.stripe.model.PaymentIntent;
 import com.stripe.model.StripeObject;
 import com.stripe.net.Webhook;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Set;
@@ -97,7 +98,9 @@ public final class StripeWebhookService implements PaymentWebhookService {
 
     Event event;
     try {
-      event = Webhook.constructEvent(new String(rawPayload), signatureHeader, webhookSecret);
+      event =
+          Webhook.constructEvent(
+              new String(rawPayload, StandardCharsets.UTF_8), signatureHeader, webhookSecret);
     } catch (SignatureVerificationException e) {
       logger.warn("Stripe webhook signature verification failed: {}", e.getMessage());
       return Result.fail(

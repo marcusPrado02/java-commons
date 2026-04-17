@@ -25,6 +25,7 @@ import com.stripe.param.PaymentMethodListParams;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -207,7 +208,7 @@ public class StripePaymentService implements PaymentService {
       String customerId, String type, Map<String, String> details) {
     try {
       var typeEnum =
-          switch (type.toLowerCase()) {
+          switch (type.toLowerCase(Locale.ROOT)) {
             case "card" -> PaymentMethodCreateParams.Type.CARD;
             case "us_bank_account" -> PaymentMethodCreateParams.Type.US_BANK_ACCOUNT;
             default ->

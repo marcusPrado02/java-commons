@@ -98,6 +98,19 @@
         </configuration>
       </plugin>
 
+      <!-- Exclude JMH-generated harness classes from PMD/CPD analysis.
+           The annotation processor generates one class per benchmark method in
+           jmh_generated — they are identical by design and cannot be modified. -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-pmd-plugin</artifactId>
+        <configuration>
+          <excludes>
+            <exclude>**/jmh_generated/**</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>

@@ -30,6 +30,7 @@ public class RepositoryBenchmark {
   private List<TestEntity> testEntities;
   private String existingId;
 
+  /** Creates a repository and pre-populates it with 1 000 test entities. */
   @Setup
   public void setup() {
     repository = new TestRepository();
@@ -81,6 +82,7 @@ public class RepositoryBenchmark {
     return repository.findByGroup(50);
   }
 
+  /** Benchmark: delete an entity then re-add it to keep the dataset stable across iterations. */
   @Benchmark
   public void deleteOperation() {
     // Delete and re-add to keep data consistent
@@ -96,12 +98,13 @@ public class RepositoryBenchmark {
     return repository.findById(existingId).isPresent();
   }
 
-  // Test entity
+  /** Minimal entity used as benchmark data. */
   public static class TestEntity {
     private final String id;
     private final String name;
     private final int group;
 
+    /** Creates a test entity with the given id, name, and group. */
     public TestEntity(String id, String name, int group) {
       this.id = id;
       this.name = name;
@@ -121,7 +124,7 @@ public class RepositoryBenchmark {
     }
   }
 
-  // Test repository
+  /** In-memory repository backed by {@link InMemoryPageableRepository} for benchmark use. */
   public static class TestRepository extends InMemoryPageableRepository<TestEntity, String> {
 
     public TestRepository() {

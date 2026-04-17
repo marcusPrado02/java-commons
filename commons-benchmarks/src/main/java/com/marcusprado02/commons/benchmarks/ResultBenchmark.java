@@ -33,6 +33,7 @@ public class ResultBenchmark {
   private Result<Integer> failureResult;
   private Problem problem;
 
+  /** Pre-builds success and failure {@code Result} instances used across benchmark methods. */
   @Setup
   public void setup() {
     successResult = Result.ok(42);
