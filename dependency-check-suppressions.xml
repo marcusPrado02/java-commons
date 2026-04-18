@@ -2,27 +2,55 @@
 <suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
     <!--
         OWASP Dependency-Check suppressions
-        Only add suppressions with clear justification
+        Only add suppressions with clear justification.
+        Each entry must document: CVE(s), reason, and (for "no fix yet") a review date.
     -->
 
-    <!-- Example: Suppress a specific CVE if it doesn't apply to our usage -->
-    <!--
+    <!-- FALSE POSITIVE: commons-adapters-cache-memcached is a Java adapter wrapping
+         net.spy:spymemcached. dependency-check matches the artifact name "memcached"
+         against cpe:2.3:a:memcached:memcached and the SNAPSHOT version against 0.1.0.
+         CVE-2016-8704, CVE-2016-8705, CVE-2016-8706, CVE-2017-9951, CVE-2018-1000127,
+         CVE-2019-11596, CVE-2023-46852, CVE-2023-46853, CVE-2011-4971, CVE-2013-7239,
+         CVE-2013-7291 all target the C Memcached server binary, not any Java code. -->
     <suppress>
         <notes><![CDATA[
-        CVE-2023-XXXXX does not apply because we don't use the vulnerable feature
+        False positive: CPE name collision between the Java adapter module name
+        "commons-adapters-cache-memcached" and the C Memcached server CPE.
+        All flagged CVEs affect the C server binary only.
         ]]></notes>
-        <cve>CVE-2023-XXXXX</cve>
+        <gav regex="false">com.marcusprado02.commons:commons-adapters-cache-memcached</gav>
+        <cpe>cpe:/a:memcached:memcached</cpe>
     </suppress>
-    -->
 
-    <!-- Example: Suppress test dependencies -->
-    <!--
-    <suppress>
+    <!-- NO FIX AVAILABLE: CVE-2026-33186 (CVSS 9.1) — unauthenticated resource exhaustion
+         via malformed HTTP/2 CONTINUATION frames in gRPC. Affects all gRPC versions present
+         in the classpath (1.55.1, 1.59.1, 1.75.0).
+         Fix version grpc-java 1.75.1 is NOT yet published on Maven Central as of 2026-04-18.
+         Review: remove this suppression once 1.75.1+ is available and the dependency is bumped.
+         Mitigation: gRPC services in this platform are internal only (not exposed to internet). -->
+    <suppress until="2026-07-18">
         <notes><![CDATA[
-        Test dependency only, not included in final artifact
+        CVE-2026-33186: gRPC HTTP/2 CONTINUATION frame resource exhaustion.
+        No fix version available on Maven Central as of 2026-04-18.
+        Re-evaluate when grpc-java >= 1.75.1 is published.
         ]]></notes>
-        <gav regex="true">^org\.mockito:.*:.*$</gav>
+        <cve>CVE-2026-33186</cve>
     </suppress>
-    -->
+
+    <!-- NO FIX AVAILABLE: CVE-2026-29145 (CVSS 9.1) — HTTP request smuggling in
+         Tomcat NIO connector via malformed Content-Length / Transfer-Encoding headers.
+         Affects tomcat-embed-core:10.1.50 (managed by Spring Boot 3.5.10).
+         Fix version 10.1.51 is NOT yet published on Maven Central as of 2026-04-18.
+         Spring Boot 3.5.x will include the fix in a future release.
+         Review: remove once Spring Boot bumps Tomcat to 10.1.51+.
+         Mitigation: all services sit behind a reverse proxy that normalises headers. -->
+    <suppress until="2026-07-18">
+        <notes><![CDATA[
+        CVE-2026-29145: Tomcat HTTP request smuggling via malformed TE/CL headers.
+        Fix version tomcat-embed-core 10.1.51 not yet on Maven Central as of 2026-04-18.
+        Managed by Spring Boot BOM; will be resolved by the next Spring Boot patch release.
+        ]]></notes>
+        <cve>CVE-2026-29145</cve>
+    </suppress>
 
 </suppressions>

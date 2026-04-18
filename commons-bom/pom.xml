@@ -20,7 +20,7 @@
         <mockito.version>5.15.2</mockito.version>
         <testcontainers.version>1.20.5</testcontainers.version>
         <archunit.version>1.4.1</archunit.version>
-        <assertj.version>3.25.3</assertj.version>
+        <assertj.version>3.27.0</assertj.version>
 
         <!-- Observability -->
         <otel.version>1.58.0</otel.version>
@@ -63,6 +63,7 @@
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
+
 
             <!-- Spring Cloud (includes Cloud Config, Circuit Breaker, etc) -->
             <dependency>
@@ -116,6 +117,19 @@
                 <version>${jackson.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
+            </dependency>
+
+            <!-- ========================================== -->
+            <!-- Security Version Overrides                 -->
+            <!-- ========================================== -->
+
+            <!-- spring-security-crypto 6.5.8 fixes CVE-2026-22732 (timing side-channel
+                 in BCryptPasswordEncoder; CVSS 9.1). Spring Boot 3.5.10 manages 6.5.7.
+                 Explicit entries always override BOM imports in Maven dependency management. -->
+            <dependency>
+                <groupId>org.springframework.security</groupId>
+                <artifactId>spring-security-crypto</artifactId>
+                <version>6.5.8</version>
             </dependency>
 
             <!-- ========================================== -->
