@@ -147,7 +147,7 @@ jobs:
 
       - name: Run OWASP Dependency-Check
         run: |
-          ./mvnw -B org.owasp:dependency-check-maven:10.0.4:aggregate \
+          ./mvnw -B org.owasp:dependency-check-maven:12.1.3:aggregate \
             -Dformat=ALL \
             -DfailBuildOnCVSS=9 \
             -DsuppressionFile=dependency-check-suppressions.xml
