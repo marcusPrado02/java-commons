@@ -99,11 +99,13 @@ jobs:
           MAVEN_OPTS: -Xmx2g
 
       - name: Upload Javadoc for GitHub Pages
+        if: hashFiles('target/site/apidocs/index.html') != ''
         uses: actions/upload-pages-artifact@v3
         with:
           path: target/site/apidocs
 
       - name: Deploy Javadoc to GitHub Pages
+        if: hashFiles('target/site/apidocs/index.html') != ''
         uses: actions/deploy-pages@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
