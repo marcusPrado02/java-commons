@@ -9,7 +9,7 @@
         <!-- herda versao, properties e dependencias do parent -->
         <groupId>com.marcusprado02.commons</groupId>
         <artifactId>commons-parent</artifactId>
-        <version>0.1.0-SNAPSHOT</version>
+        <version>0.1.2-SNAPSHOT</version>
         <relativePath>../commons-parent/pom.xml</relativePath>
     </parent>
 
