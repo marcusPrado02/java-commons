@@ -117,7 +117,7 @@
                     <version>3.2.5</version>
                     <configuration>
                         <useModulePath>false</useModulePath>
-                        <failIfNoTests>false</failIfNoTests>
+                        <failIfNoTests>true</failIfNoTests>
                         <trimStackTrace>${trimStackTrace}</trimStackTrace>
                     </configuration>
                 </plugin>

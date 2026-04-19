@@ -380,6 +380,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
             </executions>
           </plugin>
 
+          <!-- Binary compatibility check — runs only on releases -->
+          <plugin>
+            <groupId>com.github.siom79.japicmp</groupId>
+            <artifactId>japicmp-maven-plugin</artifactId>
+            <configuration>
+              <skip>false</skip>
+            </configuration>
+          </plugin>
+
           <!-- Javadoc JAR -->
           <plugin>
             <groupId>org.apache.maven.plugins</groupId>

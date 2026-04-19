@@ -98,6 +98,15 @@
         </configuration>
       </plugin>
 
+      <!-- JMH benchmarks have no JUnit tests — opt out of the parent failIfNoTests gate. -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <failIfNoTests>false</failIfNoTests>
+        </configuration>
+      </plugin>
+
       <!-- Exclude JMH-generated harness classes from PMD/CPD analysis.
            The annotation processor generates one class per benchmark method in
            jmh_generated — they are identical by design and cannot be modified. -->
