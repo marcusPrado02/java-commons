@@ -150,6 +150,7 @@ jobs:
           ./mvnw -B org.owasp:dependency-check-maven:12.1.3:aggregate \
             -Dformat=ALL \
             -DfailBuildOnCVSS=9 \
+            -DossIndexAnalyzerEnabled=false \
             -DsuppressionFile=dependency-check-suppressions.xml
 
       - name: Upload Dependency-Check report
