@@ -75,10 +75,10 @@
         <jacoco.version>0.8.11</jacoco.version>
 
         <!-- JaCoCo coverage thresholds -->
-        <!-- Baseline: 60% line / 55% branch (enforced). Target: 80% / 75%. -->
-        <!-- Increase gradually as coverage improves across all modules.    -->
-        <jacoco.line.coverage>0.60</jacoco.line.coverage>
-        <jacoco.branch.coverage>0.55</jacoco.branch.coverage>
+        <!-- Current: 75% line / 70% branch. Target: 80% / 75%. -->
+        <!-- Both values must stay in sync with min-coverage-overall in ci.yml. -->
+        <jacoco.line.coverage>0.75</jacoco.line.coverage>
+        <jacoco.branch.coverage>0.70</jacoco.branch.coverage>
         <!-- Coverage enforcement is ENABLED. Set to true only to temporarily skip. -->
         <jacoco.check.skip>false</jacoco.check.skip>
 
