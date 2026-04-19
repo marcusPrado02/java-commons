@@ -93,8 +93,11 @@ jobs:
           java-version: '21'
           cache: maven
 
+      - name: Install artifacts (skip tests)
+        run: ./mvnw -B install -DskipTests
+
       - name: Run SpotBugs
-        run: ./mvnw -B compile spotbugs:check -Dspotbugs.skip=false
+        run: ./mvnw -B spotbugs:check -Dspotbugs.skip=false
         continue-on-error: true
 
       - name: Run Checkstyle
