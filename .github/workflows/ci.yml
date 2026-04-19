@@ -58,9 +58,9 @@ jobs:
           paths: |
             ${{ github.workspace }}/**/target/site/jacoco/jacoco.xml
           token: ${{ secrets.GITHUB_TOKEN }}
-          min-coverage-overall: 75
-          min-coverage-changed-files: 70
-          fail-if-coverage-less-than: 75
+          min-coverage-overall: 80
+          min-coverage-changed-files: 75
+          fail-if-coverage-less-than: 80
 
       - name: Upload coverage reports
         if: matrix.java == '21'
