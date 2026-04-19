@@ -1,17 +1,9 @@
 name: Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      release-type:
-        description: 'Release type (major, minor, patch)'
-        required: true
-        default: 'patch'
-        type: choice
-        options:
-          - major
-          - minor
-          - patch
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 
 permissions:
   contents: write
@@ -21,7 +13,7 @@ permissions:
 
 jobs:
   release:
-    name: Create Release
+    name: Release ${{ github.ref_name }}
     runs-on: ubuntu-latest
 
     steps:
@@ -43,106 +35,48 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Get current version
-        id: current-version
+      - name: Resolve versions from tag
+        id: versions
+        env:
+          TAG: ${{ github.ref_name }}
         run: |
-          CURRENT_VERSION=$(./mvnw help:evaluate -Dexpression=project.version -q -DforceStdout | grep -v '\[')
-          echo "version=$CURRENT_VERSION" >> $GITHUB_OUTPUT
-          echo "Current version: $CURRENT_VERSION"
-
-      - name: Calculate new version
-        id: new-version
-        run: |
-          CURRENT="${{ steps.current-version.outputs.version }}"
-          CURRENT_CLEAN=$(echo "$CURRENT" | sed 's/-SNAPSHOT//')
-
-          IFS='.' read -r -a VERSION_PARTS <<< "$CURRENT_CLEAN"
-          MAJOR="${VERSION_PARTS[0]}"
-          MINOR="${VERSION_PARTS[1]}"
-          PATCH="${VERSION_PARTS[2]}"
-
-          case "${{ github.event.inputs.release-type }}" in
-            major)
-              MAJOR=$((MAJOR + 1))
-              MINOR=0
-              PATCH=0
-              ;;
-            minor)
-              MINOR=$((MINOR + 1))
-              PATCH=0
-              ;;
-            patch)
-              PATCH=$((PATCH + 1))
-              ;;
-          esac
-
-          NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+          RELEASE="${TAG#v}"
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$RELEASE"
           NEXT_SNAPSHOT="${MAJOR}.${MINOR}.$((PATCH + 1))-SNAPSHOT"
-
-          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "release=$RELEASE" >> $GITHUB_OUTPUT
           echo "next-snapshot=$NEXT_SNAPSHOT" >> $GITHUB_OUTPUT
-          echo "New release version: $NEW_VERSION"
-          echo "Next development version: $NEXT_SNAPSHOT"
+          echo "Release: $RELEASE  →  Next: $NEXT_SNAPSHOT"
 
-      - name: Update version to release
+      - name: Set release version in POMs
+        env:
+          RELEASE_VERSION: ${{ steps.versions.outputs.release }}
         run: |
-          ./mvnw -B versions:set -DnewVersion=${{ steps.new-version.outputs.version }} -DgenerateBackupPoms=false
+          ./mvnw -B versions:set -DnewVersion="$RELEASE_VERSION" -DgenerateBackupPoms=false
 
-      - name: Build and test release
+      - name: Build and test
         run: ./mvnw -B clean verify
 
-      - name: Generate CHANGELOG
-        run: ./mvnw -B git-changelog:git-changelog
-
-      - name: Commit CHANGELOG
-        run: |
-          if [ -n "$(git status --porcelain CHANGELOG.md)" ]; then
-            git add CHANGELOG.md
-            git commit --amend --no-edit
-          fi
-
-      - name: Commit release version
-        run: |
-          git add pom.xml */pom.xml
-          git commit -m "chore: release version ${{ steps.new-version.outputs.version }}"
-          git tag -a "v${{ steps.new-version.outputs.version }}" -m "Release v${{ steps.new-version.outputs.version }}"
-
-      - name: Update to next development version
-        run: |
-          ./mvnw -B versions:set -DnewVersion=${{ steps.new-version.outputs.next-snapshot }} -DgenerateBackupPoms=false
-
-      - name: Commit development version
-        run: |
-          git add pom.xml */pom.xml
-          git commit -m "chore: prepare for next development iteration ${{ steps.new-version.outputs.next-snapshot }}"
-
-      - name: Push changes
-        run: |
-          git push origin main
-          git push origin "v${{ steps.new-version.outputs.version }}"
-
-      - name: Create GitHub Release
-        uses: actions/create-release@v1
+      - name: Deploy to GitHub Packages
+        run: ./mvnw -B deploy -DskipTests -P release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
         with:
-          tag_name: v${{ steps.new-version.outputs.version }}
-          release_name: Release v${{ steps.new-version.outputs.version }}
+          tag_name: ${{ github.ref_name }}
+          name: Release ${{ github.ref_name }}
           body: |
-            ## Release v${{ steps.new-version.outputs.version }}
+            ## Release ${{ github.ref_name }}
 
-            ### Changes
-            See the [CHANGELOG](CHANGELOG.md) for details.
+            Maven artifacts are available in [GitHub Packages](https://github.com/marcusPrado02/java-commons/packages).
 
-            ### Artifacts
-            Maven artifacts are available in GitHub Packages.
-
-            ### Installation
+            ### Usage
             ```xml
             <dependency>
               <groupId>com.marcusprado02.commons</groupId>
               <artifactId>commons-bom</artifactId>
-              <version>${{ steps.new-version.outputs.version }}</version>
+              <version>${{ steps.versions.outputs.release }}</version>
               <type>pom</type>
               <scope>import</scope>
             </dependency>
@@ -150,23 +84,26 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: Deploy to GitHub Packages
-        run: ./mvnw -B deploy -DskipTests -P release
+      - name: Bump to next development version
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NEXT_SNAPSHOT: ${{ steps.versions.outputs.next-snapshot }}
+        run: |
+          ./mvnw -B versions:set -DnewVersion="$NEXT_SNAPSHOT" -DgenerateBackupPoms=false
+          git add pom.xml '**/pom.xml'
+          git commit -m "chore: prepare $NEXT_SNAPSHOT"
+          git push origin HEAD:main
 
       - name: Generate aggregated Javadoc
         run: ./mvnw -B javadoc:aggregate -DskipTests -Dmaven.javadoc.failOnError=false
         env:
           MAVEN_OPTS: -Xmx2g
 
-      - name: Upload Javadoc artifact for GitHub Pages
+      - name: Upload Javadoc for GitHub Pages
         uses: actions/upload-pages-artifact@v3
         with:
           path: target/site/apidocs
 
       - name: Deploy Javadoc to GitHub Pages
         uses: actions/deploy-pages@v4
-        id: deploy-pages
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
