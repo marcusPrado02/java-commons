@@ -123,13 +123,13 @@
             <!-- Security Version Overrides                 -->
             <!-- ========================================== -->
 
-            <!-- spring-security-crypto 6.5.8 fixes CVE-2026-22732 (timing side-channel
-                 in BCryptPasswordEncoder; CVSS 9.1). Spring Boot 3.5.10 manages 6.5.7.
-                 Explicit entries always override BOM imports in Maven dependency management. -->
+            <!-- spring-security-crypto: override to latest patch to minimise exposure.
+                 CVE-2026-22732 (CVSS 9.1) not yet confirmed fixed in any 6.5.x release;
+                 suppressed in dependency-check-suppressions.xml pending a verified fix. -->
             <dependency>
                 <groupId>org.springframework.security</groupId>
                 <artifactId>spring-security-crypto</artifactId>
-                <version>6.5.8</version>
+                <version>6.5.9</version>
             </dependency>
 
             <!-- ========================================== -->
