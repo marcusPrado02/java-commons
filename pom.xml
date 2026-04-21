@@ -387,13 +387,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   <profiles>
     <profile>
       <id>release</id>
-      <!--
-        Activated by: mvn deploy -P release
-        Requires:
-          - GPG key in keyring (gpg --gen-key, then gpg --list-keys)
-          - OSSRH credentials in ~/.m2/settings.xml under <server id="central">
-          - Or set env vars MAVEN_USERNAME / MAVEN_PASSWORD + GPG_PASSPHRASE in CI
-      -->
+      <!-- Activated by: mvn deploy -P release. Requires GPG key + MAVEN_USERNAME/MAVEN_PASSWORD in CI. -->
       <distributionManagement>
         <!-- Overrides default GitHub Packages target — releases go to Maven Central -->
         <repository>
