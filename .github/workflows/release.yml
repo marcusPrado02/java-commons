@@ -57,9 +57,23 @@ jobs:
         run: ./mvnw -B clean verify
 
       - name: Deploy to GitHub Packages
-        run: ./mvnw -B deploy -DskipTests -P release
+        run: ./mvnw -B deploy -DskipTests
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Import GPG key for Maven Central
+        uses: crazy-max/ghaction-import-gpg@v6
+        with:
+          gpg_private_key: ${{ secrets.GPG_PRIVATE_KEY }}
+          passphrase: ${{ secrets.GPG_PASSPHRASE }}
+
+      - name: Publish to Maven Central
+        # -P release activates: sources jar, javadoc jar, GPG signing, central-publishing-maven-plugin
+        run: ./mvnw -B deploy -DskipTests -P release
+        env:
+          MAVEN_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
