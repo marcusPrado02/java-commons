@@ -1,6 +1,7 @@
 package com.marcusprado02.commons.adapters.cache.redis;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.awaitility.Awaitility.await;
 
 import java.time.Duration;
 import java.util.Set;
@@ -27,7 +28,7 @@ class RedisCacheAdapterTest {
 
   private static LettuceConnectionFactory connectionFactory;
   private static RedisTemplate<String, String> redisTemplate;
-  private RedisCacheAdapter<String, String> cache;
+  private RedisCacheAdapter<String> cache;
 
   @BeforeAll
   static void setupRedis() {
@@ -80,12 +81,15 @@ class RedisCacheAdapterTest {
   }
 
   @Test
-  void shouldPutValueWithTTL() throws InterruptedException {
+  void shouldPutValueWithTTL() {
     cache.put("key2", "value2", Duration.ofSeconds(1));
 
     assertThat(cache.get("key2")).isPresent().contains("value2");
 
-    Thread.sleep(1100);
+    await()
+        .atMost(Duration.ofSeconds(5))
+        .pollInterval(Duration.ofMillis(100))
+        .until(() -> cache.get("key2").isEmpty());
 
     assertThat(cache.get("key2")).isEmpty();
   }
@@ -142,16 +146,14 @@ class RedisCacheAdapterTest {
 
   @Test
   void shouldHandleComplexObjects() {
-    TestObject obj = new TestObject("test", 42);
-
-    // Create separate RedisTemplate for TestObject
     RedisTemplate<String, TestObject> objectTemplate = new RedisTemplate<>();
     objectTemplate.setConnectionFactory(connectionFactory);
     objectTemplate.setKeySerializer(new StringRedisSerializer());
     objectTemplate.setValueSerializer(new GenericJackson2JsonRedisSerializer());
     objectTemplate.afterPropertiesSet();
 
-    RedisCacheAdapter<String, TestObject> objectCache = new RedisCacheAdapter<>(objectTemplate);
+    RedisCacheAdapter<TestObject> objectCache = new RedisCacheAdapter<>(objectTemplate);
+    TestObject obj = new TestObject("test", 42);
 
     objectCache.put("obj1", obj);
 
@@ -164,8 +166,7 @@ class RedisCacheAdapterTest {
 
   @Test
   void shouldHandleKeyPrefix() {
-    RedisCacheAdapter<String, String> prefixedCache =
-        new RedisCacheAdapter<>(redisTemplate, "prefix:");
+    RedisCacheAdapter<String> prefixedCache = new RedisCacheAdapter<>(redisTemplate, "prefix:");
 
     prefixedCache.put("key12", "value12");
 
