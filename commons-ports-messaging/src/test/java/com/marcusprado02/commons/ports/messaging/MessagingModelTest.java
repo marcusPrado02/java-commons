@@ -104,11 +104,12 @@ class MessagingModelTest {
 
   @Test
   void messageHeaders_builder_with_headers() {
-    MessageHeaders h = MessageHeaders.builder()
-        .header("a", "1")
-        .correlationId("corr-99")
-        .causationId("cause-1")
-        .build();
+    MessageHeaders h =
+        MessageHeaders.builder()
+            .header("a", "1")
+            .correlationId("corr-99")
+            .causationId("cause-1")
+            .build();
     assertEquals("1", h.get("a").get());
     assertEquals("corr-99", h.get("correlationId").get());
   }
@@ -132,7 +133,6 @@ class MessagingModelTest {
 
   @Test
   void messageHeaders_builder_rejects_null_key() {
-    assertThrows(NullPointerException.class,
-        () -> MessageHeaders.builder().header(null, "v"));
+    assertThrows(NullPointerException.class, () -> MessageHeaders.builder().header(null, "v"));
   }
 }
