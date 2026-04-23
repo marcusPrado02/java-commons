@@ -356,4 +356,41 @@ class KernelErrorsCoverageTest {
     String msg = resolver.resolve("k", Locale.ENGLISH, "Hello {0}", "World");
     assertEquals("Hello World", msg);
   }
+
+  @Test
+  void resourceBundleResolver_resolves_key_without_args() {
+    ResourceBundleMessageResolver resolver = new ResourceBundleMessageResolver("test-errors");
+    String msg = resolver.resolve("validation.failed", Locale.ENGLISH, "fallback");
+    assertEquals("Validation failed", msg);
+  }
+
+  @Test
+  void resourceBundleResolver_resolves_key_with_args() {
+    ResourceBundleMessageResolver resolver = new ResourceBundleMessageResolver("test-errors");
+    String msg = resolver.resolve("user.not.found", Locale.ENGLISH, "fallback", "user-123");
+    assertEquals("User user-123 not found", msg);
+  }
+
+  @Test
+  void resourceBundleResolver_hasMessage_returns_true_when_key_exists() {
+    ResourceBundleMessageResolver resolver = new ResourceBundleMessageResolver("test-errors");
+    assertTrue(resolver.hasMessage("validation.failed", Locale.ENGLISH));
+  }
+
+  @Test
+  void problem_with_null_details_and_meta_defaults_to_empty() {
+    Problem p =
+        new Problem(
+            ErrorCode.of("X"), ErrorCategory.VALIDATION, Severity.ERROR, "msg", null, null, null);
+    assertTrue(p.details().isEmpty());
+    assertTrue(p.meta().isEmpty());
+    assertNotNull(p.timestamp());
+  }
+
+  @Test
+  void noOp_resolver_returns_key_when_default_message_is_null() {
+    I18nMessageResolver resolver = I18nMessageResolver.noOp();
+    String result = resolver.resolve("some.key", Locale.ENGLISH, null);
+    assertEquals("some.key", result);
+  }
 }

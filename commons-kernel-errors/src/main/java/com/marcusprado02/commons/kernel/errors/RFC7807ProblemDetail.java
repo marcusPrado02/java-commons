@@ -68,7 +68,7 @@ public record RFC7807ProblemDetail(
   }
 
   private static String buildDetailFromProblem(Problem problem) {
-    if (problem.details() == null || problem.details().isEmpty()) {
+    if (problem.details().isEmpty()) {
       return null;
     }
 
