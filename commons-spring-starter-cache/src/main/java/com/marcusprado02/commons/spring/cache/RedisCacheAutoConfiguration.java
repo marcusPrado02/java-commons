@@ -114,7 +114,7 @@ public class RedisCacheAutoConfiguration {
       RedisTemplate<String, Object> redisTemplate, CacheProperties properties) {
     String keyPrefix = properties.getRedis().getKeyPrefix();
 
-    RedisCacheAdapter<String, Object> adapter = new RedisCacheAdapter<>(redisTemplate, keyPrefix);
+    RedisCacheAdapter<Object> adapter = new RedisCacheAdapter<>(redisTemplate, keyPrefix);
 
     log.info("Created Redis cache adapter with key prefix: '{}'", keyPrefix);
 
