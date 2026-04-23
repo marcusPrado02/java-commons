@@ -136,13 +136,36 @@ class MessagingExtendedTest {
 
   // --- MessagePublisherPort default methods ---
 
+  private static MessagePublisherPort capturingPublisher(List<MessageEnvelope<?>> sink) {
+    return new MessagePublisherPort() {
+      @Override
+      public <T> void publish(MessageEnvelope<T> envelope, MessageSerializer<T> serializer) {
+        sink.add(envelope);
+      }
+    };
+  }
+
+  private static <T> MessageSerializer<T> noOpSerializer() {
+    return new MessageSerializer<>() {
+      @Override
+      public byte[] serialize(T message) {
+        return message.toString().getBytes();
+      }
+
+      @Override
+      public T deserialize(byte[] data, Class<T> type) {
+        return null;
+      }
+    };
+  }
+
   @Test
   void publisherPort_default_publish_builds_envelope() {
     List<MessageEnvelope<?>> captured = new ArrayList<>();
-    MessagePublisherPort publisher = (envelope, serializer) -> captured.add(envelope);
+    MessagePublisherPort publisher = capturingPublisher(captured);
 
     TopicName topic = TopicName.of("test.topic");
-    publisher.publish(topic, "payload", msg -> msg.getBytes());
+    publisher.publish(topic, "payload", noOpSerializer());
 
     assertEquals(1, captured.size());
     assertEquals(topic, captured.get(0).topic());
@@ -151,7 +174,7 @@ class MessagingExtendedTest {
   @Test
   void publisherPort_default_publishBatch_sends_all() {
     List<MessageEnvelope<?>> captured = new ArrayList<>();
-    MessagePublisherPort publisher = (envelope, serializer) -> captured.add(envelope);
+    MessagePublisherPort publisher = capturingPublisher(captured);
 
     TopicName topic = TopicName.of("batch.topic");
     MessageEnvelope<String> e1 =
@@ -159,7 +182,7 @@ class MessagingExtendedTest {
     MessageEnvelope<String> e2 =
         MessageEnvelope.<String>builder().topic(topic).payload("b").build();
 
-    publisher.publishBatch(List.of(e1, e2), msg -> msg.getBytes());
+    publisher.publishBatch(List.of(e1, e2), noOpSerializer());
 
     assertEquals(2, captured.size());
   }
