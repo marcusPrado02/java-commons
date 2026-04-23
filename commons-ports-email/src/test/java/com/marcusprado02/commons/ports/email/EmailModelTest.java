@@ -38,7 +38,7 @@ class EmailModelTest {
 
   @Test
   void emailAddress_rejects_too_long() {
-    String longEmail = "a".repeat(310) + "@x.com";
+    String longEmail = "a".repeat(315) + "@x.com";
     assertThrows(IllegalArgumentException.class, () -> EmailAddress.of(longEmail));
   }
 
