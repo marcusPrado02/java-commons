@@ -370,4 +370,42 @@ class HttpPortModelTest {
         HttpRequest.builder().method(HttpMethod.GET).uri(URI.create("http://x.com")).build();
     assertThrows(NullPointerException.class, () -> adapter.execute(req, null));
   }
+
+  // -----------------------------------------------------------------------
+  // HttpBody branch coverage
+  // -----------------------------------------------------------------------
+
+  @Test
+  void httpBody_bytes_nullContentTypeFallsBackToOctetStream() {
+    HttpBody.Bytes body = new HttpBody.Bytes("x".getBytes(StandardCharsets.UTF_8), null);
+    assertEquals("application/octet-stream", body.contentType());
+  }
+
+  @Test
+  void httpBody_multipartPart_nullContentTypeFallsBackToOctetStream() {
+    HttpBody.Multipart.Part part =
+        new HttpBody.Multipart.Part("f", null, null, "v".getBytes(StandardCharsets.UTF_8));
+    assertEquals("application/octet-stream", part.contentType());
+  }
+
+  @Test
+  void httpBody_multipartPart_blankContentTypeFallsBackToOctetStream() {
+    HttpBody.Multipart.Part part =
+        new HttpBody.Multipart.Part("f", null, "  ", "v".getBytes(StandardCharsets.UTF_8));
+    assertEquals("application/octet-stream", part.contentType());
+  }
+
+  @Test
+  void httpBody_formUrlEncoded_nullListInMapDefaultsToEmpty() {
+    java.util.Map<String, java.util.List<String>> m = new java.util.HashMap<>();
+    m.put("k", null);
+    HttpBody.FormUrlEncoded form = new HttpBody.FormUrlEncoded(m);
+    assertTrue(form.fields().get("k").isEmpty());
+  }
+
+  @Test
+  void httpResponse_isNotSuccessful_for1xx() {
+    HttpResponse<byte[]> r = new HttpResponse<>(100, Map.of(), null);
+    assertFalse(r.isSuccessful());
+  }
 }
