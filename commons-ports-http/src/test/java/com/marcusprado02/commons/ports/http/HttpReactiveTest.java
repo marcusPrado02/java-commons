@@ -2,6 +2,7 @@ package com.marcusprado02.commons.ports.http;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
@@ -10,12 +11,18 @@ import reactor.core.publisher.Mono;
 
 class HttpReactiveTest {
 
+  private static HttpRequest getRequest() {
+    return HttpRequest.builder()
+        .method(HttpMethod.GET)
+        .uri(URI.create("http://example.com"))
+        .build();
+  }
+
   // --- HttpInterceptor default methods ---
 
   @Test
   void httpInterceptor_onRequest_returns_same_request() {
-    HttpRequest request =
-        HttpRequest.builder().method(HttpMethod.GET).url("http://example.com").build();
+    HttpRequest request = getRequest();
     HttpInterceptor interceptor = new HttpInterceptor() {};
     HttpRequest result = interceptor.onRequest(request);
     assertSame(request, result);
@@ -29,8 +36,7 @@ class HttpReactiveTest {
 
   @Test
   void httpInterceptor_onResponse_returns_same_response() {
-    HttpRequest request =
-        HttpRequest.builder().method(HttpMethod.GET).url("http://example.com").build();
+    HttpRequest request = getRequest();
     HttpResponse<byte[]> response = new HttpResponse<>(200, Map.of(), new byte[0]);
     HttpInterceptor interceptor = new HttpInterceptor() {};
     HttpResponse<byte[]> result = interceptor.onResponse(request, response);
@@ -47,8 +53,7 @@ class HttpReactiveTest {
   @Test
   void httpInterceptor_onResponse_null_response_throws() {
     HttpInterceptor interceptor = new HttpInterceptor() {};
-    HttpRequest request =
-        HttpRequest.builder().method(HttpMethod.GET).url("http://example.com").build();
+    HttpRequest request = getRequest();
     assertThrows(NullPointerException.class, () -> interceptor.onResponse(request, null));
   }
 
@@ -98,22 +103,18 @@ class HttpReactiveTest {
     HttpResponse<byte[]> rawResp = new HttpResponse<>(200, Map.of(), "data".getBytes());
     ReactiveHttpClientPort client = request -> Mono.just(rawResp);
 
-    HttpRequest request =
-        HttpRequest.builder().method(HttpMethod.GET).url("http://example.com").build();
-    ReactiveHttpResponse result = client.exchange(request).block();
+    ReactiveHttpResponse result = client.exchange(getRequest()).block();
 
     assertNotNull(result);
     assertEquals(200, result.statusCode());
   }
 
   @Test
-  void reactiveClientPort_exchange_empty_body() {
+  void reactiveClientPort_exchange_null_body() {
     HttpResponse<byte[]> rawResp = new HttpResponse<>(204, Map.of(), null);
     ReactiveHttpClientPort client = request -> Mono.just(rawResp);
 
-    HttpRequest request =
-        HttpRequest.builder().method(HttpMethod.GET).url("http://example.com").build();
-    ReactiveHttpResponse result = client.exchange(request).block();
+    ReactiveHttpResponse result = client.exchange(getRequest()).block();
 
     assertNotNull(result);
     assertEquals(204, result.statusCode());
@@ -131,9 +132,7 @@ class HttpReactiveTest {
     HttpResponse<byte[]> rawResp = new HttpResponse<>(200, Map.of(), body);
     ReactiveHttpClientPort client = request -> Mono.just(rawResp);
 
-    HttpRequest request =
-        HttpRequest.builder().method(HttpMethod.GET).url("http://example.com").build();
-    List<String> events = client.executeServerSentEvents(request).collectList().block();
+    List<String> events = client.executeServerSentEvents(getRequest()).collectList().block();
     assertNotNull(events);
     assertFalse(events.isEmpty());
   }
