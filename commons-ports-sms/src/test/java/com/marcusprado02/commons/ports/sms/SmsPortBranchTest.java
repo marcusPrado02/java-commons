@@ -84,7 +84,7 @@ class SmsPortBranchTest {
   void smsPort_verify_returns_ok() {
     SMSPort port = sms -> Result.ok(null);
     Result<Void> result = port.verify();
-    assertTrue(result.isSuccess());
+    assertTrue(result.isOk());
   }
 
   @Test
