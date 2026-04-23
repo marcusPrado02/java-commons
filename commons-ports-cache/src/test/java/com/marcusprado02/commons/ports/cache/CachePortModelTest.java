@@ -31,20 +31,18 @@ class CachePortModelTest {
 
   @Test
   void cacheValue_constructor_rejects_null_value() {
-    assertThrows(NullPointerException.class,
-        () -> new CacheValue<>(null, Instant.now(), Optional.empty()));
+    assertThrows(
+        NullPointerException.class, () -> new CacheValue<>(null, Instant.now(), Optional.empty()));
   }
 
   @Test
   void cacheValue_constructor_rejects_null_cachedAt() {
-    assertThrows(NullPointerException.class,
-        () -> new CacheValue<>("v", null, Optional.empty()));
+    assertThrows(NullPointerException.class, () -> new CacheValue<>("v", null, Optional.empty()));
   }
 
   @Test
   void cacheValue_constructor_rejects_null_expiresAt() {
-    assertThrows(NullPointerException.class,
-        () -> new CacheValue<>("v", Instant.now(), null));
+    assertThrows(NullPointerException.class, () -> new CacheValue<>("v", Instant.now(), null));
   }
 
   @Test

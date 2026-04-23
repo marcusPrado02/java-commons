@@ -36,8 +36,7 @@ class NotificationModelTest {
 
   @Test
   void notificationTarget_devices_rejects_empty_set() {
-    assertThrows(IllegalArgumentException.class,
-        () -> NotificationTarget.devices(Set.of()));
+    assertThrows(IllegalArgumentException.class, () -> NotificationTarget.devices(Set.of()));
   }
 
   @Test
@@ -57,12 +56,13 @@ class NotificationModelTest {
 
   @Test
   void pushNotification_builder_with_visual_content() {
-    PushNotification n = PushNotification.builder()
-        .title("Title")
-        .body("Body")
-        .data(Map.of("k", "v"))
-        .priority(NotificationPriority.HIGH)
-        .build();
+    PushNotification n =
+        PushNotification.builder()
+            .title("Title")
+            .body("Body")
+            .data(Map.of("k", "v"))
+            .priority(NotificationPriority.HIGH)
+            .build();
 
     assertTrue(n.hasVisualContent());
     assertTrue(n.hasData());
@@ -73,9 +73,7 @@ class NotificationModelTest {
 
   @Test
   void pushNotification_no_visual_content_when_no_title_or_body() {
-    PushNotification n = PushNotification.builder()
-        .data(Map.of("silent", "true"))
-        .build();
+    PushNotification n = PushNotification.builder().data(Map.of("silent", "true")).build();
 
     assertFalse(n.hasVisualContent());
     assertTrue(n.hasData());
@@ -91,14 +89,15 @@ class NotificationModelTest {
 
   @Test
   void pushNotification_builder_with_optional_fields() {
-    PushNotification n = PushNotification.builder()
-        .title("T")
-        .imageUrl("http://img.url")
-        .timeToLive(3600L)
-        .sound("default")
-        .badge(1)
-        .clickAction("OPEN_APP")
-        .build();
+    PushNotification n =
+        PushNotification.builder()
+            .title("T")
+            .imageUrl("http://img.url")
+            .timeToLive(3600L)
+            .sound("default")
+            .badge(1)
+            .clickAction("OPEN_APP")
+            .build();
 
     assertEquals("http://img.url", n.imageUrl());
     assertEquals(3600L, n.timeToLive());
