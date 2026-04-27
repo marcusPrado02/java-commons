@@ -106,4 +106,69 @@ class PdfDocumentTest {
     assertEquals("a,b", doc.keywords());
     assertEquals("App", doc.creator());
   }
+
+  // --- PageSize ---
+
+  @Test
+  void pageSize_equals_same_instance() {
+    assertTrue(PageSize.A4.equals(PageSize.A4));
+  }
+
+  @Test
+  void pageSize_equals_not_a_pagesize() {
+    assertFalse(PageSize.A4.equals("not a PageSize"));
+    assertFalse(PageSize.A4.equals(null));
+  }
+
+  @Test
+  void pageSize_equals_different_dimensions() {
+    assertFalse(PageSize.A4.equals(PageSize.A3));
+  }
+
+  @Test
+  void pageSize_equals_same_dimensions() {
+    PageSize p1 = PageSize.custom(595, 842);
+    PageSize p2 = PageSize.custom(595, 842);
+    assertTrue(p1.equals(p2));
+    assertEquals(p1.hashCode(), p2.hashCode());
+  }
+
+  @Test
+  void pageSize_equals_same_width_different_height() {
+    PageSize p1 = PageSize.custom(595, 842);
+    PageSize p2 = PageSize.custom(595, 999);
+    assertFalse(p1.equals(p2));
+  }
+
+  @Test
+  void pageSize_rotate_swaps_dimensions() {
+    PageSize landscape = PageSize.A4.rotate();
+    assertEquals(PageSize.A4.getHeight(), landscape.getWidth(), 0.01f);
+    assertEquals(PageSize.A4.getWidth(), landscape.getHeight(), 0.01f);
+  }
+
+  @Test
+  void pageSize_toString() {
+    assertNotNull(PageSize.A4.toString());
+  }
+
+  // --- PdfPort default methods ---
+
+  @Test
+  void pdfPort_supportsSignatures_default_true() {
+    PdfPort port =
+        (doc, out) -> {
+          throw new UnsupportedOperationException();
+        };
+    assertTrue(port.supportsSignatures());
+  }
+
+  @Test
+  void pdfPort_getPdfVersion_default_1_7() {
+    PdfPort port =
+        (doc, out) -> {
+          throw new UnsupportedOperationException();
+        };
+    assertEquals("1.7", port.getPdfVersion());
+  }
 }
