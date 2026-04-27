@@ -154,21 +154,28 @@ class PdfDocumentTest {
 
   // --- PdfPort default methods ---
 
+  private static final PdfPort STUB_PORT =
+      new PdfPort() {
+        @Override
+        public com.marcusprado02.commons.kernel.result.Result<Void> generate(
+            PdfDocument doc, java.io.OutputStream out) {
+          throw new UnsupportedOperationException();
+        }
+
+        @Override
+        public com.marcusprado02.commons.kernel.result.Result<Void> generateAndSign(
+            PdfDocument doc, PdfSignature sig, java.io.OutputStream out) {
+          throw new UnsupportedOperationException();
+        }
+      };
+
   @Test
   void pdfPort_supportsSignatures_default_true() {
-    PdfPort port =
-        (doc, out) -> {
-          throw new UnsupportedOperationException();
-        };
-    assertTrue(port.supportsSignatures());
+    assertTrue(STUB_PORT.supportsSignatures());
   }
 
   @Test
   void pdfPort_getPdfVersion_default_1_7() {
-    PdfPort port =
-        (doc, out) -> {
-          throw new UnsupportedOperationException();
-        };
-    assertEquals("1.7", port.getPdfVersion());
+    assertEquals("1.7", STUB_PORT.getPdfVersion());
   }
 }
