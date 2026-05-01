@@ -92,12 +92,13 @@ class CompressionModelTest {
 
   @Test
   void compressionResult_valid_calculates_ratio() {
-    CompressionResult r = CompressionResult.builder(CompressionAlgorithm.GZIP)
-        .originalSize(1000L)
-        .compressedSize(400L)
-        .processingTime(Duration.ofMillis(10))
-        .checksumVerified(true)
-        .build();
+    CompressionResult r =
+        CompressionResult.builder(CompressionAlgorithm.GZIP)
+            .originalSize(1000L)
+            .compressedSize(400L)
+            .processingTime(Duration.ofMillis(10))
+            .checksumVerified(true)
+            .build();
     assertEquals(CompressionAlgorithm.GZIP, r.algorithm());
     assertEquals(1000L, r.originalSize());
     assertEquals(400L, r.compressedSize());
@@ -107,105 +108,172 @@ class CompressionModelTest {
 
   @Test
   void compressionResult_original_size_zero_ratio_is_one() {
-    CompressionResult r = CompressionResult.builder(CompressionAlgorithm.LZ4)
-        .originalSize(0L)
-        .compressedSize(0L)
-        .processingTime(Duration.ofMillis(1))
-        .build();
+    CompressionResult r =
+        CompressionResult.builder(CompressionAlgorithm.LZ4)
+            .originalSize(0L)
+            .compressedSize(0L)
+            .processingTime(Duration.ofMillis(1))
+            .build();
     assertEquals(1.0, r.compressionRatio(), 0.001);
   }
 
   @Test
   void compressionResult_null_timestamp_defaults_to_now() {
     Instant before = Instant.now();
-    CompressionResult r = new CompressionResult(
-        CompressionAlgorithm.SNAPPY, 100L, 80L, 0.0, Duration.ofMillis(5), null, false);
+    CompressionResult r =
+        new CompressionResult(
+            CompressionAlgorithm.SNAPPY, 100L, 80L, 0.0, Duration.ofMillis(5), null, false);
     assertTrue(!r.timestamp().isBefore(before));
   }
 
   @Test
   void compressionResult_null_algorithm_throws() {
-    assertThrows(IllegalArgumentException.class, () ->
-        new CompressionResult(null, 100L, 80L, 0.0, Duration.ofMillis(5), Instant.now(), false));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new CompressionResult(
+                null, 100L, 80L, 0.0, Duration.ofMillis(5), Instant.now(), false));
   }
 
   @Test
   void compressionResult_negative_original_size_throws() {
-    assertThrows(IllegalArgumentException.class, () ->
-        new CompressionResult(CompressionAlgorithm.GZIP, -1L, 80L, 0.0, Duration.ofMillis(5), Instant.now(), false));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new CompressionResult(
+                CompressionAlgorithm.GZIP,
+                -1L,
+                80L,
+                0.0,
+                Duration.ofMillis(5),
+                Instant.now(),
+                false));
   }
 
   @Test
   void compressionResult_negative_compressed_size_throws() {
-    assertThrows(IllegalArgumentException.class, () ->
-        new CompressionResult(CompressionAlgorithm.GZIP, 100L, -1L, 0.0, Duration.ofMillis(5), Instant.now(), false));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new CompressionResult(
+                CompressionAlgorithm.GZIP,
+                100L,
+                -1L,
+                0.0,
+                Duration.ofMillis(5),
+                Instant.now(),
+                false));
   }
 
   @Test
   void compressionResult_null_processing_time_throws() {
-    assertThrows(IllegalArgumentException.class, () ->
-        new CompressionResult(CompressionAlgorithm.GZIP, 100L, 80L, 0.0, null, Instant.now(), false));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new CompressionResult(
+                CompressionAlgorithm.GZIP, 100L, 80L, 0.0, null, Instant.now(), false));
   }
 
   @Test
   void compressionResult_negative_processing_time_throws() {
-    assertThrows(IllegalArgumentException.class, () ->
-        new CompressionResult(CompressionAlgorithm.GZIP, 100L, 80L, 0.0, Duration.ofMillis(-1), Instant.now(), false));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            new CompressionResult(
+                CompressionAlgorithm.GZIP,
+                100L,
+                80L,
+                0.0,
+                Duration.ofMillis(-1),
+                Instant.now(),
+                false));
   }
 
   @Test
   void compressionResult_getSpaceSaved() {
-    CompressionResult r = CompressionResult.builder(CompressionAlgorithm.DEFLATE)
-        .originalSize(1000L).compressedSize(600L).processingTime(Duration.ofMillis(5)).build();
+    CompressionResult r =
+        CompressionResult.builder(CompressionAlgorithm.DEFLATE)
+            .originalSize(1000L)
+            .compressedSize(600L)
+            .processingTime(Duration.ofMillis(5))
+            .build();
     assertEquals(400L, r.getSpaceSaved());
   }
 
   @Test
   void compressionResult_getSpaceSavedPercentage_zero_original() {
-    CompressionResult r = CompressionResult.builder(CompressionAlgorithm.DEFLATE)
-        .originalSize(0L).compressedSize(0L).processingTime(Duration.ofMillis(1)).build();
+    CompressionResult r =
+        CompressionResult.builder(CompressionAlgorithm.DEFLATE)
+            .originalSize(0L)
+            .compressedSize(0L)
+            .processingTime(Duration.ofMillis(1))
+            .build();
     assertEquals(0.0, r.getSpaceSavedPercentage(), 0.001);
   }
 
   @Test
   void compressionResult_getSpaceSavedPercentage_normal() {
-    CompressionResult r = CompressionResult.builder(CompressionAlgorithm.GZIP)
-        .originalSize(1000L).compressedSize(400L).processingTime(Duration.ofMillis(5)).build();
+    CompressionResult r =
+        CompressionResult.builder(CompressionAlgorithm.GZIP)
+            .originalSize(1000L)
+            .compressedSize(400L)
+            .processingTime(Duration.ofMillis(5))
+            .build();
     assertEquals(60.0, r.getSpaceSavedPercentage(), 0.001);
   }
 
   @Test
   void compressionResult_isEffective_true() {
-    CompressionResult r = CompressionResult.builder(CompressionAlgorithm.GZIP)
-        .originalSize(1000L).compressedSize(400L).processingTime(Duration.ofMillis(5)).build();
+    CompressionResult r =
+        CompressionResult.builder(CompressionAlgorithm.GZIP)
+            .originalSize(1000L)
+            .compressedSize(400L)
+            .processingTime(Duration.ofMillis(5))
+            .build();
     assertTrue(r.isEffective());
   }
 
   @Test
   void compressionResult_isEffective_false_when_larger() {
-    CompressionResult r = CompressionResult.builder(CompressionAlgorithm.GZIP)
-        .originalSize(100L).compressedSize(150L).processingTime(Duration.ofMillis(5)).build();
+    CompressionResult r =
+        CompressionResult.builder(CompressionAlgorithm.GZIP)
+            .originalSize(100L)
+            .compressedSize(150L)
+            .processingTime(Duration.ofMillis(5))
+            .build();
     assertFalse(r.isEffective());
   }
 
   @Test
   void compressionResult_getThroughputBytesPerSecond_zero_time_is_infinity() {
-    CompressionResult r = CompressionResult.builder(CompressionAlgorithm.LZ4)
-        .originalSize(1000L).compressedSize(800L).processingTime(Duration.ZERO).build();
+    CompressionResult r =
+        CompressionResult.builder(CompressionAlgorithm.LZ4)
+            .originalSize(1000L)
+            .compressedSize(800L)
+            .processingTime(Duration.ZERO)
+            .build();
     assertEquals(Double.POSITIVE_INFINITY, r.getThroughputBytesPerSecond());
   }
 
   @Test
   void compressionResult_getThroughputMegabytesPerSecond() {
-    CompressionResult r = CompressionResult.builder(CompressionAlgorithm.LZ4)
-        .originalSize(1048576L).compressedSize(800000L).processingTime(Duration.ofMillis(1000)).build();
+    CompressionResult r =
+        CompressionResult.builder(CompressionAlgorithm.LZ4)
+            .originalSize(1048576L)
+            .compressedSize(800000L)
+            .processingTime(Duration.ofMillis(1000))
+            .build();
     assertEquals(1.0, r.getThroughputMegabytesPerSecond(), 0.01);
   }
 
   @Test
   void compressionResult_formatSummary_not_null() {
-    CompressionResult r = CompressionResult.builder(CompressionAlgorithm.ZSTD)
-        .originalSize(1000L).compressedSize(400L).processingTime(Duration.ofMillis(5)).build();
+    CompressionResult r =
+        CompressionResult.builder(CompressionAlgorithm.ZSTD)
+            .originalSize(1000L)
+            .compressedSize(400L)
+            .processingTime(Duration.ofMillis(5))
+            .build();
     assertNotNull(r.formatSummary());
     assertTrue(r.formatSummary().contains("ZSTD"));
   }
@@ -279,15 +347,18 @@ class CompressionModelTest {
 
   @Test
   void http_selectBestAlgorithm_match_found() {
-    CompressionAlgorithm result = HttpCompression.selectBestAlgorithm("gzip",
-        new CompressionAlgorithm[]{CompressionAlgorithm.GZIP, CompressionAlgorithm.BROTLI});
+    CompressionAlgorithm result =
+        HttpCompression.selectBestAlgorithm(
+            "gzip",
+            new CompressionAlgorithm[] {CompressionAlgorithm.GZIP, CompressionAlgorithm.BROTLI});
     assertEquals(CompressionAlgorithm.GZIP, result);
   }
 
   @Test
   void http_selectBestAlgorithm_no_match_returns_null() {
-    assertNull(HttpCompression.selectBestAlgorithm("gzip",
-        new CompressionAlgorithm[]{CompressionAlgorithm.BROTLI}));
+    assertNull(
+        HttpCompression.selectBestAlgorithm(
+            "gzip", new CompressionAlgorithm[] {CompressionAlgorithm.BROTLI}));
   }
 
   @Test

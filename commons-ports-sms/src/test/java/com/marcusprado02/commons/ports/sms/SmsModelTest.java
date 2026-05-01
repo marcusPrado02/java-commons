@@ -46,12 +46,16 @@ class SmsModelTest {
 
   @Test
   void smsOptions_negative_validity_throws() {
-    assertThrows(IllegalArgumentException.class, () -> SMSOptions.builder().validityPeriodMinutes(-1).build());
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> SMSOptions.builder().validityPeriodMinutes(-1).build());
   }
 
   @Test
   void smsOptions_validity_exceeds_max_throws() {
-    assertThrows(IllegalArgumentException.class, () -> SMSOptions.builder().validityPeriodMinutes(10081).build());
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> SMSOptions.builder().validityPeriodMinutes(10081).build());
   }
 
   @Test
@@ -102,7 +106,8 @@ class SmsModelTest {
 
   @Test
   void sms_null_to_throws() {
-    assertThrows(NullPointerException.class, () -> new SMS(FROM, null, "msg", SMSOptions.defaults()));
+    assertThrows(
+        NullPointerException.class, () -> new SMS(FROM, null, "msg", SMSOptions.defaults()));
   }
 
   @Test
@@ -117,13 +122,15 @@ class SmsModelTest {
 
   @Test
   void sms_blank_message_throws() {
-    assertThrows(IllegalArgumentException.class, () -> new SMS(FROM, TO, "  ", SMSOptions.defaults()));
+    assertThrows(
+        IllegalArgumentException.class, () -> new SMS(FROM, TO, "  ", SMSOptions.defaults()));
   }
 
   @Test
   void sms_message_too_long_throws() {
     String longMsg = "A".repeat(1601);
-    assertThrows(IllegalArgumentException.class, () -> new SMS(FROM, TO, longMsg, SMSOptions.defaults()));
+    assertThrows(
+        IllegalArgumentException.class, () -> new SMS(FROM, TO, longMsg, SMSOptions.defaults()));
   }
 
   @Test
@@ -144,74 +151,81 @@ class SmsModelTest {
 
   @Test
   void bulkSms_null_from_throws() {
-    assertThrows(NullPointerException.class,
+    assertThrows(
+        NullPointerException.class,
         () -> new BulkSMS(null, List.of(TO), "msg", SMSOptions.defaults()));
   }
 
   @Test
   void bulkSms_null_to_throws() {
-    assertThrows(NullPointerException.class,
-        () -> new BulkSMS(FROM, null, "msg", SMSOptions.defaults()));
+    assertThrows(
+        NullPointerException.class, () -> new BulkSMS(FROM, null, "msg", SMSOptions.defaults()));
   }
 
   @Test
   void bulkSms_null_message_throws() {
-    assertThrows(NullPointerException.class,
+    assertThrows(
+        NullPointerException.class,
         () -> new BulkSMS(FROM, List.of(TO), null, SMSOptions.defaults()));
   }
 
   @Test
   void bulkSms_null_options_throws() {
-    assertThrows(NullPointerException.class,
-        () -> new BulkSMS(FROM, List.of(TO), "msg", null));
+    assertThrows(NullPointerException.class, () -> new BulkSMS(FROM, List.of(TO), "msg", null));
   }
 
   @Test
   void bulkSms_empty_recipients_throws() {
-    assertThrows(IllegalArgumentException.class,
+    assertThrows(
+        IllegalArgumentException.class,
         () -> new BulkSMS(FROM, List.of(), "msg", SMSOptions.defaults()));
   }
 
   @Test
   void bulkSms_blank_message_throws() {
-    assertThrows(IllegalArgumentException.class,
+    assertThrows(
+        IllegalArgumentException.class,
         () -> new BulkSMS(FROM, List.of(TO), "  ", SMSOptions.defaults()));
   }
 
   @Test
   void bulkSms_message_too_long_throws() {
-    assertThrows(IllegalArgumentException.class,
+    assertThrows(
+        IllegalArgumentException.class,
         () -> new BulkSMS(FROM, List.of(TO), "A".repeat(1601), SMSOptions.defaults()));
   }
 
   @Test
   void bulkSms_too_many_recipients_throws() {
     List<PhoneNumber> tooMany = java.util.stream.Stream.generate(() -> TO).limit(1001).toList();
-    assertThrows(IllegalArgumentException.class,
+    assertThrows(
+        IllegalArgumentException.class,
         () -> new BulkSMS(FROM, tooMany, "msg", SMSOptions.defaults()));
   }
 
   @Test
   void bulkSms_builder_to_all_strings() {
-    BulkSMS bulk = BulkSMS.builder()
-        .from(FROM)
-        .toAll(List.of("+15551234567", "+15559876543"))
-        .message("msg")
-        .withDeliveryReceipt()
-        .build();
+    BulkSMS bulk =
+        BulkSMS.builder()
+            .from(FROM)
+            .toAll(List.of("+15551234567", "+15559876543"))
+            .message("msg")
+            .withDeliveryReceipt()
+            .build();
     assertEquals(2, bulk.to().size());
     assertTrue(bulk.options().deliveryReceipt());
   }
 
   @Test
   void bulkSms_builder_to_all_phones() {
-    BulkSMS bulk = BulkSMS.builder()
-        .from(FROM)
-        .to(TO)
-        .toAllPhones(List.of(PhoneNumber.of("+15550001111")))
-        .message("msg")
-        .validityPeriod(120)
-        .build();
+    BulkSMS bulk =
+        BulkSMS.builder()
+            .from(FROM)
+            .to(TO)
+            .toAllPhones(List.of(PhoneNumber.of("+15550001111")))
+            .message("msg")
+            .validityPeriod(120)
+            .build();
     assertEquals(2, bulk.to().size());
   }
 
@@ -219,7 +233,7 @@ class SmsModelTest {
 
   @Test
   void mms_with_text_and_media_is_valid() {
-    MMS.MediaContent media = MMS.MediaContent.image(new byte[]{1, 2, 3}, "jpeg");
+    MMS.MediaContent media = MMS.MediaContent.image(new byte[] {1, 2, 3}, "jpeg");
     MMS mms = MMS.builder().from(FROM).to(TO).message("Caption").addMedia(media).build();
     assertNotNull(mms);
     assertEquals(1, mms.mediaContents().size());
@@ -235,37 +249,40 @@ class SmsModelTest {
 
   @Test
   void mms_null_from_throws() {
-    assertThrows(NullPointerException.class,
+    assertThrows(
+        NullPointerException.class,
         () -> new MMS(null, TO, null, List.of(), SMSOptions.defaults()));
   }
 
   @Test
   void mms_null_to_throws() {
-    assertThrows(NullPointerException.class,
+    assertThrows(
+        NullPointerException.class,
         () -> new MMS(FROM, null, null, List.of(), SMSOptions.defaults()));
   }
 
   @Test
   void mms_null_media_contents_throws() {
-    assertThrows(NullPointerException.class,
-        () -> new MMS(FROM, TO, "msg", null, SMSOptions.defaults()));
+    assertThrows(
+        NullPointerException.class, () -> new MMS(FROM, TO, "msg", null, SMSOptions.defaults()));
   }
 
   @Test
   void mms_null_options_throws() {
-    assertThrows(NullPointerException.class,
-        () -> new MMS(FROM, TO, "msg", List.of(), null));
+    assertThrows(NullPointerException.class, () -> new MMS(FROM, TO, "msg", List.of(), null));
   }
 
   @Test
   void mms_empty_media_and_null_message_throws() {
-    assertThrows(IllegalArgumentException.class,
+    assertThrows(
+        IllegalArgumentException.class,
         () -> new MMS(FROM, TO, null, List.of(), SMSOptions.defaults()));
   }
 
   @Test
   void mms_empty_media_and_blank_message_throws() {
-    assertThrows(IllegalArgumentException.class,
+    assertThrows(
+        IllegalArgumentException.class,
         () -> new MMS(FROM, TO, "  ", List.of(), SMSOptions.defaults()));
   }
 
@@ -273,62 +290,65 @@ class SmsModelTest {
   void mms_media_too_large_throws() {
     byte[] bigData = new byte[1048577]; // 1MB + 1 byte
     MMS.MediaContent media = new MMS.MediaContent(bigData, "image/jpeg", null);
-    assertThrows(IllegalArgumentException.class,
+    assertThrows(
+        IllegalArgumentException.class,
         () -> new MMS(FROM, TO, null, List.of(media), SMSOptions.defaults()));
   }
 
   @Test
   void mms_builder_add_image_video_audio() {
-    MMS mms = MMS.builder()
-        .from(FROM)
-        .to(TO)
-        .addImage(new byte[]{1}, "jpeg")
-        .addVideo(new byte[]{2}, "mp4")
-        .addAudio(new byte[]{3}, "mp3")
-        .build();
+    MMS mms =
+        MMS.builder()
+            .from(FROM)
+            .to(TO)
+            .addImage(new byte[] {1}, "jpeg")
+            .addVideo(new byte[] {2}, "mp4")
+            .addAudio(new byte[] {3}, "mp3")
+            .build();
     assertEquals(3, mms.mediaContents().size());
   }
 
   @Test
   void mediaContent_null_content_throws() {
-    assertThrows(NullPointerException.class,
-        () -> new MMS.MediaContent(null, "image/jpeg", null));
+    assertThrows(NullPointerException.class, () -> new MMS.MediaContent(null, "image/jpeg", null));
   }
 
   @Test
   void mediaContent_null_content_type_throws() {
-    assertThrows(NullPointerException.class,
-        () -> new MMS.MediaContent(new byte[]{1}, null, null));
+    assertThrows(
+        NullPointerException.class, () -> new MMS.MediaContent(new byte[] {1}, null, null));
   }
 
   @Test
   void mediaContent_empty_content_throws() {
-    assertThrows(IllegalArgumentException.class,
+    assertThrows(
+        IllegalArgumentException.class,
         () -> new MMS.MediaContent(new byte[0], "image/jpeg", null));
   }
 
   @Test
   void mediaContent_blank_content_type_throws() {
-    assertThrows(IllegalArgumentException.class,
-        () -> new MMS.MediaContent(new byte[]{1}, "  ", null));
+    assertThrows(
+        IllegalArgumentException.class, () -> new MMS.MediaContent(new byte[] {1}, "  ", null));
   }
 
   @Test
   void mediaContent_invalid_content_type_throws() {
-    assertThrows(IllegalArgumentException.class,
-        () -> new MMS.MediaContent(new byte[]{1}, "application/octet-stream", null));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new MMS.MediaContent(new byte[] {1}, "application/octet-stream", null));
   }
 
   @Test
   void mediaContent_pdf_is_valid() {
-    MMS.MediaContent mc = new MMS.MediaContent(new byte[]{1}, "application/pdf", "doc.pdf");
+    MMS.MediaContent mc = new MMS.MediaContent(new byte[] {1}, "application/pdf", "doc.pdf");
     assertEquals("application/pdf", mc.contentType());
     assertEquals("doc.pdf", mc.filename());
   }
 
   @Test
   void mediaContent_text_plain_is_valid() {
-    MMS.MediaContent mc = new MMS.MediaContent(new byte[]{1}, "text/plain", null);
+    MMS.MediaContent mc = new MMS.MediaContent(new byte[] {1}, "text/plain", null);
     assertEquals("text/plain", mc.contentType());
   }
 }

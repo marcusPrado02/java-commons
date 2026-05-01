@@ -20,26 +20,27 @@ class SerializationSchemaTest {
 
   @Test
   void schema_null_name_throws() {
-    assertThrows(NullPointerException.class,
-        () -> new Schema(null, "1.0", "def", SerializationFormat.JSON));
+    assertThrows(
+        NullPointerException.class, () -> new Schema(null, "1.0", "def", SerializationFormat.JSON));
   }
 
   @Test
   void schema_null_version_throws() {
-    assertThrows(NullPointerException.class,
+    assertThrows(
+        NullPointerException.class,
         () -> new Schema("name", null, "def", SerializationFormat.JSON));
   }
 
   @Test
   void schema_null_definition_throws() {
-    assertThrows(NullPointerException.class,
+    assertThrows(
+        NullPointerException.class,
         () -> new Schema("name", "1.0", null, SerializationFormat.JSON));
   }
 
   @Test
   void schema_null_format_throws() {
-    assertThrows(NullPointerException.class,
-        () -> new Schema("name", "1.0", "def", null));
+    assertThrows(NullPointerException.class, () -> new Schema("name", "1.0", "def", null));
   }
 
   @Test
@@ -95,13 +96,14 @@ class SerializationSchemaTest {
 
   @Test
   void serializationOptions_builder_all_fields() {
-    SerializationOptions opts = SerializationOptions.builder()
-        .validateSchema(false)
-        .useSchemaRegistry(true)
-        .includeMetadata(true)
-        .schemaVersion("v2")
-        .format(SerializationFormat.AVRO)
-        .build();
+    SerializationOptions opts =
+        SerializationOptions.builder()
+            .validateSchema(false)
+            .useSchemaRegistry(true)
+            .includeMetadata(true)
+            .schemaVersion("v2")
+            .format(SerializationFormat.AVRO)
+            .build();
     assertFalse(opts.isValidateSchema());
     assertTrue(opts.isUseSchemaRegistry());
     assertTrue(opts.isIncludeMetadata());

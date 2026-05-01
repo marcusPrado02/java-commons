@@ -59,7 +59,8 @@ class SecretsModelTest {
 
   @Test
   void secretValue_not_expired_with_future_expiry() {
-    SecretValue v = SecretValue.of("s".getBytes(), "v1", Instant.now(), Instant.now().plusSeconds(60));
+    SecretValue v =
+        SecretValue.of("s".getBytes(), "v1", Instant.now(), Instant.now().plusSeconds(60));
     assertFalse(v.isExpired());
   }
 

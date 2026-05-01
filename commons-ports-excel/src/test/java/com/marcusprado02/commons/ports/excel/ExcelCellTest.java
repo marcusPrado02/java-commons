@@ -137,8 +137,7 @@ class ExcelCellTest {
 
   @Test
   void rejects_null_cell_type() {
-    assertThrows(IllegalArgumentException.class,
-        () -> new ExcelCell(0, 0, null, null, null, null));
+    assertThrows(IllegalArgumentException.class, () -> new ExcelCell(0, 0, null, null, null, null));
   }
 
   @Test

@@ -10,11 +10,12 @@ class TemplateContextTest {
 
   @Test
   void templateContext_builder_with_variables_and_locale() {
-    TemplateContext ctx = TemplateContext.builder()
-        .variable("user", "Alice")
-        .variable("count", 42)
-        .locale(Locale.US)
-        .build();
+    TemplateContext ctx =
+        TemplateContext.builder()
+            .variable("user", "Alice")
+            .variable("count", 42)
+            .locale(Locale.US)
+            .build();
 
     assertEquals("Alice", ctx.getVariable("user"));
     assertEquals(42, ctx.getVariable("count"));
@@ -46,21 +47,17 @@ class TemplateContextTest {
 
   @Test
   void templateContext_builder_variables_map() {
-    TemplateContext ctx = TemplateContext.builder()
-        .variables(Map.of("a", "1", "b", "2"))
-        .build();
+    TemplateContext ctx = TemplateContext.builder().variables(Map.of("a", "1", "b", "2")).build();
     assertEquals(2, ctx.variables().size());
   }
 
   @Test
   void templateContext_builder_null_variables_map_throws() {
-    assertThrows(NullPointerException.class,
-        () -> TemplateContext.builder().variables(null));
+    assertThrows(NullPointerException.class, () -> TemplateContext.builder().variables(null));
   }
 
   @Test
   void templateContext_builder_null_variable_name_throws() {
-    assertThrows(NullPointerException.class,
-        () -> TemplateContext.builder().variable(null, "v"));
+    assertThrows(NullPointerException.class, () -> TemplateContext.builder().variable(null, "v"));
   }
 }

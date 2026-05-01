@@ -55,13 +55,14 @@ class CompressionOptionsTest {
 
   @Test
   void builder_custom_options() {
-    CompressionOptions opts = CompressionOptions.builder(CompressionAlgorithm.GZIP)
-        .level(3)
-        .bufferSize(1024)
-        .headerEnabled(false)
-        .checksumEnabled(false)
-        .windowSize(10)
-        .build();
+    CompressionOptions opts =
+        CompressionOptions.builder(CompressionAlgorithm.GZIP)
+            .level(3)
+            .bufferSize(1024)
+            .headerEnabled(false)
+            .checksumEnabled(false)
+            .windowSize(10)
+            .build();
 
     assertEquals(3, opts.level());
     assertEquals(1024, opts.bufferSize());
@@ -72,37 +73,41 @@ class CompressionOptionsTest {
 
   @Test
   void rejects_null_algorithm() {
-    assertThrows(NullPointerException.class,
-        () -> CompressionOptions.defaultFor(null));
+    assertThrows(NullPointerException.class, () -> CompressionOptions.defaultFor(null));
   }
 
   @Test
   void rejects_invalid_buffer_size() {
-    assertThrows(IllegalArgumentException.class,
+    assertThrows(
+        IllegalArgumentException.class,
         () -> CompressionOptions.builder(CompressionAlgorithm.GZIP).bufferSize(0).build());
   }
 
   @Test
   void rejects_invalid_window_size_too_low() {
-    assertThrows(IllegalArgumentException.class,
+    assertThrows(
+        IllegalArgumentException.class,
         () -> CompressionOptions.builder(CompressionAlgorithm.GZIP).windowSize(0).build());
   }
 
   @Test
   void rejects_invalid_window_size_too_high() {
-    assertThrows(IllegalArgumentException.class,
+    assertThrows(
+        IllegalArgumentException.class,
         () -> CompressionOptions.builder(CompressionAlgorithm.GZIP).windowSize(16).build());
   }
 
   @Test
   void rejects_level_out_of_range_for_gzip() {
-    assertThrows(IllegalArgumentException.class,
+    assertThrows(
+        IllegalArgumentException.class,
         () -> CompressionOptions.builder(CompressionAlgorithm.GZIP).level(10).build());
   }
 
   @Test
   void rejects_level_below_minimum() {
-    assertThrows(IllegalArgumentException.class,
+    assertThrows(
+        IllegalArgumentException.class,
         () -> CompressionOptions.builder(CompressionAlgorithm.GZIP).level(0).build());
   }
 }
