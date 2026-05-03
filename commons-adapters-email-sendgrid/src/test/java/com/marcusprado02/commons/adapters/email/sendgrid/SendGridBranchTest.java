@@ -158,14 +158,19 @@ class SendGridBranchTest {
   }
 
   @Test
-  void send_noContent_usesEmptyText() throws Exception {
+  void send_htmlContent_usesHtmlContentType() throws Exception {
     try (MockedConstruction<SendGrid> ignored =
         mockConstruction(
             SendGrid.class,
             (mock, ctx) -> when(mock.api(any(Request.class))).thenReturn(response(202)))) {
 
       Email email =
-          Email.builder().from("from@example.com").to("to@example.com").subject("Subject").build();
+          Email.builder()
+              .from("from@example.com")
+              .to("to@example.com")
+              .subject("Subject")
+              .htmlContent("<h1>Hello</h1>")
+              .build();
 
       var result = new SendGridEmailAdapter(config(false)).send(email);
       assertThat(result.isOk()).isTrue();

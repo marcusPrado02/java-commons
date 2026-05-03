@@ -18,7 +18,6 @@ import com.azure.messaging.servicebus.ServiceBusReceivedMessage;
 import com.azure.messaging.servicebus.ServiceBusReceivedMessageContext;
 import com.marcusprado02.commons.ports.messaging.ConsumerGroup;
 import com.marcusprado02.commons.ports.messaging.TopicName;
-import java.time.Instant;
 import java.util.Map;
 import java.util.function.Consumer;
 import org.junit.jupiter.api.Test;
@@ -31,7 +30,7 @@ class AzureServiceBusConsumerBranchTest {
   private static final String CONN_STR =
       "Endpoint=sb://test.servicebus.windows.net/;SharedAccessKeyName=test;SharedAccessKey=test";
 
-  record TestPayload(String id, String content, Instant timestamp) {}
+  record TestPayload(String id, String content) {}
 
   private ServiceBusClientBuilder.ServiceBusProcessorClientBuilder setupProcBuilder(
       ServiceBusProcessorClient mockProcessor) {
@@ -74,10 +73,7 @@ class AzureServiceBusConsumerBranchTest {
       ServiceBusReceivedMessageContext mockCtx = mock(ServiceBusReceivedMessageContext.class);
       ServiceBusReceivedMessage mockMsg = mock(ServiceBusReceivedMessage.class);
       when(mockCtx.getMessage()).thenReturn(mockMsg);
-      when(mockMsg.getBody())
-          .thenReturn(
-              BinaryData.fromString(
-                  "{\"id\":\"1\",\"content\":\"x\",\"timestamp\":\"2026-01-01T00:00:00Z\"}"));
+      when(mockMsg.getBody()).thenReturn(BinaryData.fromString("{\"id\":\"1\",\"content\":\"x\"}"));
       when(mockMsg.getApplicationProperties()).thenReturn(Map.of("k", "v"));
       when(mockMsg.getMessageId()).thenReturn("msg-1");
       when(mockMsg.getEnqueuedTime()).thenReturn(null);
@@ -121,10 +117,7 @@ class AzureServiceBusConsumerBranchTest {
       ServiceBusReceivedMessageContext mockCtx = mock(ServiceBusReceivedMessageContext.class);
       ServiceBusReceivedMessage mockMsg = mock(ServiceBusReceivedMessage.class);
       when(mockCtx.getMessage()).thenReturn(mockMsg);
-      when(mockMsg.getBody())
-          .thenReturn(
-              BinaryData.fromString(
-                  "{\"id\":\"2\",\"content\":\"y\",\"timestamp\":\"2026-01-01T00:00:00Z\"}"));
+      when(mockMsg.getBody()).thenReturn(BinaryData.fromString("{\"id\":\"2\",\"content\":\"y\"}"));
       when(mockMsg.getApplicationProperties()).thenReturn(Map.of());
       when(mockMsg.getMessageId()).thenReturn("msg-2");
       when(mockMsg.getEnqueuedTime()).thenReturn(null);
@@ -299,7 +292,7 @@ class AzureServiceBusConsumerBranchTest {
     } catch (Exception ignored) {
     }
     var serializer = new JacksonMessageSerializer<TestPayload>(badMapper);
-    assertThatThrownBy(() -> serializer.serialize(new TestPayload("1", "x", Instant.now())))
+    assertThatThrownBy(() -> serializer.serialize(new TestPayload("1", "x")))
         .isInstanceOf(RuntimeException.class)
         .hasMessageContaining("Failed to serialize message");
 
