@@ -109,7 +109,7 @@ class CachedSecretStoreBranchTest {
     Clock clock = Clock.fixed(Instant.parse("2026-01-01T00:00:00Z"), ZoneOffset.UTC);
     SecretKey key = SecretKey.of("k");
     // SecretValue.of(String) → createdAt is set by the factory, check if null works
-    SecretValue noCreatedAt = SecretValue.of("val", null, null, null);
+    SecretValue noCreatedAt = SecretValue.of("val".getBytes(), null, null, null);
     when(delegate.get(key)).thenReturn(Optional.of(noCreatedAt));
 
     try (CachedSecretStorePort cached =
@@ -130,7 +130,7 @@ class CachedSecretStoreBranchTest {
     Instant expiredAt = now.minusSeconds(1);
     Clock clock = Clock.fixed(now, ZoneOffset.UTC);
 
-    SecretValue expired = SecretValue.of("val", null, null, expiredAt);
+    SecretValue expired = SecretValue.of("val".getBytes(), null, null, expiredAt);
     when(delegate.get(key)).thenReturn(Optional.of(expired));
 
     try (CachedSecretStorePort cached =
