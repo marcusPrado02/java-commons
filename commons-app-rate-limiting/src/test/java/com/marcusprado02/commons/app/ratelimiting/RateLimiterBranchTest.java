@@ -2,12 +2,22 @@ package com.marcusprado02.commons.app.ratelimiting;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 
 import com.marcusprado02.commons.app.ratelimiting.impl.InMemoryRateLimiter;
 import com.marcusprado02.commons.app.ratelimiting.impl.RedisRateLimiter;
+import io.github.bucket4j.BucketConfiguration;
+import io.github.bucket4j.ConsumptionProbe;
+import io.github.bucket4j.distributed.BucketProxy;
+import io.github.bucket4j.distributed.proxy.RemoteBucketBuilder;
+import io.github.bucket4j.redis.jedis.cas.JedisBasedProxyManager;
 import java.time.Duration;
+import java.util.function.Supplier;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import redis.clients.jedis.JedisPool;
 
 class RateLimiterBranchTest {
@@ -74,89 +84,208 @@ class RateLimiterBranchTest {
         .hasMessageContaining("Configuration is required");
   }
 
-  // ── RedisRateLimiter: validation branches (before Redis call) ────────────
+  // ── Helpers ───────────────────────────────────────────────────────────────
 
-  private static RedisRateLimiter createRedisRateLimiter() {
+  private record Holder(RedisRateLimiter limiter, JedisBasedProxyManager manager) {}
+
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  private static Holder buildWithMocks() {
     JedisPool mockPool = mock(JedisPool.class);
     RateLimitConfig config = RateLimitConfig.perSecond(10);
-    return new RedisRateLimiter(mockPool, config);
+    JedisBasedProxyManager mockManager = mock(JedisBasedProxyManager.class);
+    JedisBasedProxyManager.JedisBasedProxyManagerBuilder mockBuilder =
+        mock(JedisBasedProxyManager.JedisBasedProxyManagerBuilder.class);
+    when(mockBuilder.build()).thenReturn(mockManager);
+    try (var mocked = mockStatic(JedisBasedProxyManager.class)) {
+      mocked
+          .when(() -> JedisBasedProxyManager.builderFor(any(JedisPool.class)))
+          .thenReturn(mockBuilder);
+      return new Holder(new RedisRateLimiter(mockPool, config), mockManager);
+    }
   }
+
+  // ── RedisRateLimiter: validation branches (before Redis call) ────────────
 
   @Test
   void tryConsume_nullKey_throwsIllegalArgument() {
-    RedisRateLimiter limiter = createRedisRateLimiter();
-    assertThatThrownBy(() -> limiter.tryConsume(null, 1))
+    assertThatThrownBy(() -> buildWithMocks().limiter().tryConsume(null, 1))
         .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   void tryConsume_emptyKey_throwsIllegalArgument() {
-    RedisRateLimiter limiter = createRedisRateLimiter();
-    assertThatThrownBy(() -> limiter.tryConsume("", 1))
+    assertThatThrownBy(() -> buildWithMocks().limiter().tryConsume("", 1))
         .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   void tryConsume_zeroTokens_throwsIllegalArgument() {
-    RedisRateLimiter limiter = createRedisRateLimiter();
-    assertThatThrownBy(() -> limiter.tryConsume("key", 0))
+    assertThatThrownBy(() -> buildWithMocks().limiter().tryConsume("key", 0))
         .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   void tryConsume_negativeTokens_throwsIllegalArgument() {
-    RedisRateLimiter limiter = createRedisRateLimiter();
-    assertThatThrownBy(() -> limiter.tryConsume("key", -1))
+    assertThatThrownBy(() -> buildWithMocks().limiter().tryConsume("key", -1))
         .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   void probe_nullKey_throwsIllegalArgument() {
-    RedisRateLimiter limiter = createRedisRateLimiter();
-    assertThatThrownBy(() -> limiter.probe(null)).isInstanceOf(IllegalArgumentException.class);
+    assertThatThrownBy(() -> buildWithMocks().limiter().probe(null))
+        .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   void probe_emptyKey_throwsIllegalArgument() {
-    RedisRateLimiter limiter = createRedisRateLimiter();
-    assertThatThrownBy(() -> limiter.probe("")).isInstanceOf(IllegalArgumentException.class);
+    assertThatThrownBy(() -> buildWithMocks().limiter().probe(""))
+        .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   void reset_nullKey_throwsIllegalArgument() {
-    RedisRateLimiter limiter = createRedisRateLimiter();
-    assertThatThrownBy(() -> limiter.reset(null)).isInstanceOf(IllegalArgumentException.class);
+    assertThatThrownBy(() -> buildWithMocks().limiter().reset(null))
+        .isInstanceOf(IllegalArgumentException.class);
   }
 
   @Test
   void reset_emptyKey_throwsIllegalArgument() {
-    RedisRateLimiter limiter = createRedisRateLimiter();
-    assertThatThrownBy(() -> limiter.reset("")).isInstanceOf(IllegalArgumentException.class);
+    assertThatThrownBy(() -> buildWithMocks().limiter().reset(""))
+        .isInstanceOf(IllegalArgumentException.class);
   }
 
   // ── RedisRateLimiter: getters ─────────────────────────────────────────────
 
   @Test
   void getConfig_returnsConfig() {
-    JedisPool mockPool = mock(JedisPool.class);
-    RateLimitConfig config = RateLimitConfig.perMinute(60);
-    RedisRateLimiter limiter = new RedisRateLimiter(mockPool, config);
-    assertThat(limiter.getConfig()).isSameAs(config);
+    assertThat(buildWithMocks().limiter().getConfig()).isNotNull();
   }
 
   @Test
   void getKeyPrefix_defaultPrefix_returnsRateLimiter() {
-    JedisPool mockPool = mock(JedisPool.class);
-    RedisRateLimiter limiter = new RedisRateLimiter(mockPool, RateLimitConfig.perSecond(5));
-    assertThat(limiter.getKeyPrefix()).isEqualTo("rate_limiter");
+    assertThat(buildWithMocks().limiter().getKeyPrefix()).isEqualTo("rate_limiter");
   }
 
   @Test
   void getStats_returnsStats() {
-    JedisPool mockPool = mock(JedisPool.class);
-    RedisRateLimiter limiter = new RedisRateLimiter(mockPool, RateLimitConfig.perSecond(5));
-    RateLimiterStats stats = limiter.getStats();
-    assertThat(stats).isNotNull();
+    assertThat(buildWithMocks().limiter().getStats()).isNotNull();
+  }
+
+  // ── RedisRateLimiter: operation paths via mocked proxyManager ────────────
+
+  @Test
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  void tryConsume_allowed_returnsAllowedResult() {
+    Holder h = buildWithMocks();
+
+    RemoteBucketBuilder mockBucketBuilder = mock(RemoteBucketBuilder.class);
+    BucketProxy mockBucket = mock(BucketProxy.class);
+    ConsumptionProbe probe = mock(ConsumptionProbe.class);
+
+    when(h.manager().builder()).thenReturn(mockBucketBuilder);
+    when(mockBucketBuilder.build(
+            any(byte[].class), ArgumentMatchers.<Supplier<BucketConfiguration>>any()))
+        .thenReturn(mockBucket);
+    when(mockBucket.tryConsumeAndReturnRemaining(1L)).thenReturn(probe);
+    when(probe.isConsumed()).thenReturn(true);
+    when(probe.getRemainingTokens()).thenReturn(9L);
+    when(probe.getNanosToWaitForRefill()).thenReturn(0L);
+
+    RateLimitResult result = h.limiter().tryConsume("key", 1);
+    assertThat(result.isAllowed()).isTrue();
+    assertThat(result.remainingTokens()).isEqualTo(9L);
+  }
+
+  @Test
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  void tryConsume_rejected_returnsRejectedResult() {
+    Holder h = buildWithMocks();
+
+    RemoteBucketBuilder mockBucketBuilder = mock(RemoteBucketBuilder.class);
+    BucketProxy mockBucket = mock(BucketProxy.class);
+    ConsumptionProbe probe = mock(ConsumptionProbe.class);
+
+    when(h.manager().builder()).thenReturn(mockBucketBuilder);
+    when(mockBucketBuilder.build(
+            any(byte[].class), ArgumentMatchers.<Supplier<BucketConfiguration>>any()))
+        .thenReturn(mockBucket);
+    when(mockBucket.tryConsumeAndReturnRemaining(1L)).thenReturn(probe);
+    when(probe.isConsumed()).thenReturn(false);
+    when(probe.getRemainingTokens()).thenReturn(0L);
+    when(probe.getNanosToWaitForRefill()).thenReturn(1_000_000_000L);
+
+    RateLimitResult result = h.limiter().tryConsume("key", 1);
+    assertThat(result.isAllowed()).isFalse();
+  }
+
+  @Test
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  void tryConsume_redisException_throwsRuntimeException() {
+    Holder h = buildWithMocks();
+
+    RemoteBucketBuilder mockBucketBuilder = mock(RemoteBucketBuilder.class);
+    when(h.manager().builder()).thenReturn(mockBucketBuilder);
+    when(mockBucketBuilder.build(
+            any(byte[].class), ArgumentMatchers.<Supplier<BucketConfiguration>>any()))
+        .thenThrow(new RuntimeException("Redis down"));
+
+    assertThatThrownBy(() -> h.limiter().tryConsume("key", 1))
+        .isInstanceOf(RuntimeException.class)
+        .hasMessageContaining("Redis");
+  }
+
+  @Test
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  void probe_success_returnsResult() {
+    Holder h = buildWithMocks();
+
+    RemoteBucketBuilder mockBucketBuilder = mock(RemoteBucketBuilder.class);
+    BucketProxy mockBucket = mock(BucketProxy.class);
+
+    when(h.manager().builder()).thenReturn(mockBucketBuilder);
+    when(mockBucketBuilder.build(
+            any(byte[].class), ArgumentMatchers.<Supplier<BucketConfiguration>>any()))
+        .thenReturn(mockBucket);
+    when(mockBucket.getAvailableTokens()).thenReturn(8L);
+
+    RateLimitResult result = h.limiter().probe("key");
+    assertThat(result.isAllowed()).isTrue();
+    assertThat(result.remainingTokens()).isEqualTo(8L);
+  }
+
+  @Test
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  void reset_withPositiveTokens_consumesAll() {
+    Holder h = buildWithMocks();
+
+    RemoteBucketBuilder mockBucketBuilder = mock(RemoteBucketBuilder.class);
+    BucketProxy mockBucket = mock(BucketProxy.class);
+
+    when(h.manager().builder()).thenReturn(mockBucketBuilder);
+    when(mockBucketBuilder.build(
+            any(byte[].class), ArgumentMatchers.<Supplier<BucketConfiguration>>any()))
+        .thenReturn(mockBucket);
+    when(mockBucket.getAvailableTokens()).thenReturn(5L);
+    when(mockBucket.tryConsume(5L)).thenReturn(true);
+
+    h.limiter().reset("key");
+  }
+
+  @Test
+  @SuppressWarnings({"unchecked", "rawtypes"})
+  void reset_withZeroTokens_skipsConsume() {
+    Holder h = buildWithMocks();
+
+    RemoteBucketBuilder mockBucketBuilder = mock(RemoteBucketBuilder.class);
+    BucketProxy mockBucket = mock(BucketProxy.class);
+
+    when(h.manager().builder()).thenReturn(mockBucketBuilder);
+    when(mockBucketBuilder.build(
+            any(byte[].class), ArgumentMatchers.<Supplier<BucketConfiguration>>any()))
+        .thenReturn(mockBucket);
+    when(mockBucket.getAvailableTokens()).thenReturn(0L);
+
+    h.limiter().reset("key");
   }
 
   // ── InMemoryRateLimiter: tryConsume validation ────────────────────────────

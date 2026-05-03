@@ -105,7 +105,7 @@ class AzureStorageQueueBranchTest {
 
   @Test
   void changeVisibility_visibilityTimeoutOver7Days_returnsFail() {
-    var result = adapter(String.class).changeVisibility("msgId popReceipt", Duration.ofDays(8));
+    var result = adapter(String.class).changeVisibility("msgId::popReceipt", Duration.ofDays(8));
     assertThat(result.isFail()).isTrue();
     assertThat(result.problemOrNull().code().value()).isEqualTo("INVALID_VISIBILITY_TIMEOUT");
   }
@@ -118,5 +118,68 @@ class AzureStorageQueueBranchTest {
         AzureStorageQueueConfiguration.forAzure("custom-conn-str", "my-queue").build();
     assertThat(config.connectionString()).isEqualTo("custom-conn-str");
     assertThat(config.queueName()).isEqualTo("my-queue");
+  }
+
+  // ── Exception-path coverage (Azurite not running → Azure SDK throws) ──────
+  // These tests exercise the catch blocks in each adapter method. The Azurite
+  // connection string points to localhost:10001 which is not running, so every
+  // real Azure SDK call raises a connection exception caught internally.
+
+  @Test
+  void send_azureUnavailable_returnsAzureQueueSendError() {
+    QueueMessage<String> message = QueueMessage.<String>builder().payload("hello").build();
+    var result = adapter(String.class).send(message);
+    assertThat(result.isFail()).isTrue();
+    assertThat(result.problemOrNull().code().value()).isEqualTo("AZURE_QUEUE_SEND_ERROR");
+  }
+
+  @Test
+  void receive_azureUnavailable_returnsAzureQueueReceiveError() {
+    var result = adapter(String.class).receive(1, Duration.ofSeconds(30));
+    assertThat(result.isFail()).isTrue();
+    assertThat(result.problemOrNull().code().value()).isEqualTo("AZURE_QUEUE_RECEIVE_ERROR");
+  }
+
+  @Test
+  void delete_invalidReceiptHandle_returnsInvalidReceiptHandle() {
+    var result = adapter(String.class).delete("no-double-colon");
+    assertThat(result.isFail()).isTrue();
+    assertThat(result.problemOrNull().code().value()).isEqualTo("INVALID_RECEIPT_HANDLE");
+  }
+
+  @Test
+  void delete_azureUnavailable_returnsAzureQueueDeleteError() {
+    var result = adapter(String.class).delete("msgId::popReceipt");
+    assertThat(result.isFail()).isTrue();
+    assertThat(result.problemOrNull().code().value()).isEqualTo("AZURE_QUEUE_DELETE_ERROR");
+  }
+
+  @Test
+  void deleteBatch_withValidHandles_collectsFailures() {
+    var result = adapter(String.class).deleteBatch(List.of("m1::r1", "m2::r2"));
+    assertThat(result.isOk()).isTrue();
+    assertThat(result.getOrNull().failed()).hasSize(2);
+  }
+
+  @Test
+  void changeVisibility_azureUnavailable_returnsAzureQueueVisibilityError() {
+    var result =
+        adapter(String.class).changeVisibility("msgId::popReceipt", Duration.ofSeconds(30));
+    assertThat(result.isFail()).isTrue();
+    assertThat(result.problemOrNull().code().value()).isEqualTo("AZURE_QUEUE_VISIBILITY_ERROR");
+  }
+
+  @Test
+  void purge_azureUnavailable_returnsAzureQueuePurgeError() {
+    var result = adapter(String.class).purge();
+    assertThat(result.isFail()).isTrue();
+    assertThat(result.problemOrNull().code().value()).isEqualTo("AZURE_QUEUE_PURGE_ERROR");
+  }
+
+  @Test
+  void getAttributes_azureUnavailable_returnsAzureQueueAttributesError() {
+    var result = adapter(String.class).getAttributes();
+    assertThat(result.isFail()).isTrue();
+    assertThat(result.problemOrNull().code().value()).isEqualTo("AZURE_QUEUE_ATTRIBUTES_ERROR");
   }
 }
