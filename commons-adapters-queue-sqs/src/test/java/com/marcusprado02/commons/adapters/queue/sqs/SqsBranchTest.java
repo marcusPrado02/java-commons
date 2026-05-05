@@ -176,4 +176,52 @@ class SqsBranchTest {
                 .maxBatchSize(11)
                 .build());
   }
+
+  // ── methods that reach SQS and fail (Exception catch paths) ──────────────
+
+  @Test
+  void receive_validParams_callsSqsAndFails() {
+    var result = adapter(stdConfig()).receive(5, Duration.ofSeconds(30));
+    assertThat(result.isFail()).isTrue();
+  }
+
+  @Test
+  void delete_callsSqsAndFails() {
+    var result = adapter(stdConfig()).delete("some-receipt-handle");
+    assertThat(result.isFail()).isTrue();
+  }
+
+  @Test
+  void deleteBatch_validParams_callsAndFails() {
+    var result = adapter(stdConfig()).deleteBatch(List.of("handle-1", "handle-2"));
+    assertThat(result.isFail()).isTrue();
+  }
+
+  @Test
+  void changeVisibility_callsAndFails() {
+    var result = adapter(stdConfig()).changeVisibility("receipt-handle", Duration.ofSeconds(30));
+    assertThat(result.isFail()).isTrue();
+  }
+
+  @Test
+  void purge_callsAndFails() {
+    var result = adapter(stdConfig()).purge();
+    assertThat(result.isFail()).isTrue();
+  }
+
+  @Test
+  void getAttributes_callsAndFails() {
+    var result = adapter(stdConfig()).getAttributes();
+    assertThat(result.isFail()).isTrue();
+  }
+
+  // ── createSqsClient: endpoint == null branch ──────────────────────────────
+
+  @Test
+  void constructor_noEndpoint_createsAdapterSuccessfully() {
+    SqsConfiguration config =
+        SqsConfiguration.forAws("https://sqs.us-east-1.amazonaws.com/123456789/q", Region.US_EAST_1)
+            .build();
+    assertThat(new SqsQueueAdapter<>(config, String.class)).isNotNull();
+  }
 }

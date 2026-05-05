@@ -37,8 +37,10 @@ class SnsBranchTest {
   @Test
   void send_throttledException_returnsRateLimitExceeded() {
     SnsClient snsClient = mock(SnsClient.class);
+    // Build stub BEFORE staticMock.when() to avoid UnfinishedStubbing
+    SnsClientBuilder mockBuilder = stubBuilder(snsClient);
     try (var staticMock = mockStatic(SnsClient.class)) {
-      staticMock.when(SnsClient::builder).thenReturn(stubBuilder(snsClient));
+      staticMock.when(SnsClient::builder).thenReturn(mockBuilder);
 
       var config =
           SnsConfiguration.builder()
@@ -66,8 +68,9 @@ class SnsBranchTest {
   @Test
   void send_internalErrorException_returnsInternalServerError() {
     SnsClient snsClient = mock(SnsClient.class);
+    SnsClientBuilder mockBuilder = stubBuilder(snsClient);
     try (var staticMock = mockStatic(SnsClient.class)) {
-      staticMock.when(SnsClient::builder).thenReturn(stubBuilder(snsClient));
+      staticMock.when(SnsClient::builder).thenReturn(mockBuilder);
 
       var config =
           SnsConfiguration.builder()
@@ -95,8 +98,9 @@ class SnsBranchTest {
   @Test
   void send_invalidParameterValueException_returnsInvalidParamValue() {
     SnsClient snsClient = mock(SnsClient.class);
+    SnsClientBuilder mockBuilder = stubBuilder(snsClient);
     try (var staticMock = mockStatic(SnsClient.class)) {
-      staticMock.when(SnsClient::builder).thenReturn(stubBuilder(snsClient));
+      staticMock.when(SnsClient::builder).thenReturn(mockBuilder);
 
       var config =
           SnsConfiguration.builder()
@@ -124,12 +128,15 @@ class SnsBranchTest {
   @Test
   void constructor_withSessionToken_usesSessionCredentials() {
     SnsClient snsClient = mock(SnsClient.class);
+    SnsClientBuilder mockBuilder = stubBuilder(snsClient);
     try (var staticMock = mockStatic(SnsClient.class)) {
-      staticMock.when(SnsClient::builder).thenReturn(stubBuilder(snsClient));
+      staticMock.when(SnsClient::builder).thenReturn(mockBuilder);
 
       var config =
           SnsConfiguration.builder()
               .region(Region.US_EAST_1)
+              .accessKeyId("KEY")
+              .secretAccessKey("SECRET")
               .sessionToken("SESSION_TOKEN")
               .requestTimeout(Duration.ofSeconds(5))
               .maxPriceUsd(1.0)
@@ -144,8 +151,9 @@ class SnsBranchTest {
   @Test
   void constructor_withIamRole_usesDefaultCredentials() {
     SnsClient snsClient = mock(SnsClient.class);
+    SnsClientBuilder mockBuilder = stubBuilder(snsClient);
     try (var staticMock = mockStatic(SnsClient.class)) {
-      staticMock.when(SnsClient::builder).thenReturn(stubBuilder(snsClient));
+      staticMock.when(SnsClient::builder).thenReturn(mockBuilder);
 
       var config = SnsConfiguration.withIamRole(Region.US_EAST_1);
       var adapter = new SnsSmsAdapter(config);
@@ -158,8 +166,9 @@ class SnsBranchTest {
   @Test
   void send_withSenderIdAndDeliveryLogging_includesAttributes() {
     SnsClient snsClient = mock(SnsClient.class);
+    SnsClientBuilder mockBuilder = stubBuilder(snsClient);
     try (var staticMock = mockStatic(SnsClient.class)) {
-      staticMock.when(SnsClient::builder).thenReturn(stubBuilder(snsClient));
+      staticMock.when(SnsClient::builder).thenReturn(mockBuilder);
 
       var config =
           SnsConfiguration.builder()

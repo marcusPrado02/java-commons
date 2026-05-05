@@ -12,6 +12,7 @@ import com.marcusprado02.commons.ports.sms.SMSPort;
 import com.twilio.rest.api.v2010.account.Message;
 import com.twilio.rest.api.v2010.account.MessageCreator;
 import com.twilio.rest.api.v2010.account.MessageFetcher;
+import java.net.URI;
 import java.time.Duration;
 import org.junit.jupiter.api.Test;
 
@@ -115,7 +116,7 @@ class TwilioSMSBranchTest {
 
     try (var staticMock = mockStatic(Message.class)) {
       var mockCreator = mock(MessageCreator.class);
-      when(mockCreator.setStatusCallback(any())).thenReturn(mockCreator);
+      when(mockCreator.setStatusCallback(any(URI.class))).thenReturn(mockCreator);
       when(mockCreator.create()).thenReturn(mockMessage);
       staticMock
           .when(

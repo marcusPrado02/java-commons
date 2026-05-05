@@ -115,8 +115,9 @@ class ConsulBranchTest {
 
   @Test
   void discover_tagWithEquals_parsesAsMetadata() {
+    var hs = mockHealthService("env=prod", "version=2");
     Response<List<HealthService>> consulResponse = mock(Response.class);
-    when(consulResponse.getValue()).thenReturn(List.of(mockHealthService("env=prod", "version=2")));
+    when(consulResponse.getValue()).thenReturn(List.of(hs));
     when(consulClient.getHealthServices(eq("my-service"), eq(true), any(QueryParams.class)))
         .thenReturn(consulResponse);
 
@@ -127,8 +128,9 @@ class ConsulBranchTest {
 
   @Test
   void discover_tagSecure_setsSecureFlag() {
+    var hs = mockHealthService("secure", "region=us");
     Response<List<HealthService>> consulResponse = mock(Response.class);
-    when(consulResponse.getValue()).thenReturn(List.of(mockHealthService("secure", "region=us")));
+    when(consulResponse.getValue()).thenReturn(List.of(hs));
     when(consulClient.getHealthServices(eq("my-service"), eq(true), any(QueryParams.class)))
         .thenReturn(consulResponse);
 
@@ -140,9 +142,9 @@ class ConsulBranchTest {
 
   @Test
   void discover_tagWithNoEquals_ignored() {
+    var hs = mockHealthService("sometag", "anotherplaintag");
     Response<List<HealthService>> consulResponse = mock(Response.class);
-    when(consulResponse.getValue())
-        .thenReturn(List.of(mockHealthService("sometag", "anotherplaintag")));
+    when(consulResponse.getValue()).thenReturn(List.of(hs));
     when(consulClient.getHealthServices(eq("my-service"), eq(true), any(QueryParams.class)))
         .thenReturn(consulResponse);
 
