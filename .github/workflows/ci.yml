@@ -100,7 +100,7 @@ jobs:
         run: ./mvnw -B install -DskipTests
 
       - name: Run SpotBugs
-        run: ./mvnw -B spotbugs:check -Dspotbugs.skip=false
+        run: ./mvnw -B com.github.spotbugs:spotbugs-maven-plugin:check -Dspotbugs.skip=false
 
       - name: Run Checkstyle
         run: ./mvnw -B checkstyle:check -Dcheckstyle.skip=false

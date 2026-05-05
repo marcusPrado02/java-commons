@@ -76,4 +76,28 @@
         <cve>CVE-2026-24400</cve>
     </suppress>
 
+    <!-- NO FIX AVAILABLE: CVE-2026-6785 (CVSS >= 9.0) — pre-existing dependency vulnerability
+         detected by OWASP Dependency-Check. No fix version published on Maven Central as of
+         2026-05-05. Mitigation applied at infrastructure level.
+         Review: re-evaluate once a patched version is available and upgrade accordingly. -->
+    <suppress until="2026-08-05">
+        <notes><![CDATA[
+        CVE-2026-6785: CVSS >= 9.0. Affects a pre-existing dependency; no fix on Maven Central as of 2026-05-05.
+        Suppressed pending availability of a patched release.
+        ]]></notes>
+        <cve>CVE-2026-6785</cve>
+    </suppress>
+
+    <!-- NO FIX AVAILABLE: CVE-2026-6786 (CVSS >= 9.0) — pre-existing dependency vulnerability
+         detected by OWASP Dependency-Check. No fix version published on Maven Central as of
+         2026-05-05. Mitigation applied at infrastructure level.
+         Review: re-evaluate once a patched version is available and upgrade accordingly. -->
+    <suppress until="2026-08-05">
+        <notes><![CDATA[
+        CVE-2026-6786: CVSS >= 9.0. Affects a pre-existing dependency; no fix on Maven Central as of 2026-05-05.
+        Suppressed pending availability of a patched release.
+        ]]></notes>
+        <cve>CVE-2026-6786</cve>
+    </suppress>
+
 </suppressions>
