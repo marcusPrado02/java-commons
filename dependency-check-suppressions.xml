@@ -76,6 +76,28 @@
         <cve>CVE-2026-24400</cve>
     </suppress>
 
+    <!-- NO FIX AVAILABLE: CVE-2026-40477 / CVE-2026-40478 (CVSS 9.0) — both affect
+         thymeleaf 3.1.x through at least 3.1.3.RELEASE (latest on Maven Central as of
+         2026-05-07). No patched version exists. Thymeleaf is used only for server-side
+         template rendering with trusted internal templates — not attacker-controlled input.
+         Review: remove once a patched Thymeleaf release is published. -->
+    <suppress until="2026-08-07">
+        <notes><![CDATA[
+        CVE-2026-40477 / CVE-2026-40478: CVSS 9.0. Affects thymeleaf 3.1.x (all releases).
+        No fix on Maven Central as of 2026-05-07. Templates are internal/trusted only.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.thymeleaf/thymeleaf@.*$</packageUrl>
+        <cve>CVE-2026-40477</cve>
+    </suppress>
+    <suppress until="2026-08-07">
+        <notes><![CDATA[
+        CVE-2026-40477 / CVE-2026-40478: CVSS 9.0. Affects thymeleaf 3.1.x (all releases).
+        No fix on Maven Central as of 2026-05-07. Templates are internal/trusted only.
+        ]]></notes>
+        <packageUrl regex="true">^pkg:maven/org\.thymeleaf/thymeleaf@.*$</packageUrl>
+        <cve>CVE-2026-40478</cve>
+    </suppress>
+
     <!-- NO FIX AVAILABLE: CVE-2026-6785 (CVSS >= 9.0) — pre-existing dependency vulnerability
          detected by OWASP Dependency-Check. No fix version published on Maven Central as of
          2026-05-05. Mitigation applied at infrastructure level.
