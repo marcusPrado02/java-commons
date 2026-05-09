@@ -60,7 +60,7 @@ public final class AzureServiceBusConsumerAdapter implements MessageConsumerPort
         clientBuilder
             .processor()
             .queueName(topic.value())
-            .processMessage(context -> processMessage(context, type, serializer, handler))
+            .processMessage(context -> processMessage(context, topic, type, serializer, handler))
             .processError(this::processError)
             .maxConcurrentCalls(1)
             .buildProcessorClient();
@@ -71,6 +71,7 @@ public final class AzureServiceBusConsumerAdapter implements MessageConsumerPort
 
   private <T> void processMessage(
       ServiceBusReceivedMessageContext context,
+      TopicName topic,
       Class<T> type,
       MessageSerializer<T> serializer,
       Consumer<MessageEnvelope<T>> handler) {
@@ -84,6 +85,7 @@ public final class AzureServiceBusConsumerAdapter implements MessageConsumerPort
 
       MessageEnvelope.Builder<T> envelopeBuilder =
           MessageEnvelope.<T>builder()
+              .topic(topic)
               .id(MessageId.of(message.getMessageId()))
               .payload(payload)
               .headers(headersBuilder.build())

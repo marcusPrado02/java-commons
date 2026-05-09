@@ -27,18 +27,19 @@ class SearchQueryTest {
 
   @Test
   void searchQuery_builder_with_all_options() {
-    SearchQuery q = SearchQuery.builder()
-        .query("phone")
-        .field("name")
-        .fields(List.of("description"))
-        .filter("category", "electronics")
-        .filters(Map.of("brand", "apple"))
-        .sortBy("price", SearchQuery.SortOrder.ASC)
-        .from(10)
-        .size(20)
-        .queryType(SearchQuery.QueryType.MATCH)
-        .minScore(0.5f)
-        .build();
+    SearchQuery q =
+        SearchQuery.builder()
+            .query("phone")
+            .field("name")
+            .fields(List.of("description"))
+            .filter("category", "electronics")
+            .filters(Map.of("brand", "apple"))
+            .sortBy("price", SearchQuery.SortOrder.ASC)
+            .from(10)
+            .size(20)
+            .queryType(SearchQuery.QueryType.MATCH)
+            .minScore(0.5f)
+            .build();
 
     assertEquals("phone", q.query());
     assertEquals(2, q.fields().size());
@@ -52,7 +53,8 @@ class SearchQueryTest {
 
   @Test
   void searchQuery_null_fields_defaults_to_empty() {
-    SearchQuery q = new SearchQuery("*", null, null, null, 0, 10, SearchQuery.QueryType.MATCH, null);
+    SearchQuery q =
+        new SearchQuery("*", null, null, null, 0, 10, SearchQuery.QueryType.MATCH, null);
     assertTrue(q.fields().isEmpty());
     assertTrue(q.filters().isEmpty());
     assertTrue(q.sorting().isEmpty());
@@ -60,32 +62,29 @@ class SearchQueryTest {
 
   @Test
   void searchQuery_rejects_negative_from() {
-    assertThrows(IllegalArgumentException.class,
-        () -> SearchQuery.builder().from(-1).build());
+    assertThrows(IllegalArgumentException.class, () -> SearchQuery.builder().from(-1).build());
   }
 
   @Test
   void searchQuery_rejects_zero_size() {
-    assertThrows(IllegalArgumentException.class,
-        () -> SearchQuery.builder().size(0).build());
+    assertThrows(IllegalArgumentException.class, () -> SearchQuery.builder().size(0).build());
   }
 
   @Test
   void searchQuery_rejects_size_exceeding_limit() {
-    assertThrows(IllegalArgumentException.class,
-        () -> SearchQuery.builder().size(10_001).build());
+    assertThrows(IllegalArgumentException.class, () -> SearchQuery.builder().size(10_001).build());
   }
 
   @Test
   void sortField_rejects_null_field() {
-    assertThrows(NullPointerException.class,
+    assertThrows(
+        NullPointerException.class,
         () -> new SearchQuery.SortField(null, SearchQuery.SortOrder.ASC));
   }
 
   @Test
   void sortField_rejects_null_order() {
-    assertThrows(NullPointerException.class,
-        () -> new SearchQuery.SortField("price", null));
+    assertThrows(NullPointerException.class, () -> new SearchQuery.SortField("price", null));
   }
 
   @Test

@@ -14,6 +14,7 @@ import com.sendgrid.Response;
 import com.sendgrid.SendGrid;
 import com.sendgrid.helpers.mail.Mail;
 import com.sendgrid.helpers.mail.objects.Content;
+import com.sendgrid.helpers.mail.objects.MailSettings;
 import com.sendgrid.helpers.mail.objects.Personalization;
 import com.sendgrid.helpers.mail.objects.Setting;
 import java.io.IOException;
@@ -83,18 +84,7 @@ public class SendGridEmailAdapter implements EmailPort, AutoCloseable {
 
       Mail mail = new Mail(fromEmail, email.subject().value(), toEmail, content);
 
-      if (configuration.sandboxMode()) {
-        Setting sandboxSetting = new Setting();
-        sandboxSetting.setEnable(true);
-        mail.getMailSettings().setSandboxMode(sandboxSetting);
-      }
-
-      Request request = new Request();
-      request.setMethod(Method.POST);
-      request.setEndpoint("mail/send");
-      request.setBody(mail.build());
-
-      Response response = sendGrid.api(request);
+      Response response = executeMailRequest(mail);
 
       if (isSuccessResponse(response)) {
         String messageId = "sendgrid-" + System.currentTimeMillis();
@@ -156,18 +146,7 @@ public class SendGridEmailAdapter implements EmailPort, AutoCloseable {
             new com.sendgrid.helpers.mail.objects.Email(templateRequest.replyTo().value()));
       }
 
-      if (configuration.sandboxMode()) {
-        Setting sandboxSetting = new Setting();
-        sandboxSetting.setEnable(true);
-        mail.getMailSettings().setSandboxMode(sandboxSetting);
-      }
-
-      Request request = new Request();
-      request.setMethod(Method.POST);
-      request.setEndpoint("mail/send");
-      request.setBody(mail.build());
-
-      Response response = sendGrid.api(request);
+      Response response = executeMailRequest(mail);
 
       if (isSuccessResponse(response)) {
         String messageId = "sendgrid-template-" + System.currentTimeMillis();
@@ -224,7 +203,12 @@ public class SendGridEmailAdapter implements EmailPort, AutoCloseable {
       Mail testMail = new Mail(fromEmail, "SendGrid Connection Test", toEmail, content);
       Setting sandboxSetting = new Setting();
       sandboxSetting.setEnable(true);
-      testMail.getMailSettings().setSandboxMode(sandboxSetting);
+      MailSettings testMailSettings = testMail.getMailSettings();
+      if (testMailSettings == null) {
+        testMailSettings = new MailSettings();
+        testMail.setMailSettings(testMailSettings);
+      }
+      testMailSettings.setSandboxMode(sandboxSetting);
 
       Request request = new Request();
       request.setMethod(Method.POST);
@@ -262,6 +246,24 @@ public class SendGridEmailAdapter implements EmailPort, AutoCloseable {
     } else {
       return new Content("text/plain", "");
     }
+  }
+
+  private Response executeMailRequest(Mail mail) throws IOException {
+    if (configuration.sandboxMode()) {
+      Setting sandboxSetting = new Setting();
+      sandboxSetting.setEnable(true);
+      MailSettings mailSettings = mail.getMailSettings();
+      if (mailSettings == null) {
+        mailSettings = new MailSettings();
+        mail.setMailSettings(mailSettings);
+      }
+      mailSettings.setSandboxMode(sandboxSetting);
+    }
+    Request request = new Request();
+    request.setMethod(Method.POST);
+    request.setEndpoint("mail/send");
+    request.setBody(mail.build());
+    return sendGrid.api(request);
   }
 
   private boolean isSuccessResponse(Response response) {

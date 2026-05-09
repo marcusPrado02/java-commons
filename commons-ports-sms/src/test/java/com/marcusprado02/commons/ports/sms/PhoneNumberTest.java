@@ -79,4 +79,42 @@ class PhoneNumberTest {
     String display = p.toDisplayFormat();
     assertNotNull(display);
   }
+
+  @Test
+  void phoneNumber_without_plus_prefix_gets_normalized() {
+    // covers normalizePhoneNumber: !startsWith("+") true AND length >= 10 true
+    PhoneNumber p = PhoneNumber.of("15551234567");
+    assertEquals("+15551234567", p.toE164());
+  }
+
+  @Test
+  void phoneNumber_france_uses_default_two_digit_country_code() {
+    // covers parseE164 default branch (not 1, 55, 44, 49)
+    PhoneNumber p = PhoneNumber.of("+33123456789");
+    assertEquals("33", p.countryCode());
+  }
+
+  @Test
+  void phoneNumber_toDisplayFormat_us_non_10digit_national() {
+    // covers toDisplayFormat: countryCode=="1" but nationalNumber.length != 10
+    PhoneNumber p = PhoneNumber.of("+1555123456");
+    String display = p.toDisplayFormat();
+    assertTrue(display.startsWith("+1"));
+  }
+
+  @Test
+  void phoneNumber_toDisplayFormat_brazil_short_national() {
+    // covers toDisplayFormat: countryCode=="55" but nationalNumber.length < 10
+    PhoneNumber p = PhoneNumber.of("+55119123456");
+    String display = p.toDisplayFormat();
+    assertTrue(display.startsWith("+55"));
+  }
+
+  @Test
+  void phoneNumber_toDisplayFormat_brazil_number_not_9digits() {
+    // covers toDisplayFormat: nationalNumber >= 10 but number part length != 9
+    PhoneNumber p = PhoneNumber.of("+55111234567890");
+    String display = p.toDisplayFormat();
+    assertTrue(display.startsWith("+55"));
+  }
 }

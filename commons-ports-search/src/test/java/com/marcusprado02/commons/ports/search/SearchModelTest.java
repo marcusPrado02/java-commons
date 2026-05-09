@@ -29,20 +29,17 @@ class SearchModelTest {
 
   @Test
   void searchResult_null_hits_throws() {
-    assertThrows(NullPointerException.class,
-        () -> new SearchResult(null, 0L, 0f, 0L));
+    assertThrows(NullPointerException.class, () -> new SearchResult(null, 0L, 0f, 0L));
   }
 
   @Test
   void searchResult_negative_total_hits_throws() {
-    assertThrows(IllegalArgumentException.class,
-        () -> new SearchResult(List.of(), -1L, 0f, 0L));
+    assertThrows(IllegalArgumentException.class, () -> new SearchResult(List.of(), -1L, 0f, 0L));
   }
 
   @Test
   void searchResult_negative_took_millis_throws() {
-    assertThrows(IllegalArgumentException.class,
-        () -> new SearchResult(List.of(), 0L, 0f, -1L));
+    assertThrows(IllegalArgumentException.class, () -> new SearchResult(List.of(), 0L, 0f, -1L));
   }
 
   // --- Document ---
@@ -71,13 +68,14 @@ class SearchModelTest {
   @Test
   void document_builder_with_all_fields() {
     Instant now = Instant.now();
-    Document doc = Document.builder()
-        .id("doc-2")
-        .field("name", "Alice")
-        .field("age", 30)
-        .score(0.95f)
-        .timestamp(now)
-        .build();
+    Document doc =
+        Document.builder()
+            .id("doc-2")
+            .field("name", "Alice")
+            .field("age", 30)
+            .score(0.95f)
+            .timestamp(now)
+            .build();
     assertEquals("doc-2", doc.id());
     assertEquals("Alice", doc.getField("name"));
     assertEquals(0.95f, doc.score());
@@ -128,8 +126,8 @@ class SearchModelTest {
 
   @Test
   void aggregationResult_null_name_throws() {
-    assertThrows(NullPointerException.class,
-        () -> new AggregationResult(null, List.of(), Map.of()));
+    assertThrows(
+        NullPointerException.class, () -> new AggregationResult(null, List.of(), Map.of()));
   }
 
   @Test
@@ -164,8 +162,8 @@ class SearchModelTest {
 
   @Test
   void bucket_negative_doc_count_throws() {
-    assertThrows(IllegalArgumentException.class,
-        () -> new AggregationResult.Bucket("key", -1L, null));
+    assertThrows(
+        IllegalArgumentException.class, () -> new AggregationResult.Bucket("key", -1L, null));
   }
 
   @Test
@@ -221,24 +219,25 @@ class SearchModelTest {
 
   @Test
   void aggregation_null_name_throws() {
-    assertThrows(NullPointerException.class,
+    assertThrows(
+        NullPointerException.class,
         () -> new Aggregation(null, Aggregation.AggregationType.TERMS, "field", null));
   }
 
   @Test
   void aggregation_null_type_throws() {
-    assertThrows(NullPointerException.class,
-        () -> new Aggregation("name", null, "field", null));
+    assertThrows(NullPointerException.class, () -> new Aggregation("name", null, "field", null));
   }
 
   @Test
   void aggregation_builder_with_all_fields() {
-    Aggregation a = Aggregation.builder()
-        .name("prices")
-        .type(Aggregation.AggregationType.RANGE)
-        .field("price")
-        .size(5)
-        .build();
+    Aggregation a =
+        Aggregation.builder()
+            .name("prices")
+            .type(Aggregation.AggregationType.RANGE)
+            .field("price")
+            .size(5)
+            .build();
     assertEquals("prices", a.name());
     assertEquals(Aggregation.AggregationType.RANGE, a.type());
     assertEquals(5, a.size());

@@ -30,26 +30,29 @@ class TemplateResultTest {
 
   @Test
   void templateResult_null_template_name_throws() {
-    assertThrows(NullPointerException.class,
+    assertThrows(
+        NullPointerException.class,
         () -> new TemplateResult(null, "content", "text/html", StandardCharsets.UTF_8));
   }
 
   @Test
   void templateResult_null_content_throws() {
-    assertThrows(NullPointerException.class,
+    assertThrows(
+        NullPointerException.class,
         () -> new TemplateResult("tmpl", null, "text/html", StandardCharsets.UTF_8));
   }
 
   @Test
   void templateResult_null_content_type_throws() {
-    assertThrows(NullPointerException.class,
+    assertThrows(
+        NullPointerException.class,
         () -> new TemplateResult("tmpl", "content", null, StandardCharsets.UTF_8));
   }
 
   @Test
   void templateResult_null_charset_throws() {
-    assertThrows(NullPointerException.class,
-        () -> new TemplateResult("tmpl", "content", "text/html", null));
+    assertThrows(
+        NullPointerException.class, () -> new TemplateResult("tmpl", "content", "text/html", null));
   }
 
   @Test

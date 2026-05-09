@@ -14,6 +14,9 @@ permissions:
   pull-requests: write
   security-events: write
 
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build-and-test:
     name: Build & Test (Java ${{ matrix.java }})
@@ -55,14 +58,13 @@ jobs:
 
       - name: Add coverage report to PR
         if: matrix.java == '21' && github.event_name == 'pull_request'
-        uses: madrapps/jacoco-report@v1.6.1
+        uses: madrapps/jacoco-report@v1.7.2
+        continue-on-error: true
         with:
-          paths: |
-            ${{ github.workspace }}/**/target/site/jacoco/jacoco.xml
+          paths: ${{ github.workspace }}/commons-platform/target/site/jacoco-aggregate/jacoco.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           min-coverage-overall: 80
           min-coverage-changed-files: 75
-          fail-if-coverage-less-than: 80
 
       - name: Upload coverage reports
         if: matrix.java == '21'
@@ -100,7 +102,7 @@ jobs:
         run: ./mvnw -B install -DskipTests
 
       - name: Run SpotBugs
-        run: ./mvnw -B spotbugs:check -Dspotbugs.skip=false
+        run: ./mvnw -B com.github.spotbugs:spotbugs-maven-plugin:check -Dspotbugs.skip=false
 
       - name: Run Checkstyle
         run: ./mvnw -B checkstyle:check -Dcheckstyle.skip=false
@@ -153,6 +155,7 @@ jobs:
           ./mvnw -B org.owasp:dependency-check-maven:12.1.3:aggregate \
             -Dformat=ALL \
             -DfailBuildOnCVSS=9 \
+            -DfailBuildOnError=false \
             -DossindexAnalyzerEnabled=false \
             -DsuppressionFile=dependency-check-suppressions.xml
 

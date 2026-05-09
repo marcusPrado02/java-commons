@@ -11,13 +11,14 @@ class PaymentModelTest {
 
   @Test
   void payment_builder_with_succeeded_status_is_terminal() {
-    Payment p = Payment.builder()
-        .id("pay-1")
-        .amount(BigDecimal.valueOf(100))
-        .currency("USD")
-        .status(PaymentStatus.SUCCEEDED)
-        .customerId("cust-1")
-        .build();
+    Payment p =
+        Payment.builder()
+            .id("pay-1")
+            .amount(BigDecimal.valueOf(100))
+            .currency("USD")
+            .status(PaymentStatus.SUCCEEDED)
+            .customerId("cust-1")
+            .build();
 
     assertTrue(p.isTerminal());
     assertTrue(p.isSucceeded());
@@ -28,9 +29,14 @@ class PaymentModelTest {
 
   @Test
   void payment_failed_status_is_terminal_and_failed() {
-    Payment p = Payment.builder()
-        .id("pay-2").amount(BigDecimal.ONE).currency("EUR")
-        .status(PaymentStatus.FAILED).customerId("c").build();
+    Payment p =
+        Payment.builder()
+            .id("pay-2")
+            .amount(BigDecimal.ONE)
+            .currency("EUR")
+            .status(PaymentStatus.FAILED)
+            .customerId("c")
+            .build();
     assertTrue(p.isTerminal());
     assertTrue(p.isFailed());
     assertFalse(p.isSucceeded());
@@ -38,25 +44,40 @@ class PaymentModelTest {
 
   @Test
   void payment_canceled_is_terminal() {
-    Payment p = Payment.builder()
-        .id("p").amount(BigDecimal.ONE).currency("USD")
-        .status(PaymentStatus.CANCELED).customerId("c").build();
+    Payment p =
+        Payment.builder()
+            .id("p")
+            .amount(BigDecimal.ONE)
+            .currency("USD")
+            .status(PaymentStatus.CANCELED)
+            .customerId("c")
+            .build();
     assertTrue(p.isTerminal());
   }
 
   @Test
   void payment_refunded_is_terminal() {
-    Payment p = Payment.builder()
-        .id("p").amount(BigDecimal.ONE).currency("USD")
-        .status(PaymentStatus.REFUNDED).customerId("c").build();
+    Payment p =
+        Payment.builder()
+            .id("p")
+            .amount(BigDecimal.ONE)
+            .currency("USD")
+            .status(PaymentStatus.REFUNDED)
+            .customerId("c")
+            .build();
     assertTrue(p.isTerminal());
   }
 
   @Test
   void payment_pending_is_not_terminal() {
-    Payment p = Payment.builder()
-        .id("p").amount(BigDecimal.ONE).currency("USD")
-        .status(PaymentStatus.PENDING).customerId("c").build();
+    Payment p =
+        Payment.builder()
+            .id("p")
+            .amount(BigDecimal.ONE)
+            .currency("USD")
+            .status(PaymentStatus.PENDING)
+            .customerId("c")
+            .build();
     assertFalse(p.isTerminal());
     assertFalse(p.isSucceeded());
     assertFalse(p.isFailed());
@@ -65,12 +86,21 @@ class PaymentModelTest {
   @Test
   void payment_builder_with_optional_fields() {
     Instant now = Instant.now();
-    Payment p = Payment.builder()
-        .id("p").amount(BigDecimal.TEN).currency("BRL")
-        .customerId("c").paymentMethodId("pm-1").description("desc")
-        .statementDescriptor("stmt").receiptEmail("r@r.com")
-        .createdAt(now).updatedAt(now)
-        .metadata(Map.of("k", "v")).error("err").build();
+    Payment p =
+        Payment.builder()
+            .id("p")
+            .amount(BigDecimal.TEN)
+            .currency("BRL")
+            .customerId("c")
+            .paymentMethodId("pm-1")
+            .description("desc")
+            .statementDescriptor("stmt")
+            .receiptEmail("r@r.com")
+            .createdAt(now)
+            .updatedAt(now)
+            .metadata(Map.of("k", "v"))
+            .error("err")
+            .build();
 
     assertTrue(p.paymentMethodId().isPresent());
     assertTrue(p.description().isPresent());
@@ -92,19 +122,20 @@ class PaymentModelTest {
 
   @Test
   void webhookEvent_rejects_null_id() {
-    assertThrows(NullPointerException.class,
+    assertThrows(
+        NullPointerException.class,
         () -> new WebhookEvent(null, "type", null, null, Instant.now()));
   }
 
   @Test
   void webhookEvent_rejects_null_type() {
-    assertThrows(NullPointerException.class,
-        () -> new WebhookEvent("id", null, null, null, Instant.now()));
+    assertThrows(
+        NullPointerException.class, () -> new WebhookEvent("id", null, null, null, Instant.now()));
   }
 
   @Test
   void webhookEvent_rejects_null_occurredAt() {
-    assertThrows(NullPointerException.class,
-        () -> new WebhookEvent("id", "type", null, null, null));
+    assertThrows(
+        NullPointerException.class, () -> new WebhookEvent("id", "type", null, null, null));
   }
 }

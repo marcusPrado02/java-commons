@@ -41,14 +41,12 @@ class PersistenceModelTest {
 
   @Test
   void pageRequest_rejects_null_sort() {
-    assertThrows(NullPointerException.class,
-        () -> new PageRequest(0, 10, null, List.of()));
+    assertThrows(NullPointerException.class, () -> new PageRequest(0, 10, null, List.of()));
   }
 
   @Test
   void pageRequest_rejects_null_filters() {
-    assertThrows(NullPointerException.class,
-        () -> new PageRequest(0, 10, List.of(), null));
+    assertThrows(NullPointerException.class, () -> new PageRequest(0, 10, List.of(), null));
   }
 
   @Test

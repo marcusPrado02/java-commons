@@ -14,15 +14,16 @@ class QueueResultsTest {
   @Test
   void receivedMessage_builder_creates_valid_message() {
     Instant now = Instant.now();
-    ReceivedMessage<String> msg = ReceivedMessage.<String>builder()
-        .messageId("msg-001")
-        .receiptHandle("receipt-handle-xyz")
-        .payload("Hello Queue")
-        .receiveCount(1)
-        .sentTimestamp(now)
-        .messageGroupId("group-1")
-        .attributes(Map.of("key", "value"))
-        .build();
+    ReceivedMessage<String> msg =
+        ReceivedMessage.<String>builder()
+            .messageId("msg-001")
+            .receiptHandle("receipt-handle-xyz")
+            .payload("Hello Queue")
+            .receiveCount(1)
+            .sentTimestamp(now)
+            .messageGroupId("group-1")
+            .attributes(Map.of("key", "value"))
+            .build();
 
     assertEquals("msg-001", msg.messageId());
     assertEquals("receipt-handle-xyz", msg.receiptHandle());
@@ -35,42 +36,49 @@ class QueueResultsTest {
 
   @Test
   void receivedMessage_null_message_id_throws() {
-    assertThrows(NullPointerException.class, () ->
-        ReceivedMessage.<String>builder()
-            .messageId(null)
-            .receiptHandle("handle")
-            .payload("data")
-            .build());
+    assertThrows(
+        NullPointerException.class,
+        () ->
+            ReceivedMessage.<String>builder()
+                .messageId(null)
+                .receiptHandle("handle")
+                .payload("data")
+                .build());
   }
 
   @Test
   void receivedMessage_null_receipt_handle_throws() {
-    assertThrows(NullPointerException.class, () ->
-        ReceivedMessage.<String>builder()
-            .messageId("id")
-            .receiptHandle(null)
-            .payload("data")
-            .build());
+    assertThrows(
+        NullPointerException.class,
+        () ->
+            ReceivedMessage.<String>builder()
+                .messageId("id")
+                .receiptHandle(null)
+                .payload("data")
+                .build());
   }
 
   @Test
   void receivedMessage_null_payload_throws() {
-    assertThrows(NullPointerException.class, () ->
-        ReceivedMessage.<String>builder()
-            .messageId("id")
-            .receiptHandle("handle")
-            .payload(null)
-            .build());
+    assertThrows(
+        NullPointerException.class,
+        () ->
+            ReceivedMessage.<String>builder()
+                .messageId("id")
+                .receiptHandle("handle")
+                .payload(null)
+                .build());
   }
 
   @Test
   void receivedMessage_attributes_returns_defensive_copy() {
-    ReceivedMessage<String> msg = ReceivedMessage.<String>builder()
-        .messageId("id")
-        .receiptHandle("h")
-        .payload("p")
-        .attributes(Map.of("k", "v"))
-        .build();
+    ReceivedMessage<String> msg =
+        ReceivedMessage.<String>builder()
+            .messageId("id")
+            .receiptHandle("h")
+            .payload("p")
+            .attributes(Map.of("k", "v"))
+            .build();
     Map<String, String> attrs = msg.attributes();
     assertEquals("v", attrs.get("k"));
   }
@@ -89,7 +97,8 @@ class QueueResultsTest {
 
   @Test
   void batchSendResult_with_failures() {
-    BatchSendResult.BatchFailure failure = new BatchSendResult.BatchFailure("id-3", "QUEUE_FULL", "Queue is full");
+    BatchSendResult.BatchFailure failure =
+        new BatchSendResult.BatchFailure("id-3", "QUEUE_FULL", "Queue is full");
     BatchSendResult result = new BatchSendResult(List.of(), List.of(failure));
     assertEquals(0, result.successCount());
     assertEquals(1, result.failureCount());
@@ -111,7 +120,8 @@ class QueueResultsTest {
 
   @Test
   void batchDeleteResult_with_failures() {
-    BatchDeleteResult.BatchFailure failure = new BatchDeleteResult.BatchFailure("id-3", "INVALID_HANDLE", "Receipt expired");
+    BatchDeleteResult.BatchFailure failure =
+        new BatchDeleteResult.BatchFailure("id-3", "INVALID_HANDLE", "Receipt expired");
     BatchDeleteResult result = new BatchDeleteResult(List.of(), List.of(failure));
     assertEquals(0, result.successCount());
     assertEquals(1, result.failureCount());

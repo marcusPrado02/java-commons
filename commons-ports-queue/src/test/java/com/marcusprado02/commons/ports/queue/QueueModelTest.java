@@ -10,9 +10,7 @@ class QueueModelTest {
 
   @Test
   void queueMessage_builder_with_payload() {
-    QueueMessage<String> msg = QueueMessage.<String>builder()
-        .payload("hello")
-        .build();
+    QueueMessage<String> msg = QueueMessage.<String>builder().payload("hello").build();
 
     assertEquals("hello", msg.payload());
     assertTrue(msg.delay().isEmpty());
@@ -22,13 +20,14 @@ class QueueModelTest {
 
   @Test
   void queueMessage_builder_with_all_fields() {
-    QueueMessage<String> msg = QueueMessage.<String>builder()
-        .payload("data")
-        .attribute("k", "v")
-        .delay(Duration.ofSeconds(30))
-        .messageGroupId("group-1")
-        .deduplicationId("dedup-1")
-        .build();
+    QueueMessage<String> msg =
+        QueueMessage.<String>builder()
+            .payload("data")
+            .attribute("k", "v")
+            .delay(Duration.ofSeconds(30))
+            .messageGroupId("group-1")
+            .deduplicationId("dedup-1")
+            .build();
 
     assertEquals("data", msg.payload());
     assertEquals("v", msg.attributes().get("k"));
@@ -40,17 +39,17 @@ class QueueModelTest {
 
   @Test
   void queueMessage_rejects_null_payload() {
-    assertThrows(NullPointerException.class, () ->
-        QueueMessage.builder().payload(null).build());
+    assertThrows(NullPointerException.class, () -> QueueMessage.builder().payload(null).build());
   }
 
   @Test
   void queueMessage_attributes_replaces_entries() {
-    QueueMessage<String> msg = QueueMessage.<String>builder()
-        .payload("p")
-        .attribute("a", "1")
-        .attributes(Map.of("b", "2"))
-        .build();
+    QueueMessage<String> msg =
+        QueueMessage.<String>builder()
+            .payload("p")
+            .attribute("a", "1")
+            .attributes(Map.of("b", "2"))
+            .build();
     assertFalse(msg.attributes().containsKey("a"));
     assertEquals("2", msg.attributes().get("b"));
   }

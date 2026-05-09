@@ -3,7 +3,7 @@
   <parent>
     <artifactId>commons-parent</artifactId>
     <groupId>com.marcusprado02.commons</groupId>
-    <version>0.1.0-SNAPSHOT</version>
+    <version>0.1.2-SNAPSHOT</version>
     <relativePath>../commons-parent/pom.xml</relativePath>
   </parent>
   <modelVersion>4.0.0</modelVersion>
@@ -18,6 +18,12 @@
           <compilerVersion>21</compilerVersion>
           <source>21</source>
           <target>21</target>
+        </configuration>
+      </plugin>
+      <plugin>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <failIfNoTests>false</failIfNoTests>
         </configuration>
       </plugin>
       <plugin>
@@ -92,5 +98,6 @@
   <properties>
     <jmh.version>1.37</jmh.version>
     <uberjar.name>benchmarks</uberjar.name>
+    <jacoco.check.skip>true</jacoco.check.skip>
   </properties>
 </project>

@@ -123,9 +123,7 @@ public class RedisCacheAdapter<V> implements CachePort<String, V> {
       if (keyPrefix.isEmpty()) {
         return keys;
       }
-      return keys.stream()
-          .map(k -> k.substring(keyPrefix.length()))
-          .collect(Collectors.toSet());
+      return keys.stream().map(k -> k.substring(keyPrefix.length())).collect(Collectors.toSet());
     } catch (DataAccessException e) {
       logger.error("Error getting keys", e);
       return Set.of();
