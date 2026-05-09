@@ -58,7 +58,7 @@ jobs:
 
       - name: Add coverage report to PR
         if: matrix.java == '21' && github.event_name == 'pull_request'
-        uses: madrapps/jacoco-report@v1.6.1
+        uses: madrapps/jacoco-report@v1.7.2
         continue-on-error: true
         with:
           paths: ${{ github.workspace }}/commons-platform/target/site/jacoco-aggregate/jacoco.xml
